@@ -1,0 +1,30 @@
+---
+title: "Untitled"
+author: "George G. Vega Yon"
+date: "September 19, 2018"
+output: html_document
+---
+
+Idea: Use brute-force driven method to compute all possible networks+
+
+```{r}
+library(sna)
+library(ergm)
+
+x <- sna::rgraph(4, tprob = .3)
+
+ans <- ergm(
+  x ~ edges + balance + mutual,
+  control = control.ergm(
+    main.method     = "Stochastic-Approximation",
+    force.main      = TRUE,
+    MCMC.samplesize = 1024*5
+  ))
+
+op <- par(mfrow=c(2, 3))
+plot(gof(ans))
+gplot(x)
+par(op)
+summary(ans)
+```
+
