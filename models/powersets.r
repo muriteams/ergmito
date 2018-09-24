@@ -1,3 +1,5 @@
+rm(list=ls())
+
 powerset <- function(n) {
   
   set   <- 1:(n*(n-1))
@@ -25,8 +27,6 @@ library(parallel)
 library(sna)
 library(ergm)
 
-
-
 stats <- parallel::mclapply(sets, function(s) {
   
   ans <- matrix(0, ncol=n, nrow=n)
@@ -34,35 +34,76 @@ stats <- parallel::mclapply(sets, function(s) {
   summary(ans ~ mutual + edges)
 })
 
-S <- do.call(rbind, stats)
-Smeans <- colMeans(S)["edges"]
-S <- S - matrix(Smeans, nrow = nrow(S), ncol=ncol(S), byrow = TRUE)
 
 set.seed(1155)
 net    <- as.matrix(netdiffuseR::rgraph_er(n, p = .75))
-stats0 <- summary(net ~ mutual + edges) - Smeans
+stats0 <- summary(net ~ mutual + edges)
+
+S <- do.call(rbind, stats)
+S <- S - matrix(stats0, nrow=nrow(S), ncol=ncol(S), byrow = TRUE)
+stats0 <- stats0 - stats0
+
+# Optimization
 ll <- function(params) {
   
-  P <- matrix(params, ncol=length(params), nrow=nrow(S), byrow = TRUE)
-  sum(stats0*params) - log(sum(exp(P * S)))
+  - log(sum(exp(S %*% params)))
   
 }
 
 gr <- function(params) {
   
-  P <- matrix(params, ncol=length(params), nrow=nrow(S), byrow = TRUE)
-  sum(stats0) - 1/sum(exp(P * S))*sum(exp(P * S)*S)
+  # Sum(exp())
+  exp_sum <- exp(S %*% params)
+
+  - 1/log(sum(exp_sum))*(t(S) %*% exp_sum)
   
+
 }
 
-sol  <- optim(par = rnorm(npars), fn = ll, gr = gr, control=list(fnscale=-1, reltol=1e-25, maxit=2e3));sol
-sol2 <- ergm(net ~ mutual + edges, control =control.ergm(MCMC.samplesize = 2e3,MCMC.interval = 2e3));summary(sol2) 
+sol  <- optim(
+  par    = rnorm(npars),
+  fn     = ll,
+  gr     = gr,
+  method = "BFGS",
+  control= list(
+    fnscale = -1,
+    reltol  = 1e-25,
+    maxit   = 2e3
+    )
+  )
+sol
+
+# ERGM
+sol2 <- ergm(
+  net ~ mutual + edges,
+  control = control.ergm(MCMC.samplesize = 2e3,MCMC.interval = 2e3))
+
+# Comparing side by side
+
 ll(sol2$coef)
-sol$par
 ll(sol$par)
 sol$par;sqrt(diag(-solve(optimHess(sol$par, ll))))
+summary(sol2) 
 
 ergm.exact(sol2$coef, sol2$formula)
 ergm.exact(sol$par, sol2$formula)
-ergm.allstats(sol2$formula)
-unique(S)
+
+# Comparing statistics ---------------------------------------------------------
+X0 <- ergm.allstats(sol2$formula)
+X0 <- do.call(cbind, X0)[,c(2:3,1)]
+X0 <- X0[order(X0[,1], X0[,2]),]
+
+# My version
+X1 <- S
+X1 <- table(X1[,1], X1[,2])
+X1 <- cbind(
+  expand.grid(
+    as.integer(rownames(X1)),
+    as.integer(colnames(X1))
+    ),
+  as.vector(X1)
+)
+
+X1 <- X1[X1[,3] > 0,]
+X1 <- X1[order(X1[,1], X1[,2]),]
+X0-X1

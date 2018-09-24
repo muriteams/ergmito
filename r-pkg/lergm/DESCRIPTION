@@ -1,0 +1,16 @@
+Package: lergm
+Version: 0.0.999
+Date: 2018-09-24
+Title: Estimation of Little 'ERGMs' using exact likelihood
+Depends: R (>= 3.3.0)
+Authors@R: 
+    c(person(given = "George",
+             family = "Vega Yon",
+             role = c("cre","aut"),
+             email = "g.vegayon@gmail.com"))
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.0
+Encoding: UTF-8
+Imports: 
+    ergm,
+    stats

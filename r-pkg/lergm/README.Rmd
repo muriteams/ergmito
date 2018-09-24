@@ -1,0 +1,52 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# lergm: Estimation of Little 'ERGMs' using exact likelihood
+
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) 
+[![CRAN status](https://www.r-pkg.org/badges/version/lergm)](https://cran.r-project.org/package=lergm)
+
+The development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("USCCANA/social-smarts/r-pkg/lergm")
+```
+## Example
+
+An example from the manual
+
+```{r}
+library(lergm)
+
+# Generating a small graph
+set.seed(12)
+n <- 4
+net <- sna::rgraph(n, tprob = .7)
+
+model <- net ~ edges + mutual + balance
+
+library(ergm)
+ans_lergm <- lergm(model)
+ans_ergm  <- ergm(model)
+
+# The lergm should have a larger value
+ergm.exact(ans_lergm$coef, model)
+ergm.exact(ans_ergm$coef, model)
+
+summary(ans_lergm)
+summary(ans_ergm)
+```
+
+
