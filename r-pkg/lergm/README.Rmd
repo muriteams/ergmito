@@ -7,6 +7,8 @@ output: github_document
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  message = FALSE,
+  warning = FALSE,
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "100%"
@@ -27,14 +29,20 @@ devtools::install_github("USCCANA/social-smarts/r-pkg/lergm")
 
 An example from the manual
 
-```{r}
+## When `ergm` is not enough
+
+```{r net1}
 library(lergm)
+library(sna)
 
 # Generating a small graph
 set.seed(12)
 n <- 4
 net <- sna::rgraph(n, tprob = .7)
+gplot(net)
+```
 
+```{r}
 model <- net ~ edges + mutual + balance
 
 library(ergm)
@@ -49,4 +57,30 @@ summary(ans_lergm)
 summary(ans_ergm)
 ```
 
+## Do we get the same?
+
+```{r net2}
+# Generating a small graph
+set.seed(12123)
+n   <- 4
+net <- sna::rgraph(n, tprob = .3)
+gplot(net)
+```
+
+```{r}
+model <- net ~ edges + mutual
+
+library(ergm)
+ans_lergm <- lergm(model)
+ans_ergm  <- ergm(model, control = control.ergm(
+  MCMC.effectiveSize = 4000,
+  seed = 444)
+  )
+
+# The lergm should have a larger value
+ergm.exact(ans_lergm$coef, model) > ergm.exact(ans_ergm$coef, model)
+
+summary(ans_lergm)
+summary(ans_ergm)
+```
 
