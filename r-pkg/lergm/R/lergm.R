@@ -31,7 +31,7 @@
 #' summary(ans_ergm)
 lergm <- function(
   formula,
-  control = list(),
+  control = list(maxit = 1e3, reltol=1e-30),
   allstats_force = TRUE,
   offset = NULL
   ) {
@@ -48,7 +48,7 @@ lergm <- function(
   ans <- stats::optim(
     par     = (init <- rnorm(npars)),
     fn      = ll,
-    # gr      = gr,
+    gr      = gr,
     method  = "BFGS",
     weights = astats$weights,
     stats   = astats$statmat,
@@ -56,7 +56,8 @@ lergm <- function(
     hessian = TRUE
   )
   
-  colnames(astats$statmat) <- attr(ergm.getterms(formula), "term.labels")
+  colnames(astats$statmat) <- as.character(
+    statnet.common::list_rhs.formula(formula))
   names(ans$par) <- colnames(astats$statmat)
   
   lergm_class(
@@ -150,7 +151,7 @@ gr <- function(params, weights, stats) {
   
   exp_sum <- exp(stats %*% params)
   
-  - 1/log(weights %*% exp_sum)*(t(stats) %*% (exp_sum*weights))
+  - 1/log(weights %*% exp_sum)[1]*(t(stats) %*% (exp_sum*weights))
   
   
 }

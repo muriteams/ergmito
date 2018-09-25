@@ -61,13 +61,13 @@ summary(ans_lergm)
 #> Iterations:  100 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>         Estimate Std. Error MCMC % p-value
-#> edges     -0.317      1.917     29   0.872
-#> mutual     2.330      2.965     29   0.452
-#> balance   -7.412     53.755     29   0.893
+#>         Estimate Std. Error MCMC % z value Pr(>|z|)
+#> edges     -0.317      1.917     29  -0.165    0.869
+#> mutual     2.330      2.965     29   0.786    0.432
+#> balance   -7.412     53.755     29  -0.138    0.890
 #> 
-#>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 13.12  on  9  degrees of freedom
+#>      Null Deviance: 16.64  on  0  degrees of freedom
+#>  Residual Deviance: 13.12  on -3  degrees of freedom
 #>  
 #> AIC: 31.12    BIC: 35.48    (Smaller is better.)
 summary(ans_ergm)
@@ -81,10 +81,10 @@ summary(ans_ergm)
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>         Estimate Std. Error MCMC % p-value    
-#> edges   -0.01606    1.22316      0    0.99    
-#> mutual  20.68287         NA     NA      NA    
-#> balance     -Inf    0.00000      0  <1e-04 ***
+#>         Estimate Std. Error MCMC % z value Pr(>|z|)    
+#> edges   -0.01198    1.20677      0   -0.01    0.992    
+#> mutual  20.68287         NA     NA      NA       NA    
+#> balance     -Inf    0.00000      0    -Inf   <1e-04 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
@@ -137,12 +137,12 @@ summary(ans_lergm)
 #> Iterations:  9 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>        Estimate Std. Error MCMC % p-value
-#> edges    -1.099      1.291     29   0.415
-#> mutual    1.098      2.582     29   0.680
+#>        Estimate Std. Error MCMC % z value Pr(>|z|)
+#> edges    -1.099      1.291     29  -0.851    0.395
+#> mutual    1.098      2.582     29   0.425    0.671
 #> 
-#>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 14.91  on 10  degrees of freedom
+#>      Null Deviance: 16.64  on  0  degrees of freedom
+#>  Residual Deviance: 14.91  on -2  degrees of freedom
 #>  
 #> AIC: 34.91    BIC: 39.76    (Smaller is better.)
 summary(ans_ergm)
@@ -156,9 +156,9 @@ summary(ans_ergm)
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>        Estimate Std. Error MCMC % p-value
-#> edges   -1.0915     0.9019      0   0.254
-#> mutual   1.0715     1.8232      0   0.570
+#>        Estimate Std. Error MCMC % z value Pr(>|z|)
+#> edges   -1.1003     0.9041      0  -1.217    0.224
+#> mutual   1.1008     1.8194      0   0.605    0.545
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
 #>  Residual Deviance: 14.90  on 10  degrees of freedom
