@@ -23,3 +23,12 @@ We define the infered social structure as follows $\hat A(G) = \left\{a_{ij}\rig
 where $a_{ij} = \mathbf{1}\left(a^i_{ij} = a^j_{ij}\right)$, i.e. if both $i$ and
 $j$ agree in the existance of such tie.
 
+# Simulation model
+
+Each team's performance level, call it $Y$, has a binomial distribution with
+parameters $M$ and $p$, where $M$ is the maximum number of correct tasks done and
+$p = \mbox{logit}(\theta^\mathbf{t}g(X, G))$.
+
+The idea is that $g(X,G)$ can be a set of statistics defined by both the graph and
+groups' features such as number of triads, and so on.
+
