@@ -1,3 +1,7 @@
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib lergm, .registration = TRUE
+NULL
+
 #' Estimation of ERGMs using Exact likelihood functions
 #' 
 #' As a difference from [ergm::ergm][ergm], `lergm` uses the exact log-likelihood
@@ -47,8 +51,8 @@ lergm <- function(
   
   ans <- stats::optim(
     par     = (init <- rnorm(npars)),
-    fn      = ll,
-    gr      = gr,
+    fn      = exact_loglik,
+    gr      = exact_loglik_gr,
     method  = "BFGS",
     weights = astats$weights,
     stats   = astats$statmat,
@@ -141,13 +145,13 @@ lergm_class <- function(
 }
 
 # Optimization
-ll <- function(params, weights, stats) {
+exact_loglik <- function(params, weights, stats) {
   
   - log(weights %*% exp(stats %*% params))
   
 }
 
-gr <- function(params, weights, stats) {
+exact_loglik_gr <- function(params, weights, stats) {
   
   exp_sum <- exp(stats %*% params)
   

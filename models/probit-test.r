@@ -24,7 +24,7 @@ ans1$par[-1]/ans1$par[1]
 # Models -----------------------------------------------------------------------
 
 set.seed(1)
-b <- c(-2, 4, 1)
+b <- c(-2, 4, 1)/10
 X <- cbind(
   rbinom(n, 2, .5),
   rbeta(n, 8, 2),
@@ -32,22 +32,52 @@ X <- cbind(
   )
 
 # Simulating the data
-pr <- plogis(X %*% b)
+# pr <- plogis(X %*% b)
+# pr <- pbeta(exp(X %*% b))
 
 # Generating the data
-Y <- rbinom(n, 10, pr)
-
-# Log-likelihood
-mle <- function(p) 
-  sum(log(dbinom(Y, 10, plogis(X %*% p))))
+# Y <- rbinom(n, 10, pr)
+# X <- scale(X)
+xp <- exp(X %*% b)
+Y <- rbeta(n, xp, 1.5)
+# Y <- rlogis(n, exp(X %*% b))
+hist(Y, breaks=50)
+library(stats4)
+beta_mle <- function(Y, X) {
   
+  call <- match.call()
+  ll <- function(p)
+    sum(log(dbeta(Y, exp(X %*% p[-1]), exp(p[1]))))
+  
+  sol <- optim(
+    rnorm(ncol(X) + 1),
+    ll,
+    control=list(fnscale = -1, reltol=1e-20),
+    hessian = TRUE
+    )
+  
+  cnames <- colnames(X)
+  if (!length(cnames))
+    cnames <- paste0("X", 1:ncol(X))
 
-ans1 <- optim(rnorm(3), mle, control=list(fnscale = -1, reltol=1e-20), hessian = TRUE)
+  cnames <- c("beta", cnames)
+  
+  new(
+    "mle",
+    call      = call,
+    coef      = structure(sol$par, names = cnames),
+    fullcoef  = structure(sol$par, names = cnames),
+    vcov      = structure(-solve(sol$hessian), dimnames = list(cnames, cnames)),
+    min       = sol$value,
+    details   = sol,
+    minuslogl = function(x) -ll(x),
+    nobs      = length(Y),
+    method    = "BFGS"
+    )
+  
+}
 
-# Results
-cat(sprintf(
-  "%8.4f (%0.2f)",
-  ans1$par,
-  sqrt(-diag(solve(ans1$hessian)))
-), sep="\n")
 
+ans <- beta_mle(Y, X)
+
+summary(ans)

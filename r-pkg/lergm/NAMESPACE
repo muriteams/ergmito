@@ -3,3 +3,6 @@
 S3method(print,lergm)
 S3method(summary,lergm)
 export(lergm)
+export(powerset)
+importFrom(Rcpp,sourceCpp)
+useDynLib(lergm, .registration = TRUE)

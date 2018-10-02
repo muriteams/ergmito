@@ -4,8 +4,8 @@
 \alias{lergm}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
-lergm(formula, control = list(), allstats_force = TRUE,
-  offset = NULL)
+lergm(formula, control = list(maxit = 1000, reltol = 1e-30),
+  allstats_force = TRUE, offset = NULL)
 }
 \arguments{
 \item{formula, control, offset}{See \link[ergm:ergm]{ergm::ergm}.}
