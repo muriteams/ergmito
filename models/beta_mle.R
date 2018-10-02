@@ -71,6 +71,7 @@ permute_graph <- function(G, p) {
   
   n <- nrow(G)
   swap <- which(runif(n*n) < (1-p))
+  
   G[swap] <- 1 - G[swap]
   
   diag(G) <- 0L
@@ -80,10 +81,10 @@ permute_graph <- function(G, p) {
 }
 
 # Computes the hamming distance between the observed and predicted network.
-hamming <- function(G0, G) {
+hamming <- function(G0, G, i) {
   
-  n <- ncol(G0)
-  1 - sum(abs(G0 - G))/(n*(n-1))
+  n <- ncol(G0)-1
+  1 - sum(abs(G0[-i,-i] - G[-i, -i]))/(n*(n-1))
   
 }
 
@@ -104,7 +105,9 @@ sim_team <- function(n, dens, prec) {
     G0       = G0,
     G        = G,
     prec     = mean(prec),
-    prec_hat = mean(sapply(G, hamming, G0 = G0)),
+    prec_hat = mean(
+      unlist(Map(hamming, G0 = replicate(n,G0, simplify = FALSE), G = G, i=1:n))
+      ),
     n        = n
   )
 }
