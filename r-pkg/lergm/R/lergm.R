@@ -12,6 +12,8 @@ NULL
 #' 
 #' @param formula,control,offset See [ergm::ergm].
 #' @param allstats_force Logical. Passed to [ergm::ergm.allstats].
+#' @param astats List as returned by [ergm::ergm.allstats]. When this is provided,
+#' the function does not call `ergm.allstats`, which can be useful in simulations.
 #' @return An object of class `ergm` and `lergm`.
 #' @export
 #' @examples 
@@ -35,14 +37,17 @@ NULL
 #' summary(ans_ergm)
 lergm <- function(
   formula,
-  control = list(maxit = 1e3, reltol=1e-30),
+  control        = list(maxit = 1e3, reltol=1e-30),
   allstats_force = TRUE,
-  offset = NULL
+  offset         = NULL,
+  stats          = NULL
   ) {
   
   # Calculate centered stats
-  astats <- ergm::ergm.allstats(formula, zeroobs = TRUE, force = allstats_force)
-  npars  <- ncol(astats$statmat)
+  if (!length(stats))
+    stats <- ergm::ergm.allstats(formula, zeroobs = TRUE, force = allstats_force)
+  
+  npars  <- ncol(stats$statmat)
   
   if (!length(offset))
     offset <- rep(FALSE, npars)
@@ -54,24 +59,24 @@ lergm <- function(
     fn      = exact_loglik,
     gr      = exact_loglik_gr,
     method  = "BFGS",
-    weights = astats$weights,
-    stats   = astats$statmat,
+    weights = stats$weights,
+    stats   = stats$statmat,
     control = control,
     hessian = TRUE
   )
   
-  colnames(astats$statmat) <- as.character(
+  colnames(stats$statmat) <- as.character(
     statnet.common::list_rhs.formula(formula))
-  names(ans$par) <- colnames(astats$statmat)
+  names(ans$par) <- colnames(stats$statmat)
   
   lergm_class(
     coef          = ans$par,
-    sample        = astats$statmat,
+    sample        = stats$statmat,
     sample.obs    = NULL,
     iterations    = ans$counts["function"],
     loglikelihood = ans$value,
     gradient      = NULL,
-    covar         = -solve(ans$hessian),
+    covar         = -MASS::ginv(ans$hessian),
     network       = ergm::ergm.getnetwork(formula),
     coef.init     = init,
     formula       = formula,
@@ -130,7 +135,7 @@ lergm_class <- function(
       formula = formula,
       estimate = estimate,
       control = ergm::control.ergm(),
-      mle.lik = structure(loglikelihood, nobs = n, class="logLik", df=n-length(coef)),
+      mle.lik = structure(loglikelihood, nobs = n, class="logLik", df=n*(n-1)/2-length(coef)),
       null.lik = NULL,
       constrained = NULL,
       constraints = ~.,

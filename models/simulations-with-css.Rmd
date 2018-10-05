@@ -60,12 +60,12 @@ Here we are controlling for:
 
 [See @Hunter2008].
 
-# Example with precision
+# Example with accuracy
 
 For each team $T$, we defined the following statistic:
 
 $$
-S_T\equiv 1 - \frac{1}{n(n-1)}\sum_{i \in N}H(G_i,G_T)
+A_T\equiv 1 - \frac{1}{n(n-1)}\sum_{i \in N}H(G_i,G_T)
 $$
 
 Where $H$ is the hamming distance, $G_i$ is $i$'s Cognitive Social Structure, and $G_T$ is the true network.
@@ -82,7 +82,7 @@ call it $G_i$.
 2.  Generate $n_i$ other graphs by permuting $G_i$ with different levels of accuracy $a_{ij}$
 
 3.  Generate $Y_i \sim \text{Beta}\left(\exp{\left(\theta^\text{t}X_i\right)}, 1.5\right)$,
-where $X_i$ is a vector of team level statistics, including $a_i = n_i^{-1}\sum_j a_{ij}$,
+where $X_i$ is a vector of team level statistics, including $\hat a_i = n_i^{-1}\sum_j \hat a_{ij}$,
 the average level of accuracy. The resulting value $Y_i$ will be between 0 and 1.
 
 Once all $N$ teams have been simulated, estimate the model using MLE
@@ -98,13 +98,13 @@ set.seed(65454)
 
 source("beta_mle.R")
 
-n_sims  <- 200
+n_sims  <- 1000
 n_teams <- 50
 n       <- replicate(n_sims, sample(c(3, 4, 5), n_teams, TRUE), simplify = FALSE)
 dens    <- replicate(n_sims, runif(n_teams), simplify = FALSE)
 prec    <- replicate(n_sims, runif(n_teams), simplify = FALSE)
 
-theta   <- replicate(n_sims, rnorm(3), simplify=FALSE)
+theta   <- replicate(n_sims, runif(3, -2, 2), simplify=FALSE)
 X       <- lapply(n, function(n0) {
   cbind(
     X1 = rbinom(n_teams, n0, .5)/n0,
@@ -151,10 +151,12 @@ ans <- parallel::mcmapply(
   n = n, dens=dens, prec=prec, X=X, theta=theta, mc.cores = 8,
   SIMPLIFY = FALSE
   )
+
 ```
 
 ```{r mle, cache=TRUE}
 # Estimating models ------------------------------------------------------------
+
 mles0 <- parallel::mcmapply(function(dat, x) {
   
   # Extracting the data
@@ -187,8 +189,8 @@ mles2 <- parallel::mcmapply(function(dat, x) {
   # Extracting the data
   d <- cbind(
     y = sapply(dat, "[[", "response"),
-    hamming_distance = sapply(dat, "[[", "prec_hat"),
-    group_size = sapply(dat, "[[", "n"),
+    hamming = sapply(dat, "[[", "prec_hat"),
+    size = sapply(dat, "[[", "n"),
     X = x
   )
   
@@ -204,19 +206,19 @@ pvals0 <- lapply(mles0, function(model) {
   tryCatch(calc_pval(model@coef, model@vcov), error =function(e) NULL)
   })
 pvals0 <- do.call(rbind, pvals0)
-boxplot(1 - pvals0, main="Power")
+boxplot(1 - pvals0, main="1 - Pvalue")
 
 pvals1 <- lapply(mles1, function(model) {
   tryCatch(calc_pval(model@coef, model@vcov), error =function(e) NULL)
   })
 pvals1 <- do.call(rbind, pvals1)
-boxplot(1 - pvals1, main="Power")
+boxplot(1 - pvals1, main="1 - Pvalue")
 
 pvals2 <- lapply(mles2, function(model) {
   tryCatch(calc_pval(model@coef, model@vcov), error =function(e) NULL)
   })
 pvals2 <- do.call(rbind, pvals2)
-boxplot(1 - pvals2, main="Power")
+boxplot(1 - pvals2, main="1 - Pvalue")
 
 ```
 

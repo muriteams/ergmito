@@ -1,0 +1,81 @@
+---
+title: "Bias in Little ERGMs"
+author: "George G. Vega Yon"
+date: "October 5, 2018"
+output: html_document
+---
+
+```{r simulation-parameters}
+library(lergm)
+library(ergm)
+nsim <- 1000
+n    <- 3
+NCORES <- 4
+```
+
+
+```{r data-generating-process, cache=TRUE, dependson=-1}
+net_sampler <- function(theta, n) {
+  
+  # Generating the power set of networks
+  G <- powerset(n, mc_cores = NCORES)
+  
+  # Computing statistics
+  S <- parallel::mclapply(G, function(g) summary(g ~ edges + balance + mutual),
+                          mc.cores = NCORES)
+  S <- do.call(rbind, S)
+  
+  # Centering at about the first
+  s <- summary(G[[1]] ~ edges + balance + mutual)
+  S <- S - matrix(s, ncol=3, nrow=nrow(S), byrow = TRUE)
+  
+  Pr <- lergm:::exact_loglik(theta, rep(1, nrow(S)), S)[1]
+  Pr <- exp(S %*% theta + Pr)
+  
+  function(m) {
+    
+    idx <- sample.int(length(G), m, TRUE, prob = Pr)
+    
+    structure(
+      G[idx],
+      stats = S
+    )
+    
+  }
+  
+  
+}
+
+set.seed(1)
+params <- matrix(rnorm(1e3*3), ncol=3)
+G <- net_sampler(params[1,], n = n)
+```
+
+```{r parameter-estimates, cache=TRUE, autodep=TRUE}
+Gsample <- G(nsim)
+Ssample <- list(
+  weights = rep(1, nrow(attr(Gsample, "stats"))),
+  statmat = attr(Gsample, "stats")
+)
+
+sim1 <- parallel::mclapply(Gsample, function(g) {
+  
+  coef(lergm(g ~ edges + balance + mutual, stats = Ssample))
+  
+}, mc.cores = 2)
+```
+
+```{r bias}
+
+sim1 <- do.call(rbind, sim1)
+
+boxplot(
+  matrix(params[1,], ncol=3, nrow=nsim) - sim1, 
+  main = "Estimation Biases",
+  xlab = "Parameter"
+  )
+
+```
+
+
+
