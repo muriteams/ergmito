@@ -1,4 +1,4 @@
-#' 
+#' Simulation method
 #' @export
 simulate.lergm <- function(
   object,

@@ -29,10 +29,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// S14
+NumericMatrix S14(const std::vector<IntegerMatrix>& M);
+RcppExport SEXP _lergm_S14(SEXP MSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector<IntegerMatrix>& >::type M(MSEXP);
+    rcpp_result_gen = Rcpp::wrap(S14(M));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lergm_make_sets", (DL_FUNC) &_lergm_make_sets, 1},
     {"_lergm_powerset", (DL_FUNC) &_lergm_powerset, 2},
+    {"_lergm_S14", (DL_FUNC) &_lergm_S14, 1},
     {NULL, NULL, 0}
 };
 

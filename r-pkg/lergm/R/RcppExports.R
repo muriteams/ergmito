@@ -9,3 +9,7 @@ make_sets <- function(n) {
     .Call(`_lergm_powerset`, n, force)
 }
 
+.S14 <- function(M) {
+    .Call(`_lergm_S14`, M)
+}
+

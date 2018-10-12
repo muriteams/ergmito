@@ -5,12 +5,15 @@
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
 lergm(formula, control = list(maxit = 1000, reltol = 1e-30),
-  allstats_force = TRUE, offset = NULL)
+  allstats_force = TRUE, offset = NULL, stats = NULL)
 }
 \arguments{
 \item{formula, control, offset}{See \link[ergm:ergm]{ergm::ergm}.}
 
 \item{allstats_force}{Logical. Passed to \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
+
+\item{astats}{List as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}. When this is provided,
+the function does not call \code{ergm.allstats}, which can be useful in simulations.}
 }
 \value{
 An object of class \code{ergm} and \code{lergm}.
