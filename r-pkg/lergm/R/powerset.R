@@ -1,25 +1,42 @@
+make_chunks <- function(N, chunk_size) {
+  
+  if (chunk_size > N)
+    return(list(from=0, to=N))
+  
+  chunks <- seq(0, N, by = chunk_size)
+  chunks <- list(from = chunks[-length(chunks)], to = chunks[-1]+1)
+  chunks$to[length(chunks$to)] <- N
+  
+  chunks
+  
+}
+
+
 #' Power set of Directed Graphs of size `n`
 #' @param n Integer. Number of edges.
 #' @param force Logical. When `TRUE` it generates the powerset for `n>5`, otherwise
 #' it returns with error.
-#' @param as_matrix Logical. When `TRUE` it returns a list of matrices of size `n`,
-#' otherwise it returns a list of vectors with the not-zero locations of the
-#' matrix in column-major form.
-#' @param mc_cores Integer. Passed to [parallel::mclapply]
 #' @examples 
 #' powerset(2)
 #' @export
-powerset <- function(n, force=FALSE, as_matrix=TRUE, mc_cores=2L) {
+powerset <- function(n, force=FALSE, mc_cores = getOption("mc.cores", 2L),
+                     chunk_size = 1e5) {
   
-  s <- .powerset(n, force)
-  m0 <- matrix(0, ncol=n, nrow=n)
-  if (as_matrix) {
-    return(parallel::mclapply(s, function(m) {
-      m0[m + 1L] <- 1
-      m0
-      }, mc.cores = mc_cores))
+  # Calculating power sets
+  sets <- .powerset(n, force)
+  
+  N <- 2^(n*(n-1))
+  chunks <- make_chunks(N, chunk_size = chunk_size)
+  
+  ans <- vector("list", N)
+  for (s in seq_along(length(chunks$from))) {
+
+    i <- chunks$from[s]
+    j <- chunks$to[s]
+    
+    ans[c((i+1):j)] <- wrap_powerset(sets, from=i, to=j, n=n)
+    
   }
   
-  parallel::mclapply(s, "+", 1, mc.cores=mc_cores)
-  
+  ans
 }

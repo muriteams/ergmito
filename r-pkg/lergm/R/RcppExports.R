@@ -9,7 +9,27 @@ make_sets <- function(n) {
     .Call(`_lergm_powerset`, n, force)
 }
 
+print_powerset <- function(sets) {
+    .Call(`_lergm_print_powerset`, sets)
+}
+
+wrap_powerset <- function(sets, from, to, n) {
+    .Call(`_lergm_wrap_powerset`, sets, from, to, n)
+}
+
 .S14 <- function(M) {
-    .Call(`_lergm_S14`, M)
+    .Call(`_lergm_S14_`, M)
+}
+
+.hamming <- function(M, normalized = FALSE) {
+    .Call(`_lergm_hamming_`, M, normalized)
+}
+
+.starwid <- function(M, normalized = FALSE) {
+    .Call(`_lergm_starwid_`, M, normalized)
+}
+
+.dennis <- function(M, normalized = FALSE) {
+    .Call(`_lergm_dennis_`, M, normalized)
 }
 

@@ -4,29 +4,61 @@
 \alias{S14}
 \alias{S14.list}
 \alias{S14.matrix}
-\title{S14 similarity index}
+\alias{hamming}
+\alias{hamming.matrix}
+\alias{hamming.list}
+\alias{starwid}
+\alias{starwid.matrix}
+\alias{starwid.list}
+\alias{dennis}
+\title{Similarity indexes}
 \usage{
 S14(x, ...)
 
 \method{S14}{list}(x, ...)
 
 \method{S14}{matrix}(x, ...)
+
+hamming(x, ..., normalized = FALSE)
+
+\method{hamming}{matrix}(x, ..., normalized = FALSE)
+
+\method{hamming}{list}(x, ..., normalized = FALSE)
+
+starwid(x, ..., normalized = FALSE)
+
+\method{starwid}{matrix}(x, ..., normalized = FALSE)
+
+\method{starwid}{list}(x, ..., normalized = FALSE)
+
+dennis(x, ..., normalized = FALSE)
+
+dennis(x, ..., normalized = FALSE)
+
+dennis(x, ..., normalized = FALSE)
 }
 \arguments{
 \item{x}{Either a list of matrices of size `n` (need not to be square), or
 a single matrix of size `n` (see details).}
+
+\item{...}{More matrices to be passed to the function.}
+
+\item{bool}{Logical. When `TRUE` it returns the normalized hamming distance,
+which ranges between 0 and 1.}
 }
 \value{
 A matrix of size `n*(n - 1)/2` by 3, where columns 1 and 2 indicate
 ego and alter, and the third column the `S14` statistic.
 }
 \description{
-S14 similarity index
+Includes the S14 statistic and hamming distance between two or more
+pairs of matrices.
 }
 \details{
 If `x` is a matrix, then the function requires the user to pass at least a
 second matrix via de `...` notation.
-Following Krackhardt's 1989:
+
+In the case of the `S14` function, following Krackhardt's 1989:
 \tabular{lcc}{
      \tab R2 \tab   \cr
   R1 \tab a  \tab b \cr
@@ -38,6 +70,12 @@ Following Krackhardt's 1989:
 }{%
 S14 = [(a/(a + c) - b/(b + d))*(a/(a + b) - c/(c + d))]^(1/2)
 }
+
+Which is an statistic lying between 0 and 1.
+
+The hamming distance is computed as the total number of entries that
+are different between a single pair of individuals. When \code{normalized = TRUE}
+such count is divided by \code{n*(n-1)} so it ranges between 0 and 1.
 }
 \examples{
 # Getting all networks of size 3
@@ -46,8 +84,11 @@ nets <- powerset(3)
 # We can compute it over the entire set
 head(S14(nets))
 
-# Or over a couple of pairs
-S14(nets[[1]], nets[[2]])
+# Or over two pairs
+S14(nets[[1]], nets[[2]], nets[[3]])
+
+# We can do the same with the hamming distance
+hamming(nets)
 
 }
 \references{

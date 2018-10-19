@@ -18,7 +18,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // powerset
-vecvecint powerset(int n, bool force);
+SEXP powerset(int n, bool force);
 RcppExport SEXP _lergm_powerset(SEXP nSEXP, SEXP forceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -29,14 +29,75 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// S14
-NumericMatrix S14(const std::vector<IntegerMatrix>& M);
-RcppExport SEXP _lergm_S14(SEXP MSEXP) {
+// print_powerset
+int print_powerset(SEXP sets);
+RcppExport SEXP _lergm_print_powerset(SEXP setsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::vector<IntegerMatrix>& >::type M(MSEXP);
-    rcpp_result_gen = Rcpp::wrap(S14(M));
+    Rcpp::traits::input_parameter< SEXP >::type sets(setsSEXP);
+    rcpp_result_gen = Rcpp::wrap(print_powerset(sets));
+    return rcpp_result_gen;
+END_RCPP
+}
+// wrap_powerset
+List wrap_powerset(SEXP sets, int from, int to, int n);
+RcppExport SEXP _lergm_wrap_powerset(SEXP setsSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type sets(setsSEXP);
+    Rcpp::traits::input_parameter< int >::type from(fromSEXP);
+    Rcpp::traits::input_parameter< int >::type to(toSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(wrap_powerset(sets, from, to, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// S14_
+NumericMatrix S14_(const ListOf<IntegerMatrix>& M);
+RcppExport SEXP _lergm_S14_(SEXP MSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
+    rcpp_result_gen = Rcpp::wrap(S14_(M));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hamming_
+NumericMatrix hamming_(const ListOf<IntegerMatrix>& M, bool normalized);
+RcppExport SEXP _lergm_hamming_(SEXP MSEXP, SEXP normalizedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< bool >::type normalized(normalizedSEXP);
+    rcpp_result_gen = Rcpp::wrap(hamming_(M, normalized));
+    return rcpp_result_gen;
+END_RCPP
+}
+// starwid_
+NumericMatrix starwid_(const ListOf<IntegerMatrix>& M, bool normalized);
+RcppExport SEXP _lergm_starwid_(SEXP MSEXP, SEXP normalizedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< bool >::type normalized(normalizedSEXP);
+    rcpp_result_gen = Rcpp::wrap(starwid_(M, normalized));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dennis_
+NumericMatrix dennis_(const ListOf<IntegerMatrix>& M, bool normalized);
+RcppExport SEXP _lergm_dennis_(SEXP MSEXP, SEXP normalizedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< bool >::type normalized(normalizedSEXP);
+    rcpp_result_gen = Rcpp::wrap(dennis_(M, normalized));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -44,7 +105,12 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_lergm_make_sets", (DL_FUNC) &_lergm_make_sets, 1},
     {"_lergm_powerset", (DL_FUNC) &_lergm_powerset, 2},
-    {"_lergm_S14", (DL_FUNC) &_lergm_S14, 1},
+    {"_lergm_print_powerset", (DL_FUNC) &_lergm_print_powerset, 1},
+    {"_lergm_wrap_powerset", (DL_FUNC) &_lergm_wrap_powerset, 4},
+    {"_lergm_S14_", (DL_FUNC) &_lergm_S14_, 1},
+    {"_lergm_hamming_", (DL_FUNC) &_lergm_hamming_, 2},
+    {"_lergm_starwid_", (DL_FUNC) &_lergm_starwid_, 2},
+    {"_lergm_dennis_", (DL_FUNC) &_lergm_dennis_, 2},
     {NULL, NULL, 0}
 };
 

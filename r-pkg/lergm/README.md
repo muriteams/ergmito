@@ -43,7 +43,7 @@ ans_ergm  <- ergm(model)
 # The lergm should have a larger value
 ergm.exact(ans_lergm$coef, model)
 #>           [,1]
-#> [1,] -6.557684
+#> [1,] -6.556978
 ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,]  NaN
@@ -58,18 +58,20 @@ summary(ans_lergm)
 #> 
 #> Formula:   net ~ edges + mutual + balance
 #> 
-#> Iterations:  100 out of 20 
+#> Iterations:  1728 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>         Estimate Std. Error MCMC % p-value
-#> edges     -0.317      1.917     29   0.872
-#> mutual     2.330      2.965     29   0.452
-#> balance   -7.412     53.755     29   0.893
+#>         Estimate Std. Error MCMC % p-value    
+#> edges    -0.3220     0.1849     29   0.116    
+#> mutual    2.3410     0.2861     29  <1e-04 ***
+#> balance -15.5126   297.4816     29   0.960    
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 13.12  on  9  degrees of freedom
+#>  Residual Deviance: 13.11  on  9  degrees of freedom
 #>  
-#> AIC: 31.12    BIC: 35.48    (Smaller is better.)
+#> AIC: 139.1    BIC: 169.7    (Smaller is better.)
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -134,17 +136,19 @@ summary(ans_lergm)
 #> 
 #> Formula:   net ~ edges + mutual
 #> 
-#> Iterations:  9 out of 20 
+#> Iterations:  30 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>        Estimate Std. Error MCMC % p-value
-#> edges    -1.099      1.291     29   0.415
-#> mutual    1.098      2.582     29   0.680
+#>        Estimate Std. Error MCMC % p-value    
+#> edges  -1.09861    0.08479     29  <1e-04 ***
+#> mutual  1.09861    0.16959     29  <1e-04 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
 #>  Residual Deviance: 14.91  on 10  degrees of freedom
 #>  
-#> AIC: 34.91    BIC: 39.76    (Smaller is better.)
+#> AIC: 142.9    BIC: 173.9    (Smaller is better.)
 summary(ans_ergm)
 #> 
 #> ==========================

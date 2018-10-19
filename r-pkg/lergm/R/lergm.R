@@ -37,7 +37,7 @@ NULL
 #' summary(ans_ergm)
 lergm <- function(
   formula,
-  control        = list(maxit = 1e3, reltol=1e-30),
+  control        = list(maxit = 1e3, reltol=1e-100),
   allstats_force = TRUE,
   offset         = NULL,
   stats          = NULL

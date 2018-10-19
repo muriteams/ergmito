@@ -1,5 +1,8 @@
+#include <numeric>
 #include "lergm_types.h"
 #include <Rcpp.h>
+
+// [[Rcpp::plugins(cpp11)]]
 
 using namespace Rcpp;
 
@@ -20,30 +23,105 @@ vecint make_sets(int n) {
     return ans;
 }
 
-// [[Rcpp::export(name=.powerset)]]
-vecvecint powerset(int n, bool force = false) {
+/*I've detected the following problem: When the numner of IntegerVector to be
+ * created overpasses a couple of hundred thousand, the stack memory gets filled
+ * (overflowed) since by default Rcpp works on the stack instead of the heap.
+ * 
+ * I have not found yet another solution to this problem, but to divide the
+ * creation of IntegerVector into chunks of 200,000.
+ */
+
+// This function creates power sets
+void powerset(vecvecint * sets, int n) {
+  
+  vecint set = make_sets(n);
+
+  int j = 0,k;
+  for (int i=0; i < set.size(); ++i) {
+    k = j;
+    for (int s = 0; s < k; ++s) {
+      sets->operator[](j) = sets->operator[](s);
+      sets->operator[](j++).push_back(set[i]);
+    }
+    sets->operator[](j++).push_back(set[i]);
+  }
+
+  return;
+  
+}
+
+// [[Rcpp::export(name=".powerset")]]
+SEXP powerset(int n, bool force = false) {
   
   if (n > 5 && !force)
     Rcpp::stop("In order to generate power sets for n>5 force must be set to `TRUE`.");
   
   int m = n*(n-1);
-  vecint set = make_sets(n);
-  vecvecint sets(pow(2.0, m));
-  vecint v(1);
-  
-  int j = 0,k;
-  for (int i=0; i<m; i++) {
-    k = j;
-    for (int s = 0; s < k; s++) {
-      sets.at(j) = sets.at(s);
-      sets.at(j++).push_back(set[i]);
-    }
-    v.at(0) = set[i];
-    sets.at(j++) = v;
-  }
+  vecvecint * sets = new vecvecint(pow(2.0, m));
 
-  return sets;
+  powerset(sets, n);
+  
+  return Rcpp::XPtr< vecvecint >(sets, true);
   
 }
 
+// [[Rcpp::export]]
+int print_powerset(SEXP sets) {
+  
+  Rcpp::XPtr< vecvecint > sets_ptr(sets);
+  for (vecvecint::const_iterator it = sets_ptr->begin(); it != sets_ptr->end(); ++it) {
+    print(wrap(*it));
+  }
+  
+  return 0;
+  
+}
 
+// This is another wrapper, this takes care of turning those integer vectors
+// into NumericMatrix of size 2.
+// [[Rcpp::export]]
+List wrap_powerset(
+    SEXP sets,
+    int from,
+    int to,
+    int n
+) {
+  
+  // Getting the pointer
+  Rcpp::XPtr< vecvecint > sets_ptr(sets);
+  
+  // Checking boundaries
+  int N = sets_ptr->size();
+  
+  if (from < 0)
+    stop("The `from` parameter must be a positive integer.");
+  if (to > N)
+    stop("The `to` parameter must be smaller than `N`.");
+  if (from >= to)
+    stop("`from` should be smaller than `to`.");
+  
+  // Creating a list of objects
+  List ans(to - from);
+  IntegerVector dim = IntegerVector::create(n, n);
+  
+  int counter = 0;
+  typedef std::vector<int>::const_iterator vintiter;
+  // Creating the empty vector
+  IntegerVector tmp(n*n);
+  for (int i = from; i < to; i++) {
+    
+    tmp.fill(0);
+    
+    // Filling it with data
+    for (vintiter it2 = sets_ptr->operator[](counter).begin(); it2 != sets_ptr->operator[](counter).end(); ++it2) 
+      tmp.at(*it2) = 1;
+    
+    // Adding the vector to the list, but before set attributes
+    tmp.attr("dim") = dim;
+    ans.at(counter++) = clone(tmp);
+    
+  }
+  
+  return ans;
+  
+}

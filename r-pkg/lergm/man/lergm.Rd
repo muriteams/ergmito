@@ -4,7 +4,7 @@
 \alias{lergm}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
-lergm(formula, control = list(maxit = 1000, reltol = 1e-30),
+lergm(formula, control = list(maxit = 1000, reltol = 1e-100),
   allstats_force = TRUE, offset = NULL, stats = NULL)
 }
 \arguments{

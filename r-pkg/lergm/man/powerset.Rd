@@ -4,19 +4,14 @@
 \alias{powerset}
 \title{Power set of Directed Graphs of size \code{n}}
 \usage{
-powerset(n, force = FALSE, as_matrix = TRUE, mc_cores = 2L)
+powerset(n, force = FALSE, mc_cores = getOption("mc.cores", 2L),
+  chunk_size = 1e+05)
 }
 \arguments{
 \item{n}{Integer. Number of edges.}
 
 \item{force}{Logical. When \code{TRUE} it generates the powerset for \code{n>5}, otherwise
 it returns with error.}
-
-\item{as_matrix}{Logical. When \code{TRUE} it returns a list of matrices of size \code{n},
-otherwise it returns a list of vectors with the not-zero locations of the
-matrix in column-major form.}
-
-\item{mc_cores}{Integer. Passed to \link[parallel:mclapply]{parallel::mclapply}}
 }
 \description{
 Power set of Directed Graphs of size \code{n}
