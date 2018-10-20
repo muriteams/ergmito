@@ -17,19 +17,19 @@ wrap_powerset <- function(sets, from, to, n) {
     .Call(`_lergm_wrap_powerset`, sets, from, to, n)
 }
 
-.S14 <- function(M) {
-    .Call(`_lergm_S14_`, M)
-}
+#' @name similarity
+#' @rdname similarity
+#' @details (68) S Michael
+#' @aliases Michael
+NULL
 
-.hamming <- function(M, normalized = FALSE) {
-    .Call(`_lergm_hamming_`, M, normalized)
-}
+#' @name similarity
+#' @rdname similarity
+#' @details (73) Peirce
+#' @aliases Peirce
+NULL
 
-.starwid <- function(M, normalized = FALSE) {
-    .Call(`_lergm_starwid_`, M, normalized)
-}
-
-.dennis <- function(M, normalized = FALSE) {
-    .Call(`_lergm_dennis_`, M, normalized)
+.similarity <- function(M, statistic, normalized = FALSE) {
+    .Call(`_lergm_similarity`, M, statistic, normalized)
 }
 

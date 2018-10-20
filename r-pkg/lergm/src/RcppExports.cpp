@@ -54,50 +54,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// S14_
-NumericMatrix S14_(const ListOf<IntegerMatrix>& M);
-RcppExport SEXP _lergm_S14_(SEXP MSEXP) {
+// similarity
+NumericMatrix similarity(const ListOf<IntegerMatrix>& M, const std::string& statistic, bool normalized);
+RcppExport SEXP _lergm_similarity(SEXP MSEXP, SEXP statisticSEXP, SEXP normalizedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
-    rcpp_result_gen = Rcpp::wrap(S14_(M));
-    return rcpp_result_gen;
-END_RCPP
-}
-// hamming_
-NumericMatrix hamming_(const ListOf<IntegerMatrix>& M, bool normalized);
-RcppExport SEXP _lergm_hamming_(SEXP MSEXP, SEXP normalizedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type statistic(statisticSEXP);
     Rcpp::traits::input_parameter< bool >::type normalized(normalizedSEXP);
-    rcpp_result_gen = Rcpp::wrap(hamming_(M, normalized));
-    return rcpp_result_gen;
-END_RCPP
-}
-// starwid_
-NumericMatrix starwid_(const ListOf<IntegerMatrix>& M, bool normalized);
-RcppExport SEXP _lergm_starwid_(SEXP MSEXP, SEXP normalizedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< bool >::type normalized(normalizedSEXP);
-    rcpp_result_gen = Rcpp::wrap(starwid_(M, normalized));
-    return rcpp_result_gen;
-END_RCPP
-}
-// dennis_
-NumericMatrix dennis_(const ListOf<IntegerMatrix>& M, bool normalized);
-RcppExport SEXP _lergm_dennis_(SEXP MSEXP, SEXP normalizedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< bool >::type normalized(normalizedSEXP);
-    rcpp_result_gen = Rcpp::wrap(dennis_(M, normalized));
+    rcpp_result_gen = Rcpp::wrap(similarity(M, statistic, normalized));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -107,10 +73,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lergm_powerset", (DL_FUNC) &_lergm_powerset, 2},
     {"_lergm_print_powerset", (DL_FUNC) &_lergm_print_powerset, 1},
     {"_lergm_wrap_powerset", (DL_FUNC) &_lergm_wrap_powerset, 4},
-    {"_lergm_S14_", (DL_FUNC) &_lergm_S14_, 1},
-    {"_lergm_hamming_", (DL_FUNC) &_lergm_hamming_, 2},
-    {"_lergm_starwid_", (DL_FUNC) &_lergm_starwid_, 2},
-    {"_lergm_dennis_", (DL_FUNC) &_lergm_dennis_, 2},
+    {"_lergm_similarity", (DL_FUNC) &_lergm_similarity, 3},
     {NULL, NULL, 0}
 };
 

@@ -84,3 +84,11 @@ summary(ans_lergm)
 summary(ans_ergm)
 ```
 
+# Similarity indices
+
+https://cran.r-project.org/web/packages/proxy/proxy.pdf
+
+A Survey of Binary Similarity and Distance Measures
+Seung-Seok Choi, Sung-Hyuk Cha, Charles C. Tappert
+Department of Computer Science, Pace University
+New York, US

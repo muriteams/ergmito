@@ -4,13 +4,14 @@
 #' pairs of matrices.
 #' 
 #' @noMd
-#' @param x Either a list of matrices of size `n` (need not to be square), or
+#' @param M Either a list of matrices of size `n` (need not to be square), or
 #' a single matrix of size `n` (see details).
+#' @param statistic Character. Name of the similarity index to be using.
 #' @param bool Logical. When `TRUE` it returns the normalized hamming distance,
 #' which ranges between 0 and 1.
 #' @param ... More matrices to be passed to the function.
 #' @details 
-#' If `x` is a matrix, then the function requires the user to pass at least a
+#' If `M` is a matrix, then the function requires the user to pass at least a
 #' second matrix via de `...` notation.
 #' 
 #' In the case of the `S14` function, following Krackhardt's 1989:
@@ -40,151 +41,53 @@
 #' nets <- powerset(3)
 #' 
 #' # We can compute it over the entire set
-#' head(S14(nets))
+#' head(similarity(nets, statistic="S14"))
 #' 
 #' # Or over two pairs
-#' S14(nets[[1]], nets[[2]], nets[[3]])
+#' similarity(nets[[1]], nets[[2]], nets[[3]], statistic="S14")
 #' 
 #' # We can do the same with the hamming distance
-#' hamming(nets)
+#' similarity(nets, statistic="hamming")
 #' 
-S14 <- function(x, ...) UseMethod("S14")
+similarity <- function(M, ..., statistic, normalized = TRUE) UseMethod("similarity")
 
 #' @export
-#' @rdname S14
-S14.list <- function(x, ...) {
+#' @rdname similarity
+similarity.list <- function(M, ..., statistic, normalized = TRUE) {
   
   # Checking the dots
   dots <- list(...)
   if (length(dots))
     stop(
-      "If `x` is a list, all arguments (matrices) should be provided via `x` and not `...`.",
+      "If `M` is a list, all arguments (matrices) should be provided via `M` and not `...`.",
       call. = FALSE
       )
   
-  .S14(x)
+  if (length(statistic) > 1) {
+    ans <- lapply(statistic, .similarity, M = M, normalized = normalized)
+    ans <- do.call(
+      cbind,
+      c(ans[1], lapply(ans[-1], "[", i=, j=-c(1,2)))
+      )
+    colnames(ans) <- c("i", "j", statistic)
+    ans
+  }
+  else
+    .similarity(M = M, statistic = statistic, normalized = normalized)
   
 }
 
 #' @export
-#' @rdname S14
-S14.matrix <- function(x, ...) {
+#' @rdname similarity
+similarity.matrix <- function(M, ..., statistic, normalized=TRUE) {
   
   dots <- list(...)
   if (!length(dots))
     stop(
-      "Only one matrix was provided. S14 can only be computed between 2 matrices.",
+      "Only one matrix was provided. `similarity` can only be computed between 2 matrices.",
       call. = FALSE
       )
   
-  S14(c(list(x), dots))
-  
-}
-
-#' @rdname S14
-#' @export
-#' @details The hamming distance is computed as the total number of entries that
-#' are different between a single pair of individuals. When `normalized = TRUE`
-#' such count is divided by `n*(n-1)` so it ranges between 0 and 1.
-hamming <- function(x, ..., normalized=FALSE) UseMethod("hamming")
-
-#' @rdname S14
-#' @export
-hamming.matrix <- function(x, ..., normalized=FALSE) {
-  
-  dots <- list(...)
-  if (!length(dots))
-    stop(
-      "Only one matrix was provided. S14 can only be computed between 2 matrices.",
-      call. = FALSE
-    )
-  
-  hamming(c(list(x), dots), normalized = normalized)
-  
-}
-
-#' @rdname S14
-#' @export
-hamming.list <- function(x, ..., normalized = FALSE) {
-  
-  # Checking the dots
-  dots <- list(...)
-  if (length(dots))
-    stop(
-      "If `x` is a list, all arguments (matrices) should be provided via `x` and not `...`.",
-      call. = FALSE
-    )
-  
-  .hamming(x, normalized = normalized)
-  
-}
-
-#' @rdname S14
-#' @export
-starwid <- function(x, ..., normalized=FALSE) UseMethod("starwid")
-
-#' @rdname S14
-#' @export
-starwid.matrix <- function(x, ..., normalized=FALSE) {
-  
-  dots <- list(...)
-  if (!length(dots))
-    stop(
-      "Only one matrix was provided. S14 can only be computed between 2 matrices.",
-      call. = FALSE
-    )
-  
-  starwid(c(list(x), dots), normalized = normalized)
-  
-}
-
-#' @rdname S14
-#' @export
-starwid.list <- function(x, ..., normalized = FALSE) {
-  
-  # Checking the dots
-  dots <- list(...)
-  if (length(dots))
-    stop(
-      "If `x` is a list, all arguments (matrices) should be provided via `x` and not `...`.",
-      call. = FALSE
-    )
-  
-  .starwid(x, normalized = normalized)
-  
-}
-
-#' @rdname S14
-#' @export
-dennis <- function(x, ..., normalized=FALSE) UseMethod("dennis")
-
-#' @rdname S14
-#' @export
-dennis <- function(x, ..., normalized=FALSE) {
-  
-  dots <- list(...)
-  if (!length(dots))
-    stop(
-      "Only one matrix was provided. S14 can only be computed between 2 matrices.",
-      call. = FALSE
-    )
-  
-  dennis(c(list(x), dots), normalized = normalized)
-  
-}
-
-#' @rdname S14
-#' @export
-dennis <- function(x, ..., normalized = FALSE) {
-  
-  # Checking the dots
-  dots <- list(...)
-  if (length(dots))
-    stop(
-      "If `x` is a list, all arguments (matrices) should be provided via `x` and not `...`.",
-      call. = FALSE
-    )
-  
-  .dennis(x, normalized = normalized)
+  similarity(M = c(list(x), dots), statistic=statistic, normalized=normalized)
   
 }
