@@ -1,8 +1,9 @@
-Package: lergm
+Package: similR
 Version: 0.0.999
 Date: 2018-09-24
-Title: Estimation of Little 'ERGMs' using exact likelihood
-Description: What the title said.
+Title: Similarity and Distance metrics for binary matrices
+Description: Multiple measurements of similarity and distance between pairs of
+  binary matrices as listed in Choi et al (2010).
 Depends: R (>= 3.3.0)
 Authors@R: 
     c(person(given = "George",
@@ -13,10 +14,11 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
 Encoding: UTF-8
 Imports: 
-    ergm,
     stats,
     Rcpp,
     parallel
+Suggests:
+    proxy
 LinkingTo: 
     Rcpp
 License: MIT + file LICENSE

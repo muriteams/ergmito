@@ -28,10 +28,10 @@ void contingency_matrix(std::vector<Ti> & table, const Tm & M1, const Tm & M2) {
     for (int j = 0; j < m; ++j)
       if (i == j) continue;
       else {
-        if ((M1(i,j) == M2(i,j)) & (M1(i,j) == 0)) table[a]++;
-        else if ((M1(i,j) != M2(i,j)) & (M1(i,j) == 0)) table[b]++;
-        else if ((M1(i,j) != M2(i,j)) & (M1(i,j) == 1)) table[c]++;
-        else if ((M1(i,j) == M2(i,j)) & (M1(i,j) == 1)) table[d]++;
+        if ((M1(i,j) == M2(i,j)) & (M1(i,j) == 1)) table[a]++;
+        else if ((M1(i,j) != M2(i,j)) & (M1(i,j) == 1)) table[b]++;
+        else if ((M1(i,j) != M2(i,j)) & (M1(i,j) == 0)) table[c]++;
+        else if ((M1(i,j) == M2(i,j)) & (M1(i,j) == 0)) table[d]++;
       }
   
 }
@@ -47,6 +47,28 @@ std::vector<Ti> contingency_matrix(const Tm & M1, const Tm & M2) {
   
 }
 
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' - Jaccard (1): `"sjaccard"` or `"jaccard"`
+//' @aliases Jaccard
+double sjaccard(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalize = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  
+  return table[a]/(table[a] + table[b] + table[c]);
+  
+}
+
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' - Tarwid (54): `"starwid"` or `"tarwid"`.
+//' @aliases Tarwid
 double starwid(
     const IntegerMatrix & R1,
     const IntegerMatrix & R2,
@@ -60,7 +82,25 @@ double starwid(
   
 }
 
-double S14(
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' -  Pearson & Heron 1 (54): `"sph1"` or `"ph1"` or `"s14"`. This is also known as S14 in
+//'    Gower and Legendre (1986).
+//'    
+//'    In the case of the `S14` function, following Krackhardt's 1989:
+//'    
+//'    \deqn{%
+//'    \sqrt{\left(\frac{a}{(a + c)} - \frac{b}{(b + d)}\right)\times\left(\frac{a}{(a + b)} - \frac{c}{(c + d)}\right)}
+//'    }{%
+//'    S14 = [(a/(a + c) - b/(b + d))*(a/(a + b) - c/(c + d))]^(1/2)
+//'    }
+//'   
+//'    Which is an statistic lying between 0 and 1.
+//'  
+//' @aliases Person-&-Heron
+//' @aliases S14
+double sph1(
     const IntegerMatrix & R1,
     const IntegerMatrix & R2,
     bool normalized = false
@@ -68,15 +108,17 @@ double S14(
   
   std::vector<double> table = contingency_matrix<double, IntegerMatrix>(R1, R2);
   
-  return sqrt(
-    (
-        (table[a] + 1e-15)/(table[a]+table[c]+1e-15) - (table[b] + 1e-15)/(table[b]+table[d]+1e-15))*
-          ((table[a] + 1e-15)/(table[a]+table[b]+1e-15) - (table[c] + 1e-15)/(table[c]+table[d]+1e-15))
-  );
+  return (table[a]*table[d] - table[b]*table[c])/
+    sqrt((table[a] + table[b])*(table[a] + table[c])*(table[b] + table[d])*(table[c] + table[d]));
         
 }
 
-double hamming(
+//' @name similarity
+//' @rdname similarity
+//' @section Distance:
+//' - Hamming (15): `"dhamming"` or `"hamming"`
+//' @aliases Hamming
+double dhamming(
     const IntegerMatrix & R1,
     const IntegerMatrix & R2,
     bool normalized = false
@@ -103,7 +145,12 @@ double hamming(
   
 }
 
-double dennis(
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' - Dennis (44): `"sdennis"` or `"dennis"`
+//' @aliases Dennis
+double sdennis(
     const IntegerMatrix & M1,
     const IntegerMatrix & M2,
     bool normalized = false
@@ -118,6 +165,11 @@ double dennis(
   
 }
 
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' - Yuleq (61): `"syuleq"`
+//' @aliases Yuleq
 double syuleq(
     const IntegerMatrix & M1,
     const IntegerMatrix & M2,
@@ -130,6 +182,11 @@ double syuleq(
   
 }
 
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' - Yuleq (63): `"syuleqw"`
+//' @aliases Yuleq
 double syuleqw(
     const IntegerMatrix & M1,
     const IntegerMatrix & M2,
@@ -143,6 +200,11 @@ double syuleqw(
   
 }
 
+//' @name similarity
+//' @rdname similarity
+//' @section Distance:
+//' - Yuleq (62): `"dyuleq"`
+//' @aliases Yuleq
 double dyuleq(
   const IntegerMatrix & M1,
   const IntegerMatrix & M2,
@@ -157,7 +219,8 @@ double dyuleq(
 
 //' @name similarity
 //' @rdname similarity
-//' @details (68) S Michael
+//' @section Similarity:
+//' - Michael (68):  `"smichael"` or `"michael"`
 //' @aliases Michael
 double smichael(
   const IntegerMatrix & M1,
@@ -173,7 +236,8 @@ double smichael(
 
 //' @name similarity
 //' @rdname similarity
-//' @details (73) Peirce
+//' @section Similarity:
+//' - Peirce (73): `"speirce"` or `"peirce"`
 //' @aliases Peirce
 double speirce(
   const IntegerMatrix & M1,
@@ -187,6 +251,8 @@ double speirce(
     (table[a]*table[b] + 2*table[b]*table[c] + table[c]*table[d]);
   
 }
+
+
 
 // -----------------------------------------------------------------------------
 
@@ -208,27 +274,28 @@ NumericMatrix allsimilarities(
     for (int j = i; j < N; ++j)
       if (i == j) continue;
       else {
-        I.at(pos) = i + 1;
-        J.at(pos) = j + 1;
-        ans.at(pos++) = fun(M[i], M[j], normalized);
+        I[pos] = i + 1;
+        J[pos] = j + 1;
+        ans[pos++] = fun(M[i], M[j], normalized);
       }
       
       return cbind(I,J,ans);
       
 }
 
-void getmetric(std::string statistic, funcPtr & fun) {
+void getmetric(std::string s, funcPtr & fun) {
   
-  if      (statistic == "S14")      fun = &S14;
-  else if (statistic == "hamming")  fun = &hamming;
-  else if (statistic == "dennis")   fun = &dennis;
-  else if (statistic == "starwid")  fun = &starwid;
-  else if (statistic == "syuleq")   fun = &syuleq;
-  else if (statistic == "syuleqw")  fun = &syuleqw;
-  else if (statistic == "dyuleq")   fun = &dyuleq;
-  else if (statistic == "smichael") fun = &smichael;
-  else if (statistic == "speirce")  fun = &speirce;
-  else Rcpp::stop("The statistic '%s' is not defined.", statistic);
+  if      (s == "s14" | s == "sph1" | s == "ph1") fun = &sph1;
+  else if (s == "hamming" | s == "dhamming")      fun = &dhamming;
+  else if (s == "dennis" | s == "sdennis")        fun = &sdennis;
+  else if (s == "starwid" | s == "tarwid")        fun = &starwid;
+  else if (s == "syuleq")                         fun = &syuleq;
+  else if (s == "syuleqw")                        fun = &syuleqw;
+  else if (s == "dyuleq")                         fun = &dyuleq;
+  else if (s == "smichael" | s == "michael")      fun = &smichael;
+  else if (s == "speirce" | s == "peirce")        fun = &speirce;
+  else if (s == "sjaccard" | s == "jaccard")      fun = &speirce;
+  else Rcpp::stop("The statistic '%s' is not defined.", s);
   
   return ;
 }

@@ -54,26 +54,12 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// similarity
-NumericMatrix similarity(const ListOf<IntegerMatrix>& M, const std::string& statistic, bool normalized);
-RcppExport SEXP _lergm_similarity(SEXP MSEXP, SEXP statisticSEXP, SEXP normalizedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type statistic(statisticSEXP);
-    Rcpp::traits::input_parameter< bool >::type normalized(normalizedSEXP);
-    rcpp_result_gen = Rcpp::wrap(similarity(M, statistic, normalized));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lergm_make_sets", (DL_FUNC) &_lergm_make_sets, 1},
     {"_lergm_powerset", (DL_FUNC) &_lergm_powerset, 2},
     {"_lergm_print_powerset", (DL_FUNC) &_lergm_print_powerset, 1},
     {"_lergm_wrap_powerset", (DL_FUNC) &_lergm_wrap_powerset, 4},
-    {"_lergm_similarity", (DL_FUNC) &_lergm_similarity, 3},
     {NULL, NULL, 0}
 };
 

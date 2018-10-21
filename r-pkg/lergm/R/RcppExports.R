@@ -17,19 +17,3 @@ wrap_powerset <- function(sets, from, to, n) {
     .Call(`_lergm_wrap_powerset`, sets, from, to, n)
 }
 
-#' @name similarity
-#' @rdname similarity
-#' @details (68) S Michael
-#' @aliases Michael
-NULL
-
-#' @name similarity
-#' @rdname similarity
-#' @details (73) Peirce
-#' @aliases Peirce
-NULL
-
-.similarity <- function(M, statistic, normalized = FALSE) {
-    .Call(`_lergm_similarity`, M, statistic, normalized)
-}
-
