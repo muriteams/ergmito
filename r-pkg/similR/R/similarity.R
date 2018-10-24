@@ -4,12 +4,10 @@
 #' matrices as listed in Choi et al (2010).
 #' 
 #' @noMd
-#' @param M Either a list of matrices of size `n` (need not to be square), or
-#' a single matrix of size `n` (see details).
 #' @param statistic Character. Name of the similarity index to be using.
 #' @param normalized Logical. When `TRUE` it returns the normalized hamming distance,
 #' which ranges between 0 and 1 (currently only used in `statistic="hamming"`).
-#' @param ... More matrices to be passed to the function.
+#' @template matrix
 #' @details 
 #' All of the available statistics are based on a 2x2 contingency matrix counting
 #' matches and missmatches between each pair of matrices.

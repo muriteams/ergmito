@@ -24,8 +24,8 @@ distance(M, ..., statistic, normalized = TRUE)
 \method{similarity}{matrix}(M, ..., statistic, normalized = TRUE)
 }
 \arguments{
-\item{M}{Either a list of matrices of size `n` (need not to be square), or
-a single matrix of size `n` (see details).}
+\item{M}{Either a list of matrices of size \code{n} (need not to be square), or
+a single matrix of size \code{n} (see details).}
 
 \item{...}{More matrices to be passed to the function.}
 
