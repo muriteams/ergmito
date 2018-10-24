@@ -20,22 +20,24 @@ BEGIN_RCPP
 END_RCPP
 }
 // similarity
-NumericMatrix similarity(const ListOf<IntegerMatrix>& M, const std::string& statistic, bool normalized);
-RcppExport SEXP _similR_similarity(SEXP MSEXP, SEXP statisticSEXP, SEXP normalizedSEXP) {
+NumericMatrix similarity(const ListOf<IntegerMatrix>& M, const std::string& statistic, bool normalized, bool firstonly, bool exclude_j);
+RcppExport SEXP _similR_similarity(SEXP MSEXP, SEXP statisticSEXP, SEXP normalizedSEXP, SEXP firstonlySEXP, SEXP exclude_jSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf<IntegerMatrix>& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type statistic(statisticSEXP);
     Rcpp::traits::input_parameter< bool >::type normalized(normalizedSEXP);
-    rcpp_result_gen = Rcpp::wrap(similarity(M, statistic, normalized));
+    Rcpp::traits::input_parameter< bool >::type firstonly(firstonlySEXP);
+    Rcpp::traits::input_parameter< bool >::type exclude_j(exclude_jSEXP);
+    rcpp_result_gen = Rcpp::wrap(similarity(M, statistic, normalized, firstonly, exclude_j));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_similR_las", (DL_FUNC) &_similR_las, 4},
-    {"_similR_similarity", (DL_FUNC) &_similR_similarity, 3},
+    {"_similR_similarity", (DL_FUNC) &_similR_similarity, 5},
     {NULL, NULL, 0}
 };
 

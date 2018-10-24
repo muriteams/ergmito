@@ -7,6 +7,10 @@
 #' @param statistic Character. Name of the similarity index to be using.
 #' @param normalized Logical. When `TRUE` it returns the normalized hamming distance,
 #' which ranges between 0 and 1 (currently only used in `statistic="hamming"`).
+#' @param firstonly Logical. When `TRUE`, the comparison is done as the first
+#' matrix to all only.
+#' @param exclude_j Logical. When `TRUE`, the comparison between matrices `i` and
+#' `j` is done after the jth column and rows are removed from each.
 #' @template matrix
 #' @details 
 #' All of the available statistics are based on a 2x2 contingency matrix counting
@@ -54,7 +58,8 @@
 #' ans <- similarity(powerset03, statistic=c("hamming", "dennis", "jaccard"))
 #' head(ans)
 #' 
-similarity <- function(M, ..., statistic, normalized = TRUE) UseMethod("similarity")
+similarity <- function(M, ..., statistic, normalized = TRUE, firstonly=FALSE, exclude_j = FALSE)
+  UseMethod("similarity")
 
 #' @export
 #' @rdname similarity
@@ -62,7 +67,7 @@ distance <- similarity
 
 #' @export
 #' @rdname similarity
-similarity.list <- function(M, ..., statistic, normalized = TRUE) {
+similarity.list <- function(M, ..., statistic, normalized = TRUE, firstonly=FALSE, exclude_j = FALSE) {
   
   # Checking the dots
   dots <- list(...)
@@ -73,14 +78,16 @@ similarity.list <- function(M, ..., statistic, normalized = TRUE) {
       )
   
   if (length(statistic) > 1) {
-    ans <- lapply(statistic, .similarity, M = M, normalized = normalized)
+    ans <- lapply(statistic, .similarity, M = M, normalized = normalized,
+                  firstonly = firstonly, exclude_j = exclude_j)
     ans <- do.call(
       cbind,
       c(ans[1], lapply(ans[-1], "[", i=, j=-c(1,2)))
       )
+  } else {
+    ans <- .similarity(M = M, statistic = statistic, normalized = normalized,
+                       firstonly = firstonly, exclude_j = exclude_j)
   }
-  else
-    ans <- .similarity(M = M, statistic = statistic, normalized = normalized)
   
   colnames(ans) <- c("i", "j", statistic)
   
@@ -90,7 +97,7 @@ similarity.list <- function(M, ..., statistic, normalized = TRUE) {
 
 #' @export
 #' @rdname similarity
-similarity.matrix <- function(M, ..., statistic, normalized=TRUE) {
+similarity.matrix <- function(M, ..., statistic, normalized=TRUE, firstonly=FALSE, exclude_j = FALSE) {
   
   dots <- list(...)
   if (!length(dots))
@@ -99,6 +106,7 @@ similarity.matrix <- function(M, ..., statistic, normalized=TRUE) {
       call. = FALSE
       )
   
-  similarity(M = c(list(M), dots), statistic=statistic, normalized=normalized)
+  similarity(M = c(list(M), dots), statistic=statistic, normalized=normalized,
+             firstonly = firstonly, exclude_j = exclude_j)
   
 }

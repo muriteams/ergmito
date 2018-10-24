@@ -111,7 +111,7 @@ NULL
 #' @aliases Peirce
 NULL
 
-.similarity <- function(M, statistic, normalized = FALSE) {
-    .Call(`_similR_similarity`, M, statistic, normalized)
+.similarity <- function(M, statistic, normalized = FALSE, firstonly = FALSE, exclude_j = FALSE) {
+    .Call(`_similR_similarity`, M, statistic, normalized, firstonly, exclude_j)
 }
 

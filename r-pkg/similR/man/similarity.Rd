@@ -15,13 +15,17 @@
 \alias{similarity.matrix}
 \title{Similarity and Distance between pairs of binary matrices}
 \usage{
-similarity(M, ..., statistic, normalized = TRUE)
+similarity(M, ..., statistic, normalized = TRUE, firstonly = FALSE,
+  exclude_j = FALSE)
 
-distance(M, ..., statistic, normalized = TRUE)
+distance(M, ..., statistic, normalized = TRUE, firstonly = FALSE,
+  exclude_j = FALSE)
 
-\method{similarity}{list}(M, ..., statistic, normalized = TRUE)
+\method{similarity}{list}(M, ..., statistic, normalized = TRUE,
+  firstonly = FALSE, exclude_j = FALSE)
 
-\method{similarity}{matrix}(M, ..., statistic, normalized = TRUE)
+\method{similarity}{matrix}(M, ..., statistic, normalized = TRUE,
+  firstonly = FALSE, exclude_j = FALSE)
 }
 \arguments{
 \item{M}{Either a list of matrices of size \code{n} (need not to be square), or
@@ -33,6 +37,12 @@ a single matrix of size \code{n} (see details).}
 
 \item{normalized}{Logical. When `TRUE` it returns the normalized hamming distance,
 which ranges between 0 and 1 (currently only used in `statistic="hamming"`).}
+
+\item{firstonly}{Logical. When `TRUE`, the comparison is done as the first
+matrix to all only.}
+
+\item{exclude_j}{Logical. When `TRUE`, the comparison between matrices `i` and
+`j` is done after the jth column and rows are removed from each.}
 }
 \value{
 A matrix of size `n*(n - 1)/2` by `length(statistic)`, where columns

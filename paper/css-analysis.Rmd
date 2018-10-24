@@ -1,0 +1,76 @@
+---
+title: "Profile Analysis"
+author: "George G. Vega Yon"
+date: "October 22, 2018"
+output: html_document
+---
+
+# Setup
+
+```{r setup, message=FALSE, echo=FALSE}
+library(dplyr)
+library(tidyselect)
+library(tidyr)
+library(magrittr)
+library(similR)
+library(igraph)
+```
+
+```{r data}
+dat_group <- haven::read_spss("../data-raw/MURI_AllSurveys - FINAL - Group level data_1.sav")
+dat_individual <- 
+  haven::read_spss("../data-raw/MURI_AllSurveys - FINAL_073018.sav")
+dat_individual <- dat_individual %>%
+  mutate(Group = as.integer(Group))
+```
+
+```{r network-data}
+networks_truth      <- readRDS("../data/networks-truth.rds")
+networks_advice_css <- readRDS("../data/networks-advice-css.rds")
+networks_sizes      <- readr::read_csv("../data-raw/Study1_Group sizes.csv")
+networks_las        <- names(networks_advice_css) %>%
+  gsub("[a-zA-Z]+", "", .) %>%
+  gsub("^0", "", .)
+
+networks_las <- lapply(unique(networks_las), function(n) {
+  x <- networks_advice_css[which(networks_las == n)]
+  names(x) <- gsub("^[0-9]+", "", names(x))
+  x
+}) %>%
+  set_names(unique(networks_las))
+
+# Calculating distances/similarity of true advice network vs CSS
+
+ans <- lapply(names(networks_las), function(n) {
+  
+  print(n)
+  similR::similarity(
+    c(list(networks_truth[[n]]$s1q1advice), networks_las[[n]]),
+    statistic = c("jaccard", "hamming", "s14", "dennis", "peirce"),
+    firstonly=TRUE, exclude_j=TRUE
+  )
+  
+  
+
+  
+})
+
+```
+
+
+# Factor analysis
+
+```{r analysis}
+dat_individual %>%
+  select(
+    PID, Group,
+    RMEscore,
+    SI3Fac1, SI3Fac2, SI3Fac3,
+    # ZRMEscore, ZFLAbRel,
+    FL_absolute_avg
+    )
+```
+
+
+# 
+

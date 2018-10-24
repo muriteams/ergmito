@@ -258,28 +258,90 @@ double speirce(
 
 typedef double (*funcPtr)(const IntegerMatrix & M1, const IntegerMatrix & M2, bool normalize);
 
+IntegerMatrix reduce_dim(IntegerMatrix & x, int k) {
+  
+  // No reduction, return the same
+  if (k == -1)
+    return x;
+  
+  // Preparing reduced version of the matrix
+  IntegerMatrix ans(x.nrow() - 1, x.ncol() - 1);
+  ans.fill(0);
+  
+  int i0=0, j0;
+  for (int i = 0; i < x.nrow(); ++i) {
+    j0 = 0;
+    for (int j = 0; j < x.nrow(); ++j) {
+      
+      if (i == k)
+        break;
+      
+      if (j == k)
+        break;
+     
+     if (x(i,j) != 0)
+      ans(i0, j0++) = 1;
+     
+    }
+    i0++;
+  }
+  
+  return ans;
+  
+}
+
+// Applies whatever similarity/distance metric should be applying to all the
+// requested combinations
 NumericMatrix allsimilarities(
     const ListOf<IntegerMatrix> & M,
     bool normalized = false,
-    funcPtr fun = NULL
+    funcPtr fun     = NULL,
+    bool firstonly  = false,
+    bool exclude_j    = false
 ) {
   
-  int N = M.size();
-  int NN = N*(N-1)/2;
+  int N  = M.size();
+  int NN = firstonly? N-1 : N*(N-1)/2;
   NumericVector ans(NN);
   NumericVector I(NN),J(NN);
   
   int pos = 0;
-  for (int i = 0; i < N; ++i)
-    for (int j = i; j < N; ++j)
-      if (i == j) continue;
-      else {
-        I[pos] = i + 1;
-        J[pos] = j + 1;
-        ans[pos++] = fun(M[i], M[j], normalized);
+
+  int firstloop = firstonly ? 1 : N;  
+  if (exclude_j) {
+    
+    for (int i = 0; i < firstloop; ++i) 
+      for (int j = i; j < N; ++j) {
+        
+        // Getting the pointers
+        IntegerMatrix Mi = M[i];
+        IntegerMatrix Mj = M[j];
+        
+        if (i == j) continue;
+        else {
+          I[pos] = i + 1;
+          J[pos] = j + 1;
+          ans[pos++] =
+            fun(reduce_dim(Mi, j), reduce_dim(Mj, j), normalized);
+        }
+        
       }
+        
+  } else {
+    
+    for (int i = 0; i < firstloop; ++i) {
+      for (int j = i; j < N; ++j)
+        if (i == j) continue;
+        else {
+          I[pos] = i + 1;
+          J[pos] = j + 1;
+          ans[pos++] = fun(M[i], M[j], normalized);
+        }
+    }
+    
+  }
       
-      return cbind(I,J,ans);
+  return cbind(I,J,ans);
       
 }
 
@@ -304,13 +366,15 @@ void getmetric(std::string s, funcPtr & fun) {
 NumericMatrix similarity(
     const ListOf<IntegerMatrix> & M,
     const std::string & statistic,
-    bool normalized=false
+    bool normalized = false,
+    bool firstonly  = false,
+    bool exclude_j  = false
   ) {
   
   funcPtr fun;
   getmetric(statistic, fun);
   
-  return allsimilarities(M, normalized, fun);
+  return allsimilarities(M, normalized, fun, firstonly, exclude_j);
   
 }
 
