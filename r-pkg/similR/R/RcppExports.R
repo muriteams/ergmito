@@ -100,16 +100,71 @@ NULL
 #' @name similarity
 #' @rdname similarity
 #' @section Similarity:
-#' - Michael (68):  `"smichael"` or `"michael"`
+#' -  Michael (68):  `"smichael"` or `"michael"`
+#'    
+#'    \deqn{%
+#'      S_{michael} = \frac{4(ad-bc)}{(a+d)^2 + (b+c)^2}
+#'    }{%
+#'      smichael = 4*(a*d - b*c)/[(a + d)^2 + (b + c)^2]
+#'    }
 #' @aliases Michael
 NULL
 
 #' @name similarity
 #' @rdname similarity
 #' @section Similarity:
-#' - Peirce (73): `"speirce"` or `"peirce"`
+#' -  Goodman & Kruskal (69): `"sgyk"` or `"gyk"`
+#'    
+#'    \deqn{%
+#'      S_{Goodman&Kruskal} = \frac{\sigma - \sigma'}{2n - \sigma'} 
+#'    }{%
+#'      sgyk = (s + s')/(2*n - s') 
+#'    }
+#'    
+#'    where
+#'    \eqn{\sigma = \max(a,b) + \max(c,d) + \max(a,c) + \max(b,d)}{
+#'    s = max(a,b) + max(c,d) + max(a,c) + max(b,d)
+#'    }, and 
+#'    \eqn{\sigma' = \max(a + c, b + d) + \max(a + b, c + d)}{
+#'    s' = max(a + c, b + d) + max(a + b, c + d)
+#'    }
+#'   
+#' @aliases Goodman-&-Kruskal
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Similarity:
+#' -  Anderberg (70): `"sanderberg"` or `"anderberg"`
+#'    
+#'    \deqn{%
+#'      S_{Anderberg} = \frac{\sigma - \sigma'}{2n} 
+#'    }{%
+#'      sanderberg = (s + s')/(2*n) 
+#'    }
+#'    
+#'    where \eqn{\sigma}{s} and \eqn{\sigma}{s'} are defined as in (69).
+#'   
+#' @aliases Anderberg
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Similarity:
+#' -  Peirce (73): `"speirce"` or `"peirce"`
+#'    
+#'    \deqn{%
+#'      S_{Peirce} = \frac{ab + bc}{ab + 2bc + cd}
+#'    }{%
+#'      speirce = (a*b + b*c)/(a*b + 2*b*c + c*d)
+#'    }
+#'   
 #' @aliases Peirce
 NULL
+
+reduce_dim <- function(x, k) {
+    .Call(`_similR_reduce_dim`, x, k)
+}
 
 .similarity <- function(M, statistic, normalized = FALSE, firstonly = FALSE, exclude_j = FALSE) {
     .Call(`_similR_similarity`, M, statistic, normalized, firstonly, exclude_j)

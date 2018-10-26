@@ -9,16 +9,14 @@
 \alias{Dennis}
 \alias{Yuleq}
 \alias{Michael}
+\alias{Goodman-&-Kruskal}
+\alias{Anderberg}
 \alias{Peirce}
-\alias{distance}
 \alias{similarity.list}
 \alias{similarity.matrix}
 \title{Similarity and Distance between pairs of binary matrices}
 \usage{
 similarity(M, ..., statistic, normalized = TRUE, firstonly = FALSE,
-  exclude_j = FALSE)
-
-distance(M, ..., statistic, normalized = TRUE, firstonly = FALSE,
   exclude_j = FALSE)
 
 \method{similarity}{list}(M, ..., statistic, normalized = TRUE,
@@ -35,18 +33,18 @@ a single matrix of size \code{n} (see details).}
 
 \item{statistic}{Character. Name of the similarity index to be using.}
 
-\item{normalized}{Logical. When `TRUE` it returns the normalized hamming distance,
-which ranges between 0 and 1 (currently only used in `statistic="hamming"`).}
+\item{normalized}{Logical. When \code{TRUE} it returns the normalized hamming distance,
+which ranges between 0 and 1 (currently only used in \code{statistic="hamming"}).}
 
-\item{firstonly}{Logical. When `TRUE`, the comparison is done as the first
+\item{firstonly}{Logical. When \code{TRUE}, the comparison is done as the first
 matrix to all only.}
 
-\item{exclude_j}{Logical. When `TRUE`, the comparison between matrices `i` and
-`j` is done after the jth column and rows are removed from each.}
+\item{exclude_j}{Logical. When \code{TRUE}, the comparison between matrices \code{i} and
+\code{j} is done after the jth column and rows are removed from each.}
 }
 \value{
-A matrix of size `n*(n - 1)/2` by `length(statistic)`, where columns
-1 and 2 indicate the id if `i` and `j`, and the reminder columns are the
+A matrix of size \code{n*(n - 1)/2} by \code{length(statistic)}, where columns
+1 and 2 indicate the id if \code{i} and \code{j}, and the reminder columns are the
 corresponding distances/similarities.
 }
 \description{
@@ -55,19 +53,19 @@ matrices as listed in Choi et al (2010).
 }
 \details{
 All of the available statistics are based on a 2x2 contingency matrix counting
-matches and missmatches between each pair of matrices.
+matches and missmatches between each pair of matrices (R1, R2).
 
 \tabular{llcc}{
-     \tab   \tab R2 \tab   \cr
-     \tab   \tab 1  \tab 0 \cr
-  R1 \tab 1 \tab a  \tab b \cr
-     \tab 0 \tab c  \tab d  
+\tab   \tab R2 \tab   \cr
+\tab   \tab 1  \tab 0 \cr
+R1 \tab 1 \tab a  \tab b \cr
+\tab 0 \tab c  \tab d
 }
 
-A complete list of the statistics available is available in the **Similarity**
-and **Distance** sections.
+A complete list of the statistics available is available in the \strong{Similarity}
+and \strong{Distance} sections.
 
-`distance` is just an alias for `similarity`.
+\code{distance} is just an alias for \code{similarity}.
 }
 \section{Similarity}{
 
@@ -114,11 +112,55 @@ Which is an statistic lying between 0 and 1.
 
 \itemize{
 \item Michael (68):  \code{"smichael"} or \code{"michael"}
+
+\deqn{%
+     S_{michael} = \frac{4(ad-bc)}{(a+d)^2 + (b+c)^2}
+   }{%
+     smichael = 4*(a*d - b*c)/[(a + d)^2 + (b + c)^2]
+   }
+}
+
+
+\itemize{
+\item Goodman & Kruskal (69): \code{"sgyk"} or \code{"gyk"}
+
+\deqn{%
+     S_{Goodman&Kruskal} = \frac{\sigma - \sigma'}{2n - \sigma'} 
+   }{%
+     sgyk = (s + s')/(2*n - s') 
+   }
+
+where
+\eqn{\sigma = \max(a,b) + \max(c,d) + \max(a,c) + \max(b,d)}{
+   s = max(a,b) + max(c,d) + max(a,c) + max(b,d)
+   }, and
+\eqn{\sigma' = \max(a + c, b + d) + \max(a + b, c + d)}{
+   s' = max(a + c, b + d) + max(a + b, c + d)
+   }
+}
+
+
+\itemize{
+\item Anderberg (70): \code{"sanderberg"} or \code{"anderberg"}
+
+\deqn{%
+     S_{Anderberg} = \frac{\sigma - \sigma'}{2n} 
+   }{%
+     sanderberg = (s + s')/(2*n) 
+   }
+
+where \eqn{\sigma}{s} and \eqn{\sigma}{s'} are defined as in (69).
 }
 
 
 \itemize{
 \item Peirce (73): \code{"speirce"} or \code{"peirce"}
+
+\deqn{%
+     S_{Peirce} = \frac{ab + bc}{ab + 2bc + cd}
+   }{%
+     speirce = (a*b + b*c)/(a*b + 2*b*c + c*d)
+   }
 }
 }
 
@@ -158,4 +200,8 @@ and power in organizations. Administrative science quarterly, 342-369.
 
 Gower, J. C., & Legendre, P. (1986). Metric and Euclidean properties of
 dissimilarity coefficients. Journal of classification, 3(1), 5-48.
+}
+\seealso{
+The \link{statistics} object contains a list with the available statistics
+for convenience.
 }

@@ -18,7 +18,6 @@ void contingency_matrix(std::vector<Ti> & table, const Tm & M1, const Tm & M2) {
   if (table.size() != 4)
     stop("`table` must be of size 4.");
   
-  double ans;
   std::fill(table.begin(), table.end(), 0);
   
   int n = M1.nrow();
@@ -220,7 +219,13 @@ double dyuleq(
 //' @name similarity
 //' @rdname similarity
 //' @section Similarity:
-//' - Michael (68):  `"smichael"` or `"michael"`
+//' -  Michael (68):  `"smichael"` or `"michael"`
+//'    
+//'    \deqn{%
+//'      S_{michael} = \frac{4(ad-bc)}{(a+d)^2 + (b+c)^2}
+//'    }{%
+//'      smichael = 4*(a*d - b*c)/[(a + d)^2 + (b + c)^2]
+//'    }
 //' @aliases Michael
 double smichael(
   const IntegerMatrix & M1,
@@ -234,10 +239,111 @@ double smichael(
     (pow(table[a] + table[d], 2.0) + pow(table[b] + table[c], 2.0));
 }
 
+double shamann(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalized = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  
+  return ((table[a] + table[d]) - (table[b] - table[c]))/
+    (table[a] + table[b] + table[c] + table[d]);
+  
+}
+
+// Auxiliar functions for Goodman & Kruskal, and Anderberg
+inline double sigma(const std::vector<double> & table) {
+  
+  return std::max(table[a], table[b]) + std::max(table[c], table[d]) + 
+    std::max(table[a], table[c]) + std::max(table[b], table[d]);
+  
+}
+
+inline double sigma_prime(const std::vector<double> & table) {
+  
+  return std::max(table[a] + table[c], table[b] + table[d]) +
+    std::max(table[a] + table[b], table[c] + table[d]);
+  
+}
+
 //' @name similarity
 //' @rdname similarity
 //' @section Similarity:
-//' - Peirce (73): `"speirce"` or `"peirce"`
+//' -  Goodman & Kruskal (69): `"sgyk"` or `"gyk"`
+//'    
+//'    \deqn{%
+//'      S_{Goodman&Kruskal} = \frac{\sigma - \sigma'}{2n - \sigma'} 
+//'    }{%
+//'      sgyk = (s + s')/(2*n - s') 
+//'    }
+//'    
+//'    where
+//'    \eqn{\sigma = \max(a,b) + \max(c,d) + \max(a,c) + \max(b,d)}{
+//'    s = max(a,b) + max(c,d) + max(a,c) + max(b,d)
+//'    }, and 
+//'    \eqn{\sigma' = \max(a + c, b + d) + \max(a + b, c + d)}{
+//'    s' = max(a + c, b + d) + max(a + b, c + d)
+//'    }
+//'   
+//' @aliases Goodman-&-Kruskal
+double sgyk(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalized = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  double s = sigma(table);
+  double s_prime = sigma_prime(table);
+  
+  return (s - s_prime)/(2.0*(double) M1.nrow() - s_prime);
+  
+}
+
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' -  Anderberg (70): `"sanderberg"` or `"anderberg"`
+//'    
+//'    \deqn{%
+//'      S_{Anderberg} = \frac{\sigma - \sigma'}{2n} 
+//'    }{%
+//'      sanderberg = (s + s')/(2*n) 
+//'    }
+//'    
+//'    where \eqn{\sigma}{s} and \eqn{\sigma}{s'} are defined as in (69).
+//'   
+//' @aliases Anderberg
+double sanderberg(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalized = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  double s = sigma(table);
+  double s_prime = sigma_prime(table);
+  
+  return (s - s_prime)/(2.0*(double) M1.nrow());
+  
+}
+
+
+
+
+
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' -  Peirce (73): `"speirce"` or `"peirce"`
+//'    
+//'    \deqn{%
+//'      S_{Peirce} = \frac{ab + bc}{ab + 2bc + cd}
+//'    }{%
+//'      speirce = (a*b + b*c)/(a*b + 2*b*c + c*d)
+//'    }
+//'   
 //' @aliases Peirce
 double speirce(
   const IntegerMatrix & M1,
@@ -258,6 +364,7 @@ double speirce(
 
 typedef double (*funcPtr)(const IntegerMatrix & M1, const IntegerMatrix & M2, bool normalize);
 
+// [[Rcpp::export]]
 IntegerMatrix reduce_dim(IntegerMatrix & x, int k) {
   
   // No reduction, return the same
@@ -270,20 +377,29 @@ IntegerMatrix reduce_dim(IntegerMatrix & x, int k) {
   
   int i0=0, j0;
   for (int i = 0; i < x.nrow(); ++i) {
-    j0 = 0;
-    for (int j = 0; j < x.nrow(); ++j) {
+    
+    if (i == k)
+      continue;
+
+    j0 = 0;    
+    for (int j = 0; j < x.ncol(); ++j) {
       
-      if (i == k)
-        break;
+      // Self
+      if (j == k) 
+        continue;
       
-      if (j == k)
+      if (x(i,j) == 1)
+        ans(i0, j0) = 1;
+
+      // Out of range (can't do more)      
+      if (++j0 == ans.ncol())
         break;
-     
-     if (x(i,j) != 0)
-      ans(i0, j0++) = 1;
      
     }
-    i0++;
+    
+    // Out of range (can't do more)
+    if (++i0 == ans.nrow())
+      break;
   }
   
   return ans;
@@ -347,8 +463,8 @@ NumericMatrix allsimilarities(
 
 void getmetric(std::string s, funcPtr & fun) {
   
-  if      (s == "s14" | s == "sph1" | s == "ph1") fun = &sph1;
-  else if (s == "hamming" | s == "dhamming")      fun = &dhamming;
+  if      (s == "sph1" | s == "ph1" | s == "s14") fun = &sph1;
+  else if (s == "dhamming" | s == "hamming")      fun = &dhamming;
   else if (s == "dennis" | s == "sdennis")        fun = &sdennis;
   else if (s == "starwid" | s == "tarwid")        fun = &starwid;
   else if (s == "syuleq")                         fun = &syuleq;
@@ -356,7 +472,9 @@ void getmetric(std::string s, funcPtr & fun) {
   else if (s == "dyuleq")                         fun = &dyuleq;
   else if (s == "smichael" | s == "michael")      fun = &smichael;
   else if (s == "speirce" | s == "peirce")        fun = &speirce;
-  else if (s == "sjaccard" | s == "jaccard")      fun = &speirce;
+  else if (s == "sjaccard" | s == "jaccard")      fun = &sjaccard;
+  else if (s == "sgyk" | s == "gyk")              fun = &sgyk;
+  else if (s == "sanderberg" | s == "anderberg")  fun = &sanderberg;
   else Rcpp::stop("The statistic '%s' is not defined.", s);
   
   return ;

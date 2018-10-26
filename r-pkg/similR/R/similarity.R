@@ -3,7 +3,7 @@
 #' Multiple measurements of similarity and distance between pairs of binary
 #' matrices as listed in Choi et al (2010).
 #' 
-#' @noMd
+#' 
 #' @param statistic Character. Name of the similarity index to be using.
 #' @param normalized Logical. When `TRUE` it returns the normalized hamming distance,
 #' which ranges between 0 and 1 (currently only used in `statistic="hamming"`).
@@ -14,7 +14,7 @@
 #' @template matrix
 #' @details 
 #' All of the available statistics are based on a 2x2 contingency matrix counting
-#' matches and missmatches between each pair of matrices.
+#' matches and missmatches between each pair of matrices (R1, R2).
 #'
 #' \tabular{llcc}{
 #'      \tab   \tab R2 \tab   \cr
@@ -58,12 +58,12 @@
 #' ans <- similarity(powerset03, statistic=c("hamming", "dennis", "jaccard"))
 #' head(ans)
 #' 
+#' @seealso The [statistics] object contains a list with the available statistics
+#' for convenience.
+#' 
 similarity <- function(M, ..., statistic, normalized = TRUE, firstonly=FALSE, exclude_j = FALSE)
   UseMethod("similarity")
 
-#' @export
-#' @rdname similarity
-distance <- similarity
 
 #' @export
 #' @rdname similarity

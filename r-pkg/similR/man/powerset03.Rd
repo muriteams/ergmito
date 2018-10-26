@@ -5,7 +5,8 @@
 \alias{powerset03}
 \alias{powerset04}
 \title{Power sets of matrices of size 3 and 4}
-\format{An object of class \code{list} of length 64.}
+\format{A List of integer matrices of size 3x3 (\code{powerset03}), and 4x4
+(\code{powerset04}).}
 \usage{
 powerset03
 
@@ -13,5 +14,9 @@ powerset04
 }
 \description{
 Power sets of matrices of size 3 and 4
+}
+\examples{
+data(powerset03)
+data(powerset04)
 }
 \keyword{datasets}

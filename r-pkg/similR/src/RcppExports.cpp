@@ -19,6 +19,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// reduce_dim
+IntegerMatrix reduce_dim(IntegerMatrix& x, int k);
+RcppExport SEXP _similR_reduce_dim(SEXP xSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(reduce_dim(x, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // similarity
 NumericMatrix similarity(const ListOf<IntegerMatrix>& M, const std::string& statistic, bool normalized, bool firstonly, bool exclude_j);
 RcppExport SEXP _similR_similarity(SEXP MSEXP, SEXP statisticSEXP, SEXP normalizedSEXP, SEXP firstonlySEXP, SEXP exclude_jSEXP) {
@@ -37,6 +49,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_similR_las", (DL_FUNC) &_similR_las, 4},
+    {"_similR_reduce_dim", (DL_FUNC) &_similR_reduce_dim, 2},
     {"_similR_similarity", (DL_FUNC) &_similR_similarity, 5},
     {NULL, NULL, 0}
 };

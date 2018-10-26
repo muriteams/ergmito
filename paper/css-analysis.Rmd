@@ -43,15 +43,11 @@ networks_las <- lapply(unique(networks_las), function(n) {
 
 ans <- lapply(names(networks_las), function(n) {
   
-  print(n)
   similR::similarity(
     c(list(networks_truth[[n]]$s1q1advice), networks_las[[n]]),
-    statistic = c("jaccard", "hamming", "s14", "dennis", "peirce"),
+    statistic = c("jaccard", "hamming", "s14", "dennis", "peirce", "michael", "sgyk"),
     firstonly=TRUE, exclude_j=TRUE
   )
-  
-  
-
   
 })
 
