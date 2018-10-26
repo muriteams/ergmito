@@ -10,12 +10,12 @@ getmetric <- getmetric[
 
 getmetric <- getmetric %>%
   str_extract_all("(?<=s\\s[=]{2}\\s.)[a-zA-Z0-9]+") %>%
-  extract(sapply(., length)>0) %>%
+  magrittr::extract(data=., sapply(., length)>0) %>%
   sapply("[", 1)
 
 statistics <- list(
-  similarity = getmetric[grepl("^s", getmetric)],
-  distance   = getmetric[grepl("^d", getmetric)]
+  similarity = sort(getmetric[grepl("^s", getmetric)]),
+  distance   = sort(getmetric[grepl("^d", getmetric)])
 )
 
-usethis::use_data(statistics)
+usethis::use_data(statistics, overwrite = TRUE)

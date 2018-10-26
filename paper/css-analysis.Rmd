@@ -40,12 +40,11 @@ networks_las <- lapply(unique(networks_las), function(n) {
   set_names(unique(networks_las))
 
 # Calculating distances/similarity of true advice network vs CSS
-
 ans <- lapply(names(networks_las), function(n) {
   
   similR::similarity(
     c(list(networks_truth[[n]]$s1q1advice), networks_las[[n]]),
-    statistic = c("jaccard", "hamming", "s14", "dennis", "peirce", "michael", "sgyk"),
+    statistic = c("hamming", "michael", "hamann"),
     firstonly=TRUE, exclude_j=TRUE
   )
   

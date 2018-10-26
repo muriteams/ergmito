@@ -72,6 +72,18 @@ NULL
 #' @name similarity
 #' @rdname similarity
 #' @section Similarity:
+#' -  Mean Manhattan (20): `"dmh"` or `"mh"`
+#'    \deqn{%
+#'      D_{Mean-manhattan} = \frac{b + c}{a + b + c + d}
+#'    }{%
+#'     dmh = (b + c)/(a + b + c + d)
+#'    }
+#' @aliases Mean-Manhattan
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Similarity:
 #' - Dennis (44): `"sdennis"` or `"dennis"`
 #' @aliases Dennis
 NULL
@@ -108,6 +120,19 @@ NULL
 #'      smichael = 4*(a*d - b*c)/[(a + d)^2 + (b + c)^2]
 #'    }
 #' @aliases Michael
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Similarity:
+#' -  Hamann (67):  `"shamann"` or `"hamann"`
+#'    
+#'    \deqn{%
+#'      S_{Hamann} = \frac{(a + d) - (b + c)}{a + b + c + d}
+#'    }{%
+#'      shamann = [(a + d) - (b + c)](a + b + c + d)
+#'    }
+#' @aliases Hamann
 NULL
 
 #' @name similarity

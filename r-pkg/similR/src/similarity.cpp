@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 typedef std::vector< int > vecint;
 
-template<typename Ti, typename Tm>
+template<typename Ti, typename Tm> inline
 void contingency_matrix(std::vector<Ti> & table, const Tm & M1, const Tm & M2) {
   
   // Catching error
@@ -147,6 +147,29 @@ double dhamming(
 //' @name similarity
 //' @rdname similarity
 //' @section Similarity:
+//' -  Mean Manhattan (20): `"dmh"` or `"mh"`
+//'    \deqn{%
+//'      D_{Mean-manhattan} = \frac{b + c}{a + b + c + d}
+//'    }{%
+//'     dmh = (b + c)/(a + b + c + d)
+//'    }
+//' @aliases Mean-Manhattan
+double dmh(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalized = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  
+  return (table[b]+table[c])/
+    (table[a] + table[b] + table[c] + table[d]);
+    
+}
+
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
 //' - Dennis (44): `"sdennis"` or `"dennis"`
 //' @aliases Dennis
 double sdennis(
@@ -239,6 +262,17 @@ double smichael(
     (pow(table[a] + table[d], 2.0) + pow(table[b] + table[c], 2.0));
 }
 
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' -  Hamann (67):  `"shamann"` or `"hamann"`
+//'    
+//'    \deqn{%
+//'      S_{Hamann} = \frac{(a + d) - (b + c)}{a + b + c + d}
+//'    }{%
+//'      shamann = [(a + d) - (b + c)](a + b + c + d)
+//'    }
+//' @aliases Hamann
 double shamann(
     const IntegerMatrix & M1,
     const IntegerMatrix & M2,
@@ -475,6 +509,8 @@ void getmetric(std::string s, funcPtr & fun) {
   else if (s == "sjaccard" | s == "jaccard")      fun = &sjaccard;
   else if (s == "sgyk" | s == "gyk")              fun = &sgyk;
   else if (s == "sanderberg" | s == "anderberg")  fun = &sanderberg;
+  else if (s == "shamann" | s == "hamann")        fun = &shamann;
+  else if (s == "dmh" | s == "mh")                fun = &dmh;
   else Rcpp::stop("The statistic '%s' is not defined.", s);
   
   return ;

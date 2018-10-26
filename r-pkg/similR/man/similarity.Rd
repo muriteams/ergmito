@@ -6,9 +6,11 @@
 \alias{Tarwid}
 \alias{Person-&-Heron}
 \alias{Hamming}
+\alias{Mean-Manhattan}
 \alias{Dennis}
 \alias{Yuleq}
 \alias{Michael}
+\alias{Hamann}
 \alias{Goodman-&-Kruskal}
 \alias{Anderberg}
 \alias{Peirce}
@@ -96,6 +98,16 @@ Which is an statistic lying between 0 and 1.
 
 
 \itemize{
+\item Mean Manhattan (20): \code{"dmh"} or \code{"mh"}
+\deqn{%
+     D_{Mean-manhattan} = \frac{b + c}{a + b + c + d}
+   }{%
+    dmh = (b + c)/(a + b + c + d)
+   }
+}
+
+
+\itemize{
 \item Dennis (44): \code{"sdennis"} or \code{"dennis"}
 }
 
@@ -117,6 +129,17 @@ Which is an statistic lying between 0 and 1.
      S_{michael} = \frac{4(ad-bc)}{(a+d)^2 + (b+c)^2}
    }{%
      smichael = 4*(a*d - b*c)/[(a + d)^2 + (b + c)^2]
+   }
+}
+
+
+\itemize{
+\item Hamann (67):  \code{"shamann"} or \code{"hamann"}
+
+\deqn{%
+     S_{Hamann} = \frac{(a + d) - (b + c)}{a + b + c + d}
+   }{%
+     shamann = [(a + d) - (b + c)](a + b + c + d)
    }
 }
 

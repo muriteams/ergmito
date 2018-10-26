@@ -18,7 +18,10 @@ Imports:
     Rcpp,
     parallel
 Suggests:
-    proxy
+    proxy,
+    knitr,
+    rmarkdown
 LinkingTo: 
     Rcpp
 License: MIT + file LICENSE
+VignetteBuilder: knitr
