@@ -16,7 +16,8 @@ library(similR)
 library(igraph)
 ```
 
-```{r data}
+```{r data, echo=FALSE}
+# Reading covariate data
 dat_group <- haven::read_spss("../data-raw/MURI_AllSurveys - FINAL - Group level data_1.sav")
 dat_individual <- 
   haven::read_spss("../data-raw/MURI_AllSurveys - FINAL_073018.sav")
@@ -24,14 +25,18 @@ dat_individual <- dat_individual %>%
   mutate(Group = as.integer(Group))
 ```
 
-```{r network-data}
+```{r network-data, echo=FALSE}
+# Reading raw daa
 networks_truth      <- readRDS("../data/networks-truth.rds")
 networks_advice_css <- readRDS("../data/networks-advice-css.rds")
 networks_sizes      <- readr::read_csv("../data-raw/Study1_Group sizes.csv")
+
+# Renaming LAS with only numbers
 networks_las        <- names(networks_advice_css) %>%
   gsub("[a-zA-Z]+", "", .) %>%
   gsub("^0", "", .)
 
+# And individuals with only letters
 networks_las <- lapply(unique(networks_las), function(n) {
   x <- networks_advice_css[which(networks_las == n)]
   names(x) <- gsub("^[0-9]+", "", names(x))
@@ -40,16 +45,85 @@ networks_las <- lapply(unique(networks_las), function(n) {
   set_names(unique(networks_las))
 
 # Calculating distances/similarity of true advice network vs CSS
-ans <- lapply(names(networks_las), function(n) {
+statistics <- c("hamming", "michael", "hamann", "dsd", "dmh")
+css_range <- lapply(names(networks_las), function(n) {
   
   similR::similarity(
     c(list(networks_truth[[n]]$s1q1advice), networks_las[[n]]),
-    statistic = c("hamming", "michael", "hamann"),
+    statistic = statistics,
     firstonly=TRUE, exclude_j=TRUE
   )
   
 })
 
+# Computing range
+css_range <- lapply(css_range, function(d) {
+  
+  d[, statistics, drop=FALSE] %>%
+    as.data.frame %>%
+    gather("statistic", "value") %>%
+    group_by(statistic) %>%
+    summarize(range = diff(range(value))) %>% 
+    ungroup %>%
+    spread(statistic, range)
+  
+}) %>%
+  bind_rows %>%
+  bind_cols(networks_sizes) %>%
+  gather("statistic", "value", -Group, -groupSize) %>%
+  group_by(statistic) %>%
+  mutate(
+    groupSize = as.factor(groupSize),
+    value     = (value - min(value))/diff(range(value))
+  )
+
+
+```
+
+
+```{r violin-plot}
+library(ggplot2)
+css_range %>%
+  ggplot(aes(x = statistic, y = value)) +
+  geom_violin() +
+  geom_jitter(height = 0, width=.1, aes(colour=groupSize, shape = groupSize), size=4) +
+  scale_colour_viridis_d(alpha = .7) 
+```
+
+Groups of size 3 are complicated to draw
+
+```{r plot-graph-3, fig.cap="Networks of size 3", echo=FALSE, results='hide'}
+networks_size3 <- networks_truth[networks_sizes$groupSize==3] %>%
+  lapply(., "[[", "s3q1advice") %>%
+  lapply(., igraph::graph_from_adjacency_matrix)
+
+nnetworks_size3 <- length(networks_size3)
+op <- par(mfrow=c(3,3), mai=rep(.2, 4))
+lapply(networks_size3, plot, vertex.size=10, vertex.label="")
+par(op)
+```
+
+```{r plot-graph-4, fig.cap="Networks of size 4.", echo=FALSE, results='hide'}
+networks_size4 <- networks_truth[networks_sizes$groupSize==4] %>%
+  lapply(., "[[", "s3q1advice") %>%
+  lapply(., igraph::graph_from_adjacency_matrix)
+
+nnetworks_size4 <- length(networks_size4)
+op <- par(mfrow=c(4,5), mai=rep(.2, 4))
+lapply(networks_size4, plot, vertex.size=10, vertex.label="")
+par(op)
+```
+
+
+```{r plot-graph-5, fig.cap="Networks of size 5.", echo=FALSE, results='hide'}
+networks_size5 <- networks_truth[networks_sizes$groupSize==5] %>%
+  lapply(., "[[", "s3q1advice") %>%
+  lapply(., igraph::graph_from_adjacency_matrix)
+
+nnetworks_size5 <- length(networks_size5)
+op <- par(mfrow=c(4,5), mai=rep(.2, 4))
+lapply(networks_size5, plot, vertex.size=10, vertex.label="")
+par(op)
 ```
 
 
@@ -67,5 +141,5 @@ dat_individual %>%
 ```
 
 
-# 
+
 

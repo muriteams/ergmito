@@ -2,7 +2,7 @@
 title: "Comparing Similarities and Distance"
 author: "George G. Vega Yon"
 date: "`r Sys.Date()`"
-output: rmarkdown::word_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Comparing Similarities and Distance}
   %\VignetteEngine{knitr::rmarkdown}
@@ -37,7 +37,7 @@ data("statistics")
 
 # Powerset of 3
 
-```{r correlation-03, cache=TRUE}
+```{r correlation-03, cache=FALSE}
 # Computing 
 all_raw03 <- similarity(powerset03, statistic = unlist(statistics))
 all03 <- all_raw03
@@ -92,7 +92,10 @@ Of all the measurements shown here, only 6 were defined for all cases. In the ca
 We re-run the analysis but using the dataset `powerset04` wich contains `r length(powerset04)` unique binary networks, i.e. the powerset of graph size 4.
 
 ```{r correlation-04, cache=TRUE}
-# Computing 
+set.seed(122)
+powerset04 <- sample(powerset04, 2000L)
+
+# Computing
 all_raw04 <- similarity(powerset04, statistic = unlist(statistics))
 all04 <- all_raw04
 all04[!is.finite(all04)] <- NA
@@ -133,7 +136,7 @@ all04 %>%
     `p25`       = quantile(Value, .25, na.rm=TRUE),
     `p75`       = quantile(Value, .75, na.rm=TRUE),
     `IQR`       = p75 - p25
-  ) %>% 
+  ) %>%
   arrange(`% Miss`, desc(`Variance`)) %>%
   knitr::kable(digits=2)
 ```

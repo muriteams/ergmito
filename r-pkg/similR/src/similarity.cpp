@@ -63,6 +63,77 @@ double sjaccard(
   
 }
 
+
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' - Faith (10): `"sfaith"` or `"faith"`
+//' @aliases Faith
+double sfaith(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalize = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  
+  return (table[a] + table[d]*0.5)/(table[a] + table[b] + table[c] + table[d]);
+  
+}
+
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
+//' - Gower & Legendre (11): `"sgl"` or `"gl"`
+//' @aliases Gower-&-Legendre
+double sgl(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalize = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  
+  return (table[a] + table[d])/(table[a] + 0.5*(table[b] + table[c]) + table[d]);
+  
+}
+
+//' @name similarity
+//' @rdname similarity
+//' @section Distance:
+//' - Sized Difference (24): `"dsd"` or `"sd"`
+//' @aliases Sized-Difference
+double dsd(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalize = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  
+  return pow(table[b] + table[c], 2.0)/
+    pow(table[a] + table[b] + table[c] + table[d], 2.0);
+  
+}
+
+//' @name similarity
+//' @rdname similarity
+//' @section Distance:
+//' - Shaped Difference (25): `"dsphd"` or `"sphd"`
+//' @aliases Shape-Difference
+double dsphd(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalize = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  
+  return (((double) M1.nrow())*(table[b] + table[c]) - pow(table[b] - table[c], 2.0))/
+    pow(table[a] + table[b] + table[c] + table[d], 2.0);
+  
+}
+
 //' @name similarity
 //' @rdname similarity
 //' @section Similarity:
@@ -265,6 +336,31 @@ double smichael(
 //' @name similarity
 //' @rdname similarity
 //' @section Similarity:
+//' -  Dispersion (66):  `"sdisp"` or `"disp"`
+//'    
+//'    \deqn{%
+//'      S_{Dispersion} = \frac{ad - bc}{(a + b + c + d)^2}
+//'    }{%
+//'      sdisp = [a*d - b*c]/(a + b + c + d)^2
+//'    }
+//' @aliases Dispersion
+double sdisp(
+    const IntegerMatrix & M1,
+    const IntegerMatrix & M2,
+    bool normalized = false
+) {
+  
+  std::vector<double> table = contingency_matrix<double, IntegerMatrix>(M1, M2);
+  
+  return (table[a]*table[d] - table[b] * table[c])/
+    pow(table[a] + table[b] + table[c] + table[d], 2.0);
+  
+}
+
+
+//' @name similarity
+//' @rdname similarity
+//' @section Similarity:
 //' -  Hamann (67):  `"shamann"` or `"hamann"`
 //'    
 //'    \deqn{%
@@ -304,12 +400,12 @@ inline double sigma_prime(const std::vector<double> & table) {
 //' @name similarity
 //' @rdname similarity
 //' @section Similarity:
-//' -  Goodman & Kruskal (69): `"sgyk"` or `"gyk"`
+//' -  Goodman & Kruskal (69): `"sgk"` or `"gk"`
 //'    
 //'    \deqn{%
 //'      S_{Goodman&Kruskal} = \frac{\sigma - \sigma'}{2n - \sigma'} 
 //'    }{%
-//'      sgyk = (s + s')/(2*n - s') 
+//'      sgk = (s + s')/(2*n - s') 
 //'    }
 //'    
 //'    where
@@ -321,7 +417,7 @@ inline double sigma_prime(const std::vector<double> & table) {
 //'    }
 //'   
 //' @aliases Goodman-&-Kruskal
-double sgyk(
+double sgk(
     const IntegerMatrix & M1,
     const IntegerMatrix & M2,
     bool normalized = false
@@ -507,10 +603,15 @@ void getmetric(std::string s, funcPtr & fun) {
   else if (s == "smichael" | s == "michael")      fun = &smichael;
   else if (s == "speirce" | s == "peirce")        fun = &speirce;
   else if (s == "sjaccard" | s == "jaccard")      fun = &sjaccard;
-  else if (s == "sgyk" | s == "gyk")              fun = &sgyk;
+  else if (s == "sgk" | s == "gyk")               fun = &sgk;
   else if (s == "sanderberg" | s == "anderberg")  fun = &sanderberg;
   else if (s == "shamann" | s == "hamann")        fun = &shamann;
   else if (s == "dmh" | s == "mh")                fun = &dmh;
+  else if (s == "sfaith" | s == "faith")          fun = &sfaith;
+  else if (s == "sgl" | s == "gl")                fun = &sgl;
+  else if (s == "dsd" | s == "sd")                fun = &dsd;
+  else if (s == "dsphd" | s == "sphd")            fun = &dsphd;
+  else if (s == "sdisp" | s == "disp")            fun = &sdisp;
   else Rcpp::stop("The statistic '%s' is not defined.", s);
   
   return ;

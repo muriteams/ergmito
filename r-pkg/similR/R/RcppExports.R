@@ -38,6 +38,34 @@ NULL
 #' @name similarity
 #' @rdname similarity
 #' @section Similarity:
+#' - Faith (10): `"sfaith"` or `"faith"`
+#' @aliases Faith
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Similarity:
+#' - Gower & Legendre (11): `"sgl"` or `"gl"`
+#' @aliases Gower-&-Legendre
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Distance:
+#' - Sized Difference (24): `"dsd"` or `"sd"`
+#' @aliases Sized-Difference
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Distance:
+#' - Shaped Difference (25): `"dsphd"` or `"sphd"`
+#' @aliases Shape-Difference
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Similarity:
 #' - Tarwid (54): `"starwid"` or `"tarwid"`.
 #' @aliases Tarwid
 NULL
@@ -125,6 +153,19 @@ NULL
 #' @name similarity
 #' @rdname similarity
 #' @section Similarity:
+#' -  Dispersion (66):  `"sdisp"` or `"disp"`
+#'    
+#'    \deqn{%
+#'      S_{Dispersion} = \frac{ad - bc}{(a + b + c + d)^2}
+#'    }{%
+#'      sdisp = [a*d - b*c]/(a + b + c + d)^2
+#'    }
+#' @aliases Dispersion
+NULL
+
+#' @name similarity
+#' @rdname similarity
+#' @section Similarity:
 #' -  Hamann (67):  `"shamann"` or `"hamann"`
 #'    
 #'    \deqn{%
@@ -138,12 +179,12 @@ NULL
 #' @name similarity
 #' @rdname similarity
 #' @section Similarity:
-#' -  Goodman & Kruskal (69): `"sgyk"` or `"gyk"`
+#' -  Goodman & Kruskal (69): `"sgk"` or `"gk"`
 #'    
 #'    \deqn{%
 #'      S_{Goodman&Kruskal} = \frac{\sigma - \sigma'}{2n - \sigma'} 
 #'    }{%
-#'      sgyk = (s + s')/(2*n - s') 
+#'      sgk = (s + s')/(2*n - s') 
 #'    }
 #'    
 #'    where

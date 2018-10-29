@@ -23,9 +23,9 @@ header-includes:
 
 *   We have information about the individuals (gender, age, GPA, etc.)
 
-*   Teams were assigned in the lab by the lab staff.
+*   Individuals were randomly assigned to teams with the criterion that there was at least one male and one female per group
 
-*   Each team was asked to perform a set of tasks, and were surveyed about
+*   Each team was asked to perform a series of 12 group tasks (using 2 versions of MIT's Test for Collective Intelligence); and each teammate individually reported on (A) a comprehensive measure of personality, and emotional/social intelligence, and (B) their perceptions of the team social network  (multiplex tie)s
 
 We would like to be able to estimate ERGM models here.
 

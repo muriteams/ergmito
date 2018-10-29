@@ -3,6 +3,10 @@
 \name{similarity}
 \alias{similarity}
 \alias{Jaccard}
+\alias{Faith}
+\alias{Gower-&-Legendre}
+\alias{Sized-Difference}
+\alias{Shape-Difference}
 \alias{Tarwid}
 \alias{Person-&-Heron}
 \alias{Hamming}
@@ -10,6 +14,7 @@
 \alias{Dennis}
 \alias{Yuleq}
 \alias{Michael}
+\alias{Dispersion}
 \alias{Hamann}
 \alias{Goodman-&-Kruskal}
 \alias{Anderberg}
@@ -77,6 +82,16 @@ and \strong{Distance} sections.
 
 
 \itemize{
+\item Faith (10): \code{"sfaith"} or \code{"faith"}
+}
+
+
+\itemize{
+\item Gower & Legendre (11): \code{"sgl"} or \code{"gl"}
+}
+
+
+\itemize{
 \item Tarwid (54): \code{"starwid"} or \code{"tarwid"}.
 }
 
@@ -134,6 +149,17 @@ Which is an statistic lying between 0 and 1.
 
 
 \itemize{
+\item Dispersion (66):  \code{"sdisp"} or \code{"disp"}
+
+\deqn{%
+     S_{Dispersion} = \frac{ad - bc}{(a + b + c + d)^2}
+   }{%
+     sdisp = [a*d - b*c]/(a + b + c + d)^2
+   }
+}
+
+
+\itemize{
 \item Hamann (67):  \code{"shamann"} or \code{"hamann"}
 
 \deqn{%
@@ -145,12 +171,12 @@ Which is an statistic lying between 0 and 1.
 
 
 \itemize{
-\item Goodman & Kruskal (69): \code{"sgyk"} or \code{"gyk"}
+\item Goodman & Kruskal (69): \code{"sgk"} or \code{"gk"}
 
 \deqn{%
      S_{Goodman&Kruskal} = \frac{\sigma - \sigma'}{2n - \sigma'} 
    }{%
-     sgyk = (s + s')/(2*n - s') 
+     sgk = (s + s')/(2*n - s') 
    }
 
 where
@@ -188,6 +214,16 @@ where \eqn{\sigma}{s} and \eqn{\sigma}{s'} are defined as in (69).
 }
 
 \section{Distance}{
+
+\itemize{
+\item Sized Difference (24): \code{"dsd"} or \code{"sd"}
+}
+
+
+\itemize{
+\item Shaped Difference (25): \code{"dsphd"} or \code{"sphd"}
+}
+
 
 \itemize{
 \item Hamming (15): \code{"dhamming"} or \code{"hamming"}
