@@ -32,6 +32,7 @@ edgelist_pre <- haven::read_sav("data-raw/MURI_Survey_1.sav") %>%
       ego == "E" ~ IDS[-5][alter],
       TRUE ~ "ERROR"
     ),
+    survey = 1L,
     network = stringr::str_extract(Code, "(?<=[_])[0-9]+")
   ) 
 
@@ -58,8 +59,11 @@ edgelist_post <- haven::read_sav("data-raw/MURI_Survey_3.sav") %>%
       ego == "E" ~ IDS[-5][alter],
       TRUE ~ "ERROR"
     ),
+    survey = 3L,
     network = stringr::str_extract(Code, "(?<=[_])[0-9]+")
   ) 
 
-saveRDS(edgelist_post, "data/edgelist_post.rds")
-saveRDS(edgelist_pre, "data/edgelist_pre.rds")
+edgelist <- bind_rows(edgelist_post, edgelist_pre)
+
+saveRDS(edgelist, "data/edgelist.rds")
+
