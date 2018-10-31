@@ -4,7 +4,7 @@ using namespace Rcpp;
 //' @name las
 //' @rdname las
 //' @section Rule:
-//' When `rule = "interesection"` or `rule = "i"`, the union method is used.
+//' When `rule = "interesection"` or `rule = "i"`, the intersection method is used.
 //' A tie is marked as present iff both i and j agree on the existance if (i,j).
 void las_intersection(
     IntegerMatrix & LAS,
