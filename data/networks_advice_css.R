@@ -79,5 +79,14 @@ networks <- edgelists %>%
     
   })
 
-saveRDS(networks, "data/networks_css.rds")
+
+# Setting the ith row to be NA
+networks <- lapply(networks, function(n) {
+  for (i in names(n)) {
+    n[[i]][i, ]<-NA
+  }
+  n
+})
+
+saveRDS(networks, "data/networks_advice_css.rda")
 

@@ -27,29 +27,16 @@ dat_individual <- dat_individual %>%
 
 ```{r network-data, echo=FALSE}
 # Reading raw daa
-networks_truth      <- readRDS("../data/networks-truth.rds")
-networks_advice_css <- readRDS("../data/networks-advice-css.rds")
+networks_truth      <- readRDS("../data/networks_truth.rds")[["3"]]$advice
+networks_advice_css <- readRDS("../data/networks_advice_css.rds")
 networks_sizes      <- readr::read_csv("../data-raw/Study1_Group sizes.csv")
-
-# Renaming LAS with only numbers
-networks_las        <- names(networks_advice_css) %>%
-  gsub("[a-zA-Z]+", "", .) %>%
-  gsub("^0", "", .)
-
-# And individuals with only letters
-networks_las <- lapply(unique(networks_las), function(n) {
-  x <- networks_advice_css[which(networks_las == n)]
-  names(x) <- gsub("^[0-9]+", "", names(x))
-  x
-}) %>%
-  set_names(unique(networks_las))
 
 # Calculating distances/similarity of true advice network vs CSS
 statistics <- c("hamming", "michael", "hamann", "dsd", "dmh")
-css_range <- lapply(names(networks_las), function(n) {
+css_range <- lapply(names(networks_advice_css), function(n) {
   
   similR::similarity(
-    c(list(networks_truth[[n]]$s3q1advice), networks_las[[n]]),
+    c(list(networks_truth[[n]]), networks_advice_css[[n]]),
     statistic = statistics,
     firstonly=TRUE, exclude_j=TRUE
   )
@@ -94,8 +81,7 @@ Groups of size 3 are complicated to draw
 
 ```{r plot-graph-3, fig.cap="Networks of size 3", echo=FALSE, results='hide'}
 networks_size3 <- networks_truth[networks_sizes$groupSize==3] %>%
-  lapply(., "[[", "s3q1advice") %>%
-  lapply(., igraph::graph_from_adjacency_matrix)
+  lapply(igraph::graph_from_adjacency_matrix)
 
 nnetworks_size3 <- length(networks_size3)
 op <- par(mfrow=c(3,3), mai=rep(.2, 4))
@@ -105,7 +91,6 @@ par(op)
 
 ```{r plot-graph-4, fig.cap="Networks of size 4.", echo=FALSE, results='hide'}
 networks_size4 <- networks_truth[networks_sizes$groupSize==4] %>%
-  lapply(., "[[", "s3q1advice") %>%
   lapply(., igraph::graph_from_adjacency_matrix)
 
 nnetworks_size4 <- length(networks_size4)
@@ -117,7 +102,6 @@ par(op)
 
 ```{r plot-graph-5, fig.cap="Networks of size 5.", echo=FALSE, results='hide'}
 networks_size5 <- networks_truth[networks_sizes$groupSize==5] %>%
-  lapply(., "[[", "s3q1advice") %>%
   lapply(., igraph::graph_from_adjacency_matrix)
 
 nnetworks_size5 <- length(networks_size5)

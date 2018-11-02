@@ -10,6 +10,17 @@ library(magrittr)
 IDS   <- c(LETTERS[1:4], NA, "E")
 IDS_E <- c(LETTERS[1:3], NA, "D")
 
+network_types <- c(
+  "advice",
+  "leader",
+  "leadMotivate",
+  "leadEmotion",
+  "influence",
+  "trust",
+  "dislike"
+)
+ntypes <- length(network_types)
+
 groups_sizes <- readr::read_csv("data-raw/Study1_Group sizes.csv") %>%
   rename(group = Group, n = groupSize)
 
@@ -38,7 +49,7 @@ edgelist_pre <- haven::read_sav("data-raw/MURI_Survey_1.sav") %>%
       TRUE ~ "ERROR"
     ),
     survey = 1L,
-    network = stringr::str_extract(Code, "(?<=[_])[0-9]+")
+    network = as.integer(stringr::str_extract(Code, "(?<=[_])[0-9]+"))
   ) 
 
 edgelist_post <- haven::read_sav("data-raw/MURI_Survey_3.sav") %>%
@@ -65,14 +76,17 @@ edgelist_post <- haven::read_sav("data-raw/MURI_Survey_3.sav") %>%
       TRUE ~ "ERROR"
     ),
     survey = 3L,
-    network = stringr::str_extract(Code, "(?<=[_])[0-9]+")
+    network = as.integer(stringr::str_extract(Code, "(?<=[_])[0-9]+"))
   ) 
 
 edgelists <- bind_rows(edgelist_post, edgelist_pre) %>%
+  
+  # Individuals could have answered NA, so we have to remove these
+  filter(!is.na(alter)) %>%
+  
   # Merging group size. We use full to make sure that we have all the data
-  full_join(groups_sizes)
+  full_join(groups_sizes) 
 
-# saveRDS(edgelist, "data/edgelist_truth.rds")
 
 # Now, creating the adjmat
 networks <- vector("list", 2)
@@ -80,39 +94,82 @@ names(networks) <- c(1, 3)
 
 for (s in c(1, 3)) {
   
-  networks[[as.character(s)]] <- edgelists %>%
+  # Nested at the type level
+  networks[[as.character(s)]] <- vector("list", ntypes)
+  names(networks[[as.character(s)]]) <- network_types
+  
+  for (nt in seq_along(network_types)) {
     
-    filter(survey == s) %>%
+    # Nested at the group level
+    networks[[as.character(s)]][[nt]] <- vector("list", nrow(groups_sizes))
+    names(networks[[as.character(s)]][[nt]]) <- groups_sizes$group
     
-    split(.$group) %>%
-    lapply(function(g) {
+    for (gid in as.character(groups_sizes$group)) {
       
-      # Group ids
-      n   <- g$n[1]
+      # Group features: Size, IDS and matrix
+      n   <- filter(groups_sizes, group == gid)$n
       ids <- LETTERS[1:n]
+      M   <- matrix(0L, ncol = n, nrow = n, dimnames = list(ids, ids))
+  
+      # Filtering the data
+      g <- filter(edgelists, survey == s, network == nt, group == gid)
       
-      # Looping at the group level
-      M <- matrix(0, ncol = n, nrow = n, dimnames = list(ids, ids))
-      M <- replicate(n, M, simplify = FALSE)
-      names(M) <- ids
+      if (!nrow(g)) {
+        message("Group ", gid, " survey ", s, " network `",
+                network_types[nt],"` done (but had no edges).")
+        networks[[as.character(s)]][[network_types[nt]]][[gid]] <- M
+        next
+      }
       
       # Keep complete cases
       g <- g[complete.cases(g),]
       
-      if (nrow(g) == 0)
-        return(M)
+      if (nrow(g) == 0) {
+        networks[[as.character(s)]][[network_types[nt]]][[gid]] <- M
+        next
+      }
       
-      message("Group ", g$group[1], "survey ", s, " done.")
+      # I've observed some errors in the data
+      test <- which(!(g$alter %in% ids))
+      if (length(test)) {
+        
+        # Throwing a warning
+        warning(
+          "Group ", g$group[1],
+          " had reports on alters no included in their groups",
+          " in wave ", s,
+          sprintf(" (%i vs %i).", n, length(unique(g$alter))),
+          call.=FALSE)
+        
+        # Resizing the dataset
+        g <- filter(g, alter %in% ids)
+        
+      }
+      
+      # Is there any data left?
+      if (!nrow(g)) {
+        message("Group ", gid, " survey ", s, " network `",
+                network_types[nt],"` done (but had no edges).")
+        networks[[as.character(s)]][[network_types[nt]]][[gid]] <- M
+        next
+      }
+      
       
       # Adding 1s
       for (i in 1:nrow(g))
-        M[[g$viewer[i]]][g$ego[i], g$alter[i]] <- 1L
+        M[g$ego[i], g$alter[i]] <- 1L
       
-      M
+      # Saving the result
+      networks[[as.character(s)]][[network_types[nt]]][[gid]] <- M
       
-    })
-  
+      message("Group ", gid, " survey ", s, " network `",
+              network_types[nt],"` done.")
+      
+      
+    }
+  }
 }
 
+# Saving the object
+saveRDS(networks, "data/networks_truth.rds")
 
-# saveRDS(networks, "data/networks_truth.rds")
