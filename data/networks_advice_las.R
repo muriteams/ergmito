@@ -14,6 +14,8 @@ LAS        <- vector("list", length(advice_css))
 names(LAS) <- groups_ids
 
 for (g in groups_ids) {
+  
+  # Adding i's perception from the true network data
   for (i in names(advice_css[[g]])) 
     advice_css[[g]][[i]][i,] <- truth[[g]][i,]
   

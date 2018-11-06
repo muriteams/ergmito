@@ -1,13 +1,20 @@
 ---
-title: "Profile Analysis"
-author: "George G. Vega Yon"
+title: "CSS Analysis"
 date: "October 22, 2018"
-output: html_document
+output:
+  pdf_document:
+    latex_engine: "xelatex" 
+    md_extensions: "+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+raw_tex"
+header-includes:
+  - \usepackage{pdflscape}
+  - \newcommand{\blandscape}{\begin{landscape}}
+  - \newcommand{\elandscape}{\end{landscape}}
+  - \renewcommand{\familydefault}{\sfdefault}
+  - \fontfamily{\familydefault}\selectfont
 ---
 
-# Setup
-
 ```{r setup, message=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message = FALSE, fig.pos="htb", fig.align = 'center', out.width=".7\\linewidth")
 library(dplyr)
 library(tidyselect)
 library(tidyr)
@@ -15,6 +22,34 @@ library(magrittr)
 library(similR)
 library(igraph)
 ```
+
+# Locally Aggregated Structures (LAS)
+
+*   For each group $g \in G$ we generated what the literature calls Locally Aggregated Structure networks (LAS networks).
+
+*   A tie $(i,j)$ in the LAS exists if and only if $(i,j) \in CSS_i$ and $(i,j) \in CSS_j$, i.e. if both $i$ and $j$ report the existance of such tie.
+
+# Agreement
+
+```{r statistics-to-use}
+statistics <- c(
+  `Hamming (D)`          = "hamming",
+  `Michael (S)`          = "michael",
+  `Hamann (S)`           = "hamann",
+  `Sized Difference (S)` = "dsd",
+  `Mean Manhattan (S)`   = "dmh"
+  )
+```
+
+*   We are interested on exploring whether the level of agreement on the LAS is important at the group level.
+
+*   For each $i \in N_g$ (individual in group $g$), we computed the following $d_{i} = S(CSS_i, LAS_g)$, where $S$ could be any of "`r paste0(names(statistics), collapse="\", \"")`". This statistic measures the similarity/distance between $i$'s CSS and the ground-truth LAS.
+
+*   Once the $d_i$ was calculated for each member of group $g$, we computed its range at the group level, this is $\max_i(d_i) - \min_j(d_j)$.
+
+
+*   Figure \ref{fig:violin} shows the distribution of standarized versions of each statistics (all range between 0 and 1), amd Figure \ref{fig:corrplot} shows the correlation level of each pair of statistic.
+
 
 ```{r data, echo=FALSE}
 # Reading covariate data
@@ -27,18 +62,18 @@ dat_individual <- dat_individual %>%
 
 ```{r network-data, echo=FALSE}
 # Reading raw daa
-networks_truth      <- readRDS("../data/networks_truth.rds")[["3"]]$advice
+networks_truth      <- readRDS("../data/networks_advice_las.rds")  # readRDS("../data/networks_truth.rds")[["3"]]$advice
 networks_advice_css <- readRDS("../data/networks_advice_css.rds")
 networks_sizes      <- readr::read_csv("../data-raw/Study1_Group sizes.csv")
 
 # Calculating distances/similarity of true advice network vs CSS
-statistics <- c("hamming", "michael", "hamann", "dsd", "dmh")
+
 css_range <- lapply(names(networks_advice_css), function(n) {
   
   similR::similarity(
     c(list(networks_truth[[n]]), networks_advice_css[[n]]),
     statistic = statistics,
-    firstonly=TRUE, exclude_j=TRUE
+    normalized = FALSE, firstonly=TRUE, exclude_j=TRUE
   )
   
 })
@@ -61,25 +96,161 @@ css_range <- lapply(css_range, function(d) {
   group_by(statistic) %>%
   mutate(
     groupSize = as.factor(groupSize),
-    value     = (value - min(value))/diff(range(value))
-  )
+    value_01  = (value - min(value))/diff(range(value))
+  ) %>% ungroup
 
 
 ```
 
 
-```{r violin-plot}
+```{r violin-plot, fig.cap="Distribution of Within Group Ranges of Similarity (S) and Distance (D) Statistics. Values are normalized to range between 0 and 1.\\label{fig:violin}"}
 library(ggplot2)
 css_range %>%
-  ggplot(aes(x = statistic, y = value)) +
+  
+  # Adding nicer labels
+  mutate(statistic = names(statistics)[match(statistic, statistics)]) %>%
+  
+  # Plot
+  ggplot(aes(x = statistic, y = value_01)) +
   geom_violin() +
   geom_jitter(height = 0, width=.1, aes(colour=groupSize, shape = groupSize), size=4) +
-  scale_colour_viridis_d(alpha = .7) 
+  scale_colour_viridis_d(alpha = .7)  +
+  
+  labs(y = "Normalized statistic", x = "", shape = "Group Size", colour="Group Size") +
+  theme(axis.text = element_text(angle = 45, hjust = 1))
 ```
 
-Groups of size 3 are complicated to draw
 
-```{r plot-graph-3, fig.cap="Networks of size 3", echo=FALSE, results='hide'}
+```{r corrplot, fig.cap="Correlation levels accross similarity/distance statistics.\\label{fig:corrplot}"}
+# Calcularing correlation
+css_corr <- css_range %>%
+  select(-value_01) %>%
+  spread(statistic, value) %>%
+  select(-Group, -groupSize) %>%
+  cor
+
+# Adding nicer labels
+css_corr <- names(statistics)[match(rownames(css_corr), statistics)] %>%
+  replicate(2, ., simplify = FALSE) %>%
+  `dimnames<-`(css_corr, .)
+
+# Gathering the data
+css_corr <- css_corr %>%
+  as_tibble %>%
+  cbind(a = rownames(css_corr), .) %>%
+  gather("b", "value", -a)
+
+# Plotting
+ggplot(css_corr, aes(x=a, y=b, fill=value))+
+  scale_fill_distiller(palette = "RdBu") +
+  geom_bin2d() +
+  labs(fill     = "Correlation") +
+  theme(
+    axis.text       = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom",
+    axis.title      = element_blank()
+    )
+```
+
+<!-- Observation: The hamming normalized seems to be the same as the Mean manhattan (s) -->
+
+\pagebreak
+
+# TCI analysis
+
+```{r model-data}
+# List of variables to run regressions
+tci_variables <- c("CI_avg.T1", "CI_avg.T2")
+covariates    <- c("GrpProportionMale", "GrpRangeAge", "GrpProportionNonwhite",
+                   "GrpSize", "GPA_AVG")
+
+# Regrouping the css_range
+model_data <- css_range %>%
+  ungroup %>%
+  select(-value_01) %>%
+  spread(statistic, value) %>%
+  select(-groupSize)
+
+model_data <- dat_group %>%
+  select(Group, !!tci_variables, !!covariates) %>%
+  mutate(Group = as.integer(Group)) %>%
+  left_join(model_data, by = "Group")
+```
+
+```{r full-model}
+mnum <- 0L
+models <- vector("list", 0)
+for (s in statistics) {
+  
+  m <- paste("`CI_avg.T2` ~ GrpProportionMale + GrpRangeAge + GrpProportionNonwhite + 
+             GPA_AVG + factor(GrpSize)+",s)
+  models[[mnum <- mnum + 1]] <- lm(as.formula(m), data = model_data)
+  
+}
+```
+
+```{r full-model-less03}
+
+model_data <- filter(model_data, GrpSize != 3L) %>%
+  rename(`CI_avg.T2(-3)` = CI_avg.T2)
+
+for (s in statistics) {
+  
+  m <- paste("`CI_avg.T2(-3)` ~ GrpProportionMale + GrpRangeAge + GrpProportionNonwhite + 
+             GPA_AVG + factor(GrpSize)+",s)
+  models[[mnum <- mnum + 1]] <- lm(as.formula(m), data = model_data)
+  
+}
+```
+
+\clearpage 
+
+\blandscape
+
+```{r table, results='asis'}
+# Generating the table
+tabfun <- if (knitr::is_html_output()) {
+  texreg::htmlreg
+  } else {
+    function(...) texreg::texreg(...)
+  }
+
+# How many variables that are not statistics
+ncovars <- length(setdiff(names(models[[1]]$coefficients), statistics)) + 1L
+
+tab <- capture.output(tabfun(
+  models,
+  # dep.var.labels   = c("All groups", "Groups of size 4 and 5"),
+  # dep.var.caption  = "Standarized TCI",
+  custom.coef.map = c(list(
+    "GrpProportionMale"= "Prop. of Males" ,
+    "GrpProportionNonwhite" = "Prop. of Non-white",
+    "GrpRangeAge"      = "Age Range" ,
+    "GPA_AVG"          = "Avg GPA",
+    "factor(GrpSize)4" = "Size = 4" , 
+    "factor(GrpSize)5" = "Size = 5" ,
+    "(Intercept)"      = "(Intercept)"
+    ), structure(names(statistics), names = statistics)
+    ),
+  groups  = list(
+    "Distance/Similarity" = ncovars:(ncovars + length(statistics) - 1)),
+  caption = "Linear regression models for TCI score (in time 2) against different distance/similarity measurements. Models (1) through (5) include all groups, whereas (6) through (10) exclude groups of size 3."
+  ))
+
+cat(tab, sep="\n")
+```
+
+\elandscape
+
+\clearpage 
+
+\normalsize
+
+
+# Network plots
+
+
+```{r plot-graph-3, fig.cap="LAS Networks of size 3", echo=FALSE, results='hide'}
 networks_size3 <- networks_truth[networks_sizes$groupSize==3] %>%
   lapply(igraph::graph_from_adjacency_matrix)
 
@@ -89,7 +260,7 @@ lapply(networks_size3, plot, vertex.size=10, vertex.label="")
 par(op)
 ```
 
-```{r plot-graph-4, fig.cap="Networks of size 4.", echo=FALSE, results='hide'}
+```{r plot-graph-4, fig.cap="LAS Networks of size 4.", echo=FALSE, results='hide'}
 networks_size4 <- networks_truth[networks_sizes$groupSize==4] %>%
   lapply(., igraph::graph_from_adjacency_matrix)
 
@@ -100,7 +271,7 @@ par(op)
 ```
 
 
-```{r plot-graph-5, fig.cap="Networks of size 5.", echo=FALSE, results='hide'}
+```{r plot-graph-5, fig.cap="LAS Networks of size 5.", echo=FALSE, results='hide'}
 networks_size5 <- networks_truth[networks_sizes$groupSize==5] %>%
   lapply(., igraph::graph_from_adjacency_matrix)
 
@@ -110,19 +281,18 @@ lapply(networks_size5, plot, vertex.size=10, vertex.label="")
 par(op)
 ```
 
+<!-- # Factor analysis -->
 
-# Factor analysis
-
-```{r analysis}
-dat_individual %>%
-  select(
-    PID, Group,
-    RMEscore,
-    SI3Fac1, SI3Fac2, SI3Fac3,
-    # ZRMEscore, ZFLAbRel,
-    FL_absolute_avg
-    )
-```
+<!-- ```{r analysis} -->
+<!-- dat_individual %>% -->
+<!--   select( -->
+<!--     PID, Group, -->
+<!--     RMEscore, -->
+<!--     SI3Fac1, SI3Fac2, SI3Fac3, -->
+<!--     # ZRMEscore, ZFLAbRel, -->
+<!--     FL_absolute_avg -->
+<!--     ) -->
+<!-- ``` -->
 
 
 
