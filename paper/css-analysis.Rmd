@@ -1,27 +1,19 @@
 ---
 title: "CSS Analysis"
+author: "George G. Vega Yon"
 date: "October 22, 2018"
 output:
   pdf_document:
-    latex_engine: "xelatex" 
+    keep_tex: true
     md_extensions: "+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+raw_tex"
 header-includes:
   - \usepackage{pdflscape}
   - \newcommand{\blandscape}{\begin{landscape}}
   - \newcommand{\elandscape}{\end{landscape}}
-  - \renewcommand{\familydefault}{\sfdefault}
-  - \fontfamily{\familydefault}\selectfont
 ---
 
-```{r setup, message=FALSE, echo=FALSE}
-knitr::opts_chunk$set(echo=FALSE, message = FALSE, fig.pos="htb", fig.align = 'center', out.width=".7\\linewidth")
-library(dplyr)
-library(tidyselect)
-library(tidyr)
-library(magrittr)
-library(similR)
-library(igraph)
-```
+<!-- Default sans serif -->
+\renewcommand{\familydefault}{\sfdefault} 
 
 # Locally Aggregated Structures (LAS)
 
@@ -29,27 +21,26 @@ library(igraph)
 
 *   A tie $(i,j)$ in the LAS exists if and only if $(i,j) \in CSS_i$ and $(i,j) \in CSS_j$, i.e. if both $i$ and $j$ report the existance of such tie.
 
-# Agreement
+# Levels of agreement
 
-```{r statistics-to-use}
+*   For each $i \in N_g$ (individual $i$ in group $G$), we calculated the following metrics
+
+```{r setup, message=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message = FALSE)
+library(dplyr)
+library(tidyselect)
+library(tidyr)
+library(magrittr)
+library(similR)
+library(igraph)
 statistics <- c(
-  `Hamming (D)`          = "hamming",
-  `Michael (S)`          = "michael",
-  `Hamann (S)`           = "hamann",
-  `Sized Difference (S)` = "dsd",
-  `Mean Manhattan (S)`   = "dmh"
+  `Hamman (S)`  = "shamann",
+  `Hamming (D)` = "dhamming",
+  `Mean Manhattan (D)` = "dmh",
+  `Michael (S)` = "smichael",
+  `Sized Difference (D)` = "dsd"
   )
 ```
-
-*   We are interested on exploring whether the level of agreement on the LAS is important at the group level.
-
-*   For each $i \in N_g$ (individual in group $g$), we computed the following $d_{i} = S(CSS_i, LAS_g)$, where $S$ could be any of "`r paste0(names(statistics), collapse="\", \"")`". This statistic measures the similarity/distance between $i$'s CSS and the ground-truth LAS.
-
-*   Once the $d_i$ was calculated for each member of group $g$, we computed its range at the group level, this is $\max_i(d_i) - \min_j(d_j)$.
-
-
-*   Figure \ref{fig:violin} shows the distribution of standarized versions of each statistics (all range between 0 and 1), amd Figure \ref{fig:corrplot} shows the correlation level of each pair of statistic.
-
 
 ```{r data, echo=FALSE}
 # Reading covariate data
@@ -67,7 +58,6 @@ networks_advice_css <- readRDS("../data/networks_advice_css.rds")
 networks_sizes      <- readr::read_csv("../data-raw/Study1_Group sizes.csv")
 
 # Calculating distances/similarity of true advice network vs CSS
-
 css_range <- lapply(names(networks_advice_css), function(n) {
   
   similR::similarity(
@@ -103,7 +93,7 @@ css_range <- lapply(css_range, function(d) {
 ```
 
 
-```{r violin-plot, fig.cap="Distribution of Within Group Ranges of Similarity (S) and Distance (D) Statistics. Values are normalized to range between 0 and 1.\\label{fig:violin}"}
+```{r violin-plot, fig.cap="Distribution of Within Group Ranges of Similarity (S) and Distance (D) Statistics. Values are normalized to range between 0 and 1."}
 library(ggplot2)
 css_range %>%
   
@@ -121,7 +111,7 @@ css_range %>%
 ```
 
 
-```{r corrplot, fig.cap="Correlation levels accross similarity/distance statistics.\\label{fig:corrplot}"}
+```{r corrplot}
 # Calcularing correlation
 css_corr <- css_range %>%
   select(-value_01) %>%
@@ -145,6 +135,7 @@ ggplot(css_corr, aes(x=a, y=b, fill=value))+
   scale_fill_distiller(palette = "RdBu") +
   geom_bin2d() +
   labs(fill     = "Correlation") +
+  labs(title    = "Correlation between similarity statistics") +
   theme(
     axis.text       = element_text(angle = 45, hjust = 1),
     legend.position = "bottom",
@@ -152,9 +143,7 @@ ggplot(css_corr, aes(x=a, y=b, fill=value))+
     )
 ```
 
-<!-- Observation: The hamming normalized seems to be the same as the Mean manhattan (s) -->
-
-\pagebreak
+Observation: The hamming normalized seems to be the same as the Mean manhattan (s)
 
 # TCI analysis
 
@@ -234,7 +223,7 @@ tab <- capture.output(tabfun(
     ),
   groups  = list(
     "Distance/Similarity" = ncovars:(ncovars + length(statistics) - 1)),
-  caption = "Linear regression models for TCI score (in time 2) against different distance/similarity measurements. Models (1) through (5) include all groups, whereas (6) through (10) exclude groups of size 3."
+  caption = "Regression using different distance/similarity measurements"
   ))
 
 cat(tab, sep="\n")
@@ -281,18 +270,18 @@ lapply(networks_size5, plot, vertex.size=10, vertex.label="")
 par(op)
 ```
 
-<!-- # Factor analysis -->
+# Factor analysis
 
-<!-- ```{r analysis} -->
-<!-- dat_individual %>% -->
-<!--   select( -->
-<!--     PID, Group, -->
-<!--     RMEscore, -->
-<!--     SI3Fac1, SI3Fac2, SI3Fac3, -->
-<!--     # ZRMEscore, ZFLAbRel, -->
-<!--     FL_absolute_avg -->
-<!--     ) -->
-<!-- ``` -->
+```{r analysis}
+dat_individual %>%
+  select(
+    PID, Group,
+    RMEscore,
+    SI3Fac1, SI3Fac2, SI3Fac3,
+    # ZRMEscore, ZFLAbRel,
+    FL_absolute_avg
+    )
+```
 
 
 
