@@ -1,1 +1,0 @@
-The Social Smarts Project
