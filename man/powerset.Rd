@@ -4,14 +4,16 @@
 \alias{powerset}
 \title{Power set of Directed Graphs of size \code{n}}
 \usage{
-powerset(n, force = FALSE, mc_cores = getOption("mc.cores", 2L),
-  chunk_size = 1e+05)
+powerset(n, force = FALSE, chunk_size = 1e+05)
 }
 \arguments{
 \item{n}{Integer. Number of edges.}
 
 \item{force}{Logical. When \code{TRUE} it generates the powerset for \code{n>5}, otherwise
 it returns with error.}
+
+\item{chunk_size}{Number of matrices to process at a time. If n = 5, then
+stack memory on the computer may overflow if \code{chunk_size} is relatively large.}
 }
 \description{
 Power set of Directed Graphs of size \code{n}

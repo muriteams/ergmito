@@ -1,5 +1,5 @@
 #' Simulation method
-#' @export
+#' @noRd
 simulate.lergm <- function(
   object,
   nsims    = 1,

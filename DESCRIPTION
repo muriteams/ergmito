@@ -8,15 +8,19 @@ Authors@R:
     c(person(given = "George",
              family = "Vega Yon",
              role = c("cre","aut"),
-             email = "g.vegayon@gmail.com"))
+             email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")))
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Encoding: UTF-8
 Imports: 
     ergm,
     stats,
     Rcpp,
-    parallel
+    parallel,
+    viridisLite,
+    sna,
+    MASS,
+    network
 LinkingTo: 
     Rcpp
 License: MIT + file LICENSE

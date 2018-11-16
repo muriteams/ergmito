@@ -16,11 +16,16 @@ make_chunks <- function(N, chunk_size) {
 #' @param n Integer. Number of edges.
 #' @param force Logical. When `TRUE` it generates the powerset for `n>5`, otherwise
 #' it returns with error.
+#' @param chunk_size Number of matrices to process at a time. If n = 5, then
+#' stack memory on the computer may overflow if `chunk_size` is relatively large.
 #' @examples 
 #' powerset(2)
 #' @export
-powerset <- function(n, force=FALSE, mc_cores = getOption("mc.cores", 2L),
-                     chunk_size = 1e5) {
+powerset <- function(
+  n,
+  force      = FALSE,
+  chunk_size = 1e5
+  ) {
   
   # Calculating power sets
   sets <- .powerset(n, force)

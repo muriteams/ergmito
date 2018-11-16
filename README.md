@@ -6,12 +6,16 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/lergm)](https://cran.r-project.org/package=lergm)
+[![Travis build
+status](https://travis-ci.org/USCCANA/lergm.svg?branch=master)](https://travis-ci.org/USCCANA/lergm)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/USCCANA/lergm?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/lergm)
 
 The development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("USCCANA/social-smarts/r-pkg/lergm")
+devtools::install_github("USCCANA/lergm")
 ```
 
 ## Example
@@ -51,27 +55,14 @@ ergm.exact(ans_ergm$coef, model)
 summary(ans_lergm)
 #> 
 #> Little ERGM estimates
-#> 
-#> ==========================
-#> Summary of model fit
-#> ==========================
-#> 
-#> Formula:   net ~ edges + mutual + balance
-#> 
-#> Iterations:  1728 out of 20 
-#> 
-#> Monte Carlo MLE Results:
-#>         Estimate Std. Error MCMC % p-value    
-#> edges    -0.3220     0.1849     29   0.116    
-#> mutual    2.3410     0.2861     29  <1e-04 ***
-#> balance -15.5126   297.4816     29   0.960    
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 13.11  on  9  degrees of freedom
-#>  
-#> AIC: 139.1    BIC: 169.7    (Smaller is better.)
+#>               Length Class        Mode   
+#> coef          3      -none-       numeric
+#> iterations    1      -none-       numeric
+#> loglikelihood 1      -none-       numeric
+#> covar         9      -none-       numeric
+#> network       0      -none-       NULL   
+#> coef.init     3      -none-       numeric
+#> model         6      lergm_loglik list
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -83,10 +74,10 @@ summary(ans_ergm)
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>         Estimate Std. Error MCMC % p-value    
-#> edges   -0.01606    1.22316      0    0.99    
-#> mutual  20.68287         NA     NA      NA    
-#> balance     -Inf    0.00000      0  <1e-04 ***
+#>          Estimate Std. Error MCMC % z value Pr(>|z|)    
+#> edges    0.003479   1.207540      0   0.003    0.998    
+#> mutual  20.682872         NA     NA      NA       NA    
+#> balance      -Inf   0.000000      0    -Inf   <1e-04 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
@@ -98,6 +89,14 @@ summary(ans_ergm)
 #>  Warning: The following terms have infinite coefficient estimates:
 #>   balance
 ```
+
+Checking convergence diagnostics
+
+``` r
+plot(ans_lergm)
+```
+
+<img src="man/figures/README-convergence-diag-1.png" width="100%" />
 
 ## Do we get the same?
 
@@ -129,26 +128,14 @@ ergm.exact(ans_lergm$coef, model) > ergm.exact(ans_ergm$coef, model)
 summary(ans_lergm)
 #> 
 #> Little ERGM estimates
-#> 
-#> ==========================
-#> Summary of model fit
-#> ==========================
-#> 
-#> Formula:   net ~ edges + mutual
-#> 
-#> Iterations:  30 out of 20 
-#> 
-#> Monte Carlo MLE Results:
-#>        Estimate Std. Error MCMC % p-value    
-#> edges  -1.09861    0.08479     29  <1e-04 ***
-#> mutual  1.09861    0.16959     29  <1e-04 ***
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 14.91  on 10  degrees of freedom
-#>  
-#> AIC: 142.9    BIC: 173.9    (Smaller is better.)
+#>               Length Class        Mode   
+#> coef          2      -none-       numeric
+#> iterations    1      -none-       numeric
+#> loglikelihood 1      -none-       numeric
+#> covar         4      -none-       numeric
+#> network       0      -none-       NULL   
+#> coef.init     2      -none-       numeric
+#> model         6      lergm_loglik list
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -160,12 +147,26 @@ summary(ans_ergm)
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>        Estimate Std. Error MCMC % p-value
-#> edges   -1.0915     0.9019      0   0.254
-#> mutual   1.0715     1.8232      0   0.570
+#>        Estimate Std. Error MCMC % z value Pr(>|z|)
+#> edges   -1.1003     0.9041      0  -1.217    0.224
+#> mutual   1.1008     1.8194      0   0.605    0.545
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
 #>  Residual Deviance: 14.90  on 10  degrees of freedom
 #>  
 #> AIC: 18.9    BIC: 19.87    (Smaller is better.)
 ```
+
+# Similarity indices
+
+<https://cran.r-project.org/web/packages/proxy/proxy.pdf>
+
+A Survey of Binary Similarity and Distance Measures Seung-Seok Choi,
+Sung-Hyuk Cha, Charles C. Tappert Department of Computer Science, Pace
+University New York, US
+
+# Contributing
+
+Please note that the ‘lergm’ project is released with a [Contributor
+Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project,
+you agree to abide by its terms.

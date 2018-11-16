@@ -2,21 +2,42 @@
 % Please edit documentation in R/lergm.R
 \name{lergm}
 \alias{lergm}
+\alias{print.lergm}
+\alias{summary.lergm}
+\alias{coef.lergm}
+\alias{logLik.lergm}
+\alias{vcov.lergm}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
-lergm(formula, control = list(maxit = 1000, reltol = 1e-100),
-  allstats_force = TRUE, offset = NULL, stats = NULL)
+lergm(model, control = list(maxit = 1000, reltol = 1e-100),
+  stats = NULL, ...)
+
+\method{print}{lergm}(x, ...)
+
+\method{summary}{lergm}(object, ...)
+
+\method{coef}{lergm}(object, ...)
+
+\method{logLik}{lergm}(object, ...)
+
+\method{vcov}{lergm}(object, ...)
 }
 \arguments{
-\item{formula, control, offset}{See \link[ergm:ergm]{ergm::ergm}.}
+\item{model}{Model to estimate. See \link[ergm:ergm]{ergm::ergm}. The only difference with
+\code{ergm} is that the LHS can be a list of networks.}
 
-\item{allstats_force}{Logical. Passed to \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
+\item{control}{List. Passed to \link[stats:optim]{stats::optim}.}
 
-\item{astats}{List as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}. When this is provided,
+\item{stats}{List as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}. When this is provided,
 the function does not call \code{ergm.allstats}, which can be useful in simulations.}
+
+\item{...}{Further arguments passed to the method. In the case of \code{lergm},
+\code{...} are passed to \link{lergm_formulae}.}
+
+\item{x, object}{An object of class \code{lergm}}
 }
 \value{
-An object of class \code{ergm} and \code{lergm}.
+An object of class \code{lergm}.
 }
 \description{
 As a difference from \link[=ergm]{ergm::ergm}, \code{lergm} uses the exact log-likelihood
@@ -44,4 +65,7 @@ ergm.exact(ans_ergm$coef, model)
 
 summary(ans_lergm)
 summary(ans_ergm)
+}
+\seealso{
+The function \link{plot.lergm} for post-estimation diagnostics.
 }

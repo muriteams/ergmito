@@ -18,12 +18,15 @@ knitr::opts_chunk$set(
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) 
 [![CRAN status](https://www.r-pkg.org/badges/version/lergm)](https://cran.r-project.org/package=lergm)
+[![Travis build status](https://travis-ci.org/USCCANA/lergm.svg?branch=master)](https://travis-ci.org/USCCANA/lergm)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/USCCANA/lergm?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/lergm)
+
 
 The development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("USCCANA/social-smarts/r-pkg/lergm")
+devtools::install_github("USCCANA/lergm")
 ```
 ## Example
 
@@ -42,7 +45,7 @@ net <- sna::rgraph(n, tprob = .7)
 gplot(net)
 ```
 
-```{r}
+```{r comparing-w-ergm}
 model <- net ~ edges + mutual + balance
 
 library(ergm)
@@ -56,6 +59,13 @@ ergm.exact(ans_ergm$coef, model)
 summary(ans_lergm)
 summary(ans_ergm)
 ```
+
+Checking convergence diagnostics
+
+```{r convergence-diag}
+plot(ans_lergm)
+```
+
 
 ## Do we get the same?
 
@@ -92,3 +102,7 @@ A Survey of Binary Similarity and Distance Measures
 Seung-Seok Choi, Sung-Hyuk Cha, Charles C. Tappert
 Department of Computer Science, Pace University
 New York, US
+
+# Contributing
+
+Please note that the 'lergm' project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
