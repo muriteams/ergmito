@@ -24,3 +24,6 @@ Imports:
 LinkingTo: 
     Rcpp
 License: MIT + file LICENSE
+Suggests: 
+    testthat,
+    covr

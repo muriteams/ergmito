@@ -10,6 +10,8 @@ status](https://www.r-pkg.org/badges/version/lergm)](https://cran.r-project.org/
 status](https://travis-ci.org/USCCANA/lergm.svg?branch=master)](https://travis-ci.org/USCCANA/lergm)
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/USCCANA/lergm?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/lergm)
+[![Coverage
+status](https://codecov.io/gh/USCCANA/lergm/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/lergm?branch=master)
 
 The development version from [GitHub](https://github.com/) with:
 
@@ -46,8 +48,8 @@ ans_ergm  <- ergm(model)
 
 # The lergm should have a larger value
 ergm.exact(ans_lergm$coef, model)
-#>           [,1]
-#> [1,] -6.556978
+#>        [,1]
+#> [1,] -6.557
 ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,]  NaN
@@ -74,10 +76,10 @@ summary(ans_ergm)
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>          Estimate Std. Error MCMC % z value Pr(>|z|)    
-#> edges    0.003479   1.207540      0   0.003    0.998    
-#> mutual  20.682872         NA     NA      NA       NA    
-#> balance      -Inf   0.000000      0    -Inf   <1e-04 ***
+#>         Estimate Std. Error MCMC % z value Pr(>|z|)    
+#> edges    0.00116    1.21668      0   0.001    0.999    
+#> mutual  20.68287         NA     NA      NA       NA    
+#> balance     -Inf    0.00000      0    -Inf   <1e-04 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 

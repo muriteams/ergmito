@@ -60,7 +60,7 @@ lergm <- function(
     par     = (init <- stats::rnorm(npars)),
     method="BFGS",
     fn      = objfun$loglik,
-    gr      = objfun$grad,
+    # gr      = objfun$grad,
     stats   = stats$statmat,
     control = control,
     hessian = TRUE

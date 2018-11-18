@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/lergm)](https://cran.r-project.org/package=lergm)
 [![Travis build status](https://travis-ci.org/USCCANA/lergm.svg?branch=master)](https://travis-ci.org/USCCANA/lergm)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/USCCANA/lergm?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/lergm)
+[![Coverage status](https://codecov.io/gh/USCCANA/lergm/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/lergm?branch=master)
+
 
 
 The development version from [GitHub](https://github.com/) with:

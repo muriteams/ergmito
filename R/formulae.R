@@ -37,26 +37,45 @@ lergm_formulae <- function(
 
   if (inherits(LHS, "list")) {
     
+    # Checking stats0
+    dots <- list(...)
+    if (length(dots$zeroobs) && dots$zeroobs) {
+      warning(
+        "The option `zeroobs` was set to FALSE. `zeroobs = TRUE` invalidates the pulled ERGM.",
+        call. = FALSE)
+    } 
+    
+    dots$zeroobs <- FALSE
+    
+    
     # Checking length of stats
     if (!length(stats))
       stats <- vector("list", length(LHS))
     
-    env. <- env
+    # env. <- env
+    # env$stats <- stats
     
     # Creating one model per model
-    f. <- Map(function(lhs, stats.) {
+    f. <- vector("list", length(LHS))
+    for (i in seq_along(f.)) {
       
-      model[[2]] <- lhs
-      m <- stats::as.formula(model)
-      expr <- parse(
-        text = sprintf(
-          "lergm_formulae(model = %s, stats = stats., env = env.)",
-          deparse(m)
-          )
+      # Rewriting the model
+      model. <- model
+      model.[[2]] <- substitute(
+        NET[[i.]],
+        list(i. = i, NET = model[[2]])
+      )
+      
+      # Getting the functions
+      f.[[i]] <- lergm_formulae(
+        model = stats::as.formula(model.),
+        stats = stats[[i]],
+        env = env,
+        ...
         )
-      eval(expr)
+    }
       
-    }, lhs = model[[2]][-1], stats. = stats)
+
     
     # Additive loglike function
     structure(
@@ -86,8 +105,27 @@ lergm_formulae <- function(
     
   } else if (inherits(LHS, "matrix") | inherits(LHS, "network")) {
     
+    # Collecting options
+    dots <- list(...)
+    
     # Network size
     n <- nrow(LHS)
+    
+    # Baseline statistics, i.e. the zero out. If this is not applied, then
+    # the ERGM coefficients should be interpreted in a different fashion. By
+    # default in the ERGM package statistics are centered with respect to the
+    # observed network. This is critical when estimated te pooled version of 
+    # ERGMs.
+    #
+    # We MUST NOT center the statistics when estimating the pooled version.
+    if (!length(dots$zeroobs))
+      dots$zeroobs <- TRUE
+    
+    observed_stats <- summary(stats::as.formula(model))
+    stats0         <- observed_stats
+    if (dots$zeroobs)
+      stats0[] <- rep(0, length(observed_stats))
+      
     
     # Calculating statistics and weights
     if (!length(stats))
@@ -107,7 +145,7 @@ lergm_formulae <- function(
           stats <- originenv$stats
         
         # Computing the log-likelihood
-        exact_loglik(params, stats)
+        exact_loglik(params, stats0, stats)
         
       },
       grad  = function(params, stats = NULL) {
@@ -116,7 +154,7 @@ lergm_formulae <- function(
         if (!length(stats))  
           stats <- originenv$stats
         
-        exact_loglik_gr(params, stats)
+        exact_loglik_gr(params, stats0, stats)
         
       },
       stats = stats,
@@ -136,26 +174,29 @@ lergm_formulae <- function(
 print.lergm_loglik <- function(x, ...) {
   
   cat("lergm log-likelihood function\n")
-  cat("number of networks: ", x$nnets, "\n")
+  cat("Number of networks: ", x$nnets, "\n")
   cat("Model: ", deparse(x$model), "\n")
   cat("Available elements by using the $ operator:\n")
   cat(sprintf("loglik: %s", deparse(x$loglik)[1]))
+  cat(sprintf("grad  : %s", deparse(x$grad)[1]))
   
   invisible(x)
 }
 
 
-exact_loglik <- function(params, stats) {
+exact_loglik <- function(params, stat0, stats) {
   
-  - log(stats$weights %*% exp(stats$statmat %*% params))
+  sum(params * stat0) - log(stats$weights %*% exp(stats$statmat %*% params))
   
 }
 
-exact_loglik_gr <- function(params, stats) {
+exact_loglik_gr <- function(params, stat0, stats) {
   
-  exp_sum <- exp(stats$statmat %*% params)
+  exp_sum0 <- sum(params * stat0)
+  exp_sum  <- exp(stats$statmat %*% params)
   
-  - 1/log(stats$weights %*% exp_sum)[1]*(t(stats$statmat) %*% (exp_sum*stats$weights))
+  params*(stat0 != 0) - 
+    1/log(stats$weights %*% exp_sum)[1]*(t(stats$statmat) %*% (exp_sum*stats$weights))
   
   
 }
