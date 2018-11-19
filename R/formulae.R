@@ -68,7 +68,7 @@ lergm_formulae <- function(
       
       # Getting the functions
       f.[[i]] <- lergm_formulae(
-        model = stats::as.formula(model.),
+        model = stats::as.formula(model., env = env),
         stats = stats[[i]],
         env = env,
         ...
@@ -95,7 +95,7 @@ lergm_formulae <- function(
           gr
           },
         stats = lapply(f., "[[", "stats"),
-        model = f.[[1]]$model,
+        model = model,
         npars = f.[[1]]$npars,
         nnets = length(f.)
         ),
@@ -121,7 +121,9 @@ lergm_formulae <- function(
     if (!length(dots$zeroobs))
       dots$zeroobs <- TRUE
     
-    observed_stats <- summary(stats::as.formula(model))
+    environment(model) <- env
+    
+    observed_stats <- summary(model)
     stats0         <- observed_stats
     if (dots$zeroobs)
       stats0[] <- rep(0, length(observed_stats))
@@ -129,7 +131,7 @@ lergm_formulae <- function(
     
     # Calculating statistics and weights
     if (!length(stats))
-      stats <- ergm::ergm.allstats(formula = stats::as.formula(model), ...)
+      stats <- ergm::ergm.allstats(formula = model, ...)
     
     # This environment will like in the same place as where the loglikelihood
     # function was created, so it can be access after it.
@@ -158,7 +160,7 @@ lergm_formulae <- function(
         
       },
       stats = stats,
-      model = stats::as.formula(model),
+      model = stats::as.formula(model, env = env),
       npars = ncol(originenv$stats$statmat),
       nnets = 1L
     ), class="lergm_loglik")
@@ -200,3 +202,4 @@ exact_loglik_gr <- function(params, stat0, stats) {
   
   
 }
+

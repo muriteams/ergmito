@@ -18,7 +18,18 @@
 #' 
 #' @seealso The function [plot.lergm] for post-estimation diagnostics.
 #' 
-#' @return An object of class `lergm`.
+#' @return An list of class `lergm`:
+#' 
+#' - `coef`          Named vector. Parameter estimates.
+#' - `iterations`    Integer. Number of times the loglikelihood was evaluated
+#'   (see [stats::optim]).
+#' - `loglikelihood` Numeric. Final value of the objective function.
+#' - `covar`         Square matrix of size `length(coef)`. Variance-covariance matrix
+#' - `coef.init`     Named vector of length `length(coef)`. Initial set of parameters
+#'   used in the optimization.
+#' - `formulae`      An object of class [lergm_loglik][lergm_formulae].
+#' - `network`       Networks passed via `model`.
+#' 
 #' @export
 #' @examples 
 #' 
@@ -72,6 +83,9 @@ lergm <- function(
   covar.         <- -MASS::ginv(ans$hessian)
   dimnames(covar.) <- list(pnames, pnames)
   
+  # Capturing model
+  if (!inherits(model, "formula"))
+    model <- eval(model)
   
   structure(
     list(
@@ -79,9 +93,9 @@ lergm <- function(
       iterations    = ans$counts["function"],
       loglikelihood = ans$value,
       covar         = covar.,
-      network       = NULL,
       coef.init     = init,
-      model         = objfun
+      formulae      = objfun,
+      network       = eval(model[[2]], envir = lergmenv)
     ),
     class="lergm"
     )
