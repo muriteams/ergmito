@@ -45,6 +45,10 @@ nnets <- function(x) UseMethod("nnets")
 
 #' @export
 #' @rdname nvertex
+nnets.list <- function(x) length(x)
+
+#' @export
+#' @rdname nvertex
 nnets.lergm <- function(x) {
   
   x$formulae$nnets
