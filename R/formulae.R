@@ -7,6 +7,8 @@
 #' @param model A formula. The left-hand-side can be either a small network, or
 #' a list of networks. 
 #' @param stats A list.
+#' @param obs_stats Observed statistics. If multiple networks, then a list, otherwise
+#' a named vector (see [ergm::summary_formula]). 
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
 #' @return A list of class `lergm_loglik`.
@@ -23,8 +25,9 @@
 #' @export
 lergm_formulae <- function(
   model,
-  stats = NULL,
-  env   = parent.frame(),
+  stats     = NULL,
+  obs_stats = NULL,
+  env       = parent.frame(),
   ...
   ) {
   
@@ -41,19 +44,18 @@ lergm_formulae <- function(
     dots <- list(...)
     if (length(dots$zeroobs) && dots$zeroobs) {
       warning(
-        "The option `zeroobs` was set to FALSE. `zeroobs = TRUE` invalidates the pulled ERGM.",
+        "The option `zeroobs` was set to FALSE. `zeroobs = TRUE` invalidates the pooled ERGM.",
         call. = FALSE)
     } 
     
     dots$zeroobs <- FALSE
     
-    
     # Checking length of stats
     if (!length(stats))
       stats <- vector("list", length(LHS))
     
-    # env. <- env
-    # env$stats <- stats
+    if (!length(obs_stats))
+      obs_stats <- vector("list", length(LHS))
     
     # Creating one model per model
     f. <- vector("list", length(LHS))
@@ -68,14 +70,13 @@ lergm_formulae <- function(
       
       # Getting the functions
       f.[[i]] <- lergm_formulae(
-        model = stats::as.formula(model., env = env),
-        stats = stats[[i]],
-        env = env,
+        model     = model.,
+        stats     = stats[[i]],
+        obs_stats = obs_stats[[i]],
+        env       = env,
         ...
         )
     }
-      
-
     
     # Additive loglike function
     structure(
@@ -94,10 +95,12 @@ lergm_formulae <- function(
             gr <- gr + f.[[i]]$grad(params, stats[[i]])
           gr
           },
-        stats = lapply(f., "[[", "stats"),
-        model = model,
-        npars = f.[[1]]$npars,
-        nnets = length(f.)
+        obs_stats = lapply(f., "[[", "obs_stats"),
+        stats     = lapply(f., "[[", "stats"),
+        model     = model,
+        npars     = f.[[1]]$npars,
+        nnets     = length(f.),
+        zeroobs   = dots$zeroobs
         ),
       class="lergm_loglik"
       )
@@ -123,10 +126,12 @@ lergm_formulae <- function(
     
     environment(model) <- env
     
-    observed_stats <- summary(model)
-    stats0         <- observed_stats
+    if (!length(obs_stats))
+      obs_stats <- summary(model)
+    
+    stats0 <- obs_stats
     if (dots$zeroobs)
-      stats0[] <- rep(0, length(observed_stats))
+      stats0[] <- rep(0, length(obs_stats))
       
     
     # Calculating statistics and weights
@@ -160,6 +165,7 @@ lergm_formulae <- function(
         
       },
       stats = stats,
+      obs_stats = obs_stats,
       model = stats::as.formula(model, env = env),
       npars = ncol(originenv$stats$statmat),
       nnets = 1L
@@ -194,10 +200,9 @@ exact_loglik <- function(params, stat0, stats) {
 
 exact_loglik_gr <- function(params, stat0, stats) {
   
-  exp_sum0 <- sum(params * stat0)
   exp_sum  <- exp(stats$statmat %*% params)
   
-  params*(stat0 != 0) - 
+  stat0 - 
     1/log(stats$weights %*% exp_sum)[1]*(t(stats$statmat) %*% (exp_sum*stats$weights))
   
   

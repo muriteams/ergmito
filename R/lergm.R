@@ -61,24 +61,24 @@ lergm <- function(
   
   # Generating the objective function
   lergmenv <- parent.frame()
-  objfun   <- lergm_formulae(model, stats = stats, env = lergmenv, ...)
+  formulae   <- lergm_formulae(model, stats = stats, env = lergmenv, ...)
 
-  npars  <- objfun$npars
+  npars  <- formulae$npars
   
   control$fnscale <- -1
   
   ans <- stats::optim(
     par     = (init <- stats::rnorm(npars)),
-    method="BFGS",
-    fn      = objfun$loglik,
-    # gr      = objfun$grad,
+    method  = "BFGS",
+    fn      = formulae$loglik,
+    # gr      = formulae$grad,
     stats   = stats$statmat,
     control = control,
     hessian = TRUE
   )
   
   # Capturing the names of the parameters
-  pnames         <- attr(stats::terms(objfun$model), "term.labels")
+  pnames         <- attr(stats::terms(formulae$model), "term.labels")
   names(ans$par) <- pnames
   covar.         <- -MASS::ginv(ans$hessian)
   dimnames(covar.) <- list(pnames, pnames)
@@ -89,12 +89,13 @@ lergm <- function(
   
   structure(
     list(
+      call          = match.call(),
       coef          = ans$par,
       iterations    = ans$counts["function"],
       loglikelihood = ans$value,
       covar         = covar.,
       coef.init     = init,
-      formulae      = objfun,
+      formulae      = formulae,
       network       = eval(model[[2]], envir = lergmenv)
     ),
     class="lergm"

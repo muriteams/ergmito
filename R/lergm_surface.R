@@ -65,8 +65,8 @@ plot.lergm <- function(
   if (!inherits(x, "lergm"))
     stop("This function only accepts objects of class `lergm`.", call. = FALSE)
   
-  f <- x$model$loglik
-  k <- x$model$npars
+  f <- x$formulae$loglik
+  k <- x$formulae$npars
   
   # Over what domain should we calculate this?
   if (!length(domain)) {

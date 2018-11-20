@@ -32,10 +32,10 @@ test_that("Multiple nets", {
   
   set.seed(121)
   net1 <- rbernoulli(4)
-  set.seed(1000); ans0 <- lergm(net1 ~ edges + mutual, zeroobs = FALSE)
+  set.seed(1000); ans0 <- lergm(net1 ~ edges + mutual, zeroobs = TRUE)
   set.seed(1000); ans1 <- lergm(list(net1, net1) ~ edges + mutual)
   
-  expect_equal(coef(ans0), coef(ans1))
+  expect_equal(coef(ans0), coef(ans1), tolerance = 1e-5)
   expect_equal(vcov(ans0), vcov(ans1)*2) # Vcov is half of it!
   
 })
