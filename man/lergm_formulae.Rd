@@ -4,13 +4,17 @@
 \alias{lergm_formulae}
 \title{Processing formulas in \code{lergm}}
 \usage{
-lergm_formulae(model, stats = NULL, env = parent.frame(), ...)
+lergm_formulae(model, stats = NULL, obs_stats = NULL,
+  env = parent.frame(), ...)
 }
 \arguments{
 \item{model}{A formula. The left-hand-side can be either a small network, or
 a list of networks.}
 
 \item{stats}{A list.}
+
+\item{obs_stats}{Observed statistics. If multiple networks, then a list, otherwise
+a named vector (see \link[ergm:summary_formula]{ergm::summary_formula}).}
 
 \item{env}{Environment in which \code{model} should be evaluated.}
 
