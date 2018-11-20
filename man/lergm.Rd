@@ -37,7 +37,18 @@ the function does not call \code{ergm.allstats}, which can be useful in simulati
 \item{x, object}{An object of class \code{lergm}}
 }
 \value{
-An object of class \code{lergm}.
+An list of class \code{lergm}:
+\itemize{
+\item \code{coef}          Named vector. Parameter estimates.
+\item \code{iterations}    Integer. Number of times the loglikelihood was evaluated
+(see \link[stats:optim]{stats::optim}).
+\item \code{loglikelihood} Numeric. Final value of the objective function.
+\item \code{covar}         Square matrix of size \code{length(coef)}. Variance-covariance matrix
+\item \code{coef.init}     Named vector of length \code{length(coef)}. Initial set of parameters
+used in the optimization.
+\item \code{formulae}      An object of class \link[=lergm_formulae]{lergm_loglik}.
+\item \code{network}       Networks passed via \code{model}.
+}
 }
 \description{
 As a difference from \link[=ergm]{ergm::ergm}, \code{lergm} uses the exact log-likelihood
