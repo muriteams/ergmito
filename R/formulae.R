@@ -33,7 +33,7 @@ lergm_formulae <- function(
   
   # Capturing model
   if (!inherits(model, "formula"))
-    model <- eval(model)
+    model <- eval(model, envir = env)
 
   # What is the first component
   LHS <- eval(model[[2]], envir = env)

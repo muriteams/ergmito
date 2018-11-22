@@ -60,8 +60,8 @@ lergm <- function(
   ) {
   
   # Generating the objective function
-  lergmenv <- parent.frame()
-  formulae   <- lergm_formulae(model, stats = stats, env = lergmenv, ...)
+  lergmenv <- environment(model)
+  formulae <- lergm_formulae(model, stats = stats, env = lergmenv, ...)
 
   npars  <- formulae$npars
   
