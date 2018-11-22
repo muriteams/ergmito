@@ -8,6 +8,8 @@
 \alias{nvertex.lergm}
 \alias{nnets}
 \alias{nnets.list}
+\alias{nnets.matrix}
+\alias{nnets.network}
 \alias{nnets.lergm}
 \title{Utility functions to query network dimensions}
 \usage{
@@ -24,6 +26,10 @@ nvertex(x)
 nnets(x)
 
 \method{nnets}{list}(x)
+
+\method{nnets}{matrix}(x)
+
+\method{nnets}{network}(x)
 
 \method{nnets}{lergm}(x)
 }

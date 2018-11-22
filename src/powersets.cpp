@@ -1,6 +1,6 @@
 #include <numeric>
 #include "lergm_types.h"
-#include <Rcpp.h>
+#include <RcppArmadillo.h>
 
 // [[Rcpp::plugins(cpp11)]]
 

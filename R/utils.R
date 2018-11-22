@@ -49,6 +49,14 @@ nnets.list <- function(x) length(x)
 
 #' @export
 #' @rdname nvertex
+nnets.matrix <- function(x) 1L
+
+#' @export
+#' @rdname nvertex
+nnets.network <- function(x) 1L
+
+#' @export
+#' @rdname nvertex
 nnets.lergm <- function(x) {
   
   x$formulae$nnets

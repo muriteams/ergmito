@@ -5,10 +5,12 @@ Title: Estimation of Little 'ERGMs' using exact likelihood
 Description: What the title said.
 Depends: R (>= 3.3.0)
 Authors@R: 
-    c(person(given = "George",
-             family = "Vega Yon",
-             role = c("cre","aut"),
-             email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")))
+    c(
+      person(given = "George", family = "Vega Yon", role = c("cre","aut"),
+      email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")),
+      person("Army Research Laboratory and the U.S. Army Research Office",
+      role = "fnd", comment = "Grant Number W911NF-15-1-0577")
+      )
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Encoding: UTF-8
@@ -20,9 +22,11 @@ Imports:
     viridisLite,
     sna,
     MASS,
-    network
+    network,
+    RcppArmadillo,
+    utils
 LinkingTo: 
-    Rcpp
+    Rcpp, RcppArmadillo
 License: MIT + file LICENSE
 Suggests: 
     testthat,

@@ -2,10 +2,25 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include "lergm_types.h"
+#include <RcppArmadillo.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
 
+// exact_loglik
+arma::vec exact_loglik(const arma::mat& x, const arma::rowvec& params, const arma::rowvec& weights, const arma::mat& statmat);
+RcppExport SEXP _lergm_exact_loglik(SEXP xSEXP, SEXP paramsSEXP, SEXP weightsSEXP, SEXP statmatSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::rowvec& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< const arma::rowvec& >::type weights(weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type statmat(statmatSEXP);
+    rcpp_result_gen = Rcpp::wrap(exact_loglik(x, params, weights, statmat));
+    return rcpp_result_gen;
+END_RCPP
+}
 // make_sets
 vecint make_sets(int n);
 RcppExport SEXP _lergm_make_sets(SEXP nSEXP) {
@@ -56,6 +71,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_lergm_exact_loglik", (DL_FUNC) &_lergm_exact_loglik, 4},
     {"_lergm_make_sets", (DL_FUNC) &_lergm_make_sets, 1},
     {"_lergm_powerset", (DL_FUNC) &_lergm_powerset, 2},
     {"_lergm_print_powerset", (DL_FUNC) &_lergm_print_powerset, 1},

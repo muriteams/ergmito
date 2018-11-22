@@ -15,10 +15,11 @@ new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   
   # Getting the estimates
   if (!length(theta))
-    theta <- coef(lergm(model))
+    theta <- coef(lergm(model, zeroobs = FALSE))
   
   # Obtaining the network(s) object
-  net <- eval(model[[2]])
+  net   <- eval(model[[2]])
+  terms <- attr(stats::terms(model), "term.labels")
   
   # Checking stats0
   dots <- list(...)
@@ -29,51 +30,75 @@ new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
         "The option `zeroobs` was set to FALSE. `zeroobs = TRUE` invalidates the pooled ERGM.",
         call. = FALSE)
     
-    dots$zeroobs <- FALSE
   } 
-  # dots$zeroobs <- FALSE
+  
+  dots$zeroobs <- FALSE
   
   # Generating powersets
-  ans   <- new.env()
+  ans          <- new.env()
   ans$networks <- lapply(sizes, powerset)
+  ans$theta    <- theta
   names(ans$networks) <- sizes
   
   # Computing probabilities
   model. <- stats::update.formula(model, pset ~ .)
-  ans$prob <- parallel::mclapply(ans$networks, function(psets) {
+  ans$counts <- parallel::mclapply(ans$networks, function(psets) {
     
     # Getting the corresponding powerset
-    pr <- vector("double", length(psets))
+    stats <- matrix(NA, nrow = length(psets), ncol = length(terms), dimnames = list(NULL, terms))
     environment(model.) <- environment()
     
-    S <- NULL
+    # Counts
+    pset <- psets[[1]]
+    S    <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
+    
     for (i in seq_along(psets)) {
       
       # Updating the model
       pset   <- psets[[i]]
       
       # In the first iteration we need to compute the statsmat
-      if (i == 1L)
-        S <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
-      
-      pr[i] <- exact_loglik(
-        params = theta,
-        stat0  = summary(model.),
-        stats  = S
-        )
+      stats[i, terms] <- summary(model.)
       
     }
     
-    pr
+    c(list(stats = stats), S)
     
   }, mc.cores = mc.cores)
   
-  # Turning into probability
-  ans$prob <- lapply(ans$prob, exp)
-  names(ans$prob) <- sizes
+  
+  # Computing probabilities
+  ans$prob <- lapply(sizes, function(s) vector("double", 2^(s*(s-1))))
+  names(ans$prob) <- as.character(sizes)
+  
+  # Function to compute probabilities
+  ans$calc_prob <- function(theta = NULL) {
+    
+    if (!length(theta))
+      theta <- ans$theta
+    
+    for (i in seq_along(sizes))
+      ans$prob[[i]] <- exp(exact_loglik(
+        x       = ans$counts[[i]]$stats,
+        params  = theta,
+        weights = ans$counts[[i]]$weights,
+        statmat = ans$counts[[i]]$statmat
+      ))
+      
+    invisible()
+  }
+  
+  # Calling the prob function
+  ans$calc_prob()
   
   # Sampling function
-  ans$sample <- function(n, s) {
+  ans$sample <- function(n, s, theta = NULL) {
+    
+    # If no new set of parameters is used, then 
+    if (length(theta)) {
+      ans$calc_prob(theta)
+      on.exit(ans$calc_prob())
+    } 
     
     # All should be able to be sampled
     test <- which(!(s %in% sizes))
@@ -106,5 +131,13 @@ print.lergm_sampler <- function(x, ...) {
   cat("sample :", deparse(x$sample)[1], "\n")
   
   invisible(x)
+  
+}
+
+#' @export
+#' @importFrom utils ls.str
+str.lergm_sampler <- function(object, ...) {
+  
+  utils::ls.str(object, ...)
   
 }

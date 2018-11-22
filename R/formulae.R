@@ -132,6 +132,7 @@ lergm_formulae <- function(
     stats0 <- obs_stats
     if (dots$zeroobs)
       stats0[] <- rep(0, length(obs_stats))
+    stats0 <- matrix(stats0, nrow=1)
       
     
     # Calculating statistics and weights
@@ -152,7 +153,7 @@ lergm_formulae <- function(
           stats <- originenv$stats
         
         # Computing the log-likelihood
-        exact_loglik(params, stats0, stats)
+        exact_loglik(params = params, x = stats0, weights = stats$weights, statmat = stats$statmat)
         
       },
       grad  = function(params, stats = NULL) {
@@ -191,8 +192,36 @@ print.lergm_loglik <- function(x, ...) {
   invisible(x)
 }
 
+#' Vectorized calculation of ERGM exact loglikelihood
+#' 
+#' This function can be compared to [ergm::ergm.exact] with the statistics
+#' centered at `x`, the observed statistic.
+#' 
+#' @param x Matrix. Observed statistics
+#' @param params Numeric vector. Parameter values of the model.
+#' @param weights,statmat Vector and Matrix as returned by [ergm::ergm.allstats].
+#' @export
+exact_loglik <- function(x, params, weights, statmat) {
+  
+  # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
+  chunks <- make_chunks(nrow(x), 2e5)
+  
+  ans <- vector("double", nrow(x))
+  for (s in seq_along(length(chunks$from))) {
+    
+    i <- chunks$from[s]
+    j <- chunks$to[s]
+    
+    ans[c((i+1):j)] <- exact_loglik.(x[(i+1):j, ,drop=FALSE], params, weights, statmat)
+    
+  }
+  
+  ans
+  
+}
 
-exact_loglik <- function(params, stat0, stats) {
+# This function uis just used for testing
+exact_loglik2 <- function(params, stat0, stats) {
   
   sum(params * stat0) - log(stats$weights %*% exp(stats$statmat %*% params))
   

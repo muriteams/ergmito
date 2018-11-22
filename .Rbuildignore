@@ -1,3 +1,4 @@
+^playground$
 ^codecov\.yml$
 ^appveyor\.yml$
 ^\.travis\.yml$

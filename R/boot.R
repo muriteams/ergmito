@@ -33,7 +33,7 @@ lergm_boot.formula <- function(x, ..., R, ncpus = 1L, cl = NULL) {
 #' @rdname lergm_boot
 lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
-  n <- x$formulae$nnets
+  n <- nnets(x)
   
   # Getting the sample, and baseline model
   IDX    <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
