@@ -37,7 +37,7 @@ lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   # Getting the sample, and baseline model
   IDX    <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
-  model0 <- stats::update.formula(x$formulae$model, nets. ~ .)
+  model0 <- stats::update.formula(x$formulae$model, nets0[idx] ~ .)
   stats0 <- x$formulae$stats
   nets0  <- x$network
   obs_stats0 <- x$formulae$obs_stats
@@ -62,7 +62,7 @@ lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     
     parallel::parLapply(cl, IDX, function(idx) {
       
-      nets.  <- nets0[idx]
+      environment(model0) <- environment()
       lergm(model0, stats = stats0[idx], obs_stats = obs_stats0[idx])
       
     })
@@ -71,7 +71,7 @@ lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     
     lapply(IDX, function(idx) {
       
-      nets.  <- nets0[idx] 
+      environment(model0) <- environment()
       lergm(model0, stats = stats0[idx], obs_stats = obs_stats0[idx])
       
     })
