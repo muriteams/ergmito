@@ -4,7 +4,7 @@
 \alias{powerset}
 \title{Power set of Directed Graphs of size \code{n}}
 \usage{
-powerset(n, force = FALSE, chunk_size = 1e+05)
+powerset(n, force = FALSE, chunk_size = 2e+05)
 }
 \arguments{
 \item{n}{Integer. Number of edges.}

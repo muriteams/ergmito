@@ -7,6 +7,40 @@
 
 using namespace Rcpp;
 
+// count_mutual
+int count_mutual(const IntegerMatrix& x);
+RcppExport SEXP _lergm_count_mutual(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_mutual(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// count_edges
+int count_edges(const IntegerMatrix& x);
+RcppExport SEXP _lergm_count_edges(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_edges(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// count_stats
+IntegerMatrix count_stats(const ListOf< IntegerMatrix >& X, const std::vector< std::string >& terms);
+RcppExport SEXP _lergm_count_stats(SEXP XSEXP, SEXP termsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const ListOf< IntegerMatrix >& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const std::vector< std::string >& >::type terms(termsSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_stats(X, terms));
+    return rcpp_result_gen;
+END_RCPP
+}
 // exact_loglik
 arma::vec exact_loglik(const arma::mat& x, const arma::rowvec& params, const arma::rowvec& weights, const arma::mat& statmat);
 RcppExport SEXP _lergm_exact_loglik(SEXP xSEXP, SEXP paramsSEXP, SEXP weightsSEXP, SEXP statmatSEXP) {
@@ -71,6 +105,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_lergm_count_mutual", (DL_FUNC) &_lergm_count_mutual, 1},
+    {"_lergm_count_edges", (DL_FUNC) &_lergm_count_edges, 1},
+    {"_lergm_count_stats", (DL_FUNC) &_lergm_count_stats, 2},
     {"_lergm_exact_loglik", (DL_FUNC) &_lergm_exact_loglik, 4},
     {"_lergm_make_sets", (DL_FUNC) &_lergm_make_sets, 1},
     {"_lergm_powerset", (DL_FUNC) &_lergm_powerset, 2},

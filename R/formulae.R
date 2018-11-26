@@ -204,15 +204,15 @@ print.lergm_loglik <- function(x, ...) {
 exact_loglik <- function(x, params, weights, statmat) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
-  chunks <- make_chunks(nrow(x), 2e5)
+  chunks <- make_chunks(nrow(x), 4e5)
   
   ans <- vector("double", nrow(x))
-  for (s in seq_along(length(chunks$from))) {
+  for (s in seq_along(chunks$from)) {
     
     i <- chunks$from[s]
     j <- chunks$to[s]
     
-    ans[c((i+1):j)] <- exact_loglik.(x[(i+1):j, ,drop=FALSE], params, weights, statmat)
+    ans[i:j] <- exact_loglik.(x[i:j, ,drop=FALSE], params, weights, statmat)
     
   }
   

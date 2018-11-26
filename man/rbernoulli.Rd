@@ -7,7 +7,8 @@
 rbernoulli(n, p = 0.5)
 }
 \arguments{
-\item{n}{Integer. Size of the graph}
+\item{n}{Integer vector. Size of the graph. If \code{length(n) > 1}, then it will
+a list of random graphs.}
 
 \item{p}{Probability of a tie}
 }
@@ -20,4 +21,7 @@ Random bernoulli graph
 \examples{
 # A graph of size 4
 rbernoulli(4)
+
+# 3 graphs of various sizes
+rbernoulli(c(3, 4, 2))
 }

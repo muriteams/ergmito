@@ -30,20 +30,21 @@ typedef int (*ergm_term_fun)(const IntegerMatrix & x);
 
 void get_ergm_term(std::string term, ergm_term_fun & fun) {
   
-  if     (term == "mutual") fun = &count_mutual;
+  if (term == "mutual")     fun = &count_mutual;
   else if (term == "edges") fun = &count_edges;
-  else stop("The term %s is not available.", term);
+  else
+    stop("The term %s is not available.", term);
   
   return;
   
 }
 
-// [[Rcpp::export]]
+// Count Network Statistics
+// [[Rcpp::export(name="count_stats.")]]
 IntegerMatrix count_stats(
     const ListOf< IntegerMatrix > & X,
     const std::vector< std::string > & terms
   ) {
-  
   
   
   int n = X.size();
@@ -61,6 +62,8 @@ IntegerMatrix count_stats(
     for (ListOf< IntegerMatrix >::const_iterator x = X.begin(); x != X.end(); ++x)
       ans(i++, j) = fun(*x);
     
+    i = 0;
+    
   }
   
   return ans;
@@ -73,6 +76,6 @@ library(lergm)
 x <- powerset(5)
 
 # Problems with large lists, ... again we'll need to do this by chunks.
-s <- count_stats(x[1:1e5], c("mutual"))
+s <- count_stats(x[1:1e5], c("mutual", "edges"))
 
 */

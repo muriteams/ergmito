@@ -13,12 +13,14 @@
 #' @importFrom parallel mclapply
 new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   
+  environment(model) <- parent.frame()
+  
   # Getting the estimates
   if (!length(theta))
     theta <- coef(lergm(model, zeroobs = FALSE))
   
   # Obtaining the network(s) object
-  net   <- eval(model[[2]])
+  net   <- eval(model[[2]], envir = environment(model))
   terms <- attr(stats::terms(model), "term.labels")
   
   # Checking stats0
@@ -52,13 +54,22 @@ new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
     pset <- psets[[1]]
     S    <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
     
-    for (i in seq_along(psets)) {
+    
+    if (all(terms %in% c("edges", "mutual")) & Sys.getenv("LERGM_TEST") == "") {
       
-      # Updating the model
-      pset   <- psets[[i]]
+      stats[,terms] <- count_stats(psets, terms)
       
-      # In the first iteration we need to compute the statsmat
-      stats[i, terms] <- summary(model.)
+    } else {
+      
+      for (i in seq_along(psets)) {
+        
+        # Updating the model
+        pset   <- psets[[i]]
+        
+        # In the first iteration we need to compute the statsmat
+        stats[i, terms] <- summary(model.)
+        
+      }
       
     }
     
@@ -108,7 +119,9 @@ new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
     
     s <- as.character(s)
     
-    sample(ans$networks[[s]], n, replace = TRUE, prob = ans$prob[[s]])
+    idx <- seq_along(ans$networks[[s]])
+    idx <- sample(idx, n, replace = TRUE, prob = ans$prob[[s]])
+    ans$networks[[s]][idx]
       
   }
   

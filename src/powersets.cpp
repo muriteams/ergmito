@@ -108,12 +108,13 @@ List wrap_powerset(
   typedef std::vector<int>::const_iterator vintiter;
   // Creating the empty vector
   IntegerVector tmp(n*n);
+  // std::cout << from << "\n";
   for (int i = from; i < to; i++) {
     
     tmp.fill(0);
     
     // Filling it with data
-    for (vintiter it2 = sets_ptr->operator[](counter).begin(); it2 != sets_ptr->operator[](counter).end(); ++it2) 
+    for (vintiter it2 = sets_ptr->operator[](i).begin(); it2 != sets_ptr->operator[](i).end(); ++it2) 
       tmp.at(*it2) = 1;
     
     // Adding the vector to the list, but before set attributes
