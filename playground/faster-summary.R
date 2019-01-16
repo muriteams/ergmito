@@ -1,5 +1,5 @@
 library(microbenchmark)
-library(lergm)
+library(ergmito)
 
 nets <- rbernoulli(5)
 

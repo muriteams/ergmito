@@ -1,6 +1,6 @@
 #' Simulation method
 #' @noRd
-simulate.lergm <- function(
+simulate.ergmito <- function(
   object,
   nsims    = 1,
   seed     = NULL,

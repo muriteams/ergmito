@@ -24,7 +24,7 @@ test_that("Right calculation", {
     
     apply(x, 1, function(z) {
       
-      lergm:::exact_loglik2(params, z, allstats)
+      ergmito:::exact_loglik2(params, z, allstats)
       
     })
     

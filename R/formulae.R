@@ -1,7 +1,7 @@
 
-#' Processing formulas in `lergm`
+#' Processing formulas in `ergmito`
 #' 
-#' The little ERGMs R package allows estimating pulled ERGMs by aggregating
+#' The ERGMitos R package allows estimating pulled ERGMs by aggregating
 #' independent networks together. 
 #' 
 #' @param model A formula. The left-hand-side can be either a small network, or
@@ -11,7 +11,7 @@
 #' a named vector (see [ergm::summary_formula]). 
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
-#' @return A list of class `lergm_loglik`.
+#' @return A list of class `ergmito_loglik`.
 #' 
 #' - `loglik` A function. The log-likelihood function.
 #' - `grad` A function. The gradient of the model.
@@ -23,7 +23,7 @@
 #' - `nnets` Integer. Number of networks to estiamte.
 #' 
 #' @export
-lergm_formulae <- function(
+ergmito_formulae <- function(
   model,
   stats     = NULL,
   obs_stats = NULL,
@@ -69,7 +69,7 @@ lergm_formulae <- function(
       )
       
       # Getting the functions
-      f.[[i]] <- lergm_formulae(
+      f.[[i]] <- ergmito_formulae(
         model     = model.,
         stats     = stats[[i]],
         obs_stats = obs_stats[[i]],
@@ -102,7 +102,7 @@ lergm_formulae <- function(
         nnets     = length(f.),
         zeroobs   = dots$zeroobs
         ),
-      class="lergm_loglik"
+      class="ergmito_loglik"
       )
     
     
@@ -170,7 +170,7 @@ lergm_formulae <- function(
       model = stats::as.formula(model, env = env),
       npars = ncol(originenv$stats$statmat),
       nnets = 1L
-    ), class="lergm_loglik")
+    ), class="ergmito_loglik")
 
   } else 
     stop("One of the components is not a matrix `", deparse(model[[2]]),
@@ -180,9 +180,9 @@ lergm_formulae <- function(
 }
 
 #' @export
-print.lergm_loglik <- function(x, ...) {
+print.ergmito_loglik <- function(x, ...) {
   
-  cat("lergm log-likelihood function\n")
+  cat("ergmito log-likelihood function\n")
   cat("Number of networks: ", x$nnets, "\n")
   cat("Model: ", deparse(x$model), "\n")
   cat("Available elements by using the $ operator:\n")
@@ -206,7 +206,43 @@ exact_loglik <- function(x, params, weights, statmat) {
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
   
-  ans <- vector("double", nrow(x))
+  n <- nrow(x)
+  
+  # Checking the weights and stats mat
+  if (n == 1) {
+    # If only one observation
+    
+    if (!is.list(weights))
+      weights <- list(weights)
+    
+    if (!is.list(statmat))
+      statmat <- list(statmat)
+    
+  } else if (n > 1) {
+    # If more than 1, then perhaps we need to recycle the values
+    
+    if (!is.list(weights))
+      weights <- replicate(n, weights, simplify = FALSE)
+    
+    if (!is.list(statmat))
+      statmat <- replicate(n, statmat, simplify = FALSE)
+    
+  } else 
+    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
+  
+  # The lengths should match
+  if (length(weights) != n)
+    stop("length(weights) != nrow(x). When class(weights) == 'list', the number",
+         " of elements should match the number of rows in statistics (x).", 
+         call. = FALSE)
+  
+  if (length(statmat) != n)
+    stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
+         " of elements should match the number of rows in statistics (x).", 
+         call. = FALSE)
+  
+  # Computing in chunks
+  ans <- vector("double", n)
   for (s in seq_along(chunks$from)) {
     
     i <- chunks$from[s]

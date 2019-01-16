@@ -1,23 +1,23 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# lergm: Estimation of Little ‘ERGMs’ using exact likelihood
+# ergmito: Estimation of Little ‘ERGMs’ using exact likelihood
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/lergm)](https://cran.r-project.org/package=lergm)
+status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
 [![Travis build
-status](https://travis-ci.org/USCCANA/lergm.svg?branch=master)](https://travis-ci.org/USCCANA/lergm)
+status](https://travis-ci.org/USCCANA/ergmito.svg?branch=master)](https://travis-ci.org/USCCANA/ergmito)
 [![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/USCCANA/lergm?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/lergm)
+status](https://ci.appveyor.com/api/projects/status/github/USCCANA/ergmito?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/ergmito)
 [![Coverage
-status](https://codecov.io/gh/USCCANA/lergm/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/lergm?branch=master)
+status](https://codecov.io/gh/USCCANA/ergmito/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/ergmito?branch=master)
 
 The development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("USCCANA/lergm")
+devtools::install_github("USCCANA/ergmito")
 ```
 
 ## Example
@@ -27,7 +27,7 @@ An example from the manual
 ## When `ergm` is not enough
 
 ``` r
-library(lergm)
+library(ergmito)
 library(sna)
 
 # Generating a small graph
@@ -43,28 +43,29 @@ gplot(net)
 model <- net ~ edges + mutual + balance
 
 library(ergm)
-ans_lergm <- lergm(model)
+ans_ergmito <- ergmito(model)
 ans_ergm  <- ergm(model)
 
-# The lergm should have a larger value
-ergm.exact(ans_lergm$coef, model)
-#>        [,1]
-#> [1,] -6.557
+# The ergmito should have a larger value
+ergm.exact(ans_ergmito$coef, model)
+#>           [,1]
+#> [1,] -6.556996
 ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,]  NaN
 
-summary(ans_lergm)
+summary(ans_ergmito)
 #> 
-#> Little ERGM estimates
-#>               Length Class        Mode   
-#> coef          3      -none-       numeric
-#> iterations    1      -none-       numeric
-#> loglikelihood 1      -none-       numeric
-#> covar         9      -none-       numeric
-#> network       0      -none-       NULL   
-#> coef.init     3      -none-       numeric
-#> model         6      lergm_loglik list
+#> ERGMito estimates
+#>               Length Class          Mode   
+#> call           2     -none-         call   
+#> coef           3     -none-         numeric
+#> iterations     1     -none-         numeric
+#> loglikelihood  1     -none-         numeric
+#> covar          9     -none-         numeric
+#> coef.init      3     -none-         numeric
+#> formulae       7     ergmito_loglik list   
+#> network       16     -none-         numeric
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -95,7 +96,7 @@ summary(ans_ergm)
 Checking convergence diagnostics
 
 ``` r
-plot(ans_lergm)
+plot(ans_ergmito)
 ```
 
 <img src="man/figures/README-convergence-diag-1.png" width="100%" />
@@ -116,28 +117,29 @@ gplot(net)
 model <- net ~ edges + mutual
 
 library(ergm)
-ans_lergm <- lergm(model)
+ans_ergmito <- ergmito(model)
 ans_ergm  <- ergm(model, control = control.ergm(
   MCMC.effectiveSize = 4000,
   seed = 444)
   )
 
-# The lergm should have a larger value
-ergm.exact(ans_lergm$coef, model) > ergm.exact(ans_ergm$coef, model)
+# The ergmito should have a larger value
+ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,] TRUE
 
-summary(ans_lergm)
+summary(ans_ergmito)
 #> 
-#> Little ERGM estimates
-#>               Length Class        Mode   
-#> coef          2      -none-       numeric
-#> iterations    1      -none-       numeric
-#> loglikelihood 1      -none-       numeric
-#> covar         4      -none-       numeric
-#> network       0      -none-       NULL   
-#> coef.init     2      -none-       numeric
-#> model         6      lergm_loglik list
+#> ERGMito estimates
+#>               Length Class          Mode   
+#> call           2     -none-         call   
+#> coef           2     -none-         numeric
+#> iterations     1     -none-         numeric
+#> loglikelihood  1     -none-         numeric
+#> covar          4     -none-         numeric
+#> coef.init      2     -none-         numeric
+#> formulae       7     ergmito_loglik list   
+#> network       16     -none-         numeric
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -169,6 +171,6 @@ University New York, US
 
 # Contributing
 
-Please note that the ‘lergm’ project is released with a [Contributor
+Please note that the ‘ergmito’ project is released with a [Contributor
 Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project,
 you agree to abide by its terms.

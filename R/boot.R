@@ -1,7 +1,7 @@
 
-#' Bootstrap of lergm
+#' Bootstrap of ergmito
 #' 
-#' @param x Either a formula or an object of class [lergm].
+#' @param x Either a formula or an object of class [ergmito].
 #' @param ... Additional arguments passed to the method.
 #' @param R Integer. Number of replicates
 #' @param ncpus Integer Number of CPUs to use.
@@ -14,24 +14,24 @@
 #' 
 #' # Simulating 20 bernoulli networks of size 4
 #' nets <- replicate(20, rbernoulli(4), simplify = FALSE)
-lergm_boot <- function(x, ..., R, ncpus = 1L, cl = NULL) UseMethod("lergm_boot")
+ergmito_boot <- function(x, ..., R, ncpus = 1L, cl = NULL) UseMethod("ergmito_boot")
 
 
 #' @export
-#' @rdname lergm_boot
-lergm_boot.formula <- function(x, ..., R, ncpus = 1L, cl = NULL) {
+#' @rdname ergmito_boot
+ergmito_boot.formula <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   # First run of the model
-  x0 <- lergm(x, ...)
+  x0 <- ergmito(x, ...)
   
   # Now we do the bootstrap
-  lergm_boot(x = x0, R = R, ncpus = ncpus, cl = cl)
+  ergmito_boot(x = x0, R = R, ncpus = ncpus, cl = cl)
   
 }
 
 #' @export
-#' @rdname lergm_boot
-lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
+#' @rdname ergmito_boot
+ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   n <- nnets(x)
   
@@ -47,7 +47,7 @@ lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     
     # Setting up the cluster
     cl <- parallel::makePSOCKcluster(ncpus)
-    parallel::clusterEvalQ(cl, library(lergm))
+    parallel::clusterEvalQ(cl, library(ergmito))
     parallel::clusterExport(cl, c("model0", "stats0", "nets0"), envir = environment())
     
     parallel::clusterSetRNGStream(cl)
@@ -63,7 +63,7 @@ lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     parallel::parLapply(cl, IDX, function(idx) {
       
       environment(model0) <- environment()
-      lergm(model0, stats = stats0[idx], obs_stats = obs_stats0[idx])
+      ergmito(model0, stats = stats0[idx], obs_stats = obs_stats0[idx])
       
     })
     
@@ -72,7 +72,7 @@ lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     lapply(IDX, function(idx) {
       
       environment(model0) <- environment()
-      lergm(model0, stats = stats0[idx], obs_stats = obs_stats0[idx])
+      ergmito(model0, stats = stats0[idx], obs_stats = obs_stats0[idx])
       
     })
     
@@ -87,18 +87,18 @@ lergm_boot.lergm <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   x$sample <- IDX
   x$dist   <- coefs
   
-  class(x) <- c("lergm_boot", class(x))
+  class(x) <- c("ergmito_boot", class(x))
   
   x
   
 }
 
 #' @export
-#' @rdname lergm_boot
-print.lergm_boot <- function(x, ...) {
+#' @rdname ergmito_boot
+print.ergmito_boot <- function(x, ...) {
   
   cat(sprintf("Bootstrapped %i replicates:\n", x$R))
-  print(structure(unclass(x), class="lergm"))
+  print(structure(unclass(x), class="ergmito"))
   
 }
 

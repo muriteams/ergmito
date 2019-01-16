@@ -1,5 +1,5 @@
 #include <numeric>
-#include "lergm_types.h"
+#include "ergmito_types.h"
 #include <RcppArmadillo.h>
 
 // [[Rcpp::plugins(cpp11)]]

@@ -1,4 +1,4 @@
 library(testthat)
-library(lergm)
+library(ergmito)
 
-test_check("lergm")
+test_check("ergmito")

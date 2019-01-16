@@ -1,23 +1,23 @@
-#' Little ERGM sampler
+#' ERGMito sampler
 #' 
 #' Using 
 #' 
 #' @param model A formula.
 #' @param theta Named vector. Model parameters.
-#' @param x An object of class `lergm_sampler`.
+#' @param x An object of class `ergmito_sampler`.
 #' @param sizes Integer vector. Values between 2 to 5 (6 becomes too intensive).
 #' @param mc.cores Integer. Passed to [parallel::mclapply]
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' 
 #' @export
 #' @importFrom parallel mclapply
-new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
+new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   
   environment(model) <- parent.frame()
   
   # Getting the estimates
   if (!length(theta))
-    theta <- coef(lergm(model, zeroobs = FALSE))
+    theta <- coef(ergmito(model, zeroobs = FALSE))
   
   # Obtaining the network(s) object
   net   <- eval(model[[2]], envir = environment(model))
@@ -55,7 +55,7 @@ new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
     S    <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
     
     
-    if (all(terms %in% c("edges", "mutual")) & Sys.getenv("LERGM_TEST") == "") {
+    if (all(terms %in% c("edges", "mutual")) & Sys.getenv("ergmito_TEST") == "") {
       
       stats[,terms] <- count_stats(psets, terms)
       
@@ -119,9 +119,22 @@ new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
     
     s <- as.character(s)
     
-    idx <- seq_along(ans$networks[[s]])
-    idx <- sample(idx, n, replace = TRUE, prob = ans$prob[[s]])
-    ans$networks[[s]][idx]
+    # First, we sample at most 100,000 (this makes it faster)
+    m <- length(ans$networks[[s]])
+    if (m > n)
+      idx <- sample.int(length(ans$networks[[s]]))
+    else
+      idx <- 1L:m
+    
+    ans$networks[[s]][idx][
+      sample.int(
+        n       = length(idx),
+        size    = n,
+        replace = TRUE,
+        prob    = ans$prob[[s]][idx],
+        useHash = FALSE
+        )
+      ]
       
   }
   
@@ -130,16 +143,16 @@ new_rlergm <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   
   structure(
     ans,
-    class = "lergm_sampler"
+    class = "ergmito_sampler"
   )
   
 }
 
 #' @export
-#' @rdname new_rlergm
-print.lergm_sampler <- function(x, ...) {
+#' @rdname new_rergmito
+print.ergmito_sampler <- function(x, ...) {
   
-  cat("Little ERGM simulator\n")
+  cat("ERGMito simulator\n")
   cat("Call   :", deparse(x$call), "\n")
   cat("sample :", deparse(x$sample)[1], "\n")
   
@@ -149,7 +162,7 @@ print.lergm_sampler <- function(x, ...) {
 
 #' @export
 #' @importFrom utils ls.str
-str.lergm_sampler <- function(object, ...) {
+str.ergmito_sampler <- function(object, ...) {
   
   utils::ls.str(object, ...)
   

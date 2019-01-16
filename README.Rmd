@@ -14,13 +14,13 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-# lergm: Estimation of Little 'ERGMs' using exact likelihood
+# ergmito: Estimation of Little 'ERGMs' using exact likelihood
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) 
-[![CRAN status](https://www.r-pkg.org/badges/version/lergm)](https://cran.r-project.org/package=lergm)
-[![Travis build status](https://travis-ci.org/USCCANA/lergm.svg?branch=master)](https://travis-ci.org/USCCANA/lergm)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/USCCANA/lergm?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/lergm)
-[![Coverage status](https://codecov.io/gh/USCCANA/lergm/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/lergm?branch=master)
+[![CRAN status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
+[![Travis build status](https://travis-ci.org/USCCANA/ergmito.svg?branch=master)](https://travis-ci.org/USCCANA/ergmito)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/USCCANA/ergmito?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/ergmito)
+[![Coverage status](https://codecov.io/gh/USCCANA/ergmito/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/ergmito?branch=master)
 
 
 
@@ -28,7 +28,7 @@ The development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("USCCANA/lergm")
+devtools::install_github("USCCANA/ergmito")
 ```
 ## Example
 
@@ -37,7 +37,7 @@ An example from the manual
 ## When `ergm` is not enough
 
 ```{r net1}
-library(lergm)
+library(ergmito)
 library(sna)
 
 # Generating a small graph
@@ -51,21 +51,21 @@ gplot(net)
 model <- net ~ edges + mutual + balance
 
 library(ergm)
-ans_lergm <- lergm(model)
+ans_ergmito <- ergmito(model)
 ans_ergm  <- ergm(model)
 
-# The lergm should have a larger value
-ergm.exact(ans_lergm$coef, model)
+# The ergmito should have a larger value
+ergm.exact(ans_ergmito$coef, model)
 ergm.exact(ans_ergm$coef, model)
 
-summary(ans_lergm)
+summary(ans_ergmito)
 summary(ans_ergm)
 ```
 
 Checking convergence diagnostics
 
 ```{r convergence-diag}
-plot(ans_lergm)
+plot(ans_ergmito)
 ```
 
 
@@ -83,16 +83,16 @@ gplot(net)
 model <- net ~ edges + mutual
 
 library(ergm)
-ans_lergm <- lergm(model)
+ans_ergmito <- ergmito(model)
 ans_ergm  <- ergm(model, control = control.ergm(
   MCMC.effectiveSize = 4000,
   seed = 444)
   )
 
-# The lergm should have a larger value
-ergm.exact(ans_lergm$coef, model) > ergm.exact(ans_ergm$coef, model)
+# The ergmito should have a larger value
+ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 
-summary(ans_lergm)
+summary(ans_ergmito)
 summary(ans_ergm)
 ```
 
@@ -107,4 +107,4 @@ New York, US
 
 # Contributing
 
-Please note that the 'lergm' project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
+Please note that the 'ergmito' project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.

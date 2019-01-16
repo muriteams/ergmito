@@ -17,9 +17,9 @@ compute_mfrow <- function(k) {
 #' to be maximize at around a particular point.
 #' 
 #' It calculates the surface coordinates for each pair of parameters included
-#' in the little ERGM.
+#' in the ERGMito.
 #' 
-#' @param x An object of class [lergm].
+#' @param x An object of class [ergmito].
 #' @param y,... Ignored.
 #' @param domain A list.
 #' @param plot. Logical. When `TRUE` (default), the function will call [graphics::image]
@@ -43,15 +43,15 @@ compute_mfrow <- function(k) {
 #' x1 <- sna::rgraph(4)
 #' x2 <- sna::rgraph(5)
 #' 
-#' ans <- lergm(list(x1, x2) ~ edges + mutual + balance)
+#' ans <- ergmito(list(x1, x2) ~ edges + mutual + balance)
 #' 
 #' plot(ans)
 #' 
-#' @seealso The [lergm] function.
+#' @seealso The [ergmito] function.
 #' @importFrom graphics image par
 #' @importFrom viridisLite viridis
 #' @importFrom utils combn
-plot.lergm <- function(
+plot.ergmito <- function(
   x,
   y = NULL,
   domain     = NULL,
@@ -62,8 +62,8 @@ plot.lergm <- function(
   ...
   ) {
   
-  if (!inherits(x, "lergm"))
-    stop("This function only accepts objects of class `lergm`.", call. = FALSE)
+  if (!inherits(x, "ergmito"))
+    stop("This function only accepts objects of class `ergmito`.", call. = FALSE)
   
   f <- x$formulae$loglik
   k <- x$formulae$npars

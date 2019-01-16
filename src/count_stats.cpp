@@ -72,7 +72,7 @@ IntegerMatrix count_stats(
 
 /***R
 
-library(lergm)
+library(ergmito)
 x <- powerset(5)
 
 # Problems with large lists, ... again we'll need to do this by chunks.

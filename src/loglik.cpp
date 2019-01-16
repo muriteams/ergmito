@@ -24,15 +24,15 @@ inline void exact_logliki(
 arma::vec exact_loglik(
     const arma::mat & x,
     const arma::rowvec & params,
-    const arma::rowvec & weights,
-    const arma::mat & statmat
+    const std::vector< arma::rowvec > & weights,
+    const std::vector< arma::mat > & statmat
 ) {
 
   arma::vec ans(x.n_rows);
   int n = x.n_rows;
 
   for (int i = 0; i < n; ++i)
-    exact_logliki(x.row(i).t(), params, weights, statmat, ans, i);
+    exact_logliki(x.row(i).t(), params, weights.at(i), statmat.at(i), ans, i);
   
   return ans;
   

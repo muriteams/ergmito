@@ -5,12 +5,12 @@
 \alias{nvertex.network}
 \alias{nvertex.matrix}
 \alias{nvertex.list}
-\alias{nvertex.lergm}
+\alias{nvertex.ergmito}
 \alias{nnets}
 \alias{nnets.list}
 \alias{nnets.matrix}
 \alias{nnets.network}
-\alias{nnets.lergm}
+\alias{nnets.ergmito}
 \title{Utility functions to query network dimensions}
 \usage{
 nvertex(x)
@@ -21,7 +21,7 @@ nvertex(x)
 
 \method{nvertex}{list}(x)
 
-\method{nvertex}{lergm}(x)
+\method{nvertex}{ergmito}(x)
 
 nnets(x)
 
@@ -31,10 +31,10 @@ nnets(x)
 
 \method{nnets}{network}(x)
 
-\method{nnets}{lergm}(x)
+\method{nnets}{ergmito}(x)
 }
 \arguments{
-\item{x}{Either an object of class \link{lergm}, \link{network}, or \link{matrix}.}
+\item{x}{Either an object of class \link{ergmito}, \link{network}, or \link{matrix}.}
 }
 \description{
 Utility functions to query network dimensions

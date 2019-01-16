@@ -1,5 +1,5 @@
 library(microbenchmark)
-library(lergm)
+library(ergmito)
 
 Rcpp::sourceCpp("playground/fast-loglik.cpp")
 
@@ -25,7 +25,7 @@ parloglik <- function(x) {
   
   apply(x, 1, function(z) {
     
-    lergm:::exact_loglik(params, z, allstats)
+    ergmito:::exact_loglik(params, z, allstats)
     
   })
   

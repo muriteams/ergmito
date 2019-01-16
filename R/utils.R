@@ -1,6 +1,6 @@
 
 #' Utility functions to query network dimensions
-#' @param x Either an object of class [lergm], [network], or [matrix].
+#' @param x Either an object of class [ergmito], [network], or [matrix].
 #' @export
 nvertex <- function(x) UseMethod("nvertex")
 
@@ -30,7 +30,7 @@ nvertex.list <- function(x) {
 
 #' @export
 #' @rdname nvertex
-nvertex.lergm <- function(x) {
+nvertex.ergmito <- function(x) {
   
   if (nnets(x) == 1)
     nrow(x$network)
@@ -57,7 +57,7 @@ nnets.network <- function(x) 1L
 
 #' @export
 #' @rdname nvertex
-nnets.lergm <- function(x) {
+nnets.ergmito <- function(x) {
   
   x$formulae$nnets
   

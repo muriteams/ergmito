@@ -1,24 +1,24 @@
 
 #' Estimation of ERGMs using Exact likelihood functions
 #' 
-#' As a difference from [ergm::ergm][ergm], `lergm` uses the exact log-likelihood
+#' As a difference from [ergm::ergm][ergm], `ergmito` uses the exact log-likelihood
 #' function for fitting the model. This implies that all the `2^(n*(n-1))` 
 #' graphs are generated for computing the normalizing constant of the ERGM
 #' model. This implies that models with up to 5 nodes are relatively simple
 #' to fit, since more than that can become infeasible.
 #' 
-#' @param x,object An object of class `lergm`
+#' @param x,object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
 #' `ergm` is that the LHS can be a list of networks.
 #' @param control List. Passed to [stats::optim].
 #' @param stats List as returned by [ergm::ergm.allstats]. When this is provided,
 #' the function does not call `ergm.allstats`, which can be useful in simulations.
-#' @param ... Further arguments passed to the method. In the case of `lergm`,
-#' `...` are passed to [lergm_formulae].
+#' @param ... Further arguments passed to the method. In the case of `ergmito`,
+#' `...` are passed to [ergmito_formulae].
 #' 
-#' @seealso The function [plot.lergm] for post-estimation diagnostics.
+#' @seealso The function [plot.ergmito] for post-estimation diagnostics.
 #' 
-#' @return An list of class `lergm`:
+#' @return An list of class `ergmito`:
 #' 
 #' - `coef`          Named vector. Parameter estimates.
 #' - `iterations`    Integer. Number of times the loglikelihood was evaluated
@@ -27,7 +27,7 @@
 #' - `covar`         Square matrix of size `length(coef)`. Variance-covariance matrix
 #' - `coef.init`     Named vector of length `length(coef)`. Initial set of parameters
 #'   used in the optimization.
-#' - `formulae`      An object of class [lergm_loglik][lergm_formulae].
+#' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
 #' - `network`       Networks passed via `model`.
 #' 
 #' @export
@@ -41,18 +41,18 @@
 #' model <- net ~ edges + mutual + balance
 #' 
 #' library(ergm)
-#' ans_lergm <- lergm(model)
+#' ans_ergmito <- ergmito(model)
 #' ans_ergm  <- ergm(model)
 #' 
-#' # The lergm should have a larger value
-#' ergm.exact(ans_lergm$coef, model)
+#' # The ergmito should have a larger value
+#' ergm.exact(ans_ergmito$coef, model)
 #' ergm.exact(ans_ergm$coef, model)
 #' 
-#' summary(ans_lergm)
+#' summary(ans_ergmito)
 #' summary(ans_ergm)
 #' @importFrom stats optim terms rnorm
 #' @importFrom MASS ginv
-lergm <- function(
+ergmito <- function(
   model,
   control = list(maxit = 1e3, reltol=1e-100),
   stats   = NULL,
@@ -60,8 +60,8 @@ lergm <- function(
   ) {
   
   # Generating the objective function
-  lergmenv <- environment(model)
-  formulae <- lergm_formulae(model, stats = stats, env = lergmenv, ...)
+  ergmitoenv <- environment(model)
+  formulae <- ergmito_formulae(model, stats = stats, env = ergmitoenv, ...)
 
   npars  <- formulae$npars
   
@@ -96,51 +96,51 @@ lergm <- function(
       covar         = covar.,
       coef.init     = init,
       formulae      = formulae,
-      network       = eval(model[[2]], envir = lergmenv)
+      network       = eval(model[[2]], envir = ergmitoenv)
     ),
-    class="lergm"
+    class="ergmito"
     )
   
 }
 
 #' @export
-#' @rdname lergm
-print.lergm <- function(x, ...) {
+#' @rdname ergmito
+print.ergmito <- function(x, ...) {
   
-  cat("\nLittle ERGM estimates\n")
+  cat("\nERGMito estimates\n")
   print(structure(unclass(x), class="ergm"))
   invisible(x)
   
 }
 
 #' @export
-#' @rdname lergm
-summary.lergm <- function(object, ...) {
-  cat("\nLittle ERGM estimates\n")
+#' @rdname ergmito
+summary.ergmito <- function(object, ...) {
+  cat("\nERGMito estimates\n")
   summary(unclass(object))
 }
 
 # Methods ----------------------------------------------------------------------
 #' @export
-#' @rdname lergm
+#' @rdname ergmito
 #' @importFrom stats coef logLik vcov
-coef.lergm <- function(object, ...) {
+coef.ergmito <- function(object, ...) {
   
   object$coef
   
 }
 
 #' @export
-#' @rdname lergm
-logLik.lergm <- function(object, ...) {
+#' @rdname ergmito
+logLik.ergmito <- function(object, ...) {
   
   structure(object$loglikelihood, class = "logLik", df = length(coef(object)))
   
 }
 
 #' @export
-#' @rdname lergm
-vcov.lergm <- function(object, ...) {
+#' @rdname ergmito
+vcov.ergmito <- function(object, ...) {
   
   object$covar
   

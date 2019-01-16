@@ -2,34 +2,34 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 count_mutual <- function(x) {
-    .Call(`_lergm_count_mutual`, x)
+    .Call(`_ergmito_count_mutual`, x)
 }
 
 count_edges <- function(x) {
-    .Call(`_lergm_count_edges`, x)
+    .Call(`_ergmito_count_edges`, x)
 }
 
 count_stats. <- function(X, terms) {
-    .Call(`_lergm_count_stats`, X, terms)
+    .Call(`_ergmito_count_stats`, X, terms)
 }
 
 exact_loglik. <- function(x, params, weights, statmat) {
-    .Call(`_lergm_exact_loglik`, x, params, weights, statmat)
+    .Call(`_ergmito_exact_loglik`, x, params, weights, statmat)
 }
 
 make_sets <- function(n) {
-    .Call(`_lergm_make_sets`, n)
+    .Call(`_ergmito_make_sets`, n)
 }
 
 .powerset <- function(n, force = FALSE) {
-    .Call(`_lergm_powerset`, n, force)
+    .Call(`_ergmito_powerset`, n, force)
 }
 
 print_powerset <- function(sets) {
-    .Call(`_lergm_print_powerset`, sets)
+    .Call(`_ergmito_print_powerset`, sets)
 }
 
 wrap_powerset <- function(sets, from, to, n) {
-    .Call(`_lergm_wrap_powerset`, sets, from, to, n)
+    .Call(`_ergmito_wrap_powerset`, sets, from, to, n)
 }
 

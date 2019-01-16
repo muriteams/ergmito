@@ -1,8 +1,11 @@
-Package: lergm
+Package: ergmito
 Version: 0.0.999
 Date: 2018-09-24
-Title: Estimation of Little 'ERGMs' using exact likelihood
-Description: What the title said.
+Title: Estimation of 'ERGMitos' (a.k.a. Little 'ERGMs') using exact likelihood
+Description: The package implements simulation and estimation algorithms for 
+  Exponential Random Graph Models in the case of small networks using exact
+  statistics. As a difference from the 'ergm' package, 'ergmito' skips the
+  MCMC part of the estimation process and goes straight to MLE.
 Depends: R (>= 3.3.0)
 Authors@R: 
     c(
