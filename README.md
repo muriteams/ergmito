@@ -7,17 +7,16 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
 [![Travis build
-status](https://travis-ci.org/USCCANA/ergmito.svg?branch=master)](https://travis-ci.org/USCCANA/ergmito)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/USCCANA/ergmito?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/ergmito)
+status](https://travis-ci.org/muriteams/lergm.svg?branch=master)](https://travis-ci.org/muriteams/lergm)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/avadsgb4a3tg20fd?svg=true)](https://ci.appveyor.com/project/gvegayon/lergm)
 [![Coverage
-status](https://codecov.io/gh/USCCANA/ergmito/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/ergmito?branch=master)
+status](https://codecov.io/gh/muriteams/lergm/branch/master/graph/badge.svg)](https://codecov.io/github/muriteams/lergm?branch=master)
 
 The development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("USCCANA/ergmito")
+devtools::install_github("muriteams/lergm")
 ```
 
 ## Example

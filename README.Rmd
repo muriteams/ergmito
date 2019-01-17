@@ -18,9 +18,9 @@ knitr::opts_chunk$set(
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) 
 [![CRAN status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
-[![Travis build status](https://travis-ci.org/USCCANA/ergmito.svg?branch=master)](https://travis-ci.org/USCCANA/ergmito)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/USCCANA/ergmito?branch=master&svg=true)](https://ci.appveyor.com/project/USCCANA/ergmito)
-[![Coverage status](https://codecov.io/gh/USCCANA/ergmito/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/ergmito?branch=master)
+[![Travis build status](https://travis-ci.org/muriteams/ergmito.svg?branch=master)](https://travis-ci.org/muriteams/ergmito)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/muriteams/ergmito?branch=master&svg=true)](https://ci.appveyor.com/project/muriteams/ergmito)
+[![Coverage status](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/github/muriteams/ergmito?branch=master)
 
 
 
@@ -28,7 +28,7 @@ The development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("USCCANA/ergmito")
+devtools::install_github("muriteams/lergm")
 ```
 ## Example
 
