@@ -119,8 +119,8 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
     
     s <- as.character(s)
     
-    # First, we sample at most 100,000 (this makes it faster)
-    m <- length(ans$networks[[s]])
+    # First, we sample at most 50,000 (this makes it faster)
+    m <- min(5e4L, length(ans$networks[[s]]))
     if (m > n)
       idx <- sample.int(length(ans$networks[[s]]))
     else
