@@ -83,12 +83,15 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   names(ans$prob) <- as.character(sizes)
   
   # Function to compute probabilities
-  ans$calc_prob <- function(theta = NULL) {
+  ans$calc_prob <- function(theta = NULL, s = NULL) {
+    
+    if (!length(s))
+      s <- names(ans$prob)
     
     if (!length(theta))
       theta <- ans$theta
     
-    for (i in seq_along(sizes))
+    for (i in s)
       ans$prob[[i]] <- exp(exact_loglik(
         x       = ans$counts[[i]]$stats,
         params  = theta,
@@ -105,19 +108,19 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   # Sampling function
   ans$sample <- function(n, s, theta = NULL) {
     
-    # If no new set of parameters is used, then 
-    if (length(theta)) {
-      ans$calc_prob(theta)
-      on.exit(ans$calc_prob())
-    } 
-    
+    s <- as.character(s)
     # All should be able to be sampled
-    test <- which(!(s %in% sizes))
+    test <- which(!(s %in% as.character(sizes)))
     if (length(test))
       stop("Some values of `s` are not included in the sampling function.",
            call. = FALSE)
     
-    s <- as.character(s)
+    # If no new set of parameters is used, then 
+    if (length(theta)) {
+      oldp <- ans$prob
+      ans$calc_prob(theta, s)
+      on.exit(ans$prob <- oldp)
+    } 
     
     # First, we sample at most 50,000 (this makes it faster)
     m <- min(5e4L, length(ans$networks[[s]]))

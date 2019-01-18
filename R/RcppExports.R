@@ -13,8 +13,8 @@ count_stats. <- function(X, terms) {
     .Call(`_ergmito_count_stats`, X, terms)
 }
 
-exact_loglik. <- function(x, params, weights, statmat) {
-    .Call(`_ergmito_exact_loglik`, x, params, weights, statmat)
+exact_loglik. <- function(x, params, weights, statmat, as_prob = FALSE) {
+    .Call(`_ergmito_exact_loglik`, x, params, weights, statmat, as_prob)
 }
 
 make_sets <- function(n) {

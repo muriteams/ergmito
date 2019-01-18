@@ -42,16 +42,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // exact_loglik
-arma::vec exact_loglik(const arma::mat& x, const arma::rowvec& params, const std::vector< arma::rowvec >& weights, const std::vector< arma::mat >& statmat);
-RcppExport SEXP _ergmito_exact_loglik(SEXP xSEXP, SEXP paramsSEXP, SEXP weightsSEXP, SEXP statmatSEXP) {
+arma::vec exact_loglik(const arma::mat& x, const arma::colvec& params, const std::vector< arma::rowvec >& weights, const std::vector< arma::mat >& statmat, bool as_prob);
+RcppExport SEXP _ergmito_exact_loglik(SEXP xSEXP, SEXP paramsSEXP, SEXP weightsSEXP, SEXP statmatSEXP, SEXP as_probSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const arma::rowvec& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type weights(weightsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type statmat(statmatSEXP);
-    rcpp_result_gen = Rcpp::wrap(exact_loglik(x, params, weights, statmat));
+    Rcpp::traits::input_parameter< bool >::type as_prob(as_probSEXP);
+    rcpp_result_gen = Rcpp::wrap(exact_loglik(x, params, weights, statmat, as_prob));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -108,7 +109,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_count_mutual", (DL_FUNC) &_ergmito_count_mutual, 1},
     {"_ergmito_count_edges", (DL_FUNC) &_ergmito_count_edges, 1},
     {"_ergmito_count_stats", (DL_FUNC) &_ergmito_count_stats, 2},
-    {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 4},
+    {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 5},
     {"_ergmito_make_sets", (DL_FUNC) &_ergmito_make_sets, 1},
     {"_ergmito_powerset", (DL_FUNC) &_ergmito_powerset, 2},
     {"_ergmito_print_powerset", (DL_FUNC) &_ergmito_print_powerset, 1},

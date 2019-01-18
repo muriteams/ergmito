@@ -4,17 +4,34 @@ using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 
+// Function to compute the normalizing constant
+inline double kappa(
+    const arma::colvec & params,
+    const arma::rowvec & weights,
+    const arma::mat    & statmat
+) {
+  
+  return arma::as_scalar(weights * exp(statmat * params));
+  
+}
+
 inline void exact_logliki(
-    const arma::colvec & x,
-    const arma::rowvec & params,
+    const arma::rowvec & x,
+    const arma::colvec & params,
     const arma::rowvec & weights,
     const arma::mat    & statmat,
     arma::vec & ans,
-    int i
+    int i,
+    bool as_prob = false
 ) {
   
-  ans.at(i) = arma::as_scalar(params * x) - 
-    log(arma::as_scalar(weights * exp(statmat * params.t())));
+  if (!as_prob) {
+    ans.at(i) = arma::as_scalar(x * params) - 
+      log(kappa(params, weights, statmat));
+  } else {
+    ans.at(i) = exp(arma::as_scalar(x * params))/ 
+      kappa(params, weights, statmat);
+  }
   
   return;
   
@@ -23,16 +40,17 @@ inline void exact_logliki(
 // [[Rcpp::export(name = "exact_loglik.")]]
 arma::vec exact_loglik(
     const arma::mat & x,
-    const arma::rowvec & params,
+    const arma::colvec & params,
     const std::vector< arma::rowvec > & weights,
-    const std::vector< arma::mat > & statmat
+    const std::vector< arma::mat > & statmat,
+    bool as_prob = false
 ) {
 
   arma::vec ans(x.n_rows);
   int n = x.n_rows;
-
+  
   for (int i = 0; i < n; ++i)
-    exact_logliki(x.row(i).t(), params, weights.at(i), statmat.at(i), ans, i);
+    exact_logliki(x.row(i), params, weights.at(i), statmat.at(i), ans, i, as_prob);
   
   return ans;
   
