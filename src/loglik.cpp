@@ -15,6 +15,7 @@ inline double kappa(
   
 }
 
+// Calculates the likelihood for a given network individually.
 inline void exact_logliki(
     const arma::rowvec & x,
     const arma::colvec & params,
@@ -49,8 +50,20 @@ arma::vec exact_loglik(
   arma::vec ans(x.n_rows);
   int n = x.n_rows;
   
-  for (int i = 0; i < n; ++i)
-    exact_logliki(x.row(i), params, weights.at(i), statmat.at(i), ans, i, as_prob);
+  // Checking the sizes
+  if (weights.size() != statmat.size())
+    stop("The weights and statmat lists must have the same length.");
+  
+  if (weights.size() > 1u) {
+    
+    for (int i = 0; i < n; ++i)
+      exact_logliki(x.row(i), params, weights.at(i), statmat.at(i), ans, i, as_prob);
+    
+  } else {
+    
+    ans = x * params - log(kappa(params, weights.at(0), statmat.at(0)));
+    
+  }
   
   return ans;
   

@@ -221,26 +221,26 @@ exact_loglik <- function(x, params, weights, statmat) {
   } else if (n > 1) {
     # If more than 1, then perhaps we need to recycle the values
     
-    if (!is.list(weights))
-      weights <- replicate(n, weights, simplify = FALSE)
+    if (!is.list(weights)) {
+      weights <- list(weights)
+    } else if (length(weights) != n) {
+      stop("length(weights) != nrow(x). When class(weights) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
     
-    if (!is.list(statmat))
-      statmat <- replicate(n, statmat, simplify = FALSE)
+    if (!is.list(statmat)) {
+      statmat <- list(statmat)
+    } else if (length(statmat) != n) {
+      stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
     
   } else 
     stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
   
-  # The lengths should match
-  if (length(weights) != n)
-    stop("length(weights) != nrow(x). When class(weights) == 'list', the number",
-         " of elements should match the number of rows in statistics (x).", 
-         call. = FALSE)
-  
-  if (length(statmat) != n)
-    stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
-         " of elements should match the number of rows in statistics (x).", 
-         call. = FALSE)
-  
+
   # Computing in chunks
   ans <- vector("double", n)
   for (s in seq_along(chunks$from)) {
