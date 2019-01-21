@@ -117,24 +117,17 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
     
     # If no new set of parameters is used, then 
     if (length(theta)) {
-      oldp <- ans$prob
+      oldp <- ans$prob[s]
       ans$calc_prob(theta, s)
-      on.exit(ans$prob <- oldp)
+      on.exit(ans$prob[s] <- oldp)
     } 
     
-    # First, we sample at most 50,000 (this makes it faster)
-    m <- min(5e4L, length(ans$networks[[s]]))
-    if (m > n)
-      idx <- sample.int(length(ans$networks[[s]]))
-    else
-      idx <- 1L:m
-    
-    ans$networks[[s]][idx][
+    ans$networks[[s]][
       sample.int(
-        n       = length(idx),
+        n       = length(ans$prob[[s]]),
         size    = n,
         replace = TRUE,
-        prob    = ans$prob[[s]][idx],
+        prob    = ans$prob[[s]],
         useHash = FALSE
         )
       ]

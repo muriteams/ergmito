@@ -60,7 +60,8 @@ arma::vec exact_loglik(
       exact_logliki(x.row(i), params, weights.at(i), statmat.at(i), ans, i, as_prob);
     
   } else {
-    
+    // In the case that all networks are from the same family, then this becomes
+    // a trivial operation.
     ans = x * params - log(kappa(params, weights.at(0), statmat.at(0)));
     
   }
