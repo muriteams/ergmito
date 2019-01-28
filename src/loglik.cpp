@@ -38,6 +38,13 @@ inline void exact_logliki(
   
 }
 
+//' Vectorized version of loglikelihood function
+//' 
+//' @param x Matrix of statistic. `nnets * nstats`.
+//' @param params Vector of coefficients.
+//' @param weights A list of weights matrices (for `statmat`).
+//' @param statmat A list of matrices with statistics for each row in `x`.
+//' @noRd
 // [[Rcpp::export(name = "exact_loglik.")]]
 arma::vec exact_loglik(
     const arma::mat & x,

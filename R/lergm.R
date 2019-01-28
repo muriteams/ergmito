@@ -54,29 +54,30 @@
 #' @importFrom MASS ginv
 ergmito <- function(
   model,
-  control = list(maxit = 1e3, reltol=1e-100),
-  stats   = NULL,
+  stats      = NULL,
+  optim.args = list(method="L-BFGS-B", lower = -10, upper = 10),
   ...
   ) {
   
   # Generating the objective function
   ergmitoenv <- environment(model)
-  formulae <- ergmito_formulae(model, stats = stats, env = ergmitoenv, ...)
+  formulae   <- ergmito_formulae(model, stats = stats, env = ergmitoenv, ...)
 
   npars  <- formulae$npars
   
-  control$fnscale <- -1
+  if (!length(optim.args$control))
+    optim.args$control <- list()
   
-  ans <- stats::optim(
-    par     = (init <- stats::rnorm(npars)),
-    method  = "BFGS",
-    fn      = formulae$loglik,
-    # gr      = formulae$grad,
-    stats   = stats$statmat,
-    control = control,
-    hessian = TRUE
-  )
+  optim.args$control$fnscale <- -1
   
+  # Setting arguments for optim
+  optim.args$par     <- (init <- stats::rnorm(npars, sd = .1))
+  optim.args$fn      <- formulae$loglik
+  optim.args$stats   <- stats$statmat
+  optim.args$hessian <- TRUE
+  
+  ans <- do.call(stats::optim, optim.args)
+
   # Capturing the names of the parameters
   pnames         <- attr(stats::terms(formulae$model), "term.labels")
   names(ans$par) <- pnames
