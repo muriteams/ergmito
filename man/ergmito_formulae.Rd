@@ -34,6 +34,6 @@ list returned by the same function.
 }
 }
 \description{
-The ERGMitos R package allows estimating pulled ERGMs by aggregating
+The ERGMitos R package allows estimating pooled ERGMs by aggregating
 independent networks together.
 }

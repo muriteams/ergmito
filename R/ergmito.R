@@ -10,7 +10,7 @@
 #' @param x,object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
 #' `ergm` is that the LHS can be a list of networks.
-#' @param control List. Passed to [stats::optim].
+#' @param optim.args List. Passed to [stats::optim].
 #' @param stats List as returned by [ergm::ergm.allstats]. When this is provided,
 #' the function does not call `ergm.allstats`, which can be useful in simulations.
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
@@ -55,7 +55,7 @@
 ergmito <- function(
   model,
   stats      = NULL,
-  optim.args = list(method="L-BFGS-B", lower = -10, upper = 10),
+  optim.args = list(method="L-BFGS-B", lower = -100, upper = 100),
   ...
   ) {
   

@@ -58,7 +58,7 @@ ans_ergm  <- ergm(model)
 ergm.exact(ans_ergmito$coef, model)
 ergm.exact(ans_ergm$coef, model)
 
-summary(ans_ergmito)
+ans_ergmito
 summary(ans_ergm)
 ```
 
@@ -92,7 +92,7 @@ ans_ergm  <- ergm(model, control = control.ergm(
 # The ergmito should have a larger value
 ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 
-summary(ans_ergmito)
+ans_ergmito
 summary(ans_ergm)
 ```
 

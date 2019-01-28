@@ -1,7 +1,7 @@
 
 #' Processing formulas in `ergmito`
 #' 
-#' The ERGMitos R package allows estimating pulled ERGMs by aggregating
+#' The ERGMitos R package allows estimating pooled ERGMs by aggregating
 #' independent networks together. 
 #' 
 #' @param model A formula. The left-hand-side can be either a small network, or
@@ -118,11 +118,11 @@ ergmito_formulae <- function(
     },
     grad  = function(params, stats = NULL) {
       
-      # Are we including anything 
-      if (!length(stats))  
-        stats <- originenv$stats
-      
-      exact_loglik_gr(params, stats0, stats)
+      # # Are we including anything 
+      # if (!length(stats))  
+      #   stats <- originenv$stats
+      # 
+      # exact_loglik_gr(params, stats0, stats)
       
     },
     stats     = stats,

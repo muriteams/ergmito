@@ -7,10 +7,11 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
 [![Travis build
-status](https://travis-ci.org/muriteams/lergm.svg?branch=master)](https://travis-ci.org/muriteams/lergm)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/avadsgb4a3tg20fd?svg=true)](https://ci.appveyor.com/project/gvegayon/lergm)
+status](https://travis-ci.org/muriteams/ergmito.svg?branch=master)](https://travis-ci.org/muriteams/ergmito)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/muriteams/ergmito?branch=master&svg=true)](https://ci.appveyor.com/project/muriteams/ergmito)
 [![Coverage
-status](https://codecov.io/gh/muriteams/lergm/branch/master/graph/badge.svg)](https://codecov.io/github/muriteams/lergm?branch=master)
+status](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/github/muriteams/ergmito?branch=master)
 
 The development version from [GitHub](https://github.com/) with:
 
@@ -48,23 +49,18 @@ ans_ergm  <- ergm(model)
 # The ergmito should have a larger value
 ergm.exact(ans_ergmito$coef, model)
 #>           [,1]
-#> [1,] -6.556996
+#> [1,] -6.556978
 ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,]  NaN
 
-summary(ans_ergmito)
+ans_ergmito
 #> 
 #> ERGMito estimates
-#>               Length Class          Mode   
-#> call           2     -none-         call   
-#> coef           3     -none-         numeric
-#> iterations     1     -none-         numeric
-#> loglikelihood  1     -none-         numeric
-#> covar          9     -none-         numeric
-#> coef.init      3     -none-         numeric
-#> formulae       7     ergmito_loglik list   
-#> network       16     -none-         numeric
+#> 
+#>  Coefficients:
+#>   edges   mutual  balance  
+#>  -0.322    2.341  -18.932
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -127,18 +123,13 @@ ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,] TRUE
 
-summary(ans_ergmito)
+ans_ergmito
 #> 
 #> ERGMito estimates
-#>               Length Class          Mode   
-#> call           2     -none-         call   
-#> coef           2     -none-         numeric
-#> iterations     1     -none-         numeric
-#> loglikelihood  1     -none-         numeric
-#> covar          4     -none-         numeric
-#> coef.init      2     -none-         numeric
-#> formulae       7     ergmito_loglik list   
-#> network       16     -none-         numeric
+#> 
+#>  Coefficients:
+#>  edges  mutual  
+#> -1.099   1.099
 summary(ans_ergm)
 #> 
 #> ==========================
