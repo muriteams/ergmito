@@ -100,11 +100,12 @@ ergmito_formulae <- function(
     if (!length(obs_stats[[i]]))
       obs_stats[[i]] <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
     
+    # Adding graph parameters to the statmat
     if (length(g)) {
       obs_stats[[i]]$statmat <- cbind(
         obs_stats[[i]]$statmat,
         matrix(
-          stats[[i]][names(g)], nrow = nrow(obs_stats[[i]]$statmat), ncol=length(stats[[i]]),
+          stats[[i]][names(g)], nrow = nrow(obs_stats[[i]]$statmat), ncol=length(g),
           byrow = TRUE, dimnames = list(NULL, names(g))
           )
         )
@@ -162,7 +163,10 @@ gmodel <- function(model, net) {
   ans <- lapply(netattrs, network::get.network.attribute, x = net)
   names(ans) <- netattrs
     
-  stats::model.matrix(model, as.data.frame(ans))
+  stats::model.matrix(
+    stats::update.formula(model, ~ 0 + .),
+    as.data.frame(ans)
+    )
   
   
 }

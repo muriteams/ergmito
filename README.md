@@ -48,19 +48,21 @@ ans_ergm  <- ergm(model)
 
 # The ergmito should have a larger value
 ergm.exact(ans_ergmito$coef, model)
-#>           [,1]
-#> [1,] -6.556978
+#>          [,1]
+#> [1,] -6.55703
 ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,]  NaN
 
-ans_ergmito
+summary(ans_ergmito)
 #> 
 #> ERGMito estimates
 #> 
-#>  Coefficients:
-#>   edges   mutual  balance  
-#>  -0.322    2.341  -18.932
+#> formula:  net ~ edges + mutual + balance
+#>            Estimate Std. Error     z value  Pr(>|z|)
+#> edges    -0.3219719    1.35496 -0.23762458 0.8121723
+#> mutual    2.3409083    2.09636  1.11665374 0.2641424
+#> balance -10.0000000  138.47618 -0.07221458 0.9424311
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -72,10 +74,10 @@ summary(ans_ergm)
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>         Estimate Std. Error MCMC % z value Pr(>|z|)    
-#> edges    0.00116    1.21668      0   0.001    0.999    
-#> mutual  20.68287         NA     NA      NA       NA    
-#> balance     -Inf    0.00000      0    -Inf   <1e-04 ***
+#>          Estimate Std. Error MCMC % z value Pr(>|z|)    
+#> edges   -0.001525   1.222484      0  -0.001    0.999    
+#> mutual  20.682872         NA     NA      NA       NA    
+#> balance      -Inf   0.000000      0    -Inf   <1e-04 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
@@ -123,13 +125,14 @@ ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,] TRUE
 
-ans_ergmito
+summary(ans_ergmito)
 #> 
 #> ERGMito estimates
 #> 
-#>  Coefficients:
-#>  edges  mutual  
-#> -1.099   1.099
+#> formula:  net ~ edges + mutual
+#>         Estimate Std. Error    z value  Pr(>|z|)
+#> edges  -1.098612  0.9128711 -1.2034693 0.2287948
+#> mutual  1.098612  1.8257421  0.6017347 0.5473508
 summary(ans_ergm)
 #> 
 #> ==========================

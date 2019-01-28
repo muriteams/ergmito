@@ -93,13 +93,7 @@ ergmito <- function(
   ans <- do.call(stats::optim, optim.args)
 
   # Capturing the names of the parameters
-  pnames         <- c(
-    attr(stats::terms(formulae$model), "term.labels"),
-    if (length(gattr_model))
-      attr(stats::terms(gattr_model), "term.labels")
-    else
-      NULL
-  )
+  pnames         <- colnames(formulae$stats)
   names(ans$par) <- pnames
   covar.         <- -MASS::ginv(ans$hessian)
   dimnames(covar.) <- list(pnames, pnames)
@@ -138,7 +132,20 @@ print.ergmito <- function(x, ...) {
 #' @rdname ergmito
 summary.ergmito <- function(object, ...) {
   cat("\nERGMito estimates\n")
-  summary(unclass(object))
+  cat("\nformula: ", deparse(object$formulae$model), "\n\n")
+  # Computing values
+  sdval <- sqrt(diag(vcov(object)))
+  z     <- coef(object)/sdval
+  
+  # Generating table
+  data.frame(
+    Estimate     = coef(object),
+    `Std. Error` = sdval,
+    `z value`    = z,
+    `Pr(>|z|)`   = 2*pnorm(-abs(z)),
+    row.names    = names(coef(object)),
+    check.names  = FALSE
+  )
 }
 
 # Methods ----------------------------------------------------------------------
@@ -166,3 +173,4 @@ vcov.ergmito <- function(object, ...) {
   object$covar
   
 }
+
