@@ -1,7 +1,7 @@
 
 #' Processing formulas in `ergmito`
 #' 
-#' The ERGMitos R package allows estimating pulled ERGMs by aggregating
+#' The ERGMitos R package allows estimating pooled ERGMs by aggregating
 #' independent networks together. 
 #' 
 #' @param model A formula. The left-hand-side can be either a small network, or
@@ -31,150 +31,107 @@ ergmito_formulae <- function(
   ...
   ) {
   
+  # Collecting extra options
+  dots <- list(...)
+  if (!length(dots$zeroobs))
+    dots$zeroobs <- TRUE
+
   # Capturing model
   if (!inherits(model, "formula"))
     model <- eval(model, envir = env)
-
+  
   # What is the first component
   LHS <- eval(model[[2]], envir = env)
-
+  
+  # Checking the appropriate types
   if (inherits(LHS, "list")) {
     
-    # Checking stats0
-    dots <- list(...)
-    if (length(dots$zeroobs) && dots$zeroobs) {
-      warning(
-        "The option `zeroobs` was set to FALSE. `zeroobs = TRUE` invalidates the pooled ERGM.",
-        call. = FALSE)
-    } 
-    
-    dots$zeroobs <- FALSE
-    
-    # Checking length of stats
-    if (!length(stats))
-      stats <- vector("list", length(LHS))
-    
-    if (!length(obs_stats))
-      obs_stats <- vector("list", length(LHS))
-    
-    # Creating one model per model
-    f. <- vector("list", length(LHS))
-    for (i in seq_along(f.)) {
-      
-      # Rewriting the model
-      model. <- model
-      model.[[2]] <- substitute(
-        NET[[i.]],
-        list(i. = i, NET = model[[2]])
-      )
-      
-      # Getting the functions
-      f.[[i]] <- ergmito_formulae(
-        model     = model.,
-        stats     = stats[[i]],
-        obs_stats = obs_stats[[i]],
-        env       = env,
-        ...
-        )
-    }
-    
-    # Additive loglike function
-    structure(
-      list(
-        # Joint log-likelihood
-        loglik = function(params, stats = NULL) {
-          ll <- 0
-          for (i in seq_along(f.))
-            ll <- ll + f.[[i]]$loglik(params, stats[[i]])
-          ll
-          },
-        # Joint gradient
-        grad = function(params, stats = NULL) {
-          gr <- vector("numeric", length(params))
-          for (i in seq_along(f.))
-            gr <- gr + f.[[i]]$grad(params, stats[[i]])
-          gr
-          },
-        obs_stats = lapply(f., "[[", "obs_stats"),
-        stats     = lapply(f., "[[", "stats"),
-        model     = model,
-        npars     = f.[[1]]$npars,
-        nnets     = length(f.),
-        zeroobs   = dots$zeroobs
-        ),
-      class="ergmito_loglik"
-      )
-    
+    # Are all either matrices or networks?
+    test <- which(!(sapply(LHS, class) %in% c("matrix", "network")))
+    if (length(test))
+      stop("One of the components is not a matrix `", deparse(model[[2]]),
+         "` is of class ", class(LHS), ".", call. = FALSE)
     
   } else if (inherits(LHS, "matrix") | inherits(LHS, "network")) {
     
-    # Collecting options
-    dots <- list(...)
+    # Nesting into a list. Later we will loop over the elements, so we can
+    # apply the same logic regardless of if it is one or more networks
+    LHS <- list(LHS)
     
-    # Network size
-    n <- nrow(LHS)
+  } else
+    stop("LHS of the formula should be either a list of networks or a single ",
+         "network.", call. = FALSE)
+  
+  # We will evaluate the formula in the current environment
+  model. <- model
+  model. <- stats::update.formula(model., LHS[[i]] ~ .)
+  
+  formulaeenv <- environment()
+  environment(model.) <- formulaeenv
+  
+  # Checking observed stats and stats
+  if (!length(obs_stats))
+    obs_stats <- vector("list", nnets(LHS))
+  
+  if (!length(stats))
+    stats <- vector("list", nnets(LHS))
+  
+  for (i in 1L:nnets(LHS)) {
     
-    # Baseline statistics, i.e. the zero out. If this is not applied, then
-    # the ERGM coefficients should be interpreted in a different fashion. By
-    # default in the ERGM package statistics are centered with respect to the
-    # observed network. This is critical when estimated te pooled version of 
-    # ERGMs.
-    #
-    # We MUST NOT center the statistics when estimating the pooled version.
-    if (!length(dots$zeroobs))
-      dots$zeroobs <- TRUE
+    # Calculating observed statistics
+    if (!length(stats[[i]]))
+      stats[[i]] <- summary(model.)
     
-    environment(model) <- env
-    
-    if (!length(obs_stats))
-      obs_stats <- summary(model)
-    
-    stats0 <- obs_stats
-    if (dots$zeroobs)
-      stats0[] <- rep(0, length(obs_stats))
-    stats0 <- matrix(stats0, nrow=1)
-      
+    # Should it be normalized to 0?
+    if (length(dots$zeroobs) && dots$zeroobs)
+      stats[[i]][] <- rep(0, length(stats[[i]][]))
     
     # Calculating statistics and weights
-    if (!length(stats))
-      stats <- ergm::ergm.allstats(formula = model, ...)
+    if (!length(obs_stats[[i]]))
+      obs_stats[[i]] <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
     
-    # This environment will like in the same place as where the loglikelihood
-    # function was created, so it can be access after it.
-    originenv <- new.env(parent = emptyenv())
-    originenv$stats   <- stats
-    
-    # Returning the likelihood function
-    structure(list(
-      loglik = function(params, stats = NULL) {
-        
-        # Are we including anything 
-        if (!length(stats))  
-          stats <- originenv$stats
-        
-        # Computing the log-likelihood
-        exact_loglik(params = params, x = stats0, weights = stats$weights, statmat = stats$statmat)
-        
-      },
-      grad  = function(params, stats = NULL) {
-        
-        # Are we including anything 
-        if (!length(stats))  
-          stats <- originenv$stats
-        
-        exact_loglik_gr(params, stats0, stats)
-        
-      },
-      stats = stats,
-      obs_stats = obs_stats,
-      model = stats::as.formula(model, env = env),
-      npars = ncol(originenv$stats$statmat),
-      nnets = 1L
-    ), class="ergmito_loglik")
-
-  } else 
-    stop("One of the components is not a matrix `", deparse(model[[2]]),
-         "` is of class ", class(LHS), ".", call. = FALSE)
+  }
+  
+  # Coercing objects
+  stats   <- do.call(rbind, stats)
+  weights <- lapply(obs_stats, "[[", "weights")
+  statmat <- lapply(obs_stats, "[[", "statmat")
+  
+  structure(list(
+    loglik = function(params, stats = NULL) {
+      
+      # Are we including anything 
+      ans <- if (!length(stats)) {
+        exact_loglik(
+          params = params, x = formulaeenv$stats,
+          weights = formulaeenv$weights, statmat = formulaeenv$statmat
+        )
+      } else {
+        exact_loglik(
+          params = params, x = formulaeenv$stats,
+          weights = stats$weights, statmat = stats$statmat
+        )
+      }
+      
+      max(sum(ans), -.Machine$double.xmax)
+      
+    },
+    grad  = function(params, stats = NULL) {
+      
+      # # Are we including anything 
+      # if (!length(stats))  
+      #   stats <- originenv$stats
+      # 
+      # exact_loglik_gr(params, stats0, stats)
+      
+    },
+    stats     = stats,
+    obs_stats = obs_stats,
+    model     = stats::as.formula(model, env = env),
+    npars     = ncol(stats),
+    nnets     = nnets(LHS)
+  ), class="ergmito_loglik")
+  
   
   
 }

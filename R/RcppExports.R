@@ -13,6 +13,13 @@ count_stats. <- function(X, terms) {
     .Call(`_ergmito_count_stats`, X, terms)
 }
 
+#' Vectorized version of loglikelihood function
+#' 
+#' @param x Matrix of statistic. `nnets * nstats`.
+#' @param params Vector of coefficients.
+#' @param weights A list of weights matrices (for `statmat`).
+#' @param statmat A list of matrices with statistics for each row in `x`.
+#' @noRd
 exact_loglik. <- function(x, params, weights, statmat, as_prob = FALSE) {
     .Call(`_ergmito_exact_loglik`, x, params, weights, statmat, as_prob)
 }
