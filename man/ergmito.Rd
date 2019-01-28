@@ -9,8 +9,8 @@
 \alias{vcov.ergmito}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
-ergmito(model, stats = NULL, optim.args = list(method = "L-BFGS-B",
-  lower = -100, upper = 100), ...)
+ergmito(model, gattr_model = NULL, stats = NULL, optim.args = list(),
+  ...)
 
 \method{print}{ergmito}(x, ...)
 
@@ -25,6 +25,9 @@ ergmito(model, stats = NULL, optim.args = list(method = "L-BFGS-B",
 \arguments{
 \item{model}{Model to estimate. See \link[ergm:ergm]{ergm::ergm}. The only difference with
 \code{ergm} is that the LHS can be a list of networks.}
+
+\item{gattr_model}{A formula. Model especification for graph attributes. This
+is useful when using multiple networks.}
 
 \item{stats}{List as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}. When this is provided,
 the function does not call \code{ergm.allstats}, which can be useful in simulations.}

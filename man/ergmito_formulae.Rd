@@ -4,12 +4,15 @@
 \alias{ergmito_formulae}
 \title{Processing formulas in \code{ergmito}}
 \usage{
-ergmito_formulae(model, stats = NULL, obs_stats = NULL,
-  env = parent.frame(), ...)
+ergmito_formulae(model, gattr_model = NULL, stats = NULL,
+  obs_stats = NULL, env = parent.frame(), ...)
 }
 \arguments{
 \item{model}{A formula. The left-hand-side can be either a small network, or
 a list of networks.}
+
+\item{gattr_model}{A formula. Model especification for graph attributes. This
+is useful when using multiple networks.}
 
 \item{stats}{A list.}
 

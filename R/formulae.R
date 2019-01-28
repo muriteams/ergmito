@@ -6,6 +6,8 @@
 #' 
 #' @param model A formula. The left-hand-side can be either a small network, or
 #' a list of networks. 
+#' @param gattr_model A formula. Model especification for graph attributes. This
+#' is useful when using multiple networks.
 #' @param stats A list.
 #' @param obs_stats Observed statistics. If multiple networks, then a list, otherwise
 #' a named vector (see [ergm::summary_formula]). 
@@ -25,16 +27,17 @@
 #' @export
 ergmito_formulae <- function(
   model,
-  stats     = NULL,
-  obs_stats = NULL,
-  env       = parent.frame(),
+  gattr_model = NULL,
+  stats       = NULL,
+  obs_stats   = NULL,
+  env         = parent.frame(),
   ...
   ) {
   
   # Collecting extra options
   dots <- list(...)
   if (!length(dots$zeroobs))
-    dots$zeroobs <- TRUE
+    dots$zeroobs <- FALSE
 
   # Capturing model
   if (!inherits(model, "formula"))
@@ -76,11 +79,18 @@ ergmito_formulae <- function(
   if (!length(stats))
     stats <- vector("list", nnets(LHS))
   
+  # Need to improve the speed of this!
   for (i in 1L:nnets(LHS)) {
+    # Calculating gattrs_model
+    
+    if (length(gattr_model))
+      g <- gmodel(gattr_model, LHS[[i]])[1,]
+    else
+      g <- NULL
     
     # Calculating observed statistics
     if (!length(stats[[i]]))
-      stats[[i]] <- summary(model.)
+      stats[[i]] <- c(summary(model.), g)
     
     # Should it be normalized to 0?
     if (length(dots$zeroobs) && dots$zeroobs)
@@ -89,6 +99,16 @@ ergmito_formulae <- function(
     # Calculating statistics and weights
     if (!length(obs_stats[[i]]))
       obs_stats[[i]] <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
+    
+    if (length(g)) {
+      obs_stats[[i]]$statmat <- cbind(
+        obs_stats[[i]]$statmat,
+        matrix(
+          stats[[i]][names(g)], nrow = nrow(obs_stats[[i]]$statmat), ncol=length(stats[[i]]),
+          byrow = TRUE, dimnames = list(NULL, names(g))
+          )
+        )
+    }
     
   }
   
@@ -132,6 +152,17 @@ ergmito_formulae <- function(
     nnets     = nnets(LHS)
   ), class="ergmito_loglik")
   
+  
+  
+}
+
+gmodel <- function(model, net) {
+  
+  netattrs <- network::list.network.attributes(net)
+  ans <- lapply(netattrs, network::get.network.attribute, x = net)
+  names(ans) <- netattrs
+    
+  stats::model.matrix(model, as.data.frame(ans))
   
   
 }

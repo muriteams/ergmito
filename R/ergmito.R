@@ -10,6 +10,8 @@
 #' @param x,object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
 #' `ergm` is that the LHS can be a list of networks.
+#' @param gattr_model A formula. Model especification for graph attributes. This
+#' is useful when using multiple networks.
 #' @param optim.args List. Passed to [stats::optim].
 #' @param stats List as returned by [ergm::ergm.allstats]. When this is provided,
 #' the function does not call `ergm.allstats`, which can be useful in simulations.
@@ -54,22 +56,34 @@
 #' @importFrom MASS ginv
 ergmito <- function(
   model,
-  stats      = NULL,
-  optim.args = list(method="L-BFGS-B", lower = -100, upper = 100),
+  gattr_model = NULL,
+  stats       = NULL,
+  optim.args  = list(),
   ...
   ) {
   
+
   # Generating the objective function
   ergmitoenv <- environment(model)
-  formulae   <- ergmito_formulae(model, stats = stats, env = ergmitoenv, ...)
+  formulae   <- ergmito_formulae(
+    model, gattr_model = gattr_model, stats = stats, env = ergmitoenv, ...)
 
   npars  <- formulae$npars
-  
+
   if (!length(optim.args$control))
     optim.args$control <- list()
   
   optim.args$control$fnscale <- -1
   
+  if (!length(optim.args$method)) optim.args$method <- "L-BFGS-B"
+  if (optim.args$method == "L-BFGS-B") {
+    if (!length(optim.args$lower)) optim.args$lower <- -10
+    if (!length(optim.args$upper)) optim.args$upper <-  10
+    if (!length(optim.args$upper)) optim.args$upper <-  10
+    if (!length(optim.args$control$factr))
+      optim.args$control$factr <- 1e2
+  }
+
   # Setting arguments for optim
   optim.args$par     <- (init <- stats::rnorm(npars, sd = .1))
   optim.args$fn      <- formulae$loglik
@@ -79,7 +93,13 @@ ergmito <- function(
   ans <- do.call(stats::optim, optim.args)
 
   # Capturing the names of the parameters
-  pnames         <- attr(stats::terms(formulae$model), "term.labels")
+  pnames         <- c(
+    attr(stats::terms(formulae$model), "term.labels"),
+    if (length(gattr_model))
+      attr(stats::terms(gattr_model), "term.labels")
+    else
+      NULL
+  )
   names(ans$par) <- pnames
   covar.         <- -MASS::ginv(ans$hessian)
   dimnames(covar.) <- list(pnames, pnames)
