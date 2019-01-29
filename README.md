@@ -10,14 +10,13 @@ status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.or
 status](https://travis-ci.org/muriteams/ergmito.svg?branch=master)](https://travis-ci.org/muriteams/ergmito)
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/muriteams/ergmito?branch=master&svg=true)](https://ci.appveyor.com/project/muriteams/ergmito)
-[![Coverage
-status](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/github/muriteams/ergmito?branch=master)
+[![codecov](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/gh/muriteams/ergmito)
 
 The development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("muriteams/lergm")
+devtools::install_github("muriteams/ergmito")
 ```
 
 ## Example
