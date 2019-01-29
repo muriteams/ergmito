@@ -8,8 +8,8 @@
 status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
 [![Travis build
 status](https://travis-ci.org/muriteams/ergmito.svg?branch=master)](https://travis-ci.org/muriteams/ergmito)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/muriteams/ergmito?branch=master&svg=true)](https://ci.appveyor.com/project/muriteams/ergmito)
+[![AppVeyor Build
+status](https://ci.appveyor.com/api/projects/status/nl1irakr2g6y6w03?svg=true)](https://ci.appveyor.com/project/gvegayon/ergmito)
 [![codecov](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/gh/muriteams/ergmito)
 
 The development version from [GitHub](https://github.com/) with:
