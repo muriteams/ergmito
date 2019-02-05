@@ -77,9 +77,8 @@ ergmito <- function(
   
   if (!length(optim.args$method)) optim.args$method <- "L-BFGS-B"
   if (optim.args$method == "L-BFGS-B") {
-    if (!length(optim.args$lower)) optim.args$lower <- -10
-    if (!length(optim.args$upper)) optim.args$upper <-  10
-    if (!length(optim.args$upper)) optim.args$upper <-  10
+    if (!length(optim.args$lower)) optim.args$lower <- -100
+    if (!length(optim.args$upper)) optim.args$upper <-  100
     if (!length(optim.args$control$factr))
       optim.args$control$factr <- 1e2
   }
@@ -102,19 +101,29 @@ ergmito <- function(
   if (!inherits(model, "formula"))
     model <- eval(model)
   
-  structure(
+  # Null loglik
+  ll0 <- formulae$loglik(rep(0, length(pnames)))
+  
+  ans <- structure(
     list(
-      call          = match.call(),
-      coef          = ans$par,
-      iterations    = ans$counts["function"],
-      loglikelihood = ans$value,
-      covar         = covar.,
-      coef.init     = init,
-      formulae      = formulae,
-      network       = eval(model[[2]], envir = ergmitoenv)
+      call       = match.call(),
+      coef       = ans$par,
+      iterations = ans$counts["function"],
+      mle.lik    = structure(ans$value, class="logLik", df=length(ans$par)),
+      null.lik   = structure(ll0, class="logLik", df=0),
+      covar      = covar.,
+      coef.init  = init,
+      formulae   = formulae,
+      nobs       = NA,
+      network    = eval(model[[2]], envir = ergmitoenv)
     ),
     class="ergmito"
     )
+  
+  ans$nobs <- nvertex(ans$network)
+  ans$nobs <- sum(ans$nobs*(ans$nobs - 1))
+  
+  ans
   
 }
 
@@ -151,7 +160,7 @@ summary.ergmito <- function(object, ...) {
 # Methods ----------------------------------------------------------------------
 #' @export
 #' @rdname ergmito
-#' @importFrom stats coef logLik vcov
+#' @importFrom stats coef logLik vcov nobs
 coef.ergmito <- function(object, ...) {
   
   object$coef
@@ -162,7 +171,15 @@ coef.ergmito <- function(object, ...) {
 #' @rdname ergmito
 logLik.ergmito <- function(object, ...) {
   
-  structure(object$loglikelihood, class = "logLik", df = length(coef(object)))
+  object$mle.lik
+  
+}
+
+#' @export
+#' @rdname ergmito
+nobs.ergmito <- function(object, ...) {
+  
+  object$nobs
   
 }
 

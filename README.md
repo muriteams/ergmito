@@ -47,8 +47,8 @@ ans_ergm  <- ergm(model)
 
 # The ergmito should have a larger value
 ergm.exact(ans_ergmito$coef, model)
-#>          [,1]
-#> [1,] -6.55703
+#>           [,1]
+#> [1,] -6.556978
 ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,]  NaN
@@ -58,10 +58,10 @@ summary(ans_ergmito)
 #> ERGMito estimates
 #> 
 #> formula:  net ~ edges + mutual + balance
-#>            Estimate Std. Error     z value  Pr(>|z|)
-#> edges    -0.3219719    1.35496 -0.23762458 0.8121723
-#> mutual    2.3409083    2.09636  1.11665374 0.2641424
-#> balance -10.0000000  138.47618 -0.07221458 0.9424311
+#>            Estimate Std. Error    z value  Pr(>|z|)
+#> edges    -0.3219699   1.354957 -0.2376237 0.8121730
+#> mutual    2.3409645   2.096335  1.1166941 0.2641251
+#> balance -30.1558256   0.000000        Inf 0.0000000
 summary(ans_ergm)
 #> 
 #> ==========================

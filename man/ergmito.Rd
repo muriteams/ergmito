@@ -6,6 +6,7 @@
 \alias{summary.ergmito}
 \alias{coef.ergmito}
 \alias{logLik.ergmito}
+\alias{nobs.ergmito}
 \alias{vcov.ergmito}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
@@ -19,6 +20,8 @@ ergmito(model, gattr_model = NULL, stats = NULL, optim.args = list(),
 \method{coef}{ergmito}(object, ...)
 
 \method{logLik}{ergmito}(object, ...)
+
+\method{nobs}{ergmito}(object, ...)
 
 \method{vcov}{ergmito}(object, ...)
 }

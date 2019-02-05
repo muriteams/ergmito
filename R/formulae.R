@@ -134,7 +134,13 @@ ergmito_formulae <- function(
         )
       }
       
-      max(sum(ans), -.Machine$double.xmax)
+      ans <- sum(ans)
+      
+      # If awfully undefined
+      if (is.nan(ans))
+        return(-.Machine$double.xmax)
+      
+      max(ans, -.Machine$double.xmax)
       
     },
     grad  = function(params, stats = NULL) {
