@@ -2,9 +2,12 @@
 % Please edit documentation in R/formulae.R
 \name{exact_loglik}
 \alias{exact_loglik}
+\alias{exact_gradient}
 \title{Vectorized calculation of ERGM exact loglikelihood}
 \usage{
 exact_loglik(x, params, weights, statmat)
+
+exact_gradient(x, params, weights, statmat)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}

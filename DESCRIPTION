@@ -27,7 +27,9 @@ Imports:
     MASS,
     network,
     RcppArmadillo,
-    utils
+    utils,
+    methods,
+    texreg
 LinkingTo: 
     Rcpp, RcppArmadillo
 License: MIT + file LICENSE

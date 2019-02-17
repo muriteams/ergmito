@@ -48,20 +48,29 @@ ans_ergm  <- ergm(model)
 # The ergmito should have a larger value
 ergm.exact(ans_ergmito$coef, model)
 #>           [,1]
-#> [1,] -6.556978
+#> [1,] -6.557076
 ergm.exact(ans_ergm$coef, model)
 #>      [,1]
 #> [1,]  NaN
 
 summary(ans_ergmito)
+#> $coefs
+#>           Estimate Std. Error     z value  Pr(>|z|)
+#> edges   -0.3203616   1.355221 -0.23639058 0.8131296
+#> mutual   2.3390394   2.096539  1.11566695 0.2645647
+#> balance -9.3678948 100.942647 -0.09280413 0.9260592
 #> 
-#> ERGMito estimates
+#> $aic
+#> [1] 19.11415
 #> 
-#> formula:  net ~ edges + mutual + balance
-#>            Estimate Std. Error    z value  Pr(>|z|)
-#> edges    -0.3219699   1.354957 -0.2376237 0.8121730
-#> mutual    2.3409645   2.096335  1.1166941 0.2641251
-#> balance -30.1558256   0.000000        Inf 0.0000000
+#> $bic
+#> [1] 20.56887
+#> 
+#> $model
+#> [1] "net ~ edges + mutual + balance"
+#> 
+#> attr(,"class")
+#> [1] "ergmito_summary"
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -74,7 +83,7 @@ summary(ans_ergm)
 #> 
 #> Monte Carlo MLE Results:
 #>          Estimate Std. Error MCMC % z value Pr(>|z|)    
-#> edges   -0.001525   1.222484      0  -0.001    0.999    
+#> edges    0.006341   1.209717      0   0.005    0.996    
 #> mutual  20.682872         NA     NA      NA       NA    
 #> balance      -Inf   0.000000      0    -Inf   <1e-04 ***
 #> ---
@@ -125,13 +134,22 @@ ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 #> [1,] TRUE
 
 summary(ans_ergmito)
-#> 
-#> ERGMito estimates
-#> 
-#> formula:  net ~ edges + mutual
+#> $coefs
 #>         Estimate Std. Error    z value  Pr(>|z|)
-#> edges  -1.098612  0.9128711 -1.2034693 0.2287948
-#> mutual  1.098612  1.8257421  0.6017347 0.5473508
+#> edges  -1.098612   0.912871 -1.2034693 0.2287948
+#> mutual  1.098612   1.825742  0.6017347 0.5473507
+#> 
+#> $aic
+#> [1] 18.90944
+#> 
+#> $bic
+#> [1] 19.87925
+#> 
+#> $model
+#> [1] "net ~ edges + mutual"
+#> 
+#> attr(,"class")
+#> [1] "ergmito_summary"
 summary(ans_ergm)
 #> 
 #> ==========================

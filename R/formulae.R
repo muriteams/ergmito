@@ -138,18 +138,39 @@ ergmito_formulae <- function(
       
       # If awfully undefined
       if (is.nan(ans))
-        return(-.Machine$double.xmax)
+        return(-.Machine$double.xmax/1e100)
       
-      max(ans, -.Machine$double.xmax)
+      max(ans, -.Machine$double.xmax/1e100)
       
     },
     grad  = function(params, stats = NULL) {
       
-      # # Are we including anything 
-      # if (!length(stats))  
-      #   stats <- originenv$stats
+      # Are we including anything 
+      ans <- if (!length(stats)) {
+        exact_gradient(
+          params = params, x = formulaeenv$stats,
+          weights = formulaeenv$weights, statmat = formulaeenv$statmat
+        )
+      } else {
+        exact_gradient(
+          params = params, x = formulaeenv$stats,
+          weights = stats$weights, statmat = stats$statmat
+        )
+      }
+      
+      # If awfully undefined
+      # if (is.nan(ans))
+      #   return(-.Machine$double.xmax/1e100)
       # 
-      # exact_loglik_gr(params, stats0, stats)
+      # max(ans, -.Machine$double.xmax/1e100)
+      
+      ans[is.nan(ans)] <- .Machine$double.xmax/1e100
+      
+      test <- which(is.infinite(ans))
+      if (length(test))
+        ans[test] <- sign(ans[test])*.Machine$double.xmax/1e100
+      
+      ans
       
     },
     stats     = stats,
@@ -241,13 +262,24 @@ exact_loglik <- function(x, params, weights, statmat) {
 
   # Computing in chunks
   ans <- vector("double", n)
-  for (s in seq_along(chunks$from)) {
-    
-    i <- chunks$from[s]
-    j <- chunks$to[s]
-    
-    ans[i:j] <- exact_loglik.(x[i:j, ,drop=FALSE], params, weights, statmat)
-    
+  if (length(weights) > 1L) {
+    for (s in seq_along(chunks$from)) {
+      
+      i <- chunks$from[s]
+      j <- chunks$to[s]
+      
+      ans[i:j] <- exact_loglik.(x[i:j, ,drop=FALSE], params, weights[i:j], statmat[i:j])
+      
+    }
+  } else {
+    for (s in seq_along(chunks$from)) {
+      
+      i <- chunks$from[s]
+      j <- chunks$to[s]
+      
+      ans[i:j] <- exact_loglik.(x[i:j, ,drop=FALSE], params, weights, statmat)
+      
+    }
   }
   
   ans
@@ -258,6 +290,63 @@ exact_loglik <- function(x, params, weights, statmat) {
 exact_loglik2 <- function(params, stat0, stats) {
   
   sum(params * stat0) - log(stats$weights %*% exp(stats$statmat %*% params))
+  
+}
+
+#' @rdname exact_loglik
+#' @export
+exact_gradient <- function(x, params, weights, statmat) {
+  
+  # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
+  chunks <- make_chunks(nrow(x), 4e5)
+  
+  n <- nrow(x)
+  
+  # Checking the weights and stats mat
+  if (n == 1) {
+    # If only one observation
+    
+    if (!is.list(weights))
+      weights <- list(weights)
+    
+    if (!is.list(statmat))
+      statmat <- list(statmat)
+    
+  } else if (n > 1) {
+    # If more than 1, then perhaps we need to recycle the values
+    
+    if (!is.list(weights)) {
+      weights <- list(weights)
+    } else if (length(weights) != n) {
+      stop("length(weights) != nrow(x). When class(weights) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
+    
+    if (!is.list(statmat)) {
+      statmat <- list(statmat)
+    } else if (length(statmat) != n) {
+      stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
+    
+  } else 
+    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
+  
+  
+  # Computing in chunks
+  ans <- matrix(0, nrow = length(params), ncol=1L)
+  for (s in seq_along(chunks$from)) {
+    
+    i <- chunks$from[s]
+    j <- chunks$to[s]
+    
+    ans <- ans + exact_gradient.(x[i:j, ,drop=FALSE], params, weights[i:j], statmat[i:j])
+    
+  }
+  
+  ans
   
 }
 

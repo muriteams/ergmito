@@ -11,7 +11,7 @@
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
 ergmito(model, gattr_model = NULL, stats = NULL, optim.args = list(),
-  ...)
+  init = NULL, ntries = 5L, use.grad = TRUE, ...)
 
 \method{print}{ergmito}(x, ...)
 
@@ -36,6 +36,15 @@ is useful when using multiple networks.}
 the function does not call \code{ergm.allstats}, which can be useful in simulations.}
 
 \item{optim.args}{List. Passed to \link[stats:optim]{stats::optim}.}
+
+\item{init}{Either a numeric vector, or a matrix with \code{ntries} rows. Sets
+the starting parameters for the optimization routine.}
+
+\item{ntries}{Integer. Number of times that the \code{optim} function should be
+executed (see MLE).}
+
+\item{use.grad}{Logical. When \code{TRUE} passes the gradient function to \code{optim}.
+This is intended for testing only (internal use).}
 
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}
@@ -63,6 +72,23 @@ graphs are generated for computing the normalizing constant of the ERGM
 model. This implies that models with up to 5 nodes are relatively simple
 to fit, since more than that can become infeasible.
 }
+\section{MLE}{
+
+
+Maximum Likelihood Estimates are obtained using the \link[stats:optim]{stats::optim} function.
+The default method for maximization is \code{BFGS} using both the loglikelihood
+function and its corresponding gradient.
+
+Anecdotically, while the optimization process should be realitvely straight
+forward, in some cases a bad selection of initial set of parameters (\code{init})
+can yield suboptimal solutions. Because of this reason, the parameter \code{ntries}
+allows the user to specify how many runs of \code{optim} should be done before
+returning. In general, optimization via \code{optim} is very fast, which is why
+this part of the function doesn't impact the actual wall time significantly
+(the most part of the time that the function takes to run is caused by the
+computation of the stats natrices using the \link[ergm:ergm.allstats]{ergm::ergm.allstats} function.)
+}
+
 \examples{
 
 # Generating a small graph

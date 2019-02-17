@@ -76,3 +76,75 @@ arma::vec exact_loglik(
   return ans;
   
 }
+
+
+// Calculates the likelihood for a given network individually.
+inline arma::colvec exact_gradienti(
+    const arma::rowvec & x,
+    const arma::colvec & params,
+    const arma::rowvec & weights,
+    const arma::mat    & statmat
+) {
+
+  return x.t() - (statmat.t() * (weights.t() % exp(statmat * params)))/kappa(params, weights, statmat);
+
+}
+
+//' Vectorized version of gradient function
+//' 
+//' @param x Matrix of statistic. `nnets * nstats`.
+//' @param params Vector of coefficients.
+//' @param weights A list of weights matrices (for `statmat`).
+//' @param statmat A list of matrices with statistics for each row in `x`.
+//' @noRd
+// [[Rcpp::export(name = "exact_gradient.")]]
+arma::colvec exact_gradient(
+    const arma::mat & x,
+    const arma::colvec & params,
+    const std::vector< arma::rowvec > & weights,
+    const std::vector< arma::mat > & statmat
+) {
+
+  // Checking the sizes
+  if (weights.size() != statmat.size())
+    stop("The weights and statmat lists must have the same length.");
+
+  if (weights.size() > 1u) {
+    
+    arma::colvec ans(x.n_cols);
+    ans.fill(0.0);
+    int n = x.n_rows;
+
+    for (int i = 0; i < n; ++i)
+      ans += exact_gradienti(x.row(i), params, weights.at(i), statmat.at(i));
+    
+    return ans;
+
+  } else {
+    // In the case that all networks are from the same family, then this becomes
+    // a trivial operation.
+    return exact_gradienti(x.row(0), params, weights.at(0), statmat.at(0));
+
+  }
+
+  
+
+}
+
+
+
+// // [[Rcpp::export]]
+// arma::vec exact_gradient(
+//     const arma::mat & x,
+//     const arma::colvec & params,
+//     const std::vector< arma::rowvec > & weights,
+//     const std::vector< arma::mat > & statmat,
+// ) {
+// 
+//   arma::vec ans(params.size());
+// 
+//   ans += x - (weights * exp(statmat * params) % statmat)/kappa(params, weights, statmat) ;
+//   // arma::as_scalar(weights * exp(statmat * params))
+//   return ans;
+// 
+// }

@@ -15,6 +15,12 @@
 #' @param optim.args List. Passed to [stats::optim].
 #' @param stats List as returned by [ergm::ergm.allstats]. When this is provided,
 #' the function does not call `ergm.allstats`, which can be useful in simulations.
+#' @param init Either a numeric vector, or a matrix with `ntries` rows. Sets
+#' the starting parameters for the optimization routine.
+#' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
+#' This is intended for testing only (internal use).
+#' @param ntries Integer. Number of times that the `optim` function should be
+#' executed (see MLE).
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
 #' `...` are passed to [ergmito_formulae].
 #' 
@@ -33,6 +39,21 @@
 #' - `network`       Networks passed via `model`.
 #' 
 #' @export
+#' @section MLE:
+#' 
+#' Maximum Likelihood Estimates are obtained using the [stats::optim] function.
+#' The default method for maximization is `BFGS` using both the loglikelihood
+#' function and its corresponding gradient.
+#' 
+#' Anecdotically, while the optimization process should be realitvely straight
+#' forward, in some cases a bad selection of initial set of parameters (`init`)
+#' can yield suboptimal solutions. Because of this reason, the parameter `ntries`
+#' allows the user to specify how many runs of `optim` should be done before
+#' returning. In general, optimization via `optim` is very fast, which is why
+#' this part of the function doesn't impact the actual wall time significantly
+#' (the most part of the time that the function takes to run is caused by the
+#' computation of the stats natrices using the [ergm::ergm.allstats] function.)
+#' 
 #' @examples 
 #' 
 #' # Generating a small graph
@@ -59,23 +80,51 @@ ergmito <- function(
   gattr_model = NULL,
   stats       = NULL,
   optim.args  = list(),
+  init        = NULL,
+  ntries      = 5L,
+  use.grad    = TRUE,
   ...
   ) {
   
-
   # Generating the objective function
   ergmitoenv <- environment(model)
   formulae   <- ergmito_formulae(
     model, gattr_model = gattr_model, stats = stats, env = ergmitoenv, ...)
 
   npars  <- formulae$npars
+  
+  # Checking initial parameters
+  if (!length(init))
+    init <- matrix(rnorm(npars * ntries), ncol = npars)
+  else if (length(init) == npars && ntries != 1) {
+    warning(
+      "The set of initial parameters will be extended to match `ntries`.",
+      " The extended initial points will be drawn from a N(0, 1).",
+      call. =  FALSE)
+    
+    init <- rbind(init, matrix(rnorm(npars * (ntries - 1L)), ncol = npars))
+  } else
+    stop(
+      "Invalid number of inital parameters (`init`).",
+      " See the section 'MLE' in ?ergmito.",
+      call. = FALSE
+      )
+  
 
+  # Checking optim parameters --------------------------------------------------
   if (!length(optim.args$control))
     optim.args$control <- list()
-  
   optim.args$control$fnscale <- -1
   
-  if (!length(optim.args$method)) optim.args$method <- "L-BFGS-B"
+  # For BFGS 
+  if (!length(optim.args$method)) 
+    optim.args$method <- "BFGS"
+    
+  if (optim.args$method == "BFGS" && !length(optim.args$control$reltol)) {
+      optim.args$control$reltol <- .Machine$double.eps*2
+  }
+  
+  # For L-BFGS-B
   if (optim.args$method == "L-BFGS-B") {
     if (!length(optim.args$lower)) optim.args$lower <- -100
     if (!length(optim.args$upper)) optim.args$upper <-  100
@@ -84,12 +133,20 @@ ergmito <- function(
   }
 
   # Setting arguments for optim
-  optim.args$par     <- (init <- stats::rnorm(npars, sd = .1))
-  optim.args$fn      <- formulae$loglik
-  optim.args$stats   <- stats$statmat
+  optim.args$fn <- formulae$loglik
+  if (use.grad) 
+    optim.args$gr <- formulae$grad
+  optim.args$stats <- stats$statmat
   optim.args$hessian <- TRUE
   
-  ans <- do.call(stats::optim, optim.args)
+  ans <- vector("list", ntries)
+  for (i in 1:ntries) {
+    optim.args$par <- init[i, , drop=TRUE]
+    ans[[i]] <- do.call(stats::optim, optim.args)
+  }
+  
+  # print(ans)
+  ans <- ans[[which.max(sapply(ans, "[[", "value"))[1]]]
 
   # Capturing the names of the parameters
   pnames         <- colnames(formulae$stats)
@@ -115,9 +172,11 @@ ergmito <- function(
       coef.init  = init,
       formulae   = formulae,
       nobs       = NA,
-      network    = eval(model[[2]], envir = ergmitoenv)
+      network    = eval(model[[2]], envir = ergmitoenv),
+      init       = init,
+      optim.out  = ans
     ),
-    class="ergmito"
+    class = c("ergmito", "ergm")
     )
   
   ans$nobs <- nvertex(ans$network)
@@ -140,22 +199,41 @@ print.ergmito <- function(x, ...) {
 #' @export
 #' @rdname ergmito
 summary.ergmito <- function(object, ...) {
-  cat("\nERGMito estimates\n")
-  cat("\nformula: ", deparse(object$formulae$model), "\n\n")
+
   # Computing values
   sdval <- sqrt(diag(vcov(object)))
   z     <- coef(object)/sdval
   
   # Generating table
-  data.frame(
-    Estimate     = coef(object),
-    `Std. Error` = sdval,
-    `z value`    = z,
-    `Pr(>|z|)`   = 2*pnorm(-abs(z)),
-    row.names    = names(coef(object)),
-    check.names  = FALSE
+  ans <- structure(
+    list(
+      coefs = data.frame(
+      Estimate     = coef(object),
+      `Std. Error` = sdval,
+      `z value`    = z,
+      `Pr(>|z|)`   = 2*stats::pnorm(-abs(z)),
+      row.names    = names(coef(object)),
+      check.names  = FALSE
+    ),
+    aic = stats::AIC(object),
+    bic = stats::BIC(object),
+    model = deparse(object$formulae$model)
+    ),
+    class = "ergmito_summary"
   )
+  
+  ans
 }
+
+print.ergmito_summary <- function(x, ...) {
+
+  cat("\nERGMito estimates\n")
+  cat("\nformula: ", x$model, "\n\n")
+  print(x$coefs)
+  invisible(x)
+    
+}
+
 
 # Methods ----------------------------------------------------------------------
 #' @export
