@@ -32,11 +32,14 @@ nvertex.list <- function(x) {
 #' @rdname nvertex
 nvertex.ergmito <- function(x) {
   
-  if (nnets(x) == 1)
-    nrow(x$network)
-  else
-    sapply(x$network, nrow)
+  nvertex(x$network)
   
+}
+
+#' @export
+#' @rdname nvertex
+nvertex.formula <- function(x) {
+  nvertex(eval(x[[2]], envir = environment(x)))
 }
 
 #' @export

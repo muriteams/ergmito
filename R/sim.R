@@ -9,11 +9,31 @@
 #' @param mc.cores Integer. Passed to [parallel::mclapply]
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' 
+#' @return An environment with the following objects:
+#' 
+#' - `calc_prob`
+#' - `call`
+#' - `counts`
+#' - `networks`
+#' - `prob`
+#' - `sample` A function to draw samples. `n` specifies the number of samples to
+#'   draw, `s` the size of the networks, and `theta` the parameter to use to
+#'   calculate the likelihoods.
+#' - `theta`
+#' 
+#' 
+#' 
 #' @export
 #' @importFrom parallel mclapply
-new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
+new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
   
   environment(model) <- parent.frame()
+  
+  # What are the sizes
+  if (!length(sizes)) {
+    sizes <- nvertex(model)
+    sizes <- sort(unique(sizes))
+  }
   
   # Getting the estimates
   if (!length(theta))
@@ -25,16 +45,6 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   
   # Checking stats0
   dots <- list(...)
-  if (nnets(net) > 1L) {
-    
-    if (length(dots$zeroobs) && dots$zeroobs)
-      warning(
-        "The option `zeroobs` was set to FALSE. `zeroobs = TRUE` invalidates the pooled ERGM.",
-        call. = FALSE)
-    
-  } 
-  
-  dots$zeroobs <- FALSE
   
   # Generating powersets
   ans          <- new.env()
@@ -42,8 +52,42 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   ans$theta    <- theta
   names(ans$networks) <- sizes
   
+  # Are we addinig attributes?
+  if (nnets(net) == 1 && network::is.network(net)) {
+    attrs <- list()
+    
+    vattrs <- network::list.vertex.attributes(net)
+    if (length(vattrs)) {
+      
+      # Getting the attributes
+      attrs$vertex.attr      <- lapply(vattrs, network::get.vertex.attribute, x = net)
+      attrs$vertex.attrnames <- vattrs
+      
+      # Adding attributes to the networks
+      if (length(ans$neworks) > 1L) {
+        warning(
+          "When `length(size) > 1`, attributes from the networks in `x` cannont",
+          " be added (don't know what goes with what). We will skip adding the",
+          " observed attributes to the family of networks. This could result",
+          " in an error if the model includes nodal attributes.", call. = FALSE)
+      } else {
+        
+        for (i in seq_along(ans$networks[[1]]))
+          ans$networks[[1L]][[i]] <- network::network(
+            x                = ans$networks[[1L]][[i]],
+            vertex.attr      = attrs$vertex.attr,
+            vertex.attrnames = attrs$vertex.attrnames
+          )
+      }
+      
+    } else
+      attrs <- NULL
+  }
+  
+  
+  
   # Computing probabilities
-  model. <- stats::update.formula(model, pset ~ .)
+  model.     <- stats::update.formula(model, psets[[i]] ~ .)
   ans$counts <- parallel::mclapply(ans$networks, function(psets) {
     
     # Getting the corresponding powerset
@@ -51,9 +95,8 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
     environment(model.) <- environment()
     
     # Counts
-    pset <- psets[[1]]
+    i    <- 1L
     S    <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
-    
     
     if (all(terms %in% c("edges", "mutual")) & Sys.getenv("ergmito_TEST") == "") {
       
@@ -61,15 +104,9 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
       
     } else {
       
-      for (i in seq_along(psets)) {
-        
-        # Updating the model
-        pset   <- psets[[i]]
-        
-        # In the first iteration we need to compute the statsmat
+      # In the first iteration we need to compute the statsmat
+      for (i in seq_along(psets)) 
         stats[i, terms] <- summary(model.)
-        
-      }
       
     }
     
@@ -136,6 +173,7 @@ new_rergmito <- function(model, theta = NULL, sizes = 2:4, mc.cores = 2L,...) {
   
   # Call
   ans$call <- match.call()
+  ans$network0 <- net
   
   structure(
     ans,

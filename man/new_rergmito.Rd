@@ -22,6 +22,20 @@ new_rergmito(model, theta = NULL, sizes = 2:4, mc.cores = 2L, ...)
 
 \item{x}{An object of class \code{ergmito_sampler}.}
 }
+\value{
+An environment with the following objects:
+\itemize{
+\item \code{calc_prob}
+\item \code{call}
+\item \code{counts}
+\item \code{networks}
+\item \code{prob}
+\item \code{sample} A function to draw samples. \code{n} specifies the number of samples to
+draw, \code{s} the size of the networks, and \code{theta} the parameter to use to
+calculate the likelihoods.
+\item \code{theta}
+}
+}
 \description{
 Using
 }
