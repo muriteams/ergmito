@@ -66,6 +66,14 @@ nnets.ergmito <- function(x) {
   
 }
 
+#' @export
+#' @rdname nvertex
+nnets.formula <- function(x) {
+  
+  nnets(eval(x[[2]], envir = environment(x)))
+  
+}
+
 #' Extract function to be used with the `texreg` package.
 #'
 #' If available, this function can be used to generate nice looking tables

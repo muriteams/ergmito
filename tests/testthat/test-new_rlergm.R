@@ -13,5 +13,4 @@ test_that("Using the count_stats vs ergm::summary_formula is equal", {
   expect_equal(ans0$prob, ans1$prob)
   
   
-  
 })

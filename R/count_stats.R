@@ -4,7 +4,7 @@
 #' a fast wrapper suited for matrix class objects.
 #' @param X List of square matrices. (networks)
 #' @param terms Character vector with the names of the statistics to calculate.
-#' Currently, the only available statistics are: `edges` and `mutual`.
+#' Currently, the only available statistics are: '\Sexpr{paste(ergmito::count_available(), collapse="', '")}'.
 #' @export
 #' @return A matrix of size `length(X) * length(terms)` with the corresponding
 #' counts of statistics.
@@ -25,9 +25,12 @@
 #' # Comparing
 #' all.equal(unname(ans0), unname(ans1))
 #' 
-count_stats <- function(X, terms) {
+count_stats <- function(X, terms, attrs = NULL) {
   
   chunks <- make_chunks(length(X), 2e5)
+  
+  if (!length(attrs))
+    attrs <- rep_len(numeric(0), length(X))
   
   ans <- matrix(NA, nrow = length(X), ncol=length(terms))
   
@@ -36,7 +39,7 @@ count_stats <- function(X, terms) {
     i <- chunks$from[s]
     j <- chunks$to[s]
     
-    ans[i:j,] <- count_stats.(X[i:j], terms)
+    ans[i:j,] <- count_stats.(X[i:j], terms, attrs)
     
   }
   

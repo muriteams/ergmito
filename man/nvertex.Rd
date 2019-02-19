@@ -12,6 +12,7 @@
 \alias{nnets.matrix}
 \alias{nnets.network}
 \alias{nnets.ergmito}
+\alias{nnets.formula}
 \title{Utility functions to query network dimensions}
 \usage{
 nvertex(x)
@@ -35,6 +36,8 @@ nnets(x)
 \method{nnets}{network}(x)
 
 \method{nnets}{ergmito}(x)
+
+\method{nnets}{formula}(x)
 }
 \arguments{
 \item{x}{Either an object of class \link{ergmito}, \link{network}, or \link{matrix}.}

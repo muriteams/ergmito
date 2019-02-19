@@ -7,37 +7,27 @@
 
 using namespace Rcpp;
 
-// count_mutual
-int count_mutual(const IntegerMatrix& x);
-RcppExport SEXP _ergmito_count_mutual(SEXP xSEXP) {
+// count_available
+CharacterVector count_available(int i);
+RcppExport SEXP _ergmito_count_available(SEXP iSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_mutual(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// count_edges
-int count_edges(const IntegerMatrix& x);
-RcppExport SEXP _ergmito_count_edges(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_edges(x));
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_available(i));
     return rcpp_result_gen;
 END_RCPP
 }
 // count_stats
-IntegerMatrix count_stats(const ListOf< IntegerMatrix >& X, const std::vector< std::string >& terms);
-RcppExport SEXP _ergmito_count_stats(SEXP XSEXP, SEXP termsSEXP) {
+NumericMatrix count_stats(const ListOf< IntegerMatrix >& X, const std::vector< std::string >& terms, const ListOf< NumericVector >& A);
+RcppExport SEXP _ergmito_count_stats(SEXP XSEXP, SEXP termsSEXP, SEXP ASEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf< IntegerMatrix >& >::type X(XSEXP);
     Rcpp::traits::input_parameter< const std::vector< std::string >& >::type terms(termsSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_stats(X, terms));
+    Rcpp::traits::input_parameter< const ListOf< NumericVector >& >::type A(ASEXP);
+    rcpp_result_gen = Rcpp::wrap(count_stats(X, terms, A));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -120,9 +110,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ergmito_count_mutual", (DL_FUNC) &_ergmito_count_mutual, 1},
-    {"_ergmito_count_edges", (DL_FUNC) &_ergmito_count_edges, 1},
-    {"_ergmito_count_stats", (DL_FUNC) &_ergmito_count_stats, 2},
+    {"_ergmito_count_available", (DL_FUNC) &_ergmito_count_available, 1},
+    {"_ergmito_count_stats", (DL_FUNC) &_ergmito_count_stats, 3},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 5},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 4},
     {"_ergmito_make_sets", (DL_FUNC) &_ergmito_make_sets, 1},
