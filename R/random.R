@@ -16,7 +16,7 @@ rbernoulli <- function(n, p=.5) {
   if (length(n) > 1)
     return(Map(rbernoulli, n = n, p = p))
   
-  net <- matrix(as.integer(stats::runif(n^2) > p), ncol=n)
+  net <- matrix(as.integer(stats::runif(n^2) < p), ncol=n)
   diag(net) <- 0
   net
   

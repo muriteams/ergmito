@@ -6,6 +6,7 @@
 \alias{nvertex.matrix}
 \alias{nvertex.list}
 \alias{nvertex.ergmito}
+\alias{nvertex.formula}
 \alias{nnets}
 \alias{nnets.list}
 \alias{nnets.matrix}
@@ -22,6 +23,8 @@ nvertex(x)
 \method{nvertex}{list}(x)
 
 \method{nvertex}{ergmito}(x)
+
+\method{nvertex}{formula}(x)
 
 nnets(x)
 

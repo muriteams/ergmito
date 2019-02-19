@@ -174,6 +174,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
   # Call
   ans$call <- match.call()
   ans$network0 <- net
+  ans$sizes    <- nvertex(net)
   
   structure(
     ans,

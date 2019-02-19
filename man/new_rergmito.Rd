@@ -5,7 +5,7 @@
 \alias{print.ergmito_sampler}
 \title{ERGMito sampler}
 \usage{
-new_rergmito(model, theta = NULL, sizes = 2:4, mc.cores = 2L, ...)
+new_rergmito(model, theta = NULL, sizes = NULL, mc.cores = 2L, ...)
 
 \method{print}{ergmito_sampler}(x, ...)
 }

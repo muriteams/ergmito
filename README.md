@@ -171,6 +171,38 @@ summary(ans_ergm)
 #> AIC: 18.9    BIC: 19.87    (Smaller is better.)
 ```
 
+## Estimating data with known parameters
+
+The following example shows the estimation of a dataset that is included
+in the package, `fivenets`. This set of five networks was generated
+using the `new_rergmito` function which allows creating a function to
+draw random ERGMs with a fixed set of parameters, in this case, `edges =
+-4` and `nodeicov("age") = .2`
+
+``` r
+data(fivenets)
+
+model1 <- ergmito(fivenets ~ edges + nodeicov("age"))
+
+summary(model1) # This data has know parameters equal to -4.0 and 0.2
+#> $coefs
+#>                Estimate Std. Error   z value   Pr(>|z|)
+#> edges        -2.7746009 1.41036047 -1.967299 0.04914873
+#> nodeicov.age  0.1471128 0.06596828  2.230054 0.02574388
+#> 
+#> $aic
+#> [1] 80.09997
+#> 
+#> $bic
+#> [1] 84.28865
+#> 
+#> $model
+#> [1] "fivenets ~ edges + nodeicov(\"age\")"
+#> 
+#> attr(,"class")
+#> [1] "ergmito_summary"
+```
+
 # Similarity indices
 
 <https://cran.r-project.org/web/packages/proxy/proxy.pdf>

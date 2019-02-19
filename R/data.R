@@ -1,0 +1,21 @@
+#' Example of a group of small networks
+#' 
+#' This list of networks was generated using the [new_rergmito] sampler from a
+#' set of 5 baseline networks with a random vector of age. The sufficient 
+#' statistics that generate this data are `edges` and  `nodeicov` with parameters
+#' -4.0 and 0.2 respectively.
+#' 
+#' @details The original sampler can be found in [fivesamplers].
+#' @docType data
+"fivenets"
+
+#' Five ERGMito samplers
+#' 
+#' This list contains five ERGMito samplers. Each one of these was built using
+#' a random bernoulli graph with an attribute `age`. The parameters used for
+#' creating the sampler are `(edges = -4.0, nodeicov("age") = 0.2)`. A example
+#' of a dataset generated with this is [fivenets].
+#' 
+#' 
+#' @docType data
+"fivesamplers"

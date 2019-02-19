@@ -1,3 +1,4 @@
+^data-raw$
 ^playground$
 ^codecov\.yml$
 ^appveyor\.yml$
