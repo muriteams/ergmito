@@ -27,7 +27,7 @@
 #' @importFrom parallel mclapply
 new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
   
-  environment(model) <- parent.frame()
+  # environment(model) <- parent.frame()
   
   # What are the sizes
   if (!length(sizes)) {
@@ -45,6 +45,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
   
   # Checking stats0
   dots <- list(...)
+  dots$zeroobs <- FALSE
   
   # Generating powersets
   ans          <- new.env()
@@ -52,67 +53,169 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
   ans$theta    <- theta
   names(ans$networks) <- sizes
   
-  # Are we addinig attributes?
-  if (nnets(net) == 1 && network::is.network(net)) {
-    attrs <- list()
+  # Analyzing formula
+  ergm_model       <- analyze_formula(model)
+  ergm_model_attrs <- which(sapply(ergm_model$attrnames, length) > 0)
+  
+  # Capturing attributes (if any)
+  if (length(ergm_model_attrs) && nnets(net) != 1L) {
     
-    vattrs <- network::list.vertex.attributes(net)
-    if (length(vattrs)) {
-      
-      # Getting the attributes
-      attrs$vertex.attr      <- lapply(vattrs, network::get.vertex.attribute, x = net)
-      attrs$vertex.attrnames <- vattrs
-      
-      # Adding attributes to the networks
-      if (length(ans$neworks) > 1L) {
-        warning(
-          "When `length(size) > 1`, attributes from the networks in `x` cannont",
-          " be added (don't know what goes with what). We will skip adding the",
-          " observed attributes to the family of networks. This could result",
-          " in an error if the model includes nodal attributes.", call. = FALSE)
-      } else {
-        
-        for (i in seq_along(ans$networks[[1]]))
-          ans$networks[[1L]][[i]] <- network::network(
-            x                = ans$networks[[1L]][[i]],
-            vertex.attr      = attrs$vertex.attr,
-            vertex.attrnames = attrs$vertex.attrnames
-          )
-      }
-      
-    } else
-      attrs <- NULL
+    stop(
+      "Nodal attributes cannot be used when nnets() > 1L and sizes != nvertex().",
+      call. = FALSE
+      )
+    
+  } else if (length(ergm_model_attrs) && nnets(net) == 1L) {
+    
+    for (a in ergm_model_attrs) {
+      ergm_model$attrs[[a]] <-
+        if (is.null(ergm_model$attrnames[[a]]))
+          numeric(0)
+      else
+        network::get.vertex.attribute(net, attrname = ergm_model$attrnames[[a]])
+    }
   }
   
-  
-  
-  # Computing probabilities
-  model.     <- stats::update.formula(model, psets[[i]] ~ .)
-  ans$counts <- parallel::mclapply(ans$networks, function(psets) {
+  if (all(terms %in% AVAILABLE_STATS()) & Sys.getenv("ERGMITO_TEST") == "") {
+    # THE ERGMITO WAY ----------------------------------------------------------
     
-    # Getting the corresponding powerset
-    stats <- matrix(NA, nrow = length(psets), ncol = length(terms), dimnames = list(NULL, terms))
-    environment(model.) <- environment()
+    # We will use this updated version
+    model. <- stats::update.formula(model, net_i ~ .)
     
-    # Counts
-    i    <- 1L
-    S    <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
-    
-    if (all(terms %in% c("edges", "mutual")) & Sys.getenv("ergmito_TEST") == "") {
+    for (s in names(ans$networks)) {
       
-      stats[,terms] <- count_stats(psets, terms)
+      # Generating all statistics
+      if (nnets(net) == 1 && nvertex(net) == as.integer(s)) {
+        
+        net_i <- net
+        
+      } else if (nnets(net) > 1 && !length(ergm_model_attrs)) {
+        
+        net_i <- rbernoulli(as.integer(s))
+        
+      } 
       
-    } else {
+      # if (network::is.network(net) || is.matrix(net))
+      #   net_i <- net
+      # else if (is.list(net))
+      #   net_i <- net[[1]]
+        
+      # Computing all stats
+      environment(model.) <- environment()
+      S <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
       
-      # In the first iteration we need to compute the statsmat
-      for (i in seq_along(psets)) 
-        stats[i, terms] <- summary(model.)
+      # Doing parlapply over the networks. Notice that we split the chunks using
+      # splitIndices instead of applying the function directly since count_stats
+      # receives lists (so multiple networks at the same time).
+      ans$counts[[s]] <- parallel::mclapply(
+        X   = parallel::splitIndices(length(ans$networks[[s]]), mc.cores), 
+        FUN = function(idx) {
+          
+          # Making room
+          smat <- matrix(ncol = length(ergm_model$names), nrow = length(idx))
+          for (j in seq_along(ergm_model$names)) 
+            smat[,j] <- count_stats(
+                X     = ans$networks[[s]][idx],
+                terms = ergm_model$names[j],
+                # All individuals have the same data
+                attrs = replicate(length(idx), ergm_model$attrs[[j]], simplify = FALSE)
+                )
+          
+          # Returning a single matrix with network statistics
+          smat
+          
+        })
       
+      # Adding the results
+      ans$counts[[s]] <- do.call(rbind, ans$counts[[s]])
+      ans$counts[[s]] <- c(list(stats = ans$counts[[s]]), S)
     }
     
-    c(list(stats = stats), S)
+  } else {
+    # THE ERGM WAY -------------------------------------------------------------
     
-  }, mc.cores = mc.cores)
+    # Are we addinig attributes?
+    if (nnets(net) == 1 && network::is.network(net)) {
+      attrs <- list()
+      
+      vattrs <- network::list.vertex.attributes(net)
+      if (length(vattrs)) {
+        
+        # Getting the attributes
+        attrs$vertex.attr      <- lapply(vattrs, network::get.vertex.attribute, x = net)
+        attrs$vertex.attrnames <- vattrs
+        
+        # Adding attributes to the networks
+        if (length(ans$neworks) > 1L) {
+          warning(
+            "When `length(size) > 1`, attributes from the networks in `x` cannont",
+            " be added (don't know what goes with what). We will skip adding the",
+            " observed attributes to the family of networks. This could result",
+            " in an error if the model includes nodal attributes.", call. = FALSE)
+        } else {
+          
+          for (i in seq_along(ans$networks[[1]]))
+            ans$networks[[1L]][[i]] <- network::network(
+              x                = ans$networks[[1L]][[i]],
+              vertex.attr      = attrs$vertex.attr,
+              vertex.attrnames = attrs$vertex.attrnames
+            )
+        }
+        
+      } else
+        attrs <- NULL
+    }
+    
+    for (s in names(ans$networks)) {
+      
+      # Computing probabilities
+      if (nnets(net) == 1 && nvertex(net) == as.integer(s)) {
+        
+        net_i <- net
+        
+      } else if (nnets(net) > 1 && !length(ergm_model_attrs)) {
+        
+        net_i <- rbernoulli(as.integer(s))
+        
+      } else #if (nnets(net) > 1 && length(ergm_model_attrs)) {
+        stop("Nodal attributes cannot be used when nnets() > 1L and sizes != nvertex().",
+             call. = FALSE)
+      
+      model. <- stats::update.formula(model, net_i ~ .)
+      environment(model.) <- environment()
+      i <- 1L
+      S <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
+      
+      # Updating the model (again)
+      model. <- stats::update.formula(model, ans$networks[[s]][[i]] ~ .)
+      
+      ans$counts[[s]] <- parallel::mclapply(
+        parallel::splitIndices(length(ans$networks[[s]]), mc.cores),
+        function(idx) {
+        
+        # Getting the corresponding powerset
+        stats <- matrix(
+          nrow = length(idx),
+          ncol = length(terms), dimnames = list(NULL, terms)
+          )
+        
+        # Updating the environment
+        environment(model.) <- environment()
+        
+        # In the first iteration we need to compute the statsmat
+        for (i in idx) 
+          stats[i, terms] <- summary(model.)
+        
+        stats
+        
+      })
+      
+      ans$counts[[s]] <- do.call(rbind, ans$counts[[s]])
+      ans$counts[[s]] <- c(list(stats = ans$counts[[s]]), S)
+      
+    }
+
+  }
   
   
   # Computing probabilities

@@ -4,7 +4,10 @@
 #' a fast wrapper suited for matrix class objects.
 #' @param X List of square matrices. (networks)
 #' @param terms Character vector with the names of the statistics to calculate.
-#' Currently, the only available statistics are: '\Sexpr{paste(ergmito::count_available(), collapse="', '")}'.
+#' Currently, the only available statistics are: '\Sexpr{paste(ergmito::AVAILABLE_STATS(), collapse="', '")}'.
+#' @param ... Passed to the method.
+#' @param attrs A list of vectors. This is used when `term` has a nodal attribute
+#' such as `nodeicov(attrname="")`.
 #' @export
 #' @return A matrix of size `length(X) * length(terms)` with the corresponding
 #' counts of statistics.
@@ -27,10 +30,14 @@
 #' 
 count_stats <- function(X, ...) UseMethod("count_stats")
 
+#' @export
+#' @rdname count_stats
+AVAILABLE_STATS <- function() count_available()
+
 #' Parses a formula to the model parameters (and attributes if applicable)
 #' @param x A formula.
 #' @noRd
-analyze_formula <- function(x, check_w_ergm = TRUE) {
+analyze_formula <- function(x, check_w_ergm = FALSE) {
   
   # Getting the parameters
   terms_passed <- attr(stats::terms(x), "term.labels")
@@ -47,20 +54,22 @@ analyze_formula <- function(x, check_w_ergm = TRUE) {
   terms_names <- gsub("[(].+", "", terms_passed)
   
   # Do the terms exists?
-  terms_exists <- sapply(terms_names, function(z) {
-    out <- capture.output(ergm::search.ergmTerms(name = z))[1]
-    !grepl("^No terms named", out, ignore.case = TRUE)
-    })
-  
-  if (any(!terms_exists))
-    stop("The following terms are not found in `ergm`: ", 
-         paste(terms_names[!terms_exists], sep = ", "), ".", call. = FALSE)
+  if (check_w_ergm) {
+    terms_exists <- sapply(terms_names, function(z) {
+      out <- utils::capture.output(ergm::search.ergmTerms(name = z))[1]
+      !grepl("^No terms named", out, ignore.case = TRUE)
+      })
+    
+    if (any(!terms_exists))
+      stop("The following terms are not found in `ergm`: ", 
+           paste(terms_names[!terms_exists], sep = ", "), ".", call. = FALSE)
+  }
   
   list(
     passed    = terms_passed,
     names     = terms_names,
     attrnames = terms_attrs,
-    attrs     = vector("list", length(terms_names))
+    attrs     = replicate(length(terms_names), double(0))
   )
   
   
@@ -76,39 +85,44 @@ count_stats.formula <- function(X, ...) {
     LHS <- list(LHS)
   
   # Analyzing the formula
-  ergm_terms <- analyze_formula(X)
+  ergm_model <- analyze_formula(X)
   
   # # Can we do it?
-  # available <- which(!(ergm_terms$names %in% count_available()))
+  # available <- which(!(ergm_model$names %in% count_available()))
   # if (length(available)) 
   #   stop("The following terms cannot be computed")
   
   # Capturing attributes
-  for (a in seq_along(ergm_terms$attrnames)) {
-    ergm_terms$attrs[[a]] <- if (is.null(ergm_terms$attrnames[[a]]))
+  for (a in seq_along(ergm_model$attrnames)) {
+    ergm_model$attrs[[a]] <- if (is.null(ergm_model$attrnames[[a]]))
       numeric(0)
     else
       lapply(LHS, function(net) {
-        network::get.vertex.attribute(net, attrname = ergm_terms$attrnames[[a]])
+        network::get.vertex.attribute(net, attrname = ergm_model$attrnames[[a]])
       })
   }
   
   # Coercing into the appropiate type
   if (network::is.network(LHS))
-    LHS <- list(network::as.matrix(LHS))
+    LHS <- list(as.adjmat(LHS))
   else if (is.list(LHS)) {
+    
     is_net <- sapply(LHS, network::is.network)
-    LHS[is_net] <- lapply(LHS[is_net], as.matrix)
+    
+    # Coercing into a net
+    for (i in which(is_net))
+      LHS[[i]] <- as.adjmat(LHS[[i]])
+    
   }
   
-  out <- matrix(nrow = nnets(LHS), ncol = length(ergm_terms$names),
-                dimnames = list(NULL, ergm_terms$passed))
+  out <- matrix(nrow = nnets(LHS), ncol = length(ergm_model$names),
+                dimnames = list(NULL, ergm_model$passed))
   for (j in 1:ncol(out)) {
     
     out[, j] <- count_stats(
       X = LHS,
-      ergm_terms$names[j],
-      ergm_terms$attrs[[j]]
+      ergm_model$names[j],
+      ergm_model$attrs[[j]]
       )
     
   }
@@ -120,7 +134,7 @@ count_stats.formula <- function(X, ...) {
 
 #' @export
 #' @rdname count_stats
-count_stats.list <- function(X, terms, attrs = NULL) {
+count_stats.list <- function(X, terms, attrs = NULL, ...) {
   
   chunks <- make_chunks(length(X), 2e5)
   
@@ -134,7 +148,7 @@ count_stats.list <- function(X, terms, attrs = NULL) {
     i <- chunks$from[s]
     j <- chunks$to[s]
     
-    ans[i:j,] <- count_stats.(X[i:j], terms, attrs)
+    ans[i:j,] <- count_stats.(X[i:j], terms, attrs[i:j])
     
   }
   

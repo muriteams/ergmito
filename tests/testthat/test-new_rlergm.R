@@ -6,11 +6,25 @@ test_that("Using the count_stats vs ergm::summary_formula is equal", {
   nets <- rbernoulli(c(4,3,4))
   
   Sys.setenv(ERGMITO_TEST = "")
-  set.seed(1);ans0 <- new_rergmito(nets ~ edges + mutual, sizes = 2:3, mc.cores = 1L)
-  Sys.setenv(LERGM_TEST = 1)
-  set.seed(1);ans1 <- new_rergmito(nets ~ edges + mutual, sizes = 2:3, mc.cores = 1L)
+  set.seed(1);ans0 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L)
+  Sys.setenv(ERGMITO_TEST = 1)
+  set.seed(1);ans1 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L)
   
   expect_equal(ans0$prob, ans1$prob)
+  expect_equal(sum(ans0$prob$`3`), 1)
   
+  # Sampler with the data
+  data("fivenets")
+  mod <- ergmito(fivenets ~ edges + nodeicov("age"))
+  network::delete.vertices(fivenets[[1]], 1)
+
+  Sys.setenv(ERGMITO_TEST = "")  
+  ans0 <- new_rergmito(fivenets[[1]] ~ edges + nodeicov("age"), theta = coef(mod), mc.cores = 1L)
+  Sys.setenv(ERGMITO_TEST = 1)
+  ans1 <- new_rergmito(fivenets[[1]] ~ edges + nodeicov("age"), theta = coef(mod), mc.cores = 1L)
+
+  
+  expect_equal(ans0$prob, ans1$prob)
+  expect_equal(sum(ans0$prob$`3`), 1)
   
 })

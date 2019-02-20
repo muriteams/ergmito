@@ -144,3 +144,46 @@ setMethod(
   "extract", signature = className("ergmito", "ergmito"),
   definition = extract.ergmito
   )
+
+
+#' An alternative to `as.matrix` to retrieve adjacency matrix fast
+#' 
+#' This function does not perform significant checks. Furthermore, this function
+#' won't keep the row/col names.
+#' 
+#' @param x An object to be coerced as an adjacency matrix.
+#' @export
+#' 
+as.adjmat <- function(x) UseMethod("as.adjmat")
+
+#' @export
+#' @rdname as.adjmat
+as.adjmat.network <- function(x) {
+  
+  n   <- nvertex(x)
+  ans <- matrix(0, nrow = n, ncol = n)
+  
+  ties <- x$mel[sapply(x$mel, length) > 0L]
+  
+  ans[cbind(
+    sapply(ties, "[[", "outl"),
+    sapply(ties, "[[", "inl")
+  )] <- 1L
+  
+  ans
+
+}
+
+#' @export
+#' @rdname as.adjmat
+as.adjmat.list <- function(x) {
+  lapply(x, as.adjmat)
+}
+
+#' @export
+#' @rdname as.adjmat
+as.adjmat.formula <- function(x) {
+  
+  as.adjmat(eval(x[[2]], envir = environment(x)))
+  
+}

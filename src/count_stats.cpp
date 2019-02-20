@@ -130,8 +130,6 @@ void get_ergm_term(std::string term, ergm_term_fun & fun) {
   
 }
 
-//' @export
-//' @rdname count_stats
 // [[Rcpp::export]]
 CharacterVector count_available(int i = 0) {
   return CharacterVector::create(

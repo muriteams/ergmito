@@ -8,4 +8,5 @@
 #'  coef coefficients var
 #' @importFrom methods setClass setGeneric setMethod setRefClass
 #' @importFrom texreg extract
+#' @importFrom utils capture.output
 NULL
