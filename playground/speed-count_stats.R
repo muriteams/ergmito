@@ -41,3 +41,5 @@ microbenchmark::microbenchmark(
 )
 
 plot(b)
+
+z <- new_rergmito(nets[[1]] ~ edges + mutual + nodeicov("a"))

@@ -76,7 +76,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
     }
   }
   
-  if (all(terms %in% AVAILABLE_STATS()) & Sys.getenv("ERGMITO_TEST") == "") {
+  if (all(ergm_model$names %in% AVAILABLE_STATS()) & Sys.getenv("ERGMITO_TEST") == "") {
     # THE ERGMITO WAY ----------------------------------------------------------
     
     # We will use this updated version
