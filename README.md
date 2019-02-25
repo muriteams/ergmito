@@ -12,6 +12,26 @@ status](https://travis-ci.org/muriteams/ergmito.svg?branch=master)](https://trav
 status](https://ci.appveyor.com/api/projects/status/nl1irakr2g6y6w03?svg=true)](https://ci.appveyor.com/project/gvegayon/ergmito)
 [![codecov](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/gh/muriteams/ergmito)
 
+This R package, which has been developed on top of the amazing work that
+the [Statnet](https://github.com/statnet) team has done, implements
+estimation and simulation methods for Exponential Random Graph Models of
+small networks, in particular, less than 7 nodes. In the case of small
+networks, the calculation of the likelihood of ERGMs becomes
+computationally feasible, which allows us avoiding approximations and do
+exact calculation, ultimately obtaining MLEs directly.
+
+## Support
+
+This material is based upon work support by, or in part by, the U.S.
+Army Research Laboratory and the U.S. Army Research Office under grant
+number W911NF-15-1-0577
+
+Computation for the work described in this paper was supported by the
+University of Southern California’s Center for High-Performance
+Computing (hpcc.usc.edu).
+
+## Installation
+
 The development version from [GitHub](https://github.com/) with:
 
 ``` r
