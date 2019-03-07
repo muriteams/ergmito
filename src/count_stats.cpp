@@ -1,32 +1,45 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+/* This function may be useful in the future:
+ * List x(1);
+ * x.containsElementNamed("Casa")
+ */
+
 inline double count_mutual(const IntegerMatrix & x, const NumericVector & A) {
   
-  double count = 0.0;
+  int count = 0;
   for (int i = 0; i < x.nrow(); ++i)
     for (int j = i; j < x.nrow(); ++j)
       if (i != j && x(i,j) + x(j, i) > 1)
-        count += 1.0;
+        ++count;
+
+#ifdef ERGMITO_COUNT_STATS_DEBUG
+  print(x);
+  Rprintf("[debug count_mutual] %d\n", count);  
+#endif
   
-  return count;
+  return (double) count;
 }
 
 inline double count_edges(const IntegerMatrix & x, const NumericVector & A) {
   
-  double count = 0.0;
-  
-  for (int i = 0; i < x.nrow(); ++i)
-    for (int j = 0; j < x.nrow(); ++j)
-      if (x(i,j) > 0)
-        count += 1;
+  int count = 0;
+  for (IntegerMatrix::const_iterator it = x.begin(); it != x.end(); ++it)
+    if (*it > 0)
+      ++count;
+    
+#ifdef ERGMITO_COUNT_STATS_DEBUG
+    print(x);
+    Rprintf("[debug count_edges] %d\n", count);
+#endif
       
-  return count;
+  return (double) count;
 }
 
 inline double count_ttriad(const IntegerMatrix & x, const NumericVector & A) {
   
-  double count = 0.0;
+  int count = 0;
   
   for (int i = 0; i < x.nrow(); ++i)
     for (int j = 0; j < x.nrow(); ++j) {
@@ -39,18 +52,18 @@ inline double count_ttriad(const IntegerMatrix & x, const NumericVector & A) {
         // Label 1
         if (x(i,j) == 1 && x(i,k) == 1 && x(j,k) == 1)
           // if (x(j, i) == 0 && x(k,i) == 0 && x(k,j) == 0)
-          count += 1.0;
+          ++count;
         
       }
     }
   
-  return count;
+  return (double) count;
   
 }
 
 inline double count_ctriad(const IntegerMatrix & x, const NumericVector & A) {
   
-  double count = 0.0;
+  int count = 0;
   
   for (int i = 0; i < x.nrow(); ++i)
     for (int j = 0; j < i; ++j) {
@@ -63,12 +76,12 @@ inline double count_ctriad(const IntegerMatrix & x, const NumericVector & A) {
         // Label 1
         if (x(i, j) == 1 && x(j, k) == 1 && x(k, i) == 1)
           // if (x(j, i) == 0 && x(k, j) == 0 && x(i, k) == 0)
-            count += 1.0;
+            ++count;
           
       }
     }
     
-    return count;
+    return (double) count;
   
 }
 
@@ -79,7 +92,7 @@ inline double count_nodecov(const IntegerMatrix & x, const NumericVector & A, bo
   for (int i = 0; i < x.nrow(); ++i)
     for (int j = 0; j < x.nrow(); ++j)
       if (x(i,j) == 1)
-        count += A.at(ego ? i : j);
+        count += A[ego ? i : j];
   
   return count;
 
@@ -95,14 +108,14 @@ inline double count_nodeocov(const IntegerMatrix & x, const NumericVector & A) {
 
 
 inline double count_nodematch(const IntegerMatrix & x, const NumericVector & A) {
-  double count = 0.0;
+  int count = 0;
   
   for (int i = 0; i < x.nrow(); ++i)
     for (int j = 0; j < x.nrow(); ++j)
       if (x(i,j) == 1 && A.at(i) == A.at(j))
-        count += 1.0;
+        ++count;
       
-      return count;
+      return (double) count;
 }
 
 inline double count_triangle(const IntegerMatrix & x, const NumericVector & A) {
@@ -115,14 +128,14 @@ typedef double (*ergm_term_fun)(const IntegerMatrix & x, const NumericVector & A
 
 void get_ergm_term(std::string term, ergm_term_fun & fun) {
   
-  if (term == "mutual")      fun = &count_mutual;
-  else if (term == "edges")  fun = &count_edges;
-  else if (term == "ttriad") fun = &count_ttriad;
-  else if (term == "ctriad") fun = &count_ctriad;
-  else if (term == "nodeicov") fun = &count_nodeicov;
-  else if (term == "nodeocov") fun = &count_nodeocov;
+  if (term == "mutual")         fun = &count_mutual;
+  else if (term == "edges")     fun = &count_edges;
+  else if (term == "ttriad")    fun = &count_ttriad;
+  else if (term == "ctriad")    fun = &count_ctriad;
+  else if (term == "nodeicov")  fun = &count_nodeicov;
+  else if (term == "nodeocov")  fun = &count_nodeocov;
   else if (term == "nodematch") fun = &count_nodematch;
-  else if (term == "triangle") fun = &count_triangle;
+  else if (term == "triangle")  fun = &count_triangle;
   else
     stop("The term %s is not available.", term);
   
@@ -156,22 +169,37 @@ NumericMatrix count_stats(
   int n = X.size();
   int k = terms.size();
   
+  bool uses_attributes = false;
+  NumericVector A_empty(0);
+  if (A[0].size() != 0) {
+    if (A.size() != n)
+      stop("The number of attributes in `A` differs from the number of adjacency matrices.");
+    
+    uses_attributes = true;
+  }
+  
   NumericMatrix ans(n, k);
   ergm_term_fun fun;
   
-  int i = 0;
   for (int j = 0; j < k; ++j) {
 
     // Getting the function
-    get_ergm_term(terms.at(j), fun);
+    get_ergm_term(terms[j], fun);
 
-    for (ListOf< IntegerMatrix >::const_iterator x = X.begin(); x != X.end(); ++x)
-      ans(i++, j) = fun(*x, A[x.index()]);
-    
-    i = 0;
+    if (uses_attributes) {
+      for (int i = 0; i < n; ++i)
+        ans.at(i, j) = fun(X[i], A[i]);
+    } else {
+      for (int i = 0; i < n; ++i)
+        ans.at(i, j) = fun(X[i], A_empty);
+    }
     
   }
-  
+//   
+// #ifdef ERGMITO_COUNT_STATS_DEBUG
+//   print(ans);
+// #endif
+//   
   return ans;
   
 }

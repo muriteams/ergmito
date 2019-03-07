@@ -43,3 +43,13 @@ microbenchmark::microbenchmark(
 plot(b)
 
 z <- new_rergmito(nets[[1]] ~ edges + mutual + nodeicov("a"))
+
+
+# Should we still use ergm.allstats? -------------------------------------------
+pset <- powerset(5)
+
+microbenchmark::microbenchmark(
+  ERGMito = count_stats(pset ~ edges + mutual + ctriad),
+  ergm    = ergm.allstats(pset[[1]] ~ edges + mutual + ctriad),
+  times=5
+)

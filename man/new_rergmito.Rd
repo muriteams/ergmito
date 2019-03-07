@@ -2,10 +2,13 @@
 % Please edit documentation in R/sim.R
 \name{new_rergmito}
 \alias{new_rergmito}
+\alias{[.ergmito_sampler}
 \alias{print.ergmito_sampler}
 \title{ERGMito sampler}
 \usage{
 new_rergmito(model, theta = NULL, sizes = NULL, mc.cores = 2L, ...)
+
+\method{[}{ergmito_sampler}(x, i, j, ...)
 
 \method{print}{ergmito_sampler}(x, ...)
 }
@@ -21,6 +24,9 @@ new_rergmito(model, theta = NULL, sizes = NULL, mc.cores = 2L, ...)
 \item{...}{Further arguments passed to \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
 
 \item{x}{An object of class \code{ergmito_sampler}.}
+
+\item{i, j}{\code{i} is an integer vector indicating the indexes of the networks to
+draw, while \code{j} the corresponding sizes. These need not to be of the same size.}
 }
 \value{
 An environment with the following objects:
@@ -35,7 +41,16 @@ draw, \code{s} the size of the networks, and \code{theta} the parameter to use t
 calculate the likelihoods.
 \item \code{theta}
 }
+
+The indexing method \code{[.ergmito_sampler} returns a named list of length
+\code{length(j)}.
 }
 \description{
 Using
+}
+\details{
+The indexing method, \code{[.ergmito_sampler}, allows extracting networks
+directly by passing indexes. \code{i} indicates the index of the networks to draw,
+which go from 1 through \code{2^(n*(n-1))}, and \code{j} indicates the requested
+size.
 }

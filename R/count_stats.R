@@ -117,6 +117,7 @@ count_stats.formula <- function(X, ...) {
   
   out <- matrix(nrow = nnets(LHS), ncol = length(ergm_model$names),
                 dimnames = list(NULL, ergm_model$passed))
+  
   for (j in 1:ncol(out)) {
     
     out[, j] <- count_stats(
@@ -138,8 +139,8 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
   
   chunks <- make_chunks(length(X), 2e5)
   
-  if (!length(attrs))
-    attrs <- replicate(length(X), numeric(0), simplify = FALSE)
+  # if (!length(attrs))
+  #   attrs <- replicate(length(X), numeric(0), simplify = FALSE)
   
   ans <- matrix(NA, nrow = length(X), ncol=length(terms))
   
@@ -148,7 +149,12 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
     i <- chunks$from[s]
     j <- chunks$to[s]
     
-    ans[i:j,] <- count_stats.(X[i:j], terms, attrs[i:j])
+    for (k in seq_along(terms)) {
+      if (!length(attrs))
+        ans[i:j, k] <- count_stats.(X[i:j], terms[k], list(numeric(0)))
+      else
+        ans[i:j, k] <- count_stats.(X[i:j], terms[k], attrs[i:j])
+    }
     
   }
   

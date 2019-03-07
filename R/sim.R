@@ -245,8 +245,8 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
   # Calling the prob function
   ans$calc_prob()
   
-  # Sampling function
-  ans$sample <- function(n, s, theta = NULL) {
+  # Sampling functions ---------------------------------------------------------
+  ans$sample <- function(n, s, theta = NULL, as_indexes = FALSE) {
     
     s <- as.character(s)
     # All should be able to be sampled
@@ -262,16 +262,26 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
       on.exit(ans$prob[s] <- oldp)
     } 
     
-    ans$networks[[s]][
+    if (!as_indexes) {
+      ans$networks[[s]][
+        sample.int(
+          n       = length(ans$prob[[s]]),
+          size    = n,
+          replace = TRUE,
+          prob    = ans$prob[[s]],
+          useHash = FALSE
+        )
+        ]
+    } else {
       sample.int(
         n       = length(ans$prob[[s]]),
         size    = n,
         replace = TRUE,
         prob    = ans$prob[[s]],
         useHash = FALSE
-        )
-      ]
-      
+      )
+    }
+    
   }
   
   # Call
@@ -283,6 +293,36 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
     ans,
     class = "ergmito_sampler"
   )
+  
+}
+
+#' @export
+#' @rdname new_rergmito
+#' @param i,j `i` is an integer vector indicating the indexes of the networks to
+#' draw, while `j` the corresponding sizes. These need not to be of the same size.
+#' @details The indexing method, `[.ergmito_sampler`, allows extracting networks
+#' directly by passing indexes. `i` indicates the index of the networks to draw,
+#' which go from 1 through `2^(n*(n-1))`, and `j` indicates the requested
+#' size. 
+#' @return The indexing method `[.ergmito_sampler` returns a named list of length
+#' `length(j)`.
+`[.ergmito_sampler` <- function(x, i, j, ...) {
+  
+  # Checking sizes
+  j <- as.character(j)
+  test <- which(!(j %in% as.character(x$sizes)))
+  if (length(test))
+    stop(
+      "Some values of `j` (requested sizes) are not included in the sampling function: ",
+      paste(j[test], collapse = ", "), ".", call. = FALSE
+      )
+  
+  # Sampling networks
+  ans <- structure(vector("list", length(j)), names = j)
+  for (k in j)
+    ans[[j]] <- x$networks[[k]][i]
+  
+  return(ans)
   
 }
 

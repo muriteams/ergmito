@@ -4,6 +4,7 @@ CXX_STD = CXX11
 
 # This is necesary since ARMADILLO now supports OpenMP
 # PKG_CXXFLAGS=-fopenmp -DARMA_64BIT_WORD
+# PKG_CXXFLAGS=-DERGMITO_COUNT_STATS_DEBUG
 
 # For testing
 #PKG_CXXFLAGS=-Wall
