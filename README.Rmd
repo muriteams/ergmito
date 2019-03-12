@@ -68,15 +68,15 @@ gplot(net)
 ```
 
 ```{r comparing-w-ergm}
-model <- net ~ edges + mutual + balance
+model <- net ~ edges + mutual + ctriad
 
 library(ergm)
 ans_ergmito <- ergmito(model)
 ans_ergm  <- ergm(model)
 
-# The ergmito should have a larger value
-ergm.exact(ans_ergmito$coef, model)
-ergm.exact(ans_ergm$coef, model)
+# The ergmito should have a larger value when computing exact loglikelihood
+ergm.exact(ans_ergmito$coef, model) >
+  ergm.exact(ans_ergm$coef, model)
 
 summary(ans_ergmito)
 summary(ans_ergm)

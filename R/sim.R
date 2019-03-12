@@ -7,7 +7,18 @@
 #' @param x An object of class `ergmito_sampler`.
 #' @param sizes Integer vector. Values between 2 to 5 (6 becomes too intensive).
 #' @param mc.cores Integer. Passed to [parallel::mclapply]
+#' @param force Logical. When `FALSE` (default) will try to use `ergmito`'s stat
+#' count functions (see [count_stats]). This means that if one of the requested
+#' statistics in not avialable in `ergmito`, then we will use `ergm` to compute
+#' them, which is significatnly slower (see details).
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
+#' 
+#' @details 
+#' While the \CRANpkg{ergm} package is very efficient, it was not built to do some
+#' of the computations requiered in the ergmito package. This translates in having
+#' some of the functions of the package (ergm) with poor speed performance. This
+#' led us to "reinvent the wheel" in some cases to speed things up, this includes
+#' calculating observed statistics in a list of networks.
 #' 
 #' @return An environment with the following objects:
 #' 
@@ -25,7 +36,8 @@
 #' 
 #' @export
 #' @importFrom parallel mclapply
-new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
+new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
+                         force = FALSE, ...) {
   
   # environment(model) <- parent.frame()
   
@@ -58,6 +70,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
   ergm_model_attrs <- which(sapply(ergm_model$attrnames, length) > 0)
   
   # Capturing attributes (if any)
+  sampler_w_attributes <- FALSE
   if (length(ergm_model_attrs) && nnets(net) != 1L) {
     
     stop(
@@ -66,6 +79,8 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
       )
     
   } else if (length(ergm_model_attrs) && nnets(net) == 1L) {
+    
+    sampler_w_attributes <- TRUE
     
     for (a in ergm_model_attrs) {
       ergm_model$attrs[[a]] <-
@@ -133,6 +148,11 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
     
   } else {
     # THE ERGM WAY -------------------------------------------------------------
+    
+    if (!force)
+      stop("To generate this sampler we need to use statnet's ergm functions since",
+           " not all the requested statistics are available in ergmito. If you",
+           " would like to procede, use the option `force = TRUE`", call. = FALSE)
     
     # Are we addinig attributes?
     if (nnets(net) == 1 && network::is.network(net)) {
@@ -263,7 +283,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
     } 
     
     if (!as_indexes) {
-      ans$networks[[s]][
+      nets <- ans$networks[[s]][
         sample.int(
           n       = length(ans$prob[[s]]),
           size    = n,
@@ -272,6 +292,26 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,...) {
           useHash = FALSE
         )
         ]
+      
+      # If this is a sampler with attributes, then we need to add the attributes
+      # to the sampled graphs
+      if (sampler_w_attributes) {
+        
+        nets <- lapply(nets, function(n) {
+          
+          # New baseline, we remove all edges
+          net0    <- network::network.copy(net)
+          net0[,] <- 0
+          
+          edgelist <- which(n != 0, arr.ind = TRUE)
+          network::add.edges(net0, edgelist[, 2], edgelist[, 1])
+          
+        })
+        
+      }
+      
+      nets
+  
     } else {
       sample.int(
         n       = length(ans$prob[[s]]),

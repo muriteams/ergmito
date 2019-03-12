@@ -48,6 +48,11 @@ test_that("Sufficient statistics", {
   
   expect_equivalent(ans0, ans1)
   
+  ans0 <- count_stats(pset3, c("balance"))[,1]
+  ans1 <- unname(sapply(pset3, function(p) summary(p ~ balance)))
+  
+  expect_equivalent(ans0, ans1)
+  
   # Nodecovar
   set.seed(44)
   age <- lapply(nvertex(pset3), rpois, lambda=4)

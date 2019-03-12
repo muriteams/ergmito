@@ -60,6 +60,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// init_network
+List init_network(int n, bool directed, bool hyper, bool loops, bool multiple, bool bipartite);
+RcppExport SEXP _ergmito_init_network(SEXP nSEXP, SEXP directedSEXP, SEXP hyperSEXP, SEXP loopsSEXP, SEXP multipleSEXP, SEXP bipartiteSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< bool >::type directed(directedSEXP);
+    Rcpp::traits::input_parameter< bool >::type hyper(hyperSEXP);
+    Rcpp::traits::input_parameter< bool >::type loops(loopsSEXP);
+    Rcpp::traits::input_parameter< bool >::type multiple(multipleSEXP);
+    Rcpp::traits::input_parameter< bool >::type bipartite(bipartiteSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_network(n, directed, hyper, loops, multiple, bipartite));
+    return rcpp_result_gen;
+END_RCPP
+}
+// matrix_to_network
+ListOf< List > matrix_to_network(const ListOf< IntegerMatrix >& x, const LogicalVector& directed, const LogicalVector& hyper, const LogicalVector& loops, const LogicalVector& multiple, const LogicalVector& bipartite);
+RcppExport SEXP _ergmito_matrix_to_network(SEXP xSEXP, SEXP directedSEXP, SEXP hyperSEXP, SEXP loopsSEXP, SEXP multipleSEXP, SEXP bipartiteSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const ListOf< IntegerMatrix >& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const LogicalVector& >::type directed(directedSEXP);
+    Rcpp::traits::input_parameter< const LogicalVector& >::type hyper(hyperSEXP);
+    Rcpp::traits::input_parameter< const LogicalVector& >::type loops(loopsSEXP);
+    Rcpp::traits::input_parameter< const LogicalVector& >::type multiple(multipleSEXP);
+    Rcpp::traits::input_parameter< const LogicalVector& >::type bipartite(bipartiteSEXP);
+    rcpp_result_gen = Rcpp::wrap(matrix_to_network(x, directed, hyper, loops, multiple, bipartite));
+    return rcpp_result_gen;
+END_RCPP
+}
 // make_sets
 vecint make_sets(int n);
 RcppExport SEXP _ergmito_make_sets(SEXP nSEXP) {
@@ -114,6 +146,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_count_stats", (DL_FUNC) &_ergmito_count_stats, 3},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 5},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 4},
+    {"_ergmito_init_network", (DL_FUNC) &_ergmito_init_network, 6},
+    {"_ergmito_matrix_to_network", (DL_FUNC) &_ergmito_matrix_to_network, 6},
     {"_ergmito_make_sets", (DL_FUNC) &_ergmito_make_sets, 1},
     {"_ergmito_powerset", (DL_FUNC) &_ergmito_powerset, 2},
     {"_ergmito_print_powerset", (DL_FUNC) &_ergmito_print_powerset, 1},

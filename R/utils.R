@@ -1,14 +1,50 @@
 
 #' Utility functions to query network dimensions
-#' @param x Either an object of class [ergmito], [network], or [matrix].
+#' @param x Either an object of class [ergmito], [network], [formula], or [matrix].
+#' @param ... Further arguments passed to the method. Currently only `nedges.network`
+#' receives arguments (see [network::network.edgecount]).
 #' @export
 nvertex <- function(x) UseMethod("nvertex")
 
 #' @export
 #' @rdname nvertex
+nedges <- function(x, ...) UseMethod("nedges")
+
+#' @export
+#' @rdname nvertex
+nedges.network <- function(x, ...) {
+  network::network.edgecount(x, ...)
+}
+
+#' @export
+#' @rdname nvertex
+nedges.list <- function(x, ...) {
+  sapply(x, nedges, ...)
+}
+
+#' @export
+#' @rdname nvertex
+nedges.matrix <- function(x, ...) {
+  sum(x != 0)
+}
+
+#' @export
+#' @rdname nvertex
+nedges.ergmito <- function(x, ...) {
+  nedges(x$network, ...)
+}
+
+#' @export
+#' @rdname nvertex
+nedges.formula <- function(x, ...) {
+  nedges(eval(x[[2]]), envir = environment(x))
+}
+
+#' @export
+#' @rdname nvertex
 nvertex.network <- function(x) {
   
-  x$gal$n
+  network::network.size(x)
   
 }
 

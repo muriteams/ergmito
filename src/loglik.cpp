@@ -78,7 +78,7 @@ arma::vec exact_loglik(
 }
 
 
-// Calculates the likelihood for a given network individually.
+// Calculates the gradient for a given network individually.
 inline arma::colvec exact_gradienti(
     const arma::rowvec & x,
     const arma::colvec & params,

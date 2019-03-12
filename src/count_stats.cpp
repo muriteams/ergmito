@@ -51,7 +51,6 @@ inline double count_ttriad(const IntegerMatrix & x, const NumericVector & A) {
         
         // Label 1
         if (x(i,j) == 1 && x(i,k) == 1 && x(j,k) == 1)
-          // if (x(j, i) == 0 && x(k,i) == 0 && x(k,j) == 0)
           ++count;
         
       }
@@ -75,8 +74,7 @@ inline double count_ctriad(const IntegerMatrix & x, const NumericVector & A) {
         
         // Label 1
         if (x(i, j) == 1 && x(j, k) == 1 && x(k, i) == 1)
-          // if (x(j, i) == 0 && x(k, j) == 0 && x(i, k) == 0)
-            ++count;
+          ++count;
           
       }
     }
@@ -124,6 +122,121 @@ inline double count_triangle(const IntegerMatrix & x, const NumericVector & A) {
   
 }
 
+inline double count_balance(const IntegerMatrix & x, const NumericVector & A) {
+  
+  int count = 0, n = x.nrow();
+  int s;
+  
+  for (int i = 0; i < n; ++i)
+    for (int j = 0; j < n; ++j) {
+  
+      if (i == j)
+        continue;
+  
+      // We compute this statistic for selecting two possible cases: disconnected
+      // and mutual ties. The two relevant cases for balanced triads.
+      s = x(i, j) + x(j, i);
+
+      if (s == 1) 
+        continue;
+      
+      // Case in which i and j are disconnected. If these two are disconnected,
+      // then the loop through k should be truncated as a function of i since
+      // otherwise we will be double counting.
+      else if (s == 0) { // Triad 102
+        
+        for (int k = 0; k < i; ++k) {
+          
+          if (k == j)
+            continue;
+        
+          if (x(i, k) == 0 || x(k, i) == 0 || x(j, k) == 1 || x(k, j) == 1)
+            continue;
+          
+          ++count;
+        
+
+        }
+        
+        
+        // Case in which they have a mutual tie, then we also have to truncate the
+        // loop over j, otherwise triple counting.
+      } else if (s == 2) { // Triad 300
+        
+        if (j >= i)
+          break;
+        
+        for (int k = 0; k < j; ++k) {
+          
+          if (x(i, k) == 0 || x(k, i) == 0 || x(j, k) == 0 || x(k, j) == 0)
+            continue;
+          
+          ++count;
+        }
+        
+      }
+      
+    }
+  
+  return (double) count;
+  
+}
+
+// Triadic census --------------------------------------------------------------
+inline double count_t300(const IntegerMatrix & x, const NumericVector & A) {
+
+  int count = 0, n = x.nrow();
+
+  for (int i = 0; i < n; ++i) {
+    
+    for (int j = 0; j < i; ++j) {
+      
+      if (x(i, j) == 0 || x(j, i) == 0)
+        continue;
+      
+      for (int k = 0; k < j; ++k) {
+        
+        if (x(i, k) == 0 || x(k, i) == 0 || x(j, k) == 0 || x(k, j) == 0)
+          continue;
+        
+        ++count;
+        
+      }
+      
+    }
+    
+  }
+  
+  return (double) count;
+}
+
+inline double count_t102(const IntegerMatrix & x, const NumericVector & A) {
+  int count = 0, n = x.nrow();
+  
+  for (int i = 0; i < n; ++i) {
+    
+    for (int j = 0; j < n; ++j) {
+      
+      if (x(i, j) == 1 || x(j, i) == 1)
+        continue;
+      
+      for (int k = 0; k < i; ++k) {
+        
+        if (x(i, k) == 0 || x(k, i) == 0 || x(j, k) == 1 || x(k, j) == 1)
+          continue;
+        
+        ++count;
+        
+      }
+      
+    }
+    
+  }
+  
+  return (double) count;
+}
+
+// Callers ---------------------------------------------------------------------
 typedef double (*ergm_term_fun)(const IntegerMatrix & x, const NumericVector & A);
 
 void get_ergm_term(std::string term, ergm_term_fun & fun) {
@@ -136,6 +249,9 @@ void get_ergm_term(std::string term, ergm_term_fun & fun) {
   else if (term == "nodeocov")  fun = &count_nodeocov;
   else if (term == "nodematch") fun = &count_nodematch;
   else if (term == "triangle")  fun = &count_triangle;
+  else if (term == "balance")   fun = &count_balance;
+  else if (term == "t300")      fun = &count_t300;
+  else if (term == "t102")      fun = &count_t102;
   else
     stop("The term %s is not available.", term);
   
@@ -153,7 +269,10 @@ CharacterVector count_available(int i = 0) {
     "nodeicov",
     "nodeocov",
     "nodematch",
-    "triangle"
+    "triangle",
+    "balance",
+    "t300",
+    "t102"
   );
 }
 
@@ -165,6 +284,8 @@ NumericMatrix count_stats(
     const ListOf< NumericVector > & A
   ) {
   
+  // List b;
+  // b.containsElementNamed("parameter1");
   
   int n = X.size();
   int k = terms.size();

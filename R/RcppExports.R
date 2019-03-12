@@ -31,6 +31,14 @@ exact_gradient. <- function(x, params, weights, statmat) {
     .Call(`_ergmito_exact_gradient`, x, params, weights, statmat)
 }
 
+init_network <- function(n, directed = TRUE, hyper = FALSE, loops = FALSE, multiple = FALSE, bipartite = FALSE) {
+    .Call(`_ergmito_init_network`, n, directed, hyper, loops, multiple, bipartite)
+}
+
+matrix_to_network. <- function(x, directed, hyper, loops, multiple, bipartite) {
+    .Call(`_ergmito_matrix_to_network`, x, directed, hyper, loops, multiple, bipartite)
+}
+
 make_sets <- function(n) {
     .Call(`_ergmito_make_sets`, n)
 }

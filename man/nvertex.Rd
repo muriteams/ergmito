@@ -2,6 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{nvertex}
 \alias{nvertex}
+\alias{nedges}
+\alias{nedges.network}
+\alias{nedges.list}
+\alias{nedges.matrix}
+\alias{nedges.ergmito}
+\alias{nedges.formula}
 \alias{nvertex.network}
 \alias{nvertex.matrix}
 \alias{nvertex.list}
@@ -16,6 +22,18 @@
 \title{Utility functions to query network dimensions}
 \usage{
 nvertex(x)
+
+nedges(x, ...)
+
+\method{nedges}{network}(x, ...)
+
+\method{nedges}{list}(x, ...)
+
+\method{nedges}{matrix}(x, ...)
+
+\method{nedges}{ergmito}(x, ...)
+
+\method{nedges}{formula}(x, ...)
 
 \method{nvertex}{network}(x)
 
@@ -40,7 +58,10 @@ nnets(x)
 \method{nnets}{formula}(x)
 }
 \arguments{
-\item{x}{Either an object of class \link{ergmito}, \link{network}, or \link{matrix}.}
+\item{x}{Either an object of class \link{ergmito}, \link{network}, \link{formula}, or \link{matrix}.}
+
+\item{...}{Further arguments passed to the method. Currently only \code{nedges.network}
+receives arguments (see \link[network:network.edgecount]{network::network.edgecount}).}
 }
 \description{
 Utility functions to query network dimensions

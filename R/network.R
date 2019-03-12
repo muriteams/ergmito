@@ -1,0 +1,95 @@
+#' Manipulation of network objects
+#' 
+#' This function implements a vectorized version of [network::network]`.adjmat`.
+#' It allows us to turn regular matrices into network objects quickly.
+#' 
+#' @param x Either a single square matrix (adjacency matrix), or a list of these.
+#' @param directed Logical scalar, if `FALSE` then the function only checks the
+#' upper diagonal of the matrix assuming it is undirected.
+#' @param loops Logical scalar. When `FALSE` (default) it will skip the diagonal
+#' of the adjacency matrix.
+#' @param hyper,multiple,bipartite Currently Ignored. Right now all the network objects
+#' created by this function set these parameters as `FALSE`.
+#' 
+#' @details This version does not support adding the name parameter yet. The 
+#' function in the network package includes the name of the vertices as an
+#' attribute.
+#' 
+#' Just like in the network function, `NA` are checked and added accordingly, i.e.
+#' if there is an `NA` in the matrix, then the value is recorded as a missing edge.
+#' 
+#' @return An object of class `network`. This is a list with the following elements:
+#' - `mel` *Master Edge List*: A named list with length equal to the number of edges in
+#' the network. The list itself has 3 elements: `inl` (tail), `outl` (head), and 
+#' `atl` (attribute). By default `atl`, a list itself, has a single element: `na`.
+#' 
+#' - `gal` *Graph Attributes List*: a named list with the following elements:
+#'   - `n` Number of nodes
+#'   - `mnext` Number of edges + 1
+#'   - `directed`,`hyper`,`loops`,`multiple`,`bipartite` The arguments passed to
+#'   the function.
+#'
+#' - `val` *Vertex Attributes List*
+#' 
+#' - `iel` *In Edgest List*
+#' 
+#' - `oel` *Out Edgest List*
+#' 
+#' @examples 
+#' set.seed(155)
+#' adjmats  <- rbernoulli(rep(5, 20))
+#' networks <- matrix_to_network(adjmats)
+#' 
+#' @export
+matrix_to_network <- function(
+  x,
+  directed  = rep(TRUE, length(x)),
+  hyper     = rep(FALSE, length(x)),
+  loops     = rep(FALSE, length(x)),
+  multiple  = rep(FALSE, length(x)),
+  bipartite = rep(FALSE, length(x))
+  ) UseMethod("matrix_to_network")
+
+#' @export
+#' @rdname matrix_to_network
+matrix_to_network.matrix <- function(
+  x,
+  directed  = rep(TRUE, length(x)),
+  hyper     = rep(FALSE, length(x)),
+  loops     = rep(FALSE, length(x)),
+  multiple  = rep(FALSE, length(x)),
+  bipartite = rep(FALSE, length(x))
+  ) {
+  
+  matrix_to_network.(
+    x = list(x),
+    directed = directed,
+    hyper = hyper,
+    loops = loops,
+    multiple = multiple,
+    bipartite = bipartite
+    )[[1L]]
+  
+}
+
+#' @export
+#' @rdname matrix_to_network
+matrix_to_network.list <- function(
+  x,
+  directed  = rep(TRUE, length(x)),
+  hyper     = rep(FALSE, length(x)),
+  loops     = rep(FALSE, length(x)),
+  multiple  = rep(FALSE, length(x)),
+  bipartite = rep(FALSE, length(x))
+  ) {
+  
+  matrix_to_network.(
+    x = x,
+    directed = directed,
+    hyper = hyper,
+    loops = loops,
+    multiple = multiple,
+    bipartite = bipartite
+  )
+  
+}

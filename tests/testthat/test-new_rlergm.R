@@ -8,7 +8,7 @@ test_that("Using the count_stats vs ergm::summary_formula is equal", {
   Sys.setenv(ERGMITO_TEST = "")
   set.seed(1);ans0 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L)
   Sys.setenv(ERGMITO_TEST = 1)
-  set.seed(1);ans1 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L)
+  set.seed(1);ans1 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L, force = TRUE)
   
   expect_equal(ans0$prob, ans1$prob)
   expect_equal(sum(ans0$prob$`3`), 1)
@@ -21,7 +21,7 @@ test_that("Using the count_stats vs ergm::summary_formula is equal", {
   Sys.setenv(ERGMITO_TEST = "")  
   ans0 <- new_rergmito(fivenets[[1]] ~ edges + nodeicov("age"), theta = coef(mod), mc.cores = 1L)
   Sys.setenv(ERGMITO_TEST = 1)
-  ans1 <- new_rergmito(fivenets[[1]] ~ edges + nodeicov("age"), theta = coef(mod), mc.cores = 1L)
+  ans1 <- new_rergmito(fivenets[[1]] ~ edges + nodeicov("age"), theta = coef(mod), mc.cores = 1L, force = TRUE)
 
   
   expect_equal(ans0$prob, ans1$prob)
