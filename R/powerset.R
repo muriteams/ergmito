@@ -1,15 +1,4 @@
-make_chunks <- function(N, chunk_size) {
-  
-  if (chunk_size > N)
-    return(list(from=1, to=N))
-  
-  chunks <- seq(0, N, by = chunk_size)
-  chunks <- list(from = chunks[-length(chunks)] + 1, to = chunks[-1])
-  chunks$to[length(chunks$to)] <- N
-  
-  chunks
-  
-}
+
 
 
 #' Power set of Directed Graphs of size `n`

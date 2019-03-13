@@ -1,3 +1,12 @@
+replicate_vertex_attr <- function(x, attrname, value) {
+  
+  for (i in seq_along(x)) 
+    for (a in seq_along(attrname))
+    network::set.vertex.attribute(x[[i]], attrname = attrname[[a]], value=value[[a]])
+  
+  x
+}
+
 #' ERGMito sampler
 #' 
 #' Using 
@@ -154,6 +163,11 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
            " not all the requested statistics are available in ergmito. If you",
            " would like to procede, use the option `force = TRUE`", call. = FALSE)
     
+    # We have to switch this flag so that the other methods (member functions)
+    # don't try to turn things into network objects (these will already be)
+    # that class of objects
+    sampler_w_attributes <- FALSE
+    
     # Are we addinig attributes?
     if (nnets(net) == 1 && network::is.network(net)) {
       attrs <- list()
@@ -174,11 +188,11 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
             " in an error if the model includes nodal attributes.", call. = FALSE)
         } else {
           
-          for (i in seq_along(ans$networks[[1]]))
-            ans$networks[[1L]][[i]] <- network::network(
-              x                = ans$networks[[1L]][[i]],
-              vertex.attr      = attrs$vertex.attr,
-              vertex.attrnames = attrs$vertex.attrnames
+          ans$networks[[1L]] <- matrix_to_network(ans$networks[[1L]])
+          ans$networks[[1L]] <- replicate_vertex_attr(
+            x        = ans$networks[[1L]],
+            attrname = ergm_model$attrnames,
+            value    = ergm_model$attrs
             )
         }
         
@@ -265,6 +279,24 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
   # Calling the prob function
   ans$calc_prob()
   
+  # A getter function ----------------------------------------------------------
+  ans$get_networks <- function(idx, s) {
+    
+    s <- as.character(s)
+    nets <- ans$networks[[s]][idx]
+    
+    if (sampler_w_attributes) {
+      nets <- matrix_to_network(nets)
+      replicate_vertex_attr(
+        nets,
+        attrname = ergm_model$attrnames,
+        value    = ergm_model$attrs
+      ) 
+    } else
+      nets
+    
+  }
+  
   # Sampling functions ---------------------------------------------------------
   ans$sample <- function(n, s, theta = NULL, as_indexes = FALSE) {
     
@@ -282,52 +314,25 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
       on.exit(ans$prob[s] <- oldp)
     } 
     
-    if (!as_indexes) {
-      nets <- ans$networks[[s]][
-        sample.int(
-          n       = length(ans$prob[[s]]),
-          size    = n,
-          replace = TRUE,
-          prob    = ans$prob[[s]],
-          useHash = FALSE
-        )
-        ]
-      
-      # If this is a sampler with attributes, then we need to add the attributes
-      # to the sampled graphs
-      if (sampler_w_attributes) {
-        
-        nets <- lapply(nets, function(n) {
-          
-          # New baseline, we remove all edges
-          net0    <- network::network.copy(net)
-          net0[,] <- 0
-          
-          edgelist <- which(n != 0, arr.ind = TRUE)
-          network::add.edges(net0, edgelist[, 2], edgelist[, 1])
-          
-        })
-        
-      }
-      
-      nets
-  
-    } else {
-      sample.int(
-        n       = length(ans$prob[[s]]),
-        size    = n,
-        replace = TRUE,
-        prob    = ans$prob[[s]],
-        useHash = FALSE
-      )
-    }
+    idx <- sample.int(
+      n       = length(ans$prob[[s]]),
+      size    = n,
+      replace = TRUE,
+      prob    = ans$prob[[s]],
+      useHash = FALSE
+    )
+    
+    if (!as_indexes) 
+      ans$get_networks(idx, s)
+    else 
+      idx
     
   }
   
   # Call
-  ans$call <- match.call()
-  ans$network0 <- net
-  ans$sizes    <- nvertex(net)
+  ans$call      <- match.call()
+  ans$network0  <- net
+  ans$sizes     <- nvertex(net)
   
   structure(
     ans,
@@ -360,7 +365,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
   # Sampling networks
   ans <- structure(vector("list", length(j)), names = j)
   for (k in j)
-    ans[[j]] <- x$networks[[k]][i]
+    ans[[j]] <- x$get_networks(i, k)
   
   return(ans)
   

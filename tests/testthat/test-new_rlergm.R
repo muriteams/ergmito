@@ -15,13 +15,13 @@ test_that("Using the count_stats vs ergm::summary_formula is equal", {
   
   # Sampler with the data
   data("fivenets")
-  mod <- ergmito(fivenets ~ edges + nodeicov("age"))
+  mod <- ergmito(fivenets ~ edges + nodematch("female"))
   network::delete.vertices(fivenets[[1]], 1)
 
   Sys.setenv(ERGMITO_TEST = "")  
-  ans0 <- new_rergmito(fivenets[[1]] ~ edges + nodeicov("age"), theta = coef(mod), mc.cores = 1L)
+  ans0 <- new_rergmito(fivenets[[1]] ~ edges + nodematch("female"), theta = coef(mod), mc.cores = 1L)
   Sys.setenv(ERGMITO_TEST = 1)
-  ans1 <- new_rergmito(fivenets[[1]] ~ edges + nodeicov("age"), theta = coef(mod), mc.cores = 1L, force = TRUE)
+  ans1 <- new_rergmito(fivenets[[1]] ~ edges + nodematch("female"), theta = coef(mod), mc.cores = 1L, force = TRUE)
 
   
   expect_equal(ans0$prob, ans1$prob)

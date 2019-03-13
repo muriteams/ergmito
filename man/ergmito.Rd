@@ -112,8 +112,8 @@ summary(ans_ergm)
 # Example 2: Estimating an ERGMito using data with know DGP parameters -----
 data(fivenets) 
 
-model1 <- ergmito(fivenets ~ edges + nodeicov("age"))
-summary(model1) # This data has know parameters equal to -4.0 and 0.2
+model1 <- ergmito(fivenets ~ edges + nodematch("female"))
+summary(model1) # This data has know parameters equal to -2.0 and 2.0
 
 
 }

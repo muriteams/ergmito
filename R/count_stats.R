@@ -104,14 +104,14 @@ count_stats.formula <- function(X, ...) {
   
   # Coercing into the appropiate type
   if (network::is.network(LHS))
-    LHS <- list(as.adjmat(LHS))
+    LHS <- list(as_adjmat(LHS))
   else if (is.list(LHS)) {
     
     is_net <- sapply(LHS, network::is.network)
     
     # Coercing into a net
     for (i in which(is_net))
-      LHS[[i]] <- as.adjmat(LHS[[i]])
+      LHS[[i]] <- as_adjmat(LHS[[i]])
     
   }
   

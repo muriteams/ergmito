@@ -1,6 +1,8 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+// #define ERGMITO_DEBUG_NETWORK 1
+
 // [[Rcpp::export]]
 List init_network(
     int n,
@@ -80,8 +82,8 @@ inline ListOf< List > matrix_to_networki(
   if (n != m)
     stop("Non-square matrix.");
   
-  std::vector< List > ans;
-  ans.reserve(x.size());
+  std::vector< List > mel, val(n);
+  mel.reserve(x.size());
   
   std::vector< std::vector<int> > iel(n), oel(n);
   
@@ -93,6 +95,12 @@ inline ListOf< List > matrix_to_networki(
   
   int nedge = 0;
   for (int j = 0; j < m; ++j) {
+    
+    char name[64];
+    sprintf(&(name[0]), "%i", (unsigned short) j + 1u);
+    
+    val.at(j) = NA_falseList;
+    val.at(j)["name"] = name;
     
     int ni = n;
     if (!directed)
@@ -111,17 +119,20 @@ inline ListOf< List > matrix_to_networki(
           _["atl"]  = ( x(i, j) == R_NaInt ) ? NA_trueList : NA_falseList
         );
         
-        ans.push_back(edge);
+        mel.push_back(edge);
         iel.at(j).push_back(++nedge);
         oel.at(i).push_back(nedge);
         
 #ifdef ERGMITO_DEBUG_NETWORK
-        Rprintf("x[%d, %d]: edge %d\n", i, j, nedge);
+        Rprintf("[matrix_to_network] x[%d, %d]: edge %d\n", i, j, nedge);
 #endif
         
       }
     }
   }
+  
+  // Resizing back
+  mel.shrink_to_fit();
       
   // typedef std::vector< std::vector< int > > vecvecint;
   // for (vecvecint::iterator iter = iel.begin(); iter != iel.end(); ++iter) {
@@ -131,11 +142,8 @@ inline ListOf< List > matrix_to_networki(
   //   std::reverse(iter->begin(), iter->end());
   // }
   
-  // Empty list of attributes
-  ListOf< List > listoflist(n);
-  
   List network = List::create(
-    _["mel"] = wrap(ans),
+    _["mel"] = mel,
     _["gal"] = List::create(
       _["n"]         = n,
       _["mnext"]     = ++nedge,        // Next number of edges (next m)
@@ -145,9 +153,9 @@ inline ListOf< List > matrix_to_networki(
       _["multiple"]  = multiple,
       _["bipartite"] = bipartite
     ),
-    _["val"] = listoflist,
-    _["iel"] = wrap(iel),
-    _["oel"] = wrap(oel)
+    _["val"] = val,
+    _["iel"] = iel,
+    _["oel"] = oel
   );
     
   network.attr("class") = "network";
@@ -177,3 +185,113 @@ ListOf< List > matrix_to_network(
   return out;
   
 }
+// 
+// inline ListOf< List > add_vertex_attri(
+//     const ListOf< List > & x, 
+//     const ListOf< GenericVector > & vattrs,
+//     const StringVector & names,
+//     const List & newattrs
+//   ) {
+//   
+//   ListOf< List > val = x;
+//   
+// #ifdef ERGMITO_DEBUG_NETWORK
+//   Rprintf("[add_vertex_attr] has class?: %d\n", (int) as<List>(x).hasAttribute("class"));
+// #endif
+//   
+//   // Checking lengths
+//   int nattrs = vattrs.size(), n = val.size();
+//   for (int i = 0; i < nattrs; ++i)
+//     if (vattrs[i].size() != n)
+//       stop("The length of `vattr` doesn't matches the number of vertices in the graph.");
+//   
+//   int nattrs_old = val[0].size();
+//   for (int i = 0; i < n; ++i) {
+//     
+//     // Appending the old attributes
+//     List newattrs_i = clone(newattrs);
+//     
+//     for (int j = 0; j < nattrs_old; ++j)
+//       newattrs_i[j] = val[i].at(j);
+//     
+//     // Adding the attributes to the ith vertex
+//     for (int j = 0; j < nattrs; ++j) {
+//       newattrs_i[j + nattrs_old] = vattrs[j].at(i);
+//     }
+//     
+// #ifdef ERGMITO_DEBUG_NETWORK
+//     Rprintf("[add_vertex_attr] This is how the new attributes look like of i=%d:\n", i);
+//     print(wrap(newattrs_i));
+// #endif
+//     
+//     // We need to update the names
+//     val[i] = newattrs_i;
+//     
+//   }
+//   
+//   // Updating the vertex attributes in x
+//   return val;
+//   
+// }
+// 
+// // [[Rcpp::export(name="add_vertex_attr.")]]
+// ListOf< List > add_vertex_attr(
+//     const ListOf< List > & x, 
+//     const ListOf< GenericVector > & vattrs,
+//     const StringVector & names,
+//     const ListOf< List > & oldattrs
+//   
+// ) {
+//   
+//   int n = x.size();
+//   ListOf< List > res(n);
+//   
+//   // Checking the length
+//   if (vattrs.size() != names.size())
+//     stop("The number of names must match the length of a.");
+//   
+//     
+// #ifdef ERGMITO_DEBUG_NETWORK
+//     Rprintf("[add_vertex_attr] Going OK up to basic checks. Found %d attributes to add.\n", names.size());
+// #endif
+//     
+//     // Capturing names
+//     StringVector newnames = oldattrs.names();
+//     
+// #ifdef ERGMITO_DEBUG_NETWORK
+//     Rprintf("[add_vertex_attr] Here is the lit of attributes to be added:\n");
+//     print(wrap(newnames));
+// #endif
+//     
+//     for (StringVector::const_iterator iter = names.begin(); iter != names.end(); ++iter)
+//       newnames.push_back(*iter);
+// 
+// #ifdef ERGMITO_DEBUG_NETWORK
+//     Rprintf("[add_vertex_attr] Creating the `newnames` object went fine.\n");
+// #endif
+//         
+//     // All will have the same number of attributes
+//     List newattrs(newnames.size());
+//     newattrs.names() = newnames;
+//     
+// #ifdef ERGMITO_DEBUG_NETWORK
+//     Rprintf("[add_vertex_attr] Starting with the loop.\n");
+// #endif
+//   
+//   for (int i = 0; i < n; ++i) {
+//     List x_i = clone(as< List >(x[i]));
+//     // ListOf< List > val = as< ListOf< List > >(x_i["val"]);
+//     // 
+//     // // Updating the value
+//     // add_vertex_attri(val, vattrs, names);
+//     // x_i["val"] = val;
+//     x_i["val"] = add_vertex_attri(
+//       as< ListOf< List > >(x_i["val"]), vattrs, names, newattrs
+//       );
+// 
+//     res[i] = x_i;
+//   }
+//   
+//   return res;
+//   
+// }

@@ -83,13 +83,41 @@ matrix_to_network.list <- function(
   bipartite = rep(FALSE, length(x))
   ) {
   
-  matrix_to_network.(
-    x = x,
-    directed = directed,
-    hyper = hyper,
-    loops = loops,
-    multiple = multiple,
-    bipartite = bipartite
-  )
+  # To save memory, we do this by chunks
+  chunks <- make_chunks(length(x), 50000)
+  
+  res <- vector("list", length(x))
+  for (i in seq_along(chunks$from)) {
+    res[chunks$from[i]:chunks$to[i]] <- matrix_to_network.(
+      x         = x[chunks$from[i]:chunks$to[i]],
+      directed  = directed[chunks$from[i]:chunks$to[i]],
+      hyper     = hyper[chunks$from[i]:chunks$to[i]],
+      loops     = loops[chunks$from[i]:chunks$to[i]],
+      multiple  = multiple[chunks$from[i]:chunks$to[i]],
+      bipartite = bipartite[chunks$from[i]:chunks$to[i]]
+    )
+  }
+  
+  res
   
 }
+
+
+
+#' 
+#' #' Alter network objects
+#' #' @param x,attrvalie,attrname see [network::set.vertex.attribute]
+#' #' @export
+#' add_vertex_attr <- function(x, attrvalue, attrname) {
+#'   
+#'   if (is.network(x))
+#'     x <- list(x)
+#'   
+#'   if (!all(sapply(x, inherits, "network")))
+#'     stop("`x` must be an object of class network.", call. = FALSE)
+#'   
+#'   add_vertex_attr.(x, attrvalue, attrname, names(x[[1]]$val[[1]]))
+#'   
+#'   # x
+#'   
+#' }

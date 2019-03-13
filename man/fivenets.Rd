@@ -10,9 +10,9 @@ fivenets
 }
 \description{
 This list of networks was generated using the \link{new_rergmito} sampler from a
-set of 5 baseline networks with a random vector of age. The sufficient
-statistics that generate this data are \code{edges} and  \code{nodeicov} with parameters
--4.0 and 0.2 respectively.
+set of 5 baseline networks with a random vector of \code{female}. The sufficient
+statistics that generate this data are \code{edges} and  \code{nodematch("female")} with parameters
+-2.0 and 0.2 respectively.
 }
 \details{
 The original sampler can be found in \link{fivesamplers}.

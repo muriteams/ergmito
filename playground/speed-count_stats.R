@@ -11,7 +11,7 @@ nets <- replicate(100, {
 
 bench::mark(
   as.matrix(nets[[1]]),
-  as.adjmat(nets[[1]]), check = FALSE
+  as_adjmat(nets[[1]]), check = FALSE
 ) %>% plot
 
 

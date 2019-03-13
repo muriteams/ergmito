@@ -59,35 +59,33 @@ gplot(net)
 <img src="man/figures/README-net1-1.png" width="100%" />
 
 ``` r
-model <- net ~ edges + mutual + balance
+model <- net ~ edges + mutual + ctriad
 
 library(ergm)
 ans_ergmito <- ergmito(model)
 ans_ergm  <- ergm(model)
 
-# The ergmito should have a larger value
-ergm.exact(ans_ergmito$coef, model)
-#>           [,1]
-#> [1,] -6.557076
-ergm.exact(ans_ergm$coef, model)
+# The ergmito should have a larger value when computing exact loglikelihood
+ergm.exact(ans_ergmito$coef, model) >
+  ergm.exact(ans_ergm$coef, model)
 #>      [,1]
-#> [1,]  NaN
+#> [1,] TRUE
 
 summary(ans_ergmito)
 #> $coefs
-#>           Estimate Std. Error     z value  Pr(>|z|)
-#> edges   -0.3203616   1.355221 -0.23639058 0.8131296
-#> mutual   2.3390394   2.096539  1.11566695 0.2645647
-#> balance -9.3678948 100.942647 -0.09280413 0.9260592
+#>           Estimate Std. Error    z value  Pr(>|z|)
+#> edges    0.5557799   1.772881  0.3134896 0.7539087
+#> mutual   1.0722314   1.796543  0.5968304 0.5506206
+#> ctriple -0.6000589   1.293807 -0.4637930 0.6427960
 #> 
 #> $aic
-#> [1] 19.11415
+#> [1] 20.69027
 #> 
 #> $bic
-#> [1] 20.56887
+#> [1] 22.14499
 #> 
 #> $model
-#> [1] "net ~ edges + mutual + balance"
+#> [1] "net ~ edges + mutual + ctriad"
 #> 
 #> attr(,"class")
 #> [1] "ergmito_summary"
@@ -97,25 +95,20 @@ summary(ans_ergm)
 #> Summary of model fit
 #> ==========================
 #> 
-#> Formula:   net ~ edges + mutual + balance
+#> Formula:   net ~ edges + mutual + ctriad
 #> 
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>          Estimate Std. Error MCMC % z value Pr(>|z|)    
-#> edges    0.006341   1.209717      0   0.005    0.996    
-#> mutual  20.682872         NA     NA      NA       NA    
-#> balance      -Inf   0.000000      0    -Inf   <1e-04 ***
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#>         Estimate Std. Error MCMC % z value Pr(>|z|)
+#> edges     0.5736     1.7862      0   0.321    0.748
+#> mutual    1.0697     1.7993      0   0.594    0.552
+#> ctriple  -0.5940     1.2914      0  -0.460    0.646
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance:   NaN  on  9  degrees of freedom
+#>  Residual Deviance: 14.66  on  9  degrees of freedom
 #>  
-#> AIC: NaN    BIC: NaN    (Smaller is better.) 
-#> 
-#>  Warning: The following terms have infinite coefficient estimates:
-#>   balance
+#> AIC: 20.66    BIC: 22.11    (Smaller is better.)
 ```
 
 Checking convergence diagnostics
@@ -197,27 +190,27 @@ The following example shows the estimation of a dataset that is included
 in the package, `fivenets`. This set of five networks was generated
 using the `new_rergmito` function which allows creating a function to
 draw random ERGMs with a fixed set of parameters, in this case, `edges =
--4` and `nodeicov("age") = .2`
+-2.0` and `nodematch("female") = 2.0`
 
 ``` r
 data(fivenets)
 
-model1 <- ergmito(fivenets ~ edges + nodeicov("age"))
+model1 <- ergmito(fivenets ~ edges + nodematch("female"))
 
-summary(model1) # This data has know parameters equal to -4.0 and 0.2
+summary(model1) # This data has know parameters equal to -2.0 and 2.0
 #> $coefs
-#>                Estimate Std. Error   z value   Pr(>|z|)
-#> edges        -2.7746009 1.41036047 -1.967299 0.04914873
-#> nodeicov.age  0.1471128 0.06596828  2.230054 0.02574388
+#>                   Estimate Std. Error   z value    Pr(>|z|)
+#> edges            -1.704748  0.5435573 -3.136280 0.001711055
+#> nodematch.female  1.586965  0.6430475  2.467882 0.013591530
 #> 
 #> $aic
-#> [1] 80.09997
+#> [1] 73.34109
 #> 
 #> $bic
-#> [1] 84.28865
+#> [1] 77.52978
 #> 
 #> $model
-#> [1] "fivenets ~ edges + nodeicov(\"age\")"
+#> [1] "fivenets ~ edges + nodematch(\"female\")"
 #> 
 #> attr(,"class")
 #> [1] "ergmito_summary"

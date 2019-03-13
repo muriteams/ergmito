@@ -190,14 +190,17 @@ setMethod(
 #' @param x An object to be coerced as an adjacency matrix.
 #' @export
 #' 
-as.adjmat <- function(x) UseMethod("as.adjmat")
+as_adjmat <- function(x) UseMethod("as_adjmat")
 
 #' @export
-#' @rdname as.adjmat
-as.adjmat.network <- function(x) {
+#' @rdname as_adjmat
+as_adjmat.network <- function(x) {
   
   n   <- nvertex(x)
   ans <- matrix(0, nrow = n, ncol = n)
+  
+  if (x$gal$mnext == 1)
+    return(ans)
   
   ties <- x$mel[sapply(x$mel, length) > 0L]
   
@@ -211,15 +214,28 @@ as.adjmat.network <- function(x) {
 }
 
 #' @export
-#' @rdname as.adjmat
-as.adjmat.list <- function(x) {
-  lapply(x, as.adjmat)
+#' @rdname as_adjmat
+as_adjmat.list <- function(x) {
+  lapply(x, as_adjmat)
 }
 
 #' @export
-#' @rdname as.adjmat
-as.adjmat.formula <- function(x) {
+#' @rdname as_adjmat
+as_adjmat.formula <- function(x) {
   
-  as.adjmat(eval(x[[2]], envir = environment(x)))
+  as_adjmat(eval(x[[2]], envir = environment(x)))
+  
+}
+
+make_chunks <- function(N, chunk_size) {
+  
+  if (chunk_size > N)
+    return(list(from=1, to=N))
+  
+  chunks <- seq(0, N, by = chunk_size)
+  chunks <- list(from = chunks[-length(chunks)] + 1, to = chunks[-1])
+  chunks$to[length(chunks$to)] <- N
+  
+  chunks
   
 }
