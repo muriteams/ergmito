@@ -19,4 +19,6 @@ os:
 # For some reason statnet.common is not found in the oldrel (I think)
 r_github_packages:
   - statnet/statnet.common
+  
+brew_packages: libgit2
 
