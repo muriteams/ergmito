@@ -8,7 +8,7 @@ after_success:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then Rscript -e 'covr::codecov()'; fi
   
 r:
-  - oldrel
+#  - oldrel
   - release
   - devel
   
@@ -17,5 +17,6 @@ os:
   - osx
   
 # For some reason statnet.common is not found in the oldrel (I think)
-r_packages:
-  - statnet.common
+r_github_packages:
+  - statnet/statnet.common
+
