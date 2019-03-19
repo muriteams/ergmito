@@ -44,7 +44,7 @@ artifacts:
   - path: '\*_*.zip'
     name: Bits
 
- matrix:
+matrix:
   - R_VERSION: devel
     GCC_PATH: mingw_32
 
@@ -58,3 +58,5 @@ artifacts:
   - R_VERSION: oldrel
     RTOOLS_VERSION: 33
     CRAN: http://cran.rstudio.com
+
+
