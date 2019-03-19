@@ -15,3 +15,7 @@ r:
 os:
   - linux
   - osx
+  
+# For some reason statnet.common is not found in the oldrel (I think)
+r_packages:
+  - statnet.common
