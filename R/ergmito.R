@@ -59,7 +59,7 @@
 #' # Generating a small graph
 #' set.seed(12)
 #' n <- 4
-#' net <- sna::rgraph(n, tprob = .7)
+#' net <- rbernoulli(n, p = .7)
 #' 
 #' model <- net ~ edges + mutual + balance
 #' 

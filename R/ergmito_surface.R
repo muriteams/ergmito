@@ -40,8 +40,8 @@ compute_mfrow <- function(k) {
 #' @examples 
 #' 
 #' set.seed(12)
-#' x1 <- sna::rgraph(4)
-#' x2 <- sna::rgraph(5)
+#' x1 <- rbernoulli(4)
+#' x2 <- rbernoulli(5)
 #' 
 #' ans <- ergmito(list(x1, x2) ~ edges + mutual + balance)
 #' 
@@ -49,7 +49,6 @@ compute_mfrow <- function(k) {
 #' 
 #' @seealso The [ergmito] function.
 #' @importFrom graphics image par
-#' @importFrom viridisLite viridis
 #' @importFrom utils combn
 plot.ergmito <- function(
   x,
@@ -130,7 +129,17 @@ plot.ergmito <- function(
     
     # Should I plot?
     if (plot.) {
-      do.call(graphics::image, c(Z[[p]], list(col = viridisLite::viridis(30))))
+      
+      # dput(viridisLite::viridis(30))
+      viridis30 <- c("#440154FF", "#470E61FF", "#481B6DFF", "#482576FF", "#46307EFF", 
+                     "#443B84FF", "#404688FF", "#3C508BFF", "#38598CFF", "#33628DFF", 
+                     "#2F6B8EFF", "#2C738EFF", "#287C8EFF", "#25838EFF", "#228C8DFF", 
+                     "#1F948CFF", "#1E9D89FF", "#20A486FF", "#26AD81FF", "#31B57BFF", 
+                     "#3FBC73FF", "#4FC46AFF", "#61CB5FFF", "#75D054FF", "#8BD646FF", 
+                     "#A2DA37FF", "#B9DE28FF", "#D1E11CFF", "#E8E419FF", "#FDE725FF"
+      )
+      
+      do.call(graphics::image, c(Z[[p]], list(col = viridis30)))
      
       graphics::points(x = coef(x)[i0], y = coef(x)[j0], col="red", cex=1.5,
              pch = 20)

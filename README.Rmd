@@ -50,6 +50,14 @@ The development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("muriteams/ergmito")
 ```
+
+This requires compilation. Windows users can download the lates compiled version from appveyor [here](https://ci.appveyor.com/project/gvegayon/ergmito/build/artifacts). The file to download is the one named `ergmito_[version number].zip`. Once donwloaded, you can install typing the following:
+
+```r
+install.packages("[path to the zipfile]/ergmito_[version number].zip", repos = FALSE)
+```
+
+
 ## Example
 
 An example from the manual
@@ -63,7 +71,7 @@ library(sna)
 # Generating a small graph
 set.seed(12)
 n <- 4
-net <- sna::rgraph(n, tprob = .7)
+net <- rbernoulli(n, p = .7)
 gplot(net)
 ```
 
@@ -95,7 +103,7 @@ plot(ans_ergmito)
 # Generating a small graph
 set.seed(12123)
 n   <- 4
-net <- sna::rgraph(n, tprob = .3)
+net <- rbernoulli(n, p = .3)
 gplot(net)
 ```
 

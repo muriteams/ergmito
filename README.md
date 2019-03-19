@@ -39,6 +39,17 @@ The development version from [GitHub](https://github.com/) with:
 devtools::install_github("muriteams/ergmito")
 ```
 
+This requires compilation. Windows users can download the lates compiled
+version from appveyor
+[here](https://ci.appveyor.com/project/gvegayon/ergmito/build/artifacts).
+The file to download is the one named `ergmito_[version number].zip`.
+Once donwloaded, you can install typing the
+following:
+
+``` r
+install.packages("[path to the zipfile]/ergmito_[version number].zip", repos = FALSE)
+```
+
 ## Example
 
 An example from the manual
@@ -52,7 +63,7 @@ library(sna)
 # Generating a small graph
 set.seed(12)
 n <- 4
-net <- sna::rgraph(n, tprob = .7)
+net <- rbernoulli(n, p = .7)
 gplot(net)
 ```
 
@@ -68,21 +79,21 @@ ans_ergm  <- ergm(model)
 # The ergmito should have a larger value when computing exact loglikelihood
 ergm.exact(ans_ergmito$coef, model) >
   ergm.exact(ans_ergm$coef, model)
-#>      [,1]
-#> [1,] TRUE
+#>       [,1]
+#> [1,] FALSE
 
 summary(ans_ergmito)
 #> $coefs
-#>           Estimate Std. Error    z value  Pr(>|z|)
-#> edges    0.5557799   1.772881  0.3134896 0.7539087
-#> mutual   1.0722314   1.796543  0.5968304 0.5506206
-#> ctriple -0.6000589   1.293807 -0.4637930 0.6427960
+#>          Estimate Std. Error    z value  Pr(>|z|)
+#> edges    8.664306   43.72599  0.1981500 0.8429277
+#> mutual  -7.207248   43.71588 -0.1648657 0.8690497
+#> ctriple -0.639525    1.32637 -0.4821619 0.6296909
 #> 
 #> $aic
-#> [1] 20.69027
+#> [1] 18.23709
 #> 
 #> $bic
-#> [1] 22.14499
+#> [1] 19.69181
 #> 
 #> $model
 #> [1] "net ~ edges + mutual + ctriad"
@@ -101,14 +112,14 @@ summary(ans_ergm)
 #> 
 #> Monte Carlo MLE Results:
 #>         Estimate Std. Error MCMC % z value Pr(>|z|)
-#> edges     0.5736     1.7862      0   0.321    0.748
-#> mutual    1.0697     1.7993      0   0.594    0.552
-#> ctriple  -0.5940     1.2914      0  -0.460    0.646
+#> edges     20.296         NA     NA      NA       NA
+#> mutual   -18.832         NA     NA      NA       NA
+#> ctriple   -0.643         NA     NA      NA       NA
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 14.66  on  9  degrees of freedom
+#>  Residual Deviance: 12.28  on  9  degrees of freedom
 #>  
-#> AIC: 20.66    BIC: 22.11    (Smaller is better.)
+#> AIC: 18.28    BIC: 19.74    (Smaller is better.)
 ```
 
 Checking convergence diagnostics
@@ -125,7 +136,7 @@ plot(ans_ergmito)
 # Generating a small graph
 set.seed(12123)
 n   <- 4
-net <- sna::rgraph(n, tprob = .3)
+net <- rbernoulli(n, p = .3)
 gplot(net)
 ```
 
@@ -144,19 +155,19 @@ ans_ergm  <- ergm(model, control = control.ergm(
 # The ergmito should have a larger value
 ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 #>      [,1]
-#> [1,] TRUE
+#> [1,]   NA
 
 summary(ans_ergmito)
 #> $coefs
 #>         Estimate Std. Error    z value  Pr(>|z|)
-#> edges  -1.098612   0.912871 -1.2034693 0.2287948
-#> mutual  1.098612   1.825742  0.6017347 0.5473507
+#> edges  -0.691919  0.8165109 -0.8474094 0.3967669
+#> mutual -8.195552 69.4693583 -0.1179736 0.9060886
 #> 
 #> $aic
-#> [1] 18.90944
+#> [1] 16.47707
 #> 
 #> $bic
-#> [1] 19.87925
+#> [1] 17.44688
 #> 
 #> $model
 #> [1] "net ~ edges + mutual"
@@ -174,14 +185,19 @@ summary(ans_ergm)
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>        Estimate Std. Error MCMC % z value Pr(>|z|)
-#> edges   -1.1003     0.9041      0  -1.217    0.224
-#> mutual   1.1008     1.8194      0   0.605    0.545
+#>        Estimate Std. Error MCMC % z value Pr(>|z|)    
+#> edges   -0.6834     0.8189      0  -0.835    0.404    
+#> mutual     -Inf     0.0000      0    -Inf   <1e-04 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 14.90  on 10  degrees of freedom
+#>  Residual Deviance:   NaN  on 10  degrees of freedom
 #>  
-#> AIC: 18.9    BIC: 19.87    (Smaller is better.)
+#> AIC: NaN    BIC: NaN    (Smaller is better.) 
+#> 
+#>  Warning: The following terms have infinite coefficient estimates:
+#>   mutual
 ```
 
 ## Estimating data with known parameters

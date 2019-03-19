@@ -1,5 +1,5 @@
 Package: ergmito
-Version: 0.0.999
+Version: 0.1-0
 Date: 2018-09-24
 Title: Estimation of 'ERGMitos' (a.k.a. Little 'ERGMs') using exact likelihood
 Description: The package implements simulation and estimation algorithms for 
@@ -18,20 +18,19 @@ RoxygenNote: 6.1.1
 Encoding: UTF-8
 Imports: 
     ergm,
-    stats,
-    Rcpp,
-    parallel,
-    viridisLite,
-    sna,
-    MASS,
     network,
+    MASS,
+    Rcpp,
     RcppArmadillo,
+    texreg,
+    stats,
+    parallel,
     utils,
-    methods,
-    texreg
+    methods
 LinkingTo: 
     Rcpp, RcppArmadillo
 License: MIT + file LICENSE
 Suggests: 
     testthat,
-    covr
+    covr,
+    sna

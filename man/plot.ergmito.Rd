@@ -47,8 +47,8 @@ in the ERGMito.
 \examples{
 
 set.seed(12)
-x1 <- sna::rgraph(4)
-x2 <- sna::rgraph(5)
+x1 <- rbernoulli(4)
+x2 <- rbernoulli(5)
 
 ans <- ergmito(list(x1, x2) ~ edges + mutual + balance)
 
