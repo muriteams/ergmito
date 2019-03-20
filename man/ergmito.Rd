@@ -11,7 +11,8 @@
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
 ergmito(model, gattr_model = NULL, stats = NULL, optim.args = list(),
-  init = NULL, ntries = 5L, use.grad = TRUE, ...)
+  init = NULL, ntries = 5L, use.grad = TRUE, target.stats = NULL,
+  ...)
 
 \method{print}{ergmito}(x, ...)
 
@@ -45,6 +46,8 @@ executed (see MLE).}
 
 \item{use.grad}{Logical. When \code{TRUE} passes the gradient function to \code{optim}.
 This is intended for testing only (internal use).}
+
+\item{target.stats}{A matrix of target statistics (see \link[ergm:ergm]{ergm::ergm}).}
 
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}

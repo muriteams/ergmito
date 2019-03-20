@@ -9,7 +9,7 @@
 #' @param gattr_model A formula. Model especification for graph attributes. This
 #' is useful when using multiple networks.
 #' @param stats A list.
-#' @param obs_stats Observed statistics. If multiple networks, then a list, otherwise
+#' @param target.stats Observed statistics. If multiple networks, then a list, otherwise
 #' a named vector (see [ergm::summary_formula]). 
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
@@ -27,10 +27,10 @@
 #' @export
 ergmito_formulae <- function(
   model,
-  gattr_model = NULL,
-  stats       = NULL,
-  obs_stats   = NULL,
-  env         = parent.frame(),
+  gattr_model  = NULL,
+  target.stats = NULL,
+  stats        = NULL,
+  env          = parent.frame(),
   ...
   ) {
   
@@ -73,11 +73,16 @@ ergmito_formulae <- function(
   environment(model.) <- formulaeenv
   
   # Checking observed stats and stats
-  if (!length(obs_stats))
-    obs_stats <- vector("list", nnets(LHS))
-  
   if (!length(stats))
     stats <- vector("list", nnets(LHS))
+  
+  # Has the user passed target statistics?
+  if (!length(target.stats))
+    target.stats <- vector("list", nnets(LHS))
+  else # This is painful, the current way I have this written needs me to pass
+       # the target.stats as a list instead of a matrix, which is not the best.
+       # For now it should be OK.
+    target.stats <- lapply(1:nrow(target.stats), function(i) target.stats[i,])
   
   # Need to improve the speed of this!
   for (i in 1L:nnets(LHS)) {
@@ -89,23 +94,23 @@ ergmito_formulae <- function(
       g <- NULL
     
     # Calculating observed statistics
-    if (!length(stats[[i]]))
-      stats[[i]] <- c(summary(model.), g)
+    if (!length(target.stats[[i]]))
+      target.stats[[i]] <- c(summary(model.), g)
     
     # Should it be normalized to 0?
     if (length(dots$zeroobs) && dots$zeroobs)
-      stats[[i]][] <- rep(0, length(stats[[i]][]))
+      target.stats[[i]][] <- rep(0, length(target.stats[[i]][]))
     
     # Calculating statistics and weights
-    if (!length(obs_stats[[i]]))
-      obs_stats[[i]] <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
+    if (!length(stats[[i]]))
+      stats[[i]] <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
     
     # Adding graph parameters to the statmat
     if (length(g)) {
-      obs_stats[[i]]$statmat <- cbind(
-        obs_stats[[i]]$statmat,
+      stats[[i]]$statmat <- cbind(
+        stats[[i]]$statmat,
         matrix(
-          stats[[i]][names(g)], nrow = nrow(obs_stats[[i]]$statmat), ncol=length(g),
+          target.stats[[i]][names(g)], nrow = nrow(stats[[i]]$statmat), ncol=length(g),
           byrow = TRUE, dimnames = list(NULL, names(g))
           )
         )
@@ -114,9 +119,9 @@ ergmito_formulae <- function(
   }
   
   # Coercing objects
-  stats   <- do.call(rbind, stats)
-  weights <- lapply(obs_stats, "[[", "weights")
-  statmat <- lapply(obs_stats, "[[", "statmat")
+  target.stats   <- do.call(rbind, target.stats)
+  weights <- lapply(stats, "[[", "weights")
+  statmat <- lapply(stats, "[[", "statmat")
   
   structure(list(
     loglik = function(params, stats = NULL) {
@@ -124,12 +129,12 @@ ergmito_formulae <- function(
       # Are we including anything 
       ans <- if (!length(stats)) {
         exact_loglik(
-          params = params, x = formulaeenv$stats,
+          params = params, x = formulaeenv$target.stats,
           weights = formulaeenv$weights, statmat = formulaeenv$statmat
         )
       } else {
         exact_loglik(
-          params = params, x = formulaeenv$stats,
+          params = params, x = formulaeenv$target.stats,
           weights = stats$weights, statmat = stats$statmat
         )
       }
@@ -148,12 +153,12 @@ ergmito_formulae <- function(
       # Are we including anything 
       ans <- if (!length(stats)) {
         exact_gradient(
-          params = params, x = formulaeenv$stats,
+          params = params, x = formulaeenv$target.stats,
           weights = formulaeenv$weights, statmat = formulaeenv$statmat
         )
       } else {
         exact_gradient(
-          params = params, x = formulaeenv$stats,
+          params = params, x = formulaeenv$target.stats,
           weights = stats$weights, statmat = stats$statmat
         )
       }
@@ -173,11 +178,11 @@ ergmito_formulae <- function(
       ans
       
     },
-    stats     = stats,
-    obs_stats = obs_stats,
-    model     = stats::as.formula(model, env = env),
-    npars     = ncol(stats),
-    nnets     = nnets(LHS)
+    target.stats = target.stats,
+    stats        = stats,
+    model        = stats::as.formula(model, env = env),
+    npars        = ncol(target.stats),
+    nnets        = nnets(LHS)
   ), class="ergmito_loglik")
   
   

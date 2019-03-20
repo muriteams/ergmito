@@ -35,12 +35,21 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   n <- nnets(x)
   
+  if (n < 2)
+    stop(
+      "I wish I could do bootstrapping with less than 2, but I can't.",
+      call. = FALSE)
+  else if (n <= 10)
+    warning(
+      "You are doing bootstrapping with less than 10 networks (and even 10 is too few).",
+      call.=FALSE)
+  
   # Getting the sample, and baseline model
-  IDX    <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
-  model0 <- stats::update.formula(x$formulae$model, nets0[idx] ~ .)
-  stats0 <- x$formulae$stats
-  nets0  <- x$network
-  obs_stats0 <- x$formulae$obs_stats
+  IDX          <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
+  model0       <- stats::update.formula(x$formulae$model, nets0[idx] ~ .)
+  target.stats <- x$formulae$target.stats
+  nets0        <- x$network
+  stats        <- x$formulae$stats
   
   # Creating the cluster and setting the seed
   if (ncpus > 1L && !length(cl)) {
@@ -48,7 +57,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     # Setting up the cluster
     cl <- parallel::makePSOCKcluster(ncpus)
     parallel::clusterEvalQ(cl, library(ergmito))
-    parallel::clusterExport(cl, c("model0", "stats0", "nets0"), envir = environment())
+    parallel::clusterExport(cl, c("model0", "target.stats", "nets0", "stats"), envir = environment())
     
     parallel::clusterSetRNGStream(cl)
 
@@ -63,7 +72,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     parallel::parLapply(cl, IDX, function(idx) {
       
       environment(model0) <- environment()
-      ergmito(model0, stats = stats0[idx], obs_stats = obs_stats0[idx])
+      ergmito(model0, stats = stats[idx], target.stats = target.stats[idx,,drop=FALSE])
       
     })
     
@@ -72,7 +81,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     lapply(IDX, function(idx) {
       
       environment(model0) <- environment()
-      ergmito(model0, stats = stats0[idx], obs_stats = obs_stats0[idx])
+      ergmito(model0, stats = stats[idx], target.stats = target.stats[idx,,drop=FALSE])
       
     })
     
@@ -99,6 +108,8 @@ print.ergmito_boot <- function(x, ...) {
   
   cat(sprintf("Bootstrapped %i replicates:\n", x$R))
   print(structure(unclass(x), class="ergmito"))
+  
+  invisible(x)
   
 }
 

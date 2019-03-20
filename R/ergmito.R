@@ -13,6 +13,7 @@
 #' @param gattr_model A formula. Model especification for graph attributes. This
 #' is useful when using multiple networks.
 #' @param optim.args List. Passed to [stats::optim].
+#' @param target.stats A matrix of target statistics (see [ergm::ergm]).
 #' @param stats List as returned by [ergm::ergm.allstats]. When this is provided,
 #' the function does not call `ergm.allstats`, which can be useful in simulations.
 #' @param init Either a numeric vector, or a matrix with `ntries` rows. Sets
@@ -85,19 +86,26 @@
 #' @importFrom MASS ginv
 ergmito <- function(
   model,
-  gattr_model = NULL,
-  stats       = NULL,
-  optim.args  = list(),
-  init        = NULL,
-  ntries      = 5L,
-  use.grad    = TRUE,
+  gattr_model  = NULL,
+  stats        = NULL,
+  optim.args   = list(),
+  init         = NULL,
+  ntries       = 5L,
+  use.grad     = TRUE,
+  target.stats = NULL,
   ...
   ) {
   
   # Generating the objective function
   ergmitoenv <- environment(model)
   formulae   <- ergmito_formulae(
-    model, gattr_model = gattr_model, stats = stats, env = ergmitoenv, ...)
+    model,
+    gattr_model  = gattr_model, 
+    target.stats = target.stats,
+    stats        = stats,
+    env          = ergmitoenv,
+    ...
+    )
 
   npars  <- formulae$npars
   
@@ -157,7 +165,7 @@ ergmito <- function(
   ans <- ans[[which.max(sapply(ans, "[[", "value"))[1]]]
 
   # Capturing the names of the parameters
-  pnames         <- colnames(formulae$stats)
+  pnames         <- colnames(formulae$target.stats)
   names(ans$par) <- pnames
   covar.         <- -MASS::ginv(ans$hessian)
   dimnames(covar.) <- list(pnames, pnames)
