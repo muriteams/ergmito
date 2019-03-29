@@ -124,17 +124,21 @@ ergmito_formulae <- function(
   statmat <- lapply(stats, "[[", "statmat")
   
   structure(list(
-    loglik = function(params, stats = NULL) {
+    loglik = function(params, stats = NULL, target.stats = NULL) {
+      
+      # If no target.stats specified, used the observed in the data
+      if (is.null(target.stats))
+        target.stats <- formulaeenv$target.stats
       
       # Are we including anything 
       ans <- if (!length(stats)) {
         exact_loglik(
-          params = params, x = formulaeenv$target.stats,
+          params = params, x = target.stats,
           weights = formulaeenv$weights, statmat = formulaeenv$statmat
         )
       } else {
         exact_loglik(
-          params = params, x = formulaeenv$target.stats,
+          params = params, x = target.stats,
           weights = stats$weights, statmat = stats$statmat
         )
       }
@@ -148,17 +152,21 @@ ergmito_formulae <- function(
       max(ans, -.Machine$double.xmax/1e100)
       
     },
-    grad  = function(params, stats = NULL) {
+    grad  = function(params, stats = NULL, target.stats = NULL) {
+      
+      # If no target.stats specified, used the observed in the data
+      if (is.null(target.stats))
+        target.stats <- formulaeenv$target.stats
       
       # Are we including anything 
       ans <- if (!length(stats)) {
         exact_gradient(
-          params = params, x = formulaeenv$target.stats,
+          params = params, x = target.stats,
           weights = formulaeenv$weights, statmat = formulaeenv$statmat
         )
       } else {
         exact_gradient(
-          params = params, x = formulaeenv$target.stats,
+          params = params, x = target.stats,
           weights = stats$weights, statmat = stats$statmat
         )
       }

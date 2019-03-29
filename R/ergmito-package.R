@@ -4,7 +4,7 @@
 #' @importFrom ergm ergm.allstats
 #' @importFrom network network.size
 #' @importFrom stats pnorm model.matrix update.formula optim AIC BIC rnorm terms
-#'  coef coefficients var
+#'  coef coefficients var quantile
 #' @importFrom methods setClass setGeneric setMethod setRefClass
 #' @importFrom utils capture.output
 NULL

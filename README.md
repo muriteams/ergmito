@@ -75,6 +75,8 @@ model <- net ~ edges + mutual + ctriad
 library(ergm)
 ans_ergmito <- ergmito(model)
 ans_ergm  <- ergm(model)
+#> Error in solve.default(H, tol = 1e-20) : 
+#>   Lapack routine dgesv: system is exactly singular: U[2,2] = 0
 
 # The ergmito should have a larger value when computing exact loglikelihood
 ergm.exact(ans_ergmito$coef, model) >
@@ -231,6 +233,35 @@ summary(model1) # This data has know parameters equal to -2.0 and 2.0
 #> attr(,"class")
 #> [1] "ergmito_summary"
 ```
+
+We can also compute GOF
+
+``` r
+fivenets_gof <- gof(model1)
+fivenets_gof
+#> 
+#> Goodness-of-fit for  edges 
+#> 
+#>       obs min p50 max  5.0% 95.0%
+#> net 1   2   0   4  12     1     6
+#> net 2   7   0   4  12     1     6
+#> net 3   4   0   3  12     1     6
+#> net 4   5   0   6  12     3     8
+#> net 5   2   0   4  12     1     6
+#> 
+#> 
+#> Goodness-of-fit for  nodematch.female 
+#> 
+#>       obs min p50 max  5.0% 95.0%
+#> net 1   2   0   3   6     1     5
+#> net 2   5   0   3   6     1     5
+#> net 3   3   0   2   4     0     3
+#> net 4   5   0   6  12     3     8
+#> net 5   1   0   3   6     1     5
+plot(fivenets_gof)
+```
+
+<img src="man/figures/README-fivenets-gof-1.png" width="100%" />
 
 # Similarity indices
 

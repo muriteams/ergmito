@@ -7,7 +7,7 @@ Description: The package implements simulation and estimation algorithms for
   statistics. As a difference from the 'ergm' package, 'ergmito' skips the
   MCMC part of the estimation process and goes straight to MLE.
 Depends: R (>= 3.3.0)
-Authors@R:  c(
+Authors@R: c(
       person(given = "George", family = "Vega Yon", role = c("cre","aut"),
       email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")),
       person("Army Research Laboratory and the U.S. Army Research Office",
@@ -26,7 +26,8 @@ Imports:
     stats,
     parallel,
     utils,
-    methods
+    methods,
+    graphics
 LinkingTo: 
     Rcpp, RcppArmadillo
 License: MIT + file LICENSE

@@ -48,7 +48,7 @@ compute_mfrow <- function(k) {
 #' plot(ans)
 #' 
 #' @seealso The [ergmito] function.
-#' @importFrom graphics image par
+#' @importFrom graphics image par plot title lines
 #' @importFrom utils combn
 plot.ergmito <- function(
   x,

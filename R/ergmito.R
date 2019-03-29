@@ -192,7 +192,7 @@ ergmito <- function(
       init       = init,
       optim.out  = ans
     ),
-    class = c("ergmito", "ergm")
+    class = c("ergmito")
     )
   
   ans$nobs <- nvertex(ans$network)
