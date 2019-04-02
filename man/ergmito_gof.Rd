@@ -10,9 +10,10 @@
 \usage{
 gof(...)
 
-\method{gof}{ergmito}(object, probs = c(0.05, 0.95), R = 50000L, ...)
+\method{gof}{ergmito}(object, probs = c(0.05, 0.95), sim_ci = FALSE,
+  R = 50000L, ...)
 
-\method{print}{ergmito_gof}(x, ...)
+\method{print}{ergmito_gof}(x, digits = 2L, ...)
 
 \method{plot}{ergmito_gof}(x, y = NULL,
   main = "Goodness-of-fit Statistics", ...)
@@ -22,11 +23,17 @@ gof(...)
 
 \item{object}{An object of class \link{ergmito}.}
 
-\item{probs}{Numeric vector. Quantiles to plot (passed to \link[stats:quantile]{stats::quantile}).}
+\item{probs}{Numeric vector. Quantiles to plot (see details).}
 
-\item{R}{Integer scalar. Number of simulations to generate (passed to \link{sample}).}
+\item{sim_ci}{Logical scalar. If \code{FALSE}, the default, it will compute the
+quantiles analytically, otherwise it samples from the ERGM distribution.}
+
+\item{R}{Integer scalar. Number of simulations to generate (passed to \link{sample}).
+This is only used if \code{sim_ci = TRUE}.}
 
 \item{x}{An object of class \code{ergmito_gof}.}
+
+\item{digits}{Number of digits to used when printing}
 
 \item{y}{Ignored.}
 
@@ -62,10 +69,10 @@ For every network in the list of networks do:
 \enumerate{
 \item Calculate the probability of observing each possible graph in its support
 using the fitted model.
-\item Draw \code{R} samples from each set of parameters using the probabilities computed
-in (1).
-\item Using the \code{quantile} function, calculate the desired quantiles of the
-sufficient statistics.
+\item If \code{sim_ci = TRUE}, draw \code{R} samples from each set of parameters using the
+probabilities computed. Then using the \code{quantile} function, calculate the desired
+quantiles of the sufficient statistics. Otherwise, compute the quantiles using
+the analytic quantiles using the full distribution.'
 }
 
 The plot method is particularly convenient since it graphically shows whether

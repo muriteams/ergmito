@@ -1,8 +1,11 @@
 #' Goodness of Fit diagnostics for ERGMito models
 #' 
 #' @param object An object of class [ergmito].
-#' @param probs Numeric vector. Quantiles to plot (passed to [stats::quantile]).
+#' @param probs Numeric vector. Quantiles to plot (see details).
+#' @param sim_ci Logical scalar. If `FALSE`, the default, it will compute the
+#' quantiles analytically, otherwise it samples from the ERGM distribution.
 #' @param R Integer scalar. Number of simulations to generate (passed to [sample]).
+#' This is only used if `sim_ci = TRUE`.
 #' @param ... Further arguments passed to [stats::quantile].
 #' 
 #' @details 
@@ -18,11 +21,11 @@
 #' 1. Calculate the probability of observing each possible graph in its support
 #' using the fitted model.
 #' 
-#' 2. Draw `R` samples from each set of parameters using the probabilities computed
-#' in (1).
+#' 2. If `sim_ci = TRUE`, draw `R` samples from each set of parameters using the
+#' probabilities computed. Then using the `quantile` function, calculate the desired
+#' quantiles of the sufficient statistics. Otherwise, compute the quantiles using
+#' the analytic quantiles using the full distribution.' 
 #' 
-#' 3. Using the `quantile` function, calculate the desired quantiles of the 
-#' sufficient statistics.
 #' 
 #' The plot method is particularly convenient since it graphically shows whether
 #' the target statistics of the model (observed statistics) fall within the 
@@ -59,12 +62,62 @@ NULL
 #' @rdname ergmito_gof
 gof <- function(...) UseMethod("gof")
 
+#' Given a vector of probabilities, find the feasible lower and upper bound
+#' @param probs A numeric vector (should add up to 1).
+#' @param lower Numeric scalar. Lower bound within 0 and .5.
+#' @param upper Numeric scalar. Upper bound within .5 and 1.
+#' @return A named vector with the feasible upper and lower bounds. The names of
+#' the elements are mapped to the probabilities.
+#' @noRd
+get_feasible_ci_bounds <- function(probs, lower, upper) {
+  
+  # Checking range
+  if (lower > .5)
+    stop("`lower` cannot be more than .5", call. = FALSE)
+  if (upper < .5)
+    stop("`lower` cannot be less than .5", call. = FALSE)
+  
+  cumprobs <- cumsum(probs)
+  n <- length(cumprobs)
+  
+  if (abs(cumprobs[n] - 1.0) > 1e-10)
+    stop("`probs` does not add up to 1.", call. = FALSE)
+
+  # Finding the feasible lower bound
+  for (i in 1L:n)
+    if (lower < cumprobs[i]) {
+      
+      if (i > 1L)
+        i <- i - 1L
+      
+      break
+    }
+  
+  # Finding the feasible upper bound
+  for (j in n:1L)
+    if (upper > cumprobs[j]) {
+      
+      if (j < n)
+        j <- j + 1L
+      
+      break
+    }
+      
+  structure(
+    cumprobs[c(i, j)], names = c(i, j)
+  )
+  
+}
+
+
+
 #' @export
 #' @rdname ergmito_gof
 gof.ergmito <- function(
   object,
-  probs = c(.05, .95),
-  R     = 50000L,
+  probs  = c(.05, .95),
+  sim_ci = FALSE,
+  R      = 50000L,
   ...
   ) {
   
@@ -85,33 +138,50 @@ gof.ergmito <- function(
     # Calculating the quantiles. First, we need to make some room to the data
     # to be stored
     res[[i]] <- matrix(
-      ncol = length(stats::coef(object)), nrow = 2,
+      nrow = length(stats::coef(object)), ncol = 4,
       dimnames = list(
-        sprintf("%4.1f%%", probs*100),
-        names(stats::coef(object))
+        names(stats::coef(object)),
+        c("lower-q", "upper-q", "lower-p", "upper-p")
         )
       )
     
     # Makeing space for storing ranges of sufficient statistics
     ran[[i]] <- matrix(
       nrow = length(coef(object)), ncol = 3L,
-      dimnames = list(names(coef(object)), c("min", "p50","max"))
+      dimnames = list(names(coef(object)), c("min", "mean","max"))
       )
     
-    # Generating confidence intervals for the statistics in the model
-    for (k in seq_len(ncol(res[[i]]))) {
+    # Generating confidence intervals for the statistics in the model. We do this
+    # by calculating the exact CI based on the data.
+    for (k in seq_len(nrow(res[[i]]))) {
+      
+      # Sorting the data accordingly. We need this to map the probabilities
+      ordering <- order(object$formulae$stats[[i]]$statmat[, k])
       
       # Sampling from the distribution (in the future we could do this
       # analytically instead)
-      res_i <- sample(
-        object$formulae$stats[[i]]$statmat[, k], size = R, prob = pr[[i]],
-        replace = TRUE)
+      if (sim_ci) {
+        
+        probs_i <- probs
+        
+        res_i <- sample(
+          object$formulae$stats[[i]]$statmat[, k], size = R, prob = pr[[i]],
+          replace = TRUE)
+        
+        
+      } else {
+        
+        # Finding the feasible bounds, based on the ordering of this data
+        probs_i <- get_feasible_ci_bounds(pr[[i]][ordering], probs[1], probs[2])
+        
+        res_i <- object$formulae$stats[[i]]$statmat[ordering, k][as.integer(names(probs_i))]
+      }
       
-      # Calculating mins, p50, and max (this will be useful for plotting)
-      ran[[i]][k, "p50"] <- stats::quantile(res_i, probs = 0.5)
+      # Calculating mins, mean, and max (this will be useful for plotting)
+      ran[[i]][k, "mean"] <- sum(object$formulae$stats[[i]]$statmat[, k] * pr[[i]])
       ran[[i]][k, c("min", "max")] <- range(object$formulae$stats[[i]]$statmat[, k])
       
-      res[[i]][, k] <- stats::quantile(res_i, probs = probs, ...)
+      res[[i]][k, ] <- c(res_i, probs_i)
       
     }
     
@@ -124,8 +194,9 @@ gof.ergmito <- function(
       ergmito.probs = pr,
       probs         = probs,
       model         = object$formulae$model,
-      term.names    = colnames(res[[i]]),
+      term.names    = rownames(res[[i]]),
       ranges        = ran,
+      sim_ci        = sim_ci,
       quantile.args = list(...)
       ),
     class = "ergmito_gof"
@@ -134,33 +205,45 @@ gof.ergmito <- function(
 }
 
 #' @export
+#' @param digits Number of digits to used when printing
 #' @rdname ergmito_gof
 #' @details The print method tries to copy (explicitly) the print method of the
 #' `gof` function from the `ergm` R package.
-print.ergmito_gof <- function(x, ...) {
+print.ergmito_gof <- function(x, digits = 2L, ...) {
   
   K <- length(x$term.names)
   for (k in seq_len(K)) {
-    cat("\nGoodness-of-fit for ", x$term.names[k], "\n\n")
+    cat("\nGoodness-of-fit for", x$term.names[k], "\n\n", sep=" ")
     
     # Creating the table to be printed
-    lower <- sapply(x$ci, "[", i = 1L, j = k, drop = TRUE)
-    upper <- sapply(x$ci, "[", i = length(x$probs), j = k, drop = TRUE)
-    minx  <- sapply(x$ranges, "[", i = k, j = "min", drop = TRUE)
-    p50   <- sapply(x$ranges, "[", i = k, j = "p50", drop = TRUE)
-    maxx  <- sapply(x$ranges, "[", i = k, j = "max", drop = TRUE)
-    obs   <- x$target.stats[, k]
+    lower  <- sapply(x$ci, "[", i = k, j = "lower-q", drop = TRUE)
+    upper  <- sapply(x$ci, "[", i = k, j = "upper-q", drop = TRUE)
+    lowerp <- sapply(x$ci, "[", i = k, j = "lower-p", drop = TRUE)
+    upperp <- sapply(x$ci, "[", i = k, j = "upper-p", drop = TRUE)
+    minx   <- sapply(x$ranges, "[", i = k, j = "min", drop = TRUE)
+    mean   <- sapply(x$ranges, "[", i = k, j = "mean", drop = TRUE)
+    maxx   <- sapply(x$ranges, "[", i = k, j = "max", drop = TRUE)
+    obs    <- x$target.stats[, k]
     
-    tab <- data.frame(cbind(obs, minx, p50, maxx, lower, upper))
+    tab <- data.frame(cbind(obs, minx, mean, maxx, lower, upper, lowerp, upperp))
     dimnames(tab) <- list(
       paste("net", 1:length(x$ci)),
-      c("obs", "min", "p50", "max", rownames(x$ci[[1]]))
+      c("obs", "min", "mean", "max", "lower", "upper", "lower prob.", "upper prob.")
       )
       
-    print(tab)
+    print(tab, digits = digits)
     cat("\n")
     
   }
+  
+  if (!x$sim_ci)
+    cat(
+      "Note: Exact confidence intervals where used.",
+      "This implies that the requestes CI may differ from the one used (see ?gof).\n\n"
+      )
+  else
+    cat("Note: Approximated confidence intervals where used (see ?gof).\n\n")
+  
   
   invisible(x)
   
@@ -187,8 +270,8 @@ plot.ergmito_gof <- function(
   on.exit(graphics::par(op))
   for (k in seq_len(K)) {
     
-    lower <- sapply(x$ci, "[", i = 1L, j = k, drop = TRUE)
-    upper <- sapply(x$ci, "[", i = length(x$probs), j = k, drop = TRUE)
+    lower <- sapply(x$ci, "[", i = k, j = "lower-q", drop = TRUE)
+    upper <- sapply(x$ci, "[", i = k, j = "upper-q", drop = TRUE)
     obs   <- x$target.stats[, k]
     
     # The ranges are obtained from the
@@ -209,8 +292,8 @@ plot.ergmito_gof <- function(
     main =paste0(
       main, "\n",
       sprintf(
-        "(Quantiles calculated at %4.1f%% and %4.1f%%)",
-        x$probs[1]*100, x$probs[length(x$probs)]*100
+        "(Quantiles to cover at least a %4.1f%% CI)",
+        x$probs[length(x$probs)]*100 - x$probs[1]*100 
         )
       ),
     xlab = "Network #",
