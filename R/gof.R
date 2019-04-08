@@ -49,18 +49,13 @@
 #' fit <- ergmito(fivenets ~ edges + nodematch("female"))
 #' 
 #' # Calculating the gof
-#' ans <- gof(fit)
+#' ans <- gof_ergmito(fit)
 #' 
 #' # Looking at the results
 #' ans
 #' plot(ans)
 #' @name ergmito_gof
-#' @importFrom ergm gof
 NULL
-
-#' @export
-#' @rdname ergmito_gof
-gof <- function(...) UseMethod("gof")
 
 #' Given a vector of probabilities, find the feasible lower and upper bound
 #' @param probs A numeric vector (should add up to 1).
@@ -69,13 +64,24 @@ gof <- function(...) UseMethod("gof")
 #' @return A named vector with the feasible upper and lower bounds. The names of
 #' the elements are mapped to the probabilities.
 #' @noRd
-get_feasible_ci_bounds <- function(probs, lower, upper) {
+get_feasible_ci_bounds <- function(x, probs, lower, upper) {
   
   # Checking range
   if (lower > .5)
     stop("`lower` cannot be more than .5", call. = FALSE)
   if (upper < .5)
     stop("`lower` cannot be less than .5", call. = FALSE)
+  
+  # Collapsing the ranges, first we need to sort these accordignly.
+  # Notice that we need to do this since the probs passed to this
+  # function are computed based on the graph, not in the statistic
+  # itself.
+  idx   <- order(x)
+  x     <- x[idx]
+  probs <- probs[idx]
+  probs <- stats::aggregate(probs ~ x, FUN = sum)
+  x     <- unname(probs[, 1L, drop = TRUE])
+  probs <- unname(probs[, 2L, drop = TRUE])
   
   cumprobs <- cumsum(probs)
   n <- length(cumprobs)
@@ -103,9 +109,7 @@ get_feasible_ci_bounds <- function(probs, lower, upper) {
       break
     }
       
-  structure(
-    cumprobs[c(i, j)], names = c(i, j)
-  )
+  c(x[c(i, j)], cumprobs[c(i, j)])
   
 }
 
@@ -113,8 +117,9 @@ get_feasible_ci_bounds <- function(probs, lower, upper) {
 
 #' @export
 #' @rdname ergmito_gof
-gof.ergmito <- function(
+gof_ergmito <- function(
   object,
+  GOF    = NULL,
   probs  = c(.05, .95),
   sim_ci = FALSE,
   R      = 50000L,
@@ -126,6 +131,11 @@ gof.ergmito <- function(
   ran <- res
   
   for (i in seq_len(length(res))) {
+    
+    # Has the user provided a formula? In this case we need to use an alternative
+    # matrix of `statmat` and `weights`. We are restricted to whatever allstats
+    # allows generating (e.g. distance is not included)
+    
     
     # Computing the probability of observing each class of networks
     pr[[i]] <- exp(exact_loglik(
@@ -155,33 +165,41 @@ gof.ergmito <- function(
     # by calculating the exact CI based on the data.
     for (k in seq_len(nrow(res[[i]]))) {
       
-      # Sorting the data accordingly. We need this to map the probabilities
-      ordering <- order(object$formulae$stats[[i]]$statmat[, k])
-      
       # Sampling from the distribution (in the future we could do this
       # analytically instead)
       if (sim_ci) {
-        
-        probs_i <- probs
         
         res_i <- sample(
           object$formulae$stats[[i]]$statmat[, k], size = R, prob = pr[[i]],
           replace = TRUE)
         
+        res_i <- unname(c(
+          do.call(
+            stats::quantile,
+            c(list(x = res_i, probs = probs), list(...))
+            ),
+          probs))
+        
         
       } else {
         
         # Finding the feasible bounds, based on the ordering of this data
-        probs_i <- get_feasible_ci_bounds(pr[[i]][ordering], probs[1], probs[2])
+        res_i <- get_feasible_ci_bounds(
+          x     = object$formulae$stats[[i]]$statmat[,k], 
+          probs = pr[[i]],
+          lower = probs[1],
+          upper = probs[2]
+          )
         
-        res_i <- object$formulae$stats[[i]]$statmat[ordering, k][as.integer(names(probs_i))]
       }
       
       # Calculating mins, mean, and max (this will be useful for plotting)
       ran[[i]][k, "mean"] <- sum(object$formulae$stats[[i]]$statmat[, k] * pr[[i]])
       ran[[i]][k, c("min", "max")] <- range(object$formulae$stats[[i]]$statmat[, k])
       
-      res[[i]][k, ] <- c(res_i, probs_i)
+      # This res_i vector contains the lower/upper bounds and the associated
+      # probabiities.
+      res[[i]][k, ] <- res_i
       
     }
     
@@ -239,10 +257,13 @@ print.ergmito_gof <- function(x, digits = 2L, ...) {
   if (!x$sim_ci)
     cat(
       "Note: Exact confidence intervals where used.",
-      "This implies that the requestes CI may differ from the one used (see ?gof).\n\n"
+      "This implies that the requestes CI may differ from the one used",
+      "(see ?gof_ergmito).\n\n"
       )
   else
-    cat("Note: Approximated confidence intervals where used (see ?gof).\n\n")
+    cat(
+      "Note: Approximated confidence intervals where used (see ?gof_ergmito).\n\n"
+      )
   
   
   invisible(x)

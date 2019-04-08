@@ -9,6 +9,10 @@ count_stats. <- function(X, terms, A) {
     .Call(`_ergmito_count_stats`, X, terms, A)
 }
 
+geodesic. <- function(X, force = FALSE) {
+    .Call(`_ergmito_geodesic`, X, force)
+}
+
 #' Vectorized version of loglikelihood function
 #' 
 #' @param x Matrix of statistic. `nnets * nstats`.

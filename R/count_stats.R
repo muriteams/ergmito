@@ -161,3 +161,63 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
   ans
   
 }
+
+#' Geodesic distance matrix (all pairs)
+#' 
+#' Calculates the shortest path between all pairs of vertices in a network.
+#' This uses the power matrices to do so, which makes it efficient only for
+#' small networks.
+#' 
+#' @param x Either a list of networks (or square integer matrices), an integer
+#' matrix, a network, or an ergmito.
+#' @param force Logical scalar. If `force = FALSE` (the default) and `nvertex(x) > 100`
+#' it returns with an error. To force computation use `force = TRUE`.
+#' @param ... Further arguments passed to the method.
+#' @param simplify Logical scalar. When `TRUE` it returns a matrix, otherwise, 
+#' a list of length `nnets(x)`.
+#' 
+#' @export
+#' 
+geodesic <- function(x, force = FALSE, ...) UseMethod("geodesic")
+
+#' @export
+#' @rdname geodesic
+geodesita <- geodesic
+
+#' @export
+#' @rdname geodesic
+geodesic.list <- function(x, force = FALSE) {
+  
+  # First we turn networks into matrices
+  classes    <- sapply(x, inherits, what = "network")
+  x[classes] <- as_adjmat(x[classes])
+  
+  # Now we check that all the elements are matrices
+  if (!all(sapply(x, "is.matrix")))
+    stop("When `x` is a list, all of its elements should be ",
+         "either of class `network` or class `matrix`.", call. = FALSE)
+  
+  geodesic(x, force = force)
+  
+}
+
+#' @export
+#' @rdname geodesic
+geodesic.matrix <- function(x, force = FALSE, simplify = FALSE) {
+  
+  ans <- geodesic(list(x), force = force)
+  if (simplify)
+    return(ans[[1]])
+  ans
+}
+
+#' @export
+#' @rdname geodesic
+geodesic.network <- function(x, force = FALSE, simplify = FALSE) {
+  
+  ans <- geodesic.(list(as_adjmat(x)), force = force)
+  if (simplify)
+    return(ans[[1]])
+  
+  ans
+}

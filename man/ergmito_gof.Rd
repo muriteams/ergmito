@@ -2,16 +2,13 @@
 % Please edit documentation in R/gof.R
 \name{ergmito_gof}
 \alias{ergmito_gof}
-\alias{gof}
-\alias{gof.ergmito}
+\alias{gof_ergmito}
 \alias{print.ergmito_gof}
 \alias{plot.ergmito_gof}
 \title{Goodness of Fit diagnostics for ERGMito models}
 \usage{
-gof(...)
-
-\method{gof}{ergmito}(object, probs = c(0.05, 0.95), sim_ci = FALSE,
-  R = 50000L, ...)
+gof_ergmito(object, GOF = NULL, probs = c(0.05, 0.95),
+  sim_ci = FALSE, R = 50000L, ...)
 
 \method{print}{ergmito_gof}(x, digits = 2L, ...)
 
@@ -19,8 +16,6 @@ gof(...)
   main = "Goodness-of-fit Statistics", ...)
 }
 \arguments{
-\item{...}{Further arguments passed to \link[stats:quantile]{stats::quantile}.}
-
 \item{object}{An object of class \link{ergmito}.}
 
 \item{probs}{Numeric vector. Quantiles to plot (see details).}
@@ -30,6 +25,8 @@ quantiles analytically, otherwise it samples from the ERGM distribution.}
 
 \item{R}{Integer scalar. Number of simulations to generate (passed to \link{sample}).
 This is only used if \code{sim_ci = TRUE}.}
+
+\item{...}{Further arguments passed to \link[stats:quantile]{stats::quantile}.}
 
 \item{x}{An object of class \code{ergmito_gof}.}
 
@@ -88,7 +85,7 @@ data(fivenets, package = "ergmito")
 fit <- ergmito(fivenets ~ edges + nodematch("female"))
 
 # Calculating the gof
-ans <- gof(fit)
+ans <- gof_ergmito(fit)
 
 # Looking at the results
 ans

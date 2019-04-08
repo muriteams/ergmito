@@ -237,27 +237,29 @@ summary(model1) # This data has know parameters equal to -2.0 and 2.0
 We can also compute GOF
 
 ``` r
-fivenets_gof <- gof(model1)
+fivenets_gof <- gof_ergmito(model1)
 fivenets_gof
 #> 
-#> Goodness-of-fit for  edges 
+#> Goodness-of-fit for edges 
 #> 
-#>       obs min p50 max  5.0% 95.0%
-#> net 1   2   0   4  12     1     6
-#> net 2   7   0   4  12     1     6
-#> net 3   4   0   3  12     1     6
-#> net 4   5   0   6  12     3     8
-#> net 5   2   0   4  12     1     6
+#>       obs min mean max lower upper lower prob. upper prob.
+#> net 1   2   0  3.7  12     0     6      0.0081        0.96
+#> net 2   7   0  3.7  12     0     6      0.0081        0.96
+#> net 3   4   0  3.1  12     0     6      0.0206        0.99
+#> net 4   5   0  5.6  12     2     8      0.0309        0.95
+#> net 5   2   0  3.7  12     0     6      0.0081        0.96
 #> 
 #> 
-#> Goodness-of-fit for  nodematch.female 
+#> Goodness-of-fit for nodematch.female 
 #> 
-#>       obs min p50 max  5.0% 95.0%
-#> net 1   2   0   3   6     1     5
-#> net 2   5   0   3   6     1     5
-#> net 3   3   0   2   4     0     3
-#> net 4   5   0   6  12     3     8
-#> net 5   1   0   3   6     1     5
+#>       obs min mean max lower upper lower prob. upper prob.
+#> net 1   2   0  2.8   6     0     5       0.022        0.99
+#> net 2   5   0  2.8   6     0     5       0.022        0.99
+#> net 3   3   0  1.9   4     0     3       0.079        0.95
+#> net 4   5   0  5.6  12     2     8       0.031        0.95
+#> net 5   1   0  2.8   6     0     5       0.022        0.99
+#> 
+#> Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof).
 plot(fivenets_gof)
 ```
 

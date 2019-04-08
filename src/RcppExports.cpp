@@ -31,6 +31,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// geodesic
+ListOf< IntegerMatrix > geodesic(const std::vector< IntegerMatrix >& X, bool force);
+RcppExport SEXP _ergmito_geodesic(SEXP XSEXP, SEXP forceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector< IntegerMatrix >& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< bool >::type force(forceSEXP);
+    rcpp_result_gen = Rcpp::wrap(geodesic(X, force));
+    return rcpp_result_gen;
+END_RCPP
+}
 // exact_loglik
 arma::vec exact_loglik(const arma::mat& x, const arma::colvec& params, const std::vector< arma::rowvec >& weights, const std::vector< arma::mat >& statmat, bool as_prob);
 RcppExport SEXP _ergmito_exact_loglik(SEXP xSEXP, SEXP paramsSEXP, SEXP weightsSEXP, SEXP statmatSEXP, SEXP as_probSEXP) {
@@ -144,6 +156,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_count_available", (DL_FUNC) &_ergmito_count_available, 1},
     {"_ergmito_count_stats", (DL_FUNC) &_ergmito_count_stats, 3},
+    {"_ergmito_geodesic", (DL_FUNC) &_ergmito_geodesic, 2},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 5},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 4},
     {"_ergmito_init_network", (DL_FUNC) &_ergmito_init_network, 6},

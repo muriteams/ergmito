@@ -1,4 +1,4 @@
-#include <Rcpp.h>
+#include <RcppArmadillo.h>
 using namespace Rcpp;
 
 /* This function may be useful in the future:
@@ -334,3 +334,49 @@ x <- powerset(5)
 s <- count_stats(x[1:1e5], c("mutual", "edges"))
 
 */
+
+inline IntegerMatrix geodesici(const arma::imat & x, bool force = false) {
+  
+  int n = x.n_rows;
+  if (n != x.n_cols)
+    stop("Not a square matrix.");
+  
+  if (n > 100 && !force)
+    stop("This is not the best way for computing distances for n > 100 (see ?geodesic).");
+  
+  arma::imat res(x.n_rows, x.n_cols);
+  res.fill(-1);
+  arma::imat res_tmp = x;
+  
+  // List of indices to check
+  unsigned int changes = 0u;
+  for (int iter = 0; iter < n; ++iter) {
+    changes = 0;
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < n; ++j) {
+        if (i != j && res_tmp.at(i, j) != 0 && (res.at(i, j) == -1)) 
+          res.at(i, j) = iter + 1, ++changes;
+      }
+      
+      // Powermatrix
+      res_tmp *= x;
+  }
+  
+  return wrap(res);
+  
+}
+
+// [[Rcpp::export(name = "geodesic.")]]
+ListOf< IntegerMatrix > geodesic(
+    const std::vector< IntegerMatrix > & X,
+    bool force = false) {
+  
+  ListOf< IntegerMatrix > res(X.size());
+  
+  for (int i = 0; i < X.size(); ++i)
+    res[i] = geodesici(as< arma::imat >(X[i]), force);
+  
+  return res;
+  
+  
+}

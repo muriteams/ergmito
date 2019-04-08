@@ -142,7 +142,7 @@ summary(model1) # This data has know parameters equal to -2.0 and 2.0
 We can also compute GOF
 
 ```{r fivenets-gof}
-fivenets_gof <- gof(model1)
+fivenets_gof <- gof_ergmito(model1)
 fivenets_gof
 plot(fivenets_gof)
 ```

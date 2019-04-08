@@ -125,7 +125,7 @@ as_adjmat <- function(x) UseMethod("as_adjmat")
 as_adjmat.network <- function(x) {
   
   n   <- nvertex(x)
-  ans <- matrix(0, nrow = n, ncol = n)
+  ans <- matrix(0L, nrow = n, ncol = n)
   
   if (x$gal$mnext == 1)
     return(ans)
