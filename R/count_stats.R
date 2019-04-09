@@ -186,7 +186,7 @@ geodesita <- geodesic
 
 #' @export
 #' @rdname geodesic
-geodesic.list <- function(x, force = FALSE) {
+geodesic.list <- function(x, force = FALSE, ...) {
   
   # First we turn networks into matrices
   classes    <- sapply(x, inherits, what = "network")
@@ -203,7 +203,7 @@ geodesic.list <- function(x, force = FALSE) {
 
 #' @export
 #' @rdname geodesic
-geodesic.matrix <- function(x, force = FALSE, simplify = FALSE) {
+geodesic.matrix <- function(x, force = FALSE, simplify = FALSE, ...) {
   
   ans <- geodesic(list(x), force = force)
   if (simplify)
@@ -213,7 +213,7 @@ geodesic.matrix <- function(x, force = FALSE, simplify = FALSE) {
 
 #' @export
 #' @rdname geodesic
-geodesic.network <- function(x, force = FALSE, simplify = FALSE) {
+geodesic.network <- function(x, force = FALSE, simplify = FALSE, ...) {
   
   ans <- geodesic.(list(as_adjmat(x)), force = force)
   if (simplify)

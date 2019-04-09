@@ -18,6 +18,8 @@ gof_ergmito(object, GOF = NULL, probs = c(0.05, 0.95),
 \arguments{
 \item{object}{An object of class \link{ergmito}.}
 
+\item{GOF}{Formula. Additional set of parameters to perform the GOF.}
+
 \item{probs}{Numeric vector. Quantiles to plot (see details).}
 
 \item{sim_ci}{Logical scalar. If \code{FALSE}, the default, it will compute the

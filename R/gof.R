@@ -6,6 +6,7 @@
 #' quantiles analytically, otherwise it samples from the ERGM distribution.
 #' @param R Integer scalar. Number of simulations to generate (passed to [sample]).
 #' This is only used if `sim_ci = TRUE`.
+#' @param GOF Formula. Additional set of parameters to perform the GOF.
 #' @param ... Further arguments passed to [stats::quantile].
 #' 
 #' @details 
@@ -130,35 +131,73 @@ gof_ergmito <- function(
   pr  <- res
   ran <- res
   
+  if (!is.null(GOF)) {
+    # Deparsing formula
+    if (!inherits(GOF, "formula"))
+      stop("`GOF` must be an object of class formula.", call. = FALSE)
+    
+    # Analyzing terms
+    test <- any(attr(stats::terms(GOF), "term.labels") %in% 
+                  attr(stats::terms(object$formulae$model), "term.labels"))
+    if (test)
+      stop(
+        "The `GOF` argument must specify terms others than those included in the model.",
+        call. = FALSE
+      )
+    
+    # This formula includes everything
+    GOF <- stats::as.formula(gsub(".*[~]", "~ . + ", deparse(GOF)))
+    GOF <- stats::update.formula(object$formulae$model, GOF)
+  }
+  
+  target.stats <- NULL
+  
   for (i in seq_len(length(res))) {
     
     # Has the user provided a formula? In this case we need to use an alternative
     # matrix of `statmat` and `weights`. We are restricted to whatever allstats
     # allows generating (e.g. distance is not included)
-    
+    if (!is.null(GOF)) {
+      
+      GOF <- stats::update.formula(GOF, object$network[[i]] ~ .)
+      environment(GOF) <- environment()
+      
+      statmat. <- ergm::ergm.allstats(GOF, zeroobs = FALSE) 
+      weights. <- statmat.$weights
+      statmat. <- statmat.$statmat
+      
+      target.stats <- rbind(target.stats, summary(GOF))
+      
+    } else {
+      
+      statmat. <- object$formulae$stats[[i]]$statmat
+      weights. <- object$formulae$stats[[i]]$weights
+      
+      target.stats <- rbind(target.stats, object$formulae$target.stats[i, ])
+    }
     
     # Computing the probability of observing each class of networks
     pr[[i]] <- exp(exact_loglik(
-      x       = object$formulae$stats[[i]]$statmat,
-      statmat = object$formulae$stats[[i]]$statmat,
+      x       = statmat.[, names(stats::coef(object)), drop = FALSE],
+      statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
       params  = stats::coef(object),
-      weights = object$formulae$stats[[i]]$weights
-    ))*object$formulae$stats[[i]]$weights
+      weights = weights.
+    ))*weights.
     
     # Calculating the quantiles. First, we need to make some room to the data
     # to be stored
     res[[i]] <- matrix(
-      nrow = length(stats::coef(object)), ncol = 4,
+      nrow = ncol(statmat.), ncol = 4,
       dimnames = list(
-        names(stats::coef(object)),
+        colnames(statmat.),
         c("lower-q", "upper-q", "lower-p", "upper-p")
         )
       )
     
     # Makeing space for storing ranges of sufficient statistics
     ran[[i]] <- matrix(
-      nrow = length(coef(object)), ncol = 3L,
-      dimnames = list(names(coef(object)), c("min", "mean","max"))
+      nrow = nrow(res[[i]]), ncol = 3L,
+      dimnames = list(colnames(statmat.), c("min", "mean","max"))
       )
     
     # Generating confidence intervals for the statistics in the model. We do this
@@ -169,9 +208,7 @@ gof_ergmito <- function(
       # analytically instead)
       if (sim_ci) {
         
-        res_i <- sample(
-          object$formulae$stats[[i]]$statmat[, k], size = R, prob = pr[[i]],
-          replace = TRUE)
+        res_i <- sample(statmat.[, k], size = R, prob = pr[[i]], replace = TRUE)
         
         res_i <- unname(c(
           do.call(
@@ -185,7 +222,7 @@ gof_ergmito <- function(
         
         # Finding the feasible bounds, based on the ordering of this data
         res_i <- get_feasible_ci_bounds(
-          x     = object$formulae$stats[[i]]$statmat[,k], 
+          x     = statmat.[,k], 
           probs = pr[[i]],
           lower = probs[1],
           upper = probs[2]
@@ -194,8 +231,8 @@ gof_ergmito <- function(
       }
       
       # Calculating mins, mean, and max (this will be useful for plotting)
-      ran[[i]][k, "mean"] <- sum(object$formulae$stats[[i]]$statmat[, k] * pr[[i]])
-      ran[[i]][k, c("min", "max")] <- range(object$formulae$stats[[i]]$statmat[, k])
+      ran[[i]][k, "mean"] <- sum(statmat.[, k] * pr[[i]])
+      ran[[i]][k, c("min", "max")] <- range(statmat.[, k])
       
       # This res_i vector contains the lower/upper bounds and the associated
       # probabiities.
@@ -208,10 +245,14 @@ gof_ergmito <- function(
   structure(
     list(
       ci            = res,
-      target.stats  = object$formulae$target.stats,
+      target.stats  = target.stats,
       ergmito.probs = pr,
       probs         = probs,
-      model         = object$formulae$model,
+      model         = if (is.null(GOF))
+        object$formulae$model
+      else {
+        as.formula(gsub(".*[~]", " ~ ", deparse(GOF)))
+        },
       term.names    = rownames(res[[i]]),
       ranges        = ran,
       sim_ci        = sim_ci,

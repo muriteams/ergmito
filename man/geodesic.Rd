@@ -12,11 +12,11 @@ geodesic(x, force = FALSE, ...)
 
 geodesita(x, force = FALSE, ...)
 
-\method{geodesic}{list}(x, force = FALSE)
+\method{geodesic}{list}(x, force = FALSE, ...)
 
-\method{geodesic}{matrix}(x, force = FALSE, simplify = FALSE)
+\method{geodesic}{matrix}(x, force = FALSE, simplify = FALSE, ...)
 
-\method{geodesic}{network}(x, force = FALSE, simplify = FALSE)
+\method{geodesic}{network}(x, force = FALSE, simplify = FALSE, ...)
 }
 \arguments{
 \item{x}{Either a list of networks (or square integer matrices), an integer
