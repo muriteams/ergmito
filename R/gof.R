@@ -314,12 +314,13 @@ print.ergmito_gof <- function(x, digits = 2L, ...) {
 #' @export
 #' @param x An object of class `ergmito_gof`.
 #' @param y Ignored.
-#' @param main Title of the plot
+#' @param main,sub Title and subtitle of the plot (see [graphics::title]).
 #' @rdname ergmito_gof
 plot.ergmito_gof <- function(
   x,
   y    = NULL,
-  main = "Goodness-of-fit Statistics",
+  main = NULL,
+  sub  = NULL,
   ...
   ) {
   
@@ -349,17 +350,20 @@ plot.ergmito_gof <- function(
     
   }
   
-  graphics::par(op)
-  graphics::title(
-    main =paste0(
-      main, "\n",
+  if (is.null(main))
+    main <- paste0(
+      "Goodness-of-fit Statistics\n",
       sprintf(
         "(Quantiles to cover at least a %4.1f%% CI)",
         x$probs[length(x$probs)]*100 - x$probs[1]*100 
-        )
-      ),
+      )
+    )
+  
+  graphics::par(op)
+  graphics::title(
+    main = main,
     xlab = "Network #",
-    sub  = deparse(x$model)
+    sub  = if (is.null(sub)) deparse(x$model) else sub
     )
   
 }

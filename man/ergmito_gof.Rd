@@ -12,8 +12,7 @@ gof_ergmito(object, GOF = NULL, probs = c(0.05, 0.95),
 
 \method{print}{ergmito_gof}(x, digits = 2L, ...)
 
-\method{plot}{ergmito_gof}(x, y = NULL,
-  main = "Goodness-of-fit Statistics", ...)
+\method{plot}{ergmito_gof}(x, y = NULL, main = NULL, sub = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \link{ergmito}.}
@@ -36,7 +35,7 @@ This is only used if \code{sim_ci = TRUE}.}
 
 \item{y}{Ignored.}
 
-\item{main}{Title of the plot}
+\item{main, sub}{Title and subtitle of the plot (see \link[graphics:title]{graphics::title}).}
 }
 \value{
 An object of class \code{ergmito_gof}. This is a list with the following

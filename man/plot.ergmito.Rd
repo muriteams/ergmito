@@ -5,7 +5,8 @@
 \title{Function to visualize the optimization surface}
 \usage{
 \method{plot}{ergmito}(x, y = NULL, domain = NULL, plot. = TRUE,
-  par_args = list(), image_args = list(), extension = 10, ...)
+  par_args = list(), image_args = list(), breaks = 200,
+  extension = 10, ...)
 }
 \arguments{
 \item{x}{An object of class \link{ergmito}.}
@@ -20,6 +21,8 @@ and plot all possible combination of parameters.}
 \item{par_args}{Further arguments to be passed to \link[graphics:par]{graphics::par}}
 
 \item{image_args}{Further arguments to be passed to \link[graphics:image]{graphics::image}}
+
+\item{breaks}{Integer scalar. Number of splits per dimmension.}
 
 \item{extension}{Numeric. Range value of the function.}
 }
