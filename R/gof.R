@@ -327,8 +327,8 @@ plot.ergmito_gof <- function(
   K <- length(x$term.names)
   op <- graphics::par(
     mfcol = c(K, 1L), 
-    mai   = graphics::par("mai")*c(.05, 1, .05, 1),
-    omi   = graphics::par("mai")*c(1, 0, 1, 0)
+    mar   = graphics::par("mar")*c(.05, 1, .05, 1),
+    oma   = graphics::par("mar")*c(1, 0, 1, 0)
     )
   on.exit(graphics::par(op))
   for (k in seq_len(K)) {
@@ -340,22 +340,41 @@ plot.ergmito_gof <- function(
     # The ranges are obtained from the
     ran_min <- sapply(x$ranges, "[", i = k, j = "min")
     ran_max <- sapply(x$ranges, "[", i = k, j = "max")
+    xseq    <- seq_along(lower)
+    yran    <- range(c(ran_min, ran_max))
     
-    yran <- range(c(ran_min, ran_max))
     graphics::plot(
-      obs, ylab = x$term.names[k],
+      NA,
       ylim = yran,
+      xlim = range(xseq), 
+      ylab = x$term.names[k],
       xlab = "Network N",
       xaxt = ifelse(k != K, "n", "s")
       )
-    graphics::lines(x = lower, lty = "dashed")
-    graphics::lines(x = upper, lty = "dashed")
     
+    graphics::grid(ny=1)
+    
+    # Confidence interval
+    graphics::polygon(
+      x      = c(xseq, rev(xseq)),
+      y      = c(lower, rev(upper)),
+      col    = grDevices::adjustcolor("gray", alpha = .5),
+      border = grDevices::adjustcolor("gray", alpha = .5)
+    )
+    
+    # Points
+    graphics::points(
+      y   = obs,
+      x   = xseq,
+      bg  = ifelse(obs > upper | obs < lower, "red", "black"),
+      pch = ifelse(obs > upper | obs < lower, 23, 21),
+      cex = ifelse(obs > upper | obs < lower, 1.5, 1)
+      )
+    
+    # Bounds
     bounding_segment(ran_max, lwd=2, col="darkred", upper=TRUE)
     bounding_segment(ran_min, lwd=2, col="darkred", upper=FALSE)
     
-    # graphics::lines(x = ran_min, lty = "solid", lwd=2, col="gray")
-    # graphics::lines(x = ran_max, lty = "solid", lwd=2, col="gray")
     
   }
   
