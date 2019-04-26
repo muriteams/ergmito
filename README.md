@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ergmito: Estimation of Little ‘ERGMs’ using exact likelihood
+# ergmito: Estimation of Little ‘ERGMs’ using exact likelihood <img src="man/figures/logo.png" align="right" width="180px"/>
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN
@@ -29,6 +29,18 @@ number W911NF-15-1-0577
 Computation for the work described in this paper was supported by the
 University of Southern California’s Center for High-Performance
 Computing (hpcc.usc.edu).
+
+## Citation
+
+Vega Yon G (2018). *ergmito: Exponential Random Graph Models for Small
+Networks*. R package version 0.1-0, \<URL:
+<https://github.com/muriteams/ergmito>\>.
+
+Vega Yon G, de la Haye K (2019). “Exponential Random Graph models for
+Little Networks.” arXiv:1904.10406.
+
+To see these entries in BibTeX format, use ‘print(<citation>,
+bibtex=TRUE)’, ‘toBibtex(.)’, or set ‘options(citation.bibtex.max=999)’.
 
 ## Installation
 
@@ -259,7 +271,7 @@ fivenets_gof
 #> net 4   5   0  5.6  12     2     8       0.031        0.95
 #> net 5   1   0  2.8   6     0     5       0.022        0.99
 #> 
-#> Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof).
+#> Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof_ergmito).
 plot(fivenets_gof)
 ```
 

@@ -28,6 +28,8 @@ compute_mfrow <- function(k) {
 #' @param image_args Further arguments to be passed to [graphics::image]
 #' @param extension Numeric. Range value of the function.
 #' @param breaks Integer scalar. Number of splits per dimmension.
+#' @param params_labs Named vector. Alternative labels for the parameters. It 
+#' should be in the form of `c("orignial name" = "new name")`.
 #' @return A list of length `choose(length(object$coef), 2)` (all possible
 #' combinations of pairs of parameters), each with the following elements:
 #' - `z` A matrix
@@ -51,17 +53,27 @@ compute_mfrow <- function(k) {
 #' @seealso The [ergmito] function.
 #' @importFrom graphics image par plot title lines
 #' @importFrom utils combn
+#' @importFrom stats setNames
 plot.ergmito <- function(
   x,
-  y = NULL,
+  y          = NULL,
   domain     = NULL,
   plot.      = TRUE,
   par_args   = list(),
   image_args = list(),
   breaks     = 100L,
   extension  = 10,
+  params_labs = stats::setNames(names(coef(x)), names(coef(x))),
   ...
   ) {
+  
+  # Checking that the alternative labels are defined for all parameters
+  # in the model.
+  if (!all(names(params_labs) %in% names(coef(x)))) {
+    stop("When specifying `param_labs`, all parameters should be specified.",
+         call. = FALSE)
+  }
+  params_labs <- params_labs[names(coef(x))]
   
   if (!inherits(x, "ergmito"))
     stop("This function only accepts objects of class `ergmito`.", call. = FALSE)
@@ -126,8 +138,8 @@ plot.ergmito <- function(
     
     Z[[p]]$x <- domain[[i0]]
     Z[[p]]$y <- domain[[j0]]
-    Z[[p]]$xlab <- names(par0)[i0]
-    Z[[p]]$ylab <- names(par0)[j0]
+    Z[[p]]$xlab <- params_labs[i0]
+    Z[[p]]$ylab <- params_labs[j0]
     
     # Should I plot?
     if (plot.) {

@@ -5,8 +5,9 @@
 \title{Function to visualize the optimization surface}
 \usage{
 \method{plot}{ergmito}(x, y = NULL, domain = NULL, plot. = TRUE,
-  par_args = list(), image_args = list(), breaks = 200,
-  extension = 10, ...)
+  par_args = list(), image_args = list(), breaks = 100L,
+  extension = 10, params_labs = stats::setNames(names(coef(x)),
+  names(coef(x))), ...)
 }
 \arguments{
 \item{x}{An object of class \link{ergmito}.}
@@ -25,6 +26,9 @@ and plot all possible combination of parameters.}
 \item{breaks}{Integer scalar. Number of splits per dimmension.}
 
 \item{extension}{Numeric. Range value of the function.}
+
+\item{params_labs}{Named vector. Alternative labels for the parameters. It
+should be in the form of \code{c("orignial name" = "new name")}.}
 }
 \value{
 A list of length \code{choose(length(object$coef), 2)} (all possible

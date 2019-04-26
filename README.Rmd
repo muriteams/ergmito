@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-# ergmito: Estimation of Little 'ERGMs' using exact likelihood
+# ergmito: Estimation of Little 'ERGMs' using exact likelihood <img src="man/figures/logo.png" align="right" width="180px"/>
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) 
 [![CRAN status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
@@ -40,6 +40,12 @@ grant number W911NF-15-1-0577
 Computation for the work described in this paper was supported by
 the University of Southern California's Center for High-Performance
 Computing (hpcc.usc.edu).
+
+## Citation
+
+```{r echo=FALSE, results='asis'}
+citation(package="ergmito")
+```
 
 
 ## Installation

@@ -341,12 +341,21 @@ plot.ergmito_gof <- function(
     ran_min <- sapply(x$ranges, "[", i = k, j = "min")
     ran_max <- sapply(x$ranges, "[", i = k, j = "max")
     
-    graphics::plot(obs, ylab = x$term.names[k], ylim = range(c(ran_min, ran_max)), xlab = "Network N",
-         xaxt = ifelse(k != K, "n", "s"))
+    yran <- range(c(ran_min, ran_max))
+    graphics::plot(
+      obs, ylab = x$term.names[k],
+      ylim = yran,
+      xlab = "Network N",
+      xaxt = ifelse(k != K, "n", "s")
+      )
     graphics::lines(x = lower, lty = "dashed")
     graphics::lines(x = upper, lty = "dashed")
-    graphics::lines(x = ran_min, lty = "solid", lwd=2, col="gray")
-    graphics::lines(x = ran_max, lty = "solid", lwd=2, col="gray")
+    
+    bounding_segment(ran_max, lwd=2, col="darkred", upper=TRUE)
+    bounding_segment(ran_min, lwd=2, col="darkred", upper=FALSE)
+    
+    # graphics::lines(x = ran_min, lty = "solid", lwd=2, col="gray")
+    # graphics::lines(x = ran_max, lty = "solid", lwd=2, col="gray")
     
   }
   
@@ -366,6 +375,40 @@ plot.ergmito_gof <- function(
     sub  = if (is.null(sub)) deparse(x$model) else sub
     )
   
+}
+
+#' Draws bounding segments.
+#' 
+#' @param x,y Vector of coordinates where to put the segments.
+#' @param upper Logical. When `TRUE` puts the segment with the tail facing down.
+#' @param width,height Size of the segments.
+#' @noRd
+bounding_segment <- function(y, x, upper = FALSE, width=.25, height=NULL, ...) {
+  
+  if (is.null(height)) {
+    height <- graphics::par("usr")
+    height <- abs(height[4] - height[3])/15
+  }
+  
+  if (missing(x))
+    x <- seq_along(y)
+  
+  if (length(x) > 1L) {
+    return(invisible(Map(bounding_segment, x = x, y = y, upper = upper, width = width,
+                         height = height, ...)))
+  }
+  
+  width <- width/2
+  
+  graphics::segments(
+    x0 = c(x - width, x),
+    x1 = c(x + width, x),
+    y0 = c(y, ifelse(upper, y, y + height)),
+    y1 = c(y, ifelse(upper, y - height, y)),
+    ...
+  )
+  
+  invisible(NULL)
 }
 
 

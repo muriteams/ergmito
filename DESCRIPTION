@@ -1,7 +1,7 @@
 Package: ergmito
 Version: 0.1-0
 Date: 2018-09-24
-Title: Estimation of 'ERGMitos' (a.k.a. Little 'ERGMs') using exact likelihood
+Title: Exponential Random Graph Models for Small Networks
 Description: The package implements simulation and estimation algorithms for 
   Exponential Random Graph Models in the case of small networks using exact
   statistics. As a difference from the 'ergm' package, 'ergmito' skips the
