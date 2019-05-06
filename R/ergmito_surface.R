@@ -43,10 +43,9 @@ compute_mfrow <- function(k) {
 #' @examples 
 #' 
 #' set.seed(12)
-#' x1 <- rbernoulli(4)
-#' x2 <- rbernoulli(5)
+#' x <- rbernoulli(c(4, 4, 5))
 #' 
-#' ans <- ergmito(list(x1, x2) ~ edges + mutual + balance)
+#' ans <- ergmito(x ~ edges + balance)
 #' 
 #' plot(ans)
 #' 
@@ -61,8 +60,8 @@ plot.ergmito <- function(
   plot.      = TRUE,
   par_args   = list(),
   image_args = list(),
-  breaks     = 100L,
-  extension  = 10,
+  breaks     = 50L,
+  extension  = 4L,
   params_labs = stats::setNames(names(coef(x)), names(coef(x))),
   ...
   ) {
@@ -106,6 +105,8 @@ plot.ergmito <- function(
     
     if (length(par_args$mfrow) == 0)
       par_args$mfrow <- compute_mfrow(length(parcombs))
+    # if (length(par_args$mar) == 0)
+    #   par_args$mar <- graphics::par("mar") * .5
     
     op <- do.call(graphics::par, par_args)
     on.exit(graphics::par(op))

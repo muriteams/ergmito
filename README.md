@@ -62,105 +62,39 @@ following:
 install.packages("[path to the zipfile]/ergmito_[version number].zip", repos = FALSE)
 ```
 
+In the case of Mac users, and in particular, those with Mojave version,
+they may need to install the following
+<https://github.com/fxcoudert/gfortran-for-macOS/releases>
+
 ## Example
 
-An example from the manual
-
-## When `ergm` is not enough
+In the following example we simulate a small network with 4 vertices and
+estimate the model parameters using `ergm` and `ergmito`. We start by
+generating the graph
 
 ``` r
+# Generating a small graph
 library(ergmito)
+library(ergm)
 library(sna)
 
-# Generating a small graph
-set.seed(12)
-n <- 4
-net <- rbernoulli(n, p = .7)
-gplot(net)
-```
-
-<img src="man/figures/README-net1-1.png" width="100%" />
-
-``` r
-model <- net ~ edges + mutual + ctriad
-
-library(ergm)
-ans_ergmito <- ergmito(model)
-ans_ergm  <- ergm(model)
-#> Error in solve.default(H, tol = 1e-20) : 
-#>   Lapack routine dgesv: system is exactly singular: U[2,2] = 0
-
-# The ergmito should have a larger value when computing exact loglikelihood
-ergm.exact(ans_ergmito$coef, model) >
-  ergm.exact(ans_ergm$coef, model)
-#>       [,1]
-#> [1,] FALSE
-
-summary(ans_ergmito)
-#> $coefs
-#>          Estimate Std. Error    z value  Pr(>|z|)
-#> edges    8.664306   43.72599  0.1981500 0.8429277
-#> mutual  -7.207248   43.71588 -0.1648657 0.8690497
-#> ctriple -0.639525    1.32637 -0.4821619 0.6296909
-#> 
-#> $aic
-#> [1] 18.23709
-#> 
-#> $bic
-#> [1] 19.69181
-#> 
-#> $model
-#> [1] "net ~ edges + mutual + ctriad"
-#> 
-#> attr(,"class")
-#> [1] "ergmito_summary"
-summary(ans_ergm)
-#> 
-#> ==========================
-#> Summary of model fit
-#> ==========================
-#> 
-#> Formula:   net ~ edges + mutual + ctriad
-#> 
-#> Iterations:  2 out of 20 
-#> 
-#> Monte Carlo MLE Results:
-#>         Estimate Std. Error MCMC % z value Pr(>|z|)
-#> edges     20.296         NA     NA      NA       NA
-#> mutual   -18.832         NA     NA      NA       NA
-#> ctriple   -0.643         NA     NA      NA       NA
-#> 
-#>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 12.28  on  9  degrees of freedom
-#>  
-#> AIC: 18.28    BIC: 19.74    (Smaller is better.)
-```
-
-Checking convergence diagnostics
-
-``` r
-plot(ans_ergmito)
-```
-
-<img src="man/figures/README-convergence-diag-1.png" width="100%" />
-
-## Do we get the same?
-
-``` r
-# Generating a small graph
 set.seed(12123)
 n   <- 4
 net <- rbernoulli(n, p = .3)
 gplot(net)
 ```
 
-<img src="man/figures/README-net2-1.png" width="100%" />
+<img src="man/figures/README-net2-1.png" width="80%" />
+
+To estimate the model
 
 ``` r
-model <- net ~ edges + mutual
+model <- net ~ edges + istar(2)
 
-library(ergm)
+# ERGMito (estimation via MLE)
 ans_ergmito <- ergmito(model)
+
+# ERGM (estimation via MC-MLE)
 ans_ergm  <- ergm(model, control = control.ergm(
   MCMC.effectiveSize = 4000,
   seed = 444)
@@ -169,22 +103,30 @@ ans_ergm  <- ergm(model, control = control.ergm(
 # The ergmito should have a larger value
 ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 #>      [,1]
-#> [1,]   NA
+#> [1,] TRUE
 
 summary(ans_ergmito)
 #> $coefs
-#>         Estimate Std. Error    z value  Pr(>|z|)
-#> edges  -0.691919  0.8165109 -0.8474094 0.3967669
-#> mutual -8.195552 69.4693583 -0.1179736 0.9060886
+#>          Estimate Std. Error    z value  Pr(>|z|)
+#> edges  -1.3774881   1.002596 -1.3739207 0.1694663
+#> istar2  0.5065322   1.327007  0.3817102 0.7026763
 #> 
 #> $aic
-#> [1] 16.47707
+#> [1] 17.36312
 #> 
 #> $bic
-#> [1] 17.44688
+#> [1] 18.33294
 #> 
 #> $model
-#> [1] "net ~ edges + mutual"
+#> [1] "net ~ edges + istar(2)"
+#> 
+#> $degeneracy
+#>  edges istar2 
+#>      0      0 
+#> attr(,"threshold")
+#> [1] 0.8
+#> attr(,"degenerate")
+#> [1] FALSE
 #> 
 #> attr(,"class")
 #> [1] "ergmito_summary"
@@ -194,24 +136,19 @@ summary(ans_ergm)
 #> Summary of model fit
 #> ==========================
 #> 
-#> Formula:   net ~ edges + mutual
+#> Formula:   net ~ edges + istar(2)
 #> 
 #> Iterations:  2 out of 20 
 #> 
 #> Monte Carlo MLE Results:
-#>        Estimate Std. Error MCMC % z value Pr(>|z|)    
-#> edges   -0.6834     0.8189      0  -0.835    0.404    
-#> mutual     -Inf     0.0000      0    -Inf   <1e-04 ***
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#>        Estimate Std. Error MCMC % z value Pr(>|z|)
+#> edges   -1.3516     0.9995      0  -1.352    0.176
+#> istar2   0.4940     1.3518      0   0.365    0.715
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance:   NaN  on 10  degrees of freedom
+#>  Residual Deviance: 13.37  on 10  degrees of freedom
 #>  
-#> AIC: NaN    BIC: NaN    (Smaller is better.) 
-#> 
-#>  Warning: The following terms have infinite coefficient estimates:
-#>   mutual
+#> AIC: 17.37    BIC: 18.34    (Smaller is better.)
 ```
 
 ## Estimating data with known parameters
@@ -241,6 +178,14 @@ summary(model1) # This data has know parameters equal to -2.0 and 2.0
 #> 
 #> $model
 #> [1] "fivenets ~ edges + nodematch(\"female\")"
+#> 
+#> $degeneracy
+#>            edges nodematch.female 
+#>                0                0 
+#> attr(,"threshold")
+#> [1] 0.8
+#> attr(,"degenerate")
+#> [1] FALSE
 #> 
 #> attr(,"class")
 #> [1] "ergmito_summary"
@@ -275,15 +220,7 @@ fivenets_gof
 plot(fivenets_gof)
 ```
 
-<img src="man/figures/README-fivenets-gof-1.png" width="100%" />
-
-# Similarity indices
-
-<https://cran.r-project.org/web/packages/proxy/proxy.pdf>
-
-A Survey of Binary Similarity and Distance Measures Seung-Seok Choi,
-Sung-Hyuk Cha, Charles C. Tappert Department of Computer Science, Pace
-University New York, US
+<img src="man/figures/README-fivenets-gof-1.png" width="80%" />
 
 # Contributing
 

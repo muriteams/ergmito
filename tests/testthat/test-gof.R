@@ -3,7 +3,7 @@ context("ERGMito GOF")
 test_that("As expected", {
   
   set.seed(12344)
-  RNGversion("3.4.0")
+  suppressWarnings(RNGversion("3.4.0"))
   net <- rbernoulli(3, .3)
   model <- ergmito(net ~ edges)
   gof0  <- gof_ergmito(model)
@@ -24,6 +24,7 @@ test_that("As expected", {
   # 90% CI
   expect_equivalent(gof0$ci[[1]][, c("lower-q", "upper-q")], dat[[1]]$statmat[ord][c(1, 4)])
   expect_equivalent(gof0$ci[[1]][, c("lower-p", "upper-p")], cumprb[c(1, 4)])
-  RNGversion("3.5.0")
+  RNGversion(with(R.version, paste0(major, ".", minor)))
   
 })
+  

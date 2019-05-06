@@ -5,8 +5,8 @@
 \title{Function to visualize the optimization surface}
 \usage{
 \method{plot}{ergmito}(x, y = NULL, domain = NULL, plot. = TRUE,
-  par_args = list(), image_args = list(), breaks = 100L,
-  extension = 10, params_labs = stats::setNames(names(coef(x)),
+  par_args = list(), image_args = list(), breaks = 50L,
+  extension = 4L, params_labs = stats::setNames(names(coef(x)),
   names(coef(x))), ...)
 }
 \arguments{
@@ -54,10 +54,9 @@ in the ERGMito.
 \examples{
 
 set.seed(12)
-x1 <- rbernoulli(4)
-x2 <- rbernoulli(5)
+x <- rbernoulli(c(4, 4, 5))
 
-ans <- ergmito(list(x1, x2) ~ edges + mutual + balance)
+ans <- ergmito(x ~ edges + balance)
 
 plot(ans)
 

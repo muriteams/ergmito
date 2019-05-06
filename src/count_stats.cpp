@@ -338,7 +338,7 @@ s <- count_stats(x[1:1e5], c("mutual", "edges"))
 inline IntegerMatrix geodesici(const arma::imat & x, bool force = false) {
   
   int n = x.n_rows;
-  if (n != x.n_cols)
+  if (n != (int) x.n_cols)
     stop("Not a square matrix.");
   
   if (n > 100 && !force)
@@ -373,7 +373,8 @@ ListOf< IntegerMatrix > geodesic(
   
   ListOf< IntegerMatrix > res(X.size());
   
-  for (int i = 0; i < X.size(); ++i)
+  int nX = X.size();
+  for (int i = 0; i < nX; ++i)
     res[i] = geodesici(as< arma::imat >(X[i]), force);
   
   return res;

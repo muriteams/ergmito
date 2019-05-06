@@ -35,9 +35,10 @@ vecint make_sets(int n) {
 void powerset(vecvecint * sets, int n) {
   
   vecint set = make_sets(n);
+  int nsets   = set.size();
 
   int j = 0,k;
-  for (int i=0; i < set.size(); ++i) {
+  for (int i=0; i < nsets; ++i) {
     k = j;
     for (int s = 0; s < k; ++s) {
       sets->operator[](j) = sets->operator[](s);

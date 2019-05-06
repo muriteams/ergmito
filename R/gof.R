@@ -355,12 +355,24 @@ plot.ergmito_gof <- function(
     graphics::grid(ny=1)
     
     # Confidence interval
-    graphics::polygon(
-      x      = c(xseq, rev(xseq)),
-      y      = c(lower, rev(upper)),
-      col    = grDevices::adjustcolor("gray", alpha = .5),
-      border = grDevices::adjustcolor("gray", alpha = .5)
-    )
+    if (length(xseq) > 1) {
+      graphics::polygon(
+        x      = c(xseq, rev(xseq)),
+        y      = c(lower, rev(upper)),
+        col    = grDevices::adjustcolor("gray", alpha = .5),
+        border = grDevices::adjustcolor("gray", alpha = .5)
+      ) 
+    } else {
+      
+      graphics::polygon(
+        x      = c(-.1, .1, .1, -.1) + xseq,
+        y      = c(lower, lower, upper, upper),
+        col    = grDevices::adjustcolor("gray", alpha = .5),
+        border = grDevices::adjustcolor("gray", alpha = .5)
+      )
+      
+      
+    }
     
     # Points
     graphics::points(

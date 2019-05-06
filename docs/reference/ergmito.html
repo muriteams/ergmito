@@ -166,8 +166,8 @@ the starting parameters for the optimization routine.</p></td>
     </tr>
     <tr>
       <th>ntries</th>
-      <td><p>Integer. Number of times that the <code>optim</code> function should be
-executed (see MLE).</p></td>
+      <td><p>Integer. In case of no convergence, number of times that the
+<code>optim</code> function should be re-run.</p></td>
     </tr>
     <tr>
       <th>use.grad</th>
@@ -192,6 +192,7 @@ This is intended for testing only (internal use).</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An list of class <code>ergmito</code>:</p><ul>
+<li><p><code>call</code>          The program call.</p></li>
 <li><p><code>coef</code>          Named vector. Parameter estimates.</p></li>
 <li><p><code>iterations</code>    Integer. Number of times the loglikelihood was evaluated
 (see <a href='https://www.rdocumentation.org/packages/stats/topics/optim'>stats::optim</a>).</p></li>
@@ -211,13 +212,26 @@ used in the optimization.</p></li>
 The default method for maximization is <code>BFGS</code> using both the loglikelihood
 function and its corresponding gradient.</p>
 <p>Anecdotically, while the optimization process should be realitvely straight
-forward, in some cases a bad selection of initial set of parameters (<code>init</code>)
-can yield suboptimal solutions. Because of this reason, the parameter <code>ntries</code>
+forward, in some cases a near-degenerate set of observed statistics may
+yield suboptimal solutions. Because of this reason, the parameter <code>ntries</code>
 allows the user to specify how many runs of <code>optim</code> should be done before
 returning. In general, optimization via <code>optim</code> is very fast, which is why
 this part of the function doesn't impact the actual wall time significantly
 (the most part of the time that the function takes to run is caused by the
 computation of the stats natrices using the <a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.allstats'>ergm::ergm.allstats</a> function.)</p>
+<p>Another important factor to consider is the existance of the MLE estiates.
+As shown in Handcock (2003), if the observed statitcs are near the border
+if the support function (e.g. too many edges or almost none), then, even if
+the MLE estimates exists, the optimization function may not be able to reach
+the optima. Moreover, if the target (observed) statistics live in the boundary,
+then the MLE estimates do not exists. In general, this should not be an issue
+in the context of the pooled model, as the variability of observed statistics
+should be enough to avoid those situations.</p>
+<p>The function <code>ergmito</code> will try to identify possible cases of model degeneracy,
+and if identified, then try to re estimate the model parameters using larger
+values than the ones obtained, if the log-likelihood is greater, then it is
+assumed that the model is degenerate and the corresponding values will be
+replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -258,27 +272,37 @@ computation of the stats natrices using the <a href='https://www.rdocumentation.
 #&gt; <span class='message'>or type citation("ergm").</span></div><div class='output co'>#&gt; <span class='message'>NOTE: Versions before 3.6.1 had a bug in the implementation of the bd()</span>
 #&gt; <span class='message'>constriant which distorted the sampled distribution somewhat. In</span>
 #&gt; <span class='message'>addition, Sampson's Monks datasets had mislabeled vertices. See the</span>
-#&gt; <span class='message'>NEWS and the documentation for more details.</span></div><div class='input'><span class='no'>ans_ergmito</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>model</span>)
-<span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Observed statistic(s) balance are at their smallest attainable values. Their coefficients will be fixed at -Inf.</span></div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.01081.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
-#&gt;   Lapack routine dgesv: system is exactly singular: U[2,2] = 0</div><div class='output co'>#&gt; <span class='warning'>Warning: Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.001504.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged twice. Stopping.</span></div><div class='output co'>#&gt; <span class='message'>Finished MCMLE.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; <span class='message'>Using 20 bridges: </span></div><div class='output co'>#&gt; <span class='message'>1 </span></div><div class='output co'>#&gt; <span class='message'>2 </span></div><div class='output co'>#&gt; <span class='message'>3 </span></div><div class='output co'>#&gt; <span class='message'>4 </span></div><div class='output co'>#&gt; <span class='message'>5 </span></div><div class='output co'>#&gt; <span class='message'>6 </span></div><div class='output co'>#&gt; <span class='message'>7 </span></div><div class='output co'>#&gt; <span class='message'>8 </span></div><div class='output co'>#&gt; <span class='message'>9 </span></div><div class='output co'>#&gt; <span class='message'>10 </span></div><div class='output co'>#&gt; <span class='message'>11 </span></div><div class='output co'>#&gt; <span class='message'>12 </span></div><div class='output co'>#&gt; <span class='message'>13 </span></div><div class='output co'>#&gt; <span class='message'>14 </span></div><div class='output co'>#&gt; <span class='message'>15 </span></div><div class='output co'>#&gt; <span class='message'>16 </span></div><div class='output co'>#&gt; <span class='message'>17 </span></div><div class='output co'>#&gt; <span class='message'>18 </span></div><div class='output co'>#&gt; <span class='message'>19 </span></div><div class='output co'>#&gt; <span class='message'>20 </span></div><div class='output co'>#&gt; <span class='message'>.</span></div><div class='output co'>#&gt; <span class='message'>This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function.</span></div><div class='input'>
+#&gt; <span class='message'>NEWS and the documentation for more details.</span></div><div class='input'><span class='no'>ans_ergmito</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at theboundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistics "balance".</span></div><div class='output co'>#&gt; <span class='warning'>Warning: A correction has been made in order to achieve the right MLE. In this case, the theoretical estimates are near +-Inf, hence the MLE may not exist.</span></div><div class='input'><span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Observed statistic(s) balance are at their smallest attainable values. Their coefficients will be fixed at -Inf.</span></div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.008571.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
+#&gt;   Lapack routine dgesv: system is exactly singular: U[2,2] = 0</div><div class='output co'>#&gt; <span class='warning'>Warning: Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.0006928.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged twice. Stopping.</span></div><div class='output co'>#&gt; <span class='message'>Finished MCMLE.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; <span class='message'>Using 20 bridges: </span></div><div class='output co'>#&gt; <span class='message'>1 </span></div><div class='output co'>#&gt; <span class='message'>2 </span></div><div class='output co'>#&gt; <span class='message'>3 </span></div><div class='output co'>#&gt; <span class='message'>4 </span></div><div class='output co'>#&gt; <span class='message'>5 </span></div><div class='output co'>#&gt; <span class='message'>6 </span></div><div class='output co'>#&gt; <span class='message'>7 </span></div><div class='output co'>#&gt; <span class='message'>8 </span></div><div class='output co'>#&gt; <span class='message'>9 </span></div><div class='output co'>#&gt; <span class='message'>10 </span></div><div class='output co'>#&gt; <span class='message'>11 </span></div><div class='output co'>#&gt; <span class='message'>12 </span></div><div class='output co'>#&gt; <span class='message'>13 </span></div><div class='output co'>#&gt; <span class='message'>14 </span></div><div class='output co'>#&gt; <span class='message'>15 </span></div><div class='output co'>#&gt; <span class='message'>16 </span></div><div class='output co'>#&gt; <span class='message'>17 </span></div><div class='output co'>#&gt; <span class='message'>18 </span></div><div class='output co'>#&gt; <span class='message'>19 </span></div><div class='output co'>#&gt; <span class='message'>20 </span></div><div class='output co'>#&gt; <span class='message'>.</span></div><div class='output co'>#&gt; <span class='message'>This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function.</span></div><div class='input'>
 <span class='co'># The ergmito should have a larger value</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergmito</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;           [,1]
-#&gt; [1,] -5.497613</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergm</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;      [,1]
+<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergmito</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;      [,1]
+#&gt; [1,]  NaN</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergm</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;      [,1]
 #&gt; [1,]  NaN</div><div class='input'>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergmito</span>)</div><div class='output co'>#&gt; $coefs
-#&gt;          Estimate Std. Error     z value  Pr(&gt;|z|)
-#&gt; edges    13.58753   728.5270  0.01865069 0.9851198
-#&gt; mutual  -11.94379   728.5286 -0.01639439 0.9869198
-#&gt; balance -14.00081  1023.6620 -0.01367718 0.9890875
+#&gt;          Estimate   Std. Error      z value  Pr(&gt;|z|)
+#&gt; edges    14.96610 1.451445e+03  0.010311172 0.9917730
+#&gt; mutual  -13.32227 1.451446e+03 -0.009178622 0.9926766
+#&gt; balance      -Inf 6.734086e-11         -Inf 0.0000000
 #&gt; 
 #&gt; $aic
-#&gt; [1] 16.99523
+#&gt; [1] 16.99522
 #&gt; 
 #&gt; $bic
-#&gt; [1] 18.44995
+#&gt; [1] 18.44994
 #&gt; 
 #&gt; $model
 #&gt; [1] "net ~ edges + mutual + balance"
+#&gt; 
+#&gt; $degeneracy
+#&gt;   edges  mutual balance 
+#&gt;       0       0       1 
+#&gt; attr(,"threshold")
+#&gt; [1] 0.8
+#&gt; attr(,"degenerate")
+#&gt; [1] TRUE
+#&gt; attr(,"which")
+#&gt; balance 
+#&gt;       3 
 #&gt; 
 #&gt; attr(,"class")
 #&gt; [1] "ergmito_summary"</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergm</span>)</div><div class='output co'>#&gt; 
@@ -287,7 +311,7 @@ computation of the stats natrices using the <a href='https://www.rdocumentation.
 #&gt; ==========================
 #&gt; 
 #&gt; Formula:   net ~ edges + mutual + balance
-#&gt; &lt;environment: 0x26c3fc20&gt;
+#&gt; &lt;environment: 0x266791e0&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
@@ -313,7 +337,7 @@ computation of the stats natrices using the <a href='https://www.rdocumentation.
 <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>model1</span>) <span class='co'># This data has know parameters equal to -2.0 and 2.0</span></div><div class='output co'>#&gt; $coefs
 #&gt;                   Estimate Std. Error   z value    Pr(&gt;|z|)
 #&gt; edges            -1.704748  0.5435573 -3.136280 0.001711055
-#&gt; nodematch.female  1.586965  0.6430475  2.467881 0.013591531
+#&gt; nodematch.female  1.586965  0.6430475  2.467882 0.013591530
 #&gt; 
 #&gt; $aic
 #&gt; [1] 73.34109
@@ -323,6 +347,14 @@ computation of the stats natrices using the <a href='https://www.rdocumentation.
 #&gt; 
 #&gt; $model
 #&gt; [1] "fivenets ~ edges + nodematch(\"female\")"
+#&gt; 
+#&gt; $degeneracy
+#&gt;            edges nodematch.female 
+#&gt;                0                0 
+#&gt; attr(,"threshold")
+#&gt; [1] 0.8
+#&gt; attr(,"degenerate")
+#&gt; [1] FALSE
 #&gt; 
 #&gt; attr(,"class")
 #&gt; [1] "ergmito_summary"</div><div class='input'>

@@ -146,10 +146,11 @@ ergmito_formulae <- function(
       ans <- sum(ans)
       
       # If awfully undefined
-      if (is.nan(ans))
-        return(-.Machine$double.xmax/1e100)
-      
-      max(ans, -.Machine$double.xmax/1e100)
+      if (!is.finite(ans))
+        return(sign(ans) * .Machine$double.xmax * 1e-100)
+      else
+        return(ans)
+      # max(ans, -.Machine$double.xmax/1e100)
       
     },
     grad  = function(params, stats = NULL, target.stats = NULL) {
@@ -177,7 +178,7 @@ ergmito_formulae <- function(
       # 
       # max(ans, -.Machine$double.xmax/1e100)
       
-      ans[is.nan(ans)] <- .Machine$double.xmax/1e100
+      # ans[is.nan(ans)] <- .Machine$double.xmax/1e100
       
       test <- which(is.infinite(ans))
       if (length(test))
