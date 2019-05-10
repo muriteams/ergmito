@@ -4,6 +4,7 @@
 \alias{ergmito}
 \alias{print.ergmito}
 \alias{summary.ergmito}
+\alias{print.ergmito_summary}
 \alias{coef.ergmito}
 \alias{logLik.ergmito}
 \alias{nobs.ergmito}
@@ -17,6 +18,8 @@ ergmito(model, gattr_model = NULL, stats = NULL, optim.args = list(),
 \method{print}{ergmito}(x, ...)
 
 \method{summary}{ergmito}(object, ...)
+
+\method{print}{ergmito_summary}(x, ...)
 
 \method{coef}{ergmito}(object, ...)
 
@@ -115,7 +118,7 @@ set.seed(12)
 n <- 4
 net <- rbernoulli(n, p = .7)
 
-model <- net ~ edges + mutual + balance
+model <- net ~ edges + mutual
 
 library(ergm)
 ans_ergmito <- ergmito(model)

@@ -127,7 +127,7 @@ check_degeneracy <- function(target.stats, stats, threshold = .8, warn = TRUE) {
 #' n <- 4
 #' net <- rbernoulli(n, p = .7)
 #' 
-#' model <- net ~ edges + mutual + balance
+#' model <- net ~ edges + mutual
 #' 
 #' library(ergm)
 #' ans_ergmito <- ergmito(model)
@@ -354,6 +354,8 @@ summary.ergmito <- function(object, ...) {
   ans
 }
 
+#' @export
+#' @rdname ergmito
 print.ergmito_summary <- function(x, ...) {
 
   cat("\nERGMito estimates\n")

@@ -106,30 +106,14 @@ ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 #> [1,] TRUE
 
 summary(ans_ergmito)
-#> $coefs
+#> 
+#> ERGMito estimates
+#> 
+#> formula:  net ~ edges + istar(2) 
+#> 
 #>          Estimate Std. Error    z value  Pr(>|z|)
 #> edges  -1.3774881   1.002596 -1.3739207 0.1694663
 #> istar2  0.5065322   1.327007  0.3817102 0.7026763
-#> 
-#> $aic
-#> [1] 17.36312
-#> 
-#> $bic
-#> [1] 18.33294
-#> 
-#> $model
-#> [1] "net ~ edges + istar(2)"
-#> 
-#> $degeneracy
-#>  edges istar2 
-#>      0      0 
-#> attr(,"threshold")
-#> [1] 0.8
-#> attr(,"degenerate")
-#> [1] FALSE
-#> 
-#> attr(,"class")
-#> [1] "ergmito_summary"
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -165,30 +149,14 @@ data(fivenets)
 model1 <- ergmito(fivenets ~ edges + nodematch("female"))
 
 summary(model1) # This data has know parameters equal to -2.0 and 2.0
-#> $coefs
+#> 
+#> ERGMito estimates
+#> 
+#> formula:  fivenets ~ edges + nodematch("female") 
+#> 
 #>                   Estimate Std. Error   z value    Pr(>|z|)
 #> edges            -1.704748  0.5435573 -3.136280 0.001711055
 #> nodematch.female  1.586965  0.6430475  2.467882 0.013591530
-#> 
-#> $aic
-#> [1] 73.34109
-#> 
-#> $bic
-#> [1] 77.52978
-#> 
-#> $model
-#> [1] "fivenets ~ edges + nodematch(\"female\")"
-#> 
-#> $degeneracy
-#>            edges nodematch.female 
-#>                0                0 
-#> attr(,"threshold")
-#> [1] 0.8
-#> attr(,"degenerate")
-#> [1] FALSE
-#> 
-#> attr(,"class")
-#> [1] "ergmito_summary"
 ```
 
 We can also compute GOF

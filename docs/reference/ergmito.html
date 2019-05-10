@@ -125,6 +125,9 @@ to fit, since more than that can become infeasible.</p>
 <span class='co'># S3 method for ergmito</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/summary'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
+<span class='co'># S3 method for ergmito_summary</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
 <span class='co'># S3 method for ergmito</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/coef'>coef</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
@@ -245,7 +248,7 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 <span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='fl'>4</span>
 <span class='no'>net</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rbernoulli.html'>rbernoulli</a></span>(<span class='no'>n</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>.7</span>)
 
-<span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='no'>net</span> ~ <span class='no'>edges</span> + <span class='no'>mutual</span> + <span class='no'>balance</span>
+<span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='no'>net</span> ~ <span class='no'>edges</span> + <span class='no'>mutual</span>
 
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ergm</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: network</span></div><div class='output co'>#&gt; <span class='message'>network: Classes for Relational Data</span>
 #&gt; <span class='message'>Version 1.14-377 created on 2019-03-04.</span>
@@ -272,92 +275,52 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt; <span class='message'>or type citation("ergm").</span></div><div class='output co'>#&gt; <span class='message'>NOTE: Versions before 3.6.1 had a bug in the implementation of the bd()</span>
 #&gt; <span class='message'>constriant which distorted the sampled distribution somewhat. In</span>
 #&gt; <span class='message'>addition, Sampson's Monks datasets had mislabeled vertices. See the</span>
-#&gt; <span class='message'>NEWS and the documentation for more details.</span></div><div class='input'><span class='no'>ans_ergmito</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at theboundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistics "balance".</span></div><div class='output co'>#&gt; <span class='warning'>Warning: A correction has been made in order to achieve the right MLE. In this case, the theoretical estimates are near +-Inf, hence the MLE may not exist.</span></div><div class='input'><span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Observed statistic(s) balance are at their smallest attainable values. Their coefficients will be fixed at -Inf.</span></div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.008571.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
-#&gt;   Lapack routine dgesv: system is exactly singular: U[2,2] = 0</div><div class='output co'>#&gt; <span class='warning'>Warning: Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.0006928.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged twice. Stopping.</span></div><div class='output co'>#&gt; <span class='message'>Finished MCMLE.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; <span class='message'>Using 20 bridges: </span></div><div class='output co'>#&gt; <span class='message'>1 </span></div><div class='output co'>#&gt; <span class='message'>2 </span></div><div class='output co'>#&gt; <span class='message'>3 </span></div><div class='output co'>#&gt; <span class='message'>4 </span></div><div class='output co'>#&gt; <span class='message'>5 </span></div><div class='output co'>#&gt; <span class='message'>6 </span></div><div class='output co'>#&gt; <span class='message'>7 </span></div><div class='output co'>#&gt; <span class='message'>8 </span></div><div class='output co'>#&gt; <span class='message'>9 </span></div><div class='output co'>#&gt; <span class='message'>10 </span></div><div class='output co'>#&gt; <span class='message'>11 </span></div><div class='output co'>#&gt; <span class='message'>12 </span></div><div class='output co'>#&gt; <span class='message'>13 </span></div><div class='output co'>#&gt; <span class='message'>14 </span></div><div class='output co'>#&gt; <span class='message'>15 </span></div><div class='output co'>#&gt; <span class='message'>16 </span></div><div class='output co'>#&gt; <span class='message'>17 </span></div><div class='output co'>#&gt; <span class='message'>18 </span></div><div class='output co'>#&gt; <span class='message'>19 </span></div><div class='output co'>#&gt; <span class='message'>20 </span></div><div class='output co'>#&gt; <span class='message'>.</span></div><div class='output co'>#&gt; <span class='message'>This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function.</span></div><div class='input'>
+#&gt; <span class='message'>NEWS and the documentation for more details.</span></div><div class='input'><span class='no'>ans_ergmito</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>model</span>)
+<span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by &lt; 0.0001.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
+#&gt;   Lapack routine dgesv: system is exactly singular: U[2,2] = 0</div><div class='output co'>#&gt; <span class='warning'>Warning: Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by &lt; 0.0001.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged twice. Stopping.</span></div><div class='output co'>#&gt; <span class='message'>Finished MCMLE.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; <span class='message'>Using 20 bridges: </span></div><div class='output co'>#&gt; <span class='message'>1 </span></div><div class='output co'>#&gt; <span class='message'>2 </span></div><div class='output co'>#&gt; <span class='message'>3 </span></div><div class='output co'>#&gt; <span class='message'>4 </span></div><div class='output co'>#&gt; <span class='message'>5 </span></div><div class='output co'>#&gt; <span class='message'>6 </span></div><div class='output co'>#&gt; <span class='message'>7 </span></div><div class='output co'>#&gt; <span class='message'>8 </span></div><div class='output co'>#&gt; <span class='message'>9 </span></div><div class='output co'>#&gt; <span class='message'>10 </span></div><div class='output co'>#&gt; <span class='message'>11 </span></div><div class='output co'>#&gt; <span class='message'>12 </span></div><div class='output co'>#&gt; <span class='message'>13 </span></div><div class='output co'>#&gt; <span class='message'>14 </span></div><div class='output co'>#&gt; <span class='message'>15 </span></div><div class='output co'>#&gt; <span class='message'>16 </span></div><div class='output co'>#&gt; <span class='message'>17 </span></div><div class='output co'>#&gt; <span class='message'>18 </span></div><div class='output co'>#&gt; <span class='message'>19 </span></div><div class='output co'>#&gt; <span class='message'>20 </span></div><div class='output co'>#&gt; <span class='message'>.</span></div><div class='output co'>#&gt; <span class='message'>This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function.</span></div><div class='input'>
 <span class='co'># The ergmito should have a larger value</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergmito</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;      [,1]
-#&gt; [1,]  NaN</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergm</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;      [,1]
-#&gt; [1,]  NaN</div><div class='input'>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergmito</span>)</div><div class='output co'>#&gt; $coefs
-#&gt;          Estimate   Std. Error      z value  Pr(&gt;|z|)
-#&gt; edges    14.96610 1.451445e+03  0.010311172 0.9917730
-#&gt; mutual  -13.32227 1.451446e+03 -0.009178622 0.9926766
-#&gt; balance      -Inf 6.734086e-11         -Inf 0.0000000
+<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergmito</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;           [,1]
+#&gt; [1,] -6.239736</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergm</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;           [,1]
+#&gt; [1,] -6.238325</div><div class='input'>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergmito</span>)</div><div class='output co'>#&gt; 
+#&gt; ERGMito estimates
+#&gt; Note: The optimzation did not converged.
 #&gt; 
-#&gt; $aic
-#&gt; [1] 16.99522
+#&gt; formula:  net ~ edges + mutual 
 #&gt; 
-#&gt; $bic
-#&gt; [1] 18.44994
-#&gt; 
-#&gt; $model
-#&gt; [1] "net ~ edges + mutual + balance"
-#&gt; 
-#&gt; $degeneracy
-#&gt;   edges  mutual balance 
-#&gt;       0       0       1 
-#&gt; attr(,"threshold")
-#&gt; [1] 0.8
-#&gt; attr(,"degenerate")
-#&gt; [1] TRUE
-#&gt; attr(,"which")
-#&gt; balance 
-#&gt;       3 
-#&gt; 
-#&gt; attr(,"class")
-#&gt; [1] "ergmito_summary"</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergm</span>)</div><div class='output co'>#&gt; 
+#&gt;         Estimate Std. Error    z value  Pr(&gt;|z|)
+#&gt; edges   6.974898   26.73733  0.2608675 0.7941947
+#&gt; mutual -6.277779   26.76228 -0.2345757 0.8145381</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergm</span>)</div><div class='output co'>#&gt; 
 #&gt; ==========================
 #&gt; Summary of model fit
 #&gt; ==========================
 #&gt; 
-#&gt; Formula:   net ~ edges + mutual + balance
-#&gt; &lt;environment: 0x266791e0&gt;
+#&gt; Formula:   net ~ edges + mutual
+#&gt; &lt;environment: 0x274cdda8&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
 #&gt; Monte Carlo MLE Results:
-#&gt;         Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
-#&gt; edges      19.09         NA     NA      NA       NA    
-#&gt; mutual    -17.43         NA     NA      NA       NA    
-#&gt; balance     -Inf       0.00      0    -Inf   &lt;1e-04 ***
-#&gt; ---
-#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#&gt;        Estimate Std. Error MCMC % z value Pr(&gt;|z|)
+#&gt; edges     19.16         NA     NA      NA       NA
+#&gt; mutual   -18.47         NA     NA      NA       NA
 #&gt; 
 #&gt;      Null Deviance: 16.64  on 12  degrees of freedom
-#&gt;  Residual Deviance:   NaN  on  9  degrees of freedom
+#&gt;  Residual Deviance: 12.49  on 10  degrees of freedom
 #&gt;  
-#&gt; AIC: NaN    BIC: NaN    (Smaller is better.) 
-#&gt; 
-#&gt;  Warning: The following terms have infinite coefficient estimates:
-#&gt;   balance </div><div class='input'>
+#&gt; AIC: 16.49    BIC: 17.46    (Smaller is better.) </div><div class='input'>
 <span class='co'># Example 2: Estimating an ERGMito using data with know DGP parameters -----</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>fivenets</span>)
 
 <span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm-terms'>nodematch</a></span>(<span class='st'>"female"</span>))
-<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>model1</span>) <span class='co'># This data has know parameters equal to -2.0 and 2.0</span></div><div class='output co'>#&gt; $coefs
+<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>model1</span>) <span class='co'># This data has know parameters equal to -2.0 and 2.0</span></div><div class='output co'>#&gt; 
+#&gt; ERGMito estimates
+#&gt; 
+#&gt; formula:  fivenets ~ edges + nodematch("female") 
+#&gt; 
 #&gt;                   Estimate Std. Error   z value    Pr(&gt;|z|)
 #&gt; edges            -1.704748  0.5435573 -3.136280 0.001711055
-#&gt; nodematch.female  1.586965  0.6430475  2.467882 0.013591530
-#&gt; 
-#&gt; $aic
-#&gt; [1] 73.34109
-#&gt; 
-#&gt; $bic
-#&gt; [1] 77.52978
-#&gt; 
-#&gt; $model
-#&gt; [1] "fivenets ~ edges + nodematch(\"female\")"
-#&gt; 
-#&gt; $degeneracy
-#&gt;            edges nodematch.female 
-#&gt;                0                0 
-#&gt; attr(,"threshold")
-#&gt; [1] 0.8
-#&gt; attr(,"degenerate")
-#&gt; [1] FALSE
-#&gt; 
-#&gt; attr(,"class")
-#&gt; [1] "ergmito_summary"</div><div class='input'>
+#&gt; nodematch.female  1.586965  0.6430475  2.467882 0.013591530</div><div class='input'>
 
 </div></pre>
   </div>
