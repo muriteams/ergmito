@@ -5,7 +5,8 @@
 \title{Extract function to be used with the \code{texreg} package.}
 \usage{
 extract.ergmito(model, include.aic = TRUE, include.bic = TRUE,
-  include.loglik = TRUE, include.nnets = TRUE, ...)
+  include.loglik = TRUE, include.nnets = TRUE,
+  include.convergence = TRUE, ...)
 }
 \arguments{
 \item{model}{An object of class \code{ergmito}.}
@@ -14,6 +15,9 @@ extract.ergmito(model, include.aic = TRUE, include.bic = TRUE,
 
 \item{include.nnets}{Logical. When true, it adds the Number of networks used
 to the list of gof statistics. This can be useful when running pooled models.}
+
+\item{include.convergence}{Logical. When true it, adds the convergence value
+of the \link[stats:optim]{stats::optim} function (0 means convergence).}
 
 \item{...}{Further arguments passed to \link{summary.ergmito}.}
 }

@@ -6,12 +6,15 @@
 #' @param include.aic,include.bic,include.loglik See [texreg::extract].
 #' @param include.nnets Logical. When true, it adds the Number of networks used
 #' to the list of gof statistics. This can be useful when running pooled models.
+#' @param include.convergence Logical. When true it, adds the convergence value
+#' of the [stats::optim] function (0 means convergence).
 #' @param ... Further arguments passed to [summary.ergmito].
 #' @export
 #' @importFrom texreg extract
 extract.ergmito <- function(
   model, include.aic = TRUE, include.bic = TRUE, include.loglik = TRUE,
   include.nnets = TRUE,
+  include.convergence = TRUE,
   ...
 ) {
   
@@ -54,6 +57,13 @@ extract.ergmito <- function(
   if (include.nnets) {
     gof         <- c(gof, nnets(model$network))
     gof.names   <- c(gof.names, "Num. networks")
+    gof.decimal <- c(gof.decimal, FALSE)
+  }
+  
+  # Convergence
+  if (include.convergence) {
+    gof         <- c(gof, model$optim.out$convergence)
+    gof.names   <- c(gof.names, "Convergence")
     gof.decimal <- c(gof.decimal, FALSE)
   }
   
