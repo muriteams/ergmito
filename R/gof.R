@@ -80,7 +80,7 @@ get_feasible_ci_bounds <- function(x, probs, lower, upper) {
   idx   <- order(x)
   x     <- x[idx]
   probs <- probs[idx]
-  probs <- stats::aggregate(probs ~ x, FUN = sum)
+  probs <- stats::aggregate(probs ~ x, FUN = sum) # Need to make this faster
   x     <- unname(probs[, 1L, drop = TRUE])
   probs <- unname(probs[, 2L, drop = TRUE])
   
@@ -91,25 +91,11 @@ get_feasible_ci_bounds <- function(x, probs, lower, upper) {
     stop("`probs` does not add up to 1.", call. = FALSE)
 
   # Finding the feasible lower bound
-  for (i in 1L:n)
-    if (lower < cumprobs[i]) {
-      
-      if (i > 1L)
-        i <- i - 1L
-      
-      break
-    }
-  
+  i <- max(1, which(cumprobs < lower))
+
   # Finding the feasible upper bound
-  for (j in n:1L)
-    if (upper > cumprobs[j]) {
-      
-      if (j < n)
-        j <- j + 1L
-      
-      break
-    }
-      
+  j <- min(which(cumprobs > upper))
+
   c(x[c(i, j)], cumprobs[c(i, j)])
   
 }
@@ -318,11 +304,27 @@ print.ergmito_gof <- function(x, digits = 2L, ...) {
 #' @rdname ergmito_gof
 plot.ergmito_gof <- function(
   x,
-  y    = NULL,
-  main = NULL,
-  sub  = NULL,
+  y      = NULL,
+  main   = NULL,
+  sub    = NULL,
+  tnames = NULL,
   ...
   ) {
+  
+  # Personalized y-axis labels
+  if (is.null(tnames)) tnames <- x$term.names
+  else { # We must check that it works
+    
+    if (!is.character(tnames))
+      stop("`tnames` should be a character vector.", call. = FALSE)
+    if (is.null(names(tnames)))
+      stop("`tnames` should have names.", call. = FALSE)
+    if (length(setdiff(x$term.names, names(tnames)))) 
+      stop("All the term names must be `tnames`.", call. = FALSE)
+    
+    tnames <- tnames[match(x$term.names, names(tnames))]
+    
+  }
   
   K <- length(x$term.names)
   op <- graphics::par(
@@ -331,11 +333,16 @@ plot.ergmito_gof <- function(
     oma   = graphics::par("mar")*c(1, 0, 1, 0)
     )
   on.exit(graphics::par(op))
+  xorder <- NULL
   for (k in seq_len(K)) {
     
     lower <- sapply(x$ci, "[", i = k, j = "lower-q", drop = TRUE)
     upper <- sapply(x$ci, "[", i = k, j = "upper-q", drop = TRUE)
     obs   <- x$target.stats[, k]
+    
+    if (is.null(xorder)) {
+      xorder <- rev(order(upper - lower))
+    }
     
     # The ranges are obtained from the
     ran_min <- sapply(x$ranges, "[", i = k, j = "min")
@@ -347,9 +354,9 @@ plot.ergmito_gof <- function(
       NA,
       ylim = yran,
       xlim = range(xseq), 
-      ylab = x$term.names[k],
+      ylab = tnames[k],
       xlab = "Network N",
-      xaxt = ifelse(k != K, "n", "s")
+      xaxt = "n"
       )
     
     graphics::grid(ny=1)
@@ -358,7 +365,7 @@ plot.ergmito_gof <- function(
     if (length(xseq) > 1) {
       graphics::polygon(
         x      = c(xseq, rev(xseq)),
-        y      = c(lower, rev(upper)),
+        y      = c(lower[xorder], rev(upper[xorder])),
         col    = grDevices::adjustcolor("gray", alpha = .5),
         border = grDevices::adjustcolor("gray", alpha = .5)
       ) 
@@ -366,27 +373,27 @@ plot.ergmito_gof <- function(
       
       graphics::polygon(
         x      = c(-.1, .1, .1, -.1) + xseq,
-        y      = c(lower, lower, upper, upper),
+        y      = c(lower[xorder], lower[xorder], upper[xorder], upper[xorder]),
         col    = grDevices::adjustcolor("gray", alpha = .5),
         border = grDevices::adjustcolor("gray", alpha = .5)
       )
       
-      
     }
+    
+    # Bounds
+    # rgb(t(col2rgb("darkgray")), maxColorValue = 255)
+    bound_col <- grDevices::adjustcolor("#A9A9A9", alpha=.8)
+    bounding_segment(ran_max, lwd = 2, col = bound_col, upper = TRUE)
+    bounding_segment(ran_min, lwd = 2, col = bound_col, upper = FALSE)
     
     # Points
     graphics::points(
-      y   = obs,
+      y   = obs[xorder],
       x   = xseq,
-      bg  = ifelse(obs > upper | obs < lower, "red", "black"),
-      pch = ifelse(obs > upper | obs < lower, 23, 21),
-      cex = ifelse(obs > upper | obs < lower, 1.5, 1)
+      bg  = ifelse(obs[xorder] > upper[xorder] | obs[xorder] < lower[xorder], "red3", "black"),
+      pch = ifelse(obs[xorder] > upper[xorder] | obs[xorder] < lower[xorder], 23, 21),
+      cex = ifelse(obs[xorder] > upper[xorder] | obs[xorder] < lower[xorder], 1.5, 1)
       )
-    
-    # Bounds
-    bounding_segment(ran_max, lwd=2, col="darkred", upper=TRUE)
-    bounding_segment(ran_min, lwd=2, col="darkred", upper=FALSE)
-    
     
   }
   
@@ -398,6 +405,8 @@ plot.ergmito_gof <- function(
         x$probs[length(x$probs)]*100 - x$probs[1]*100 
       )
     )
+  
+  graphics::axis(side=1, at = xseq, labels = xorder)
   
   graphics::par(op)
   graphics::title(
