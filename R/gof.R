@@ -301,6 +301,9 @@ print.ergmito_gof <- function(x, digits = 2L, ...) {
 #' @param x An object of class `ergmito_gof`.
 #' @param y Ignored.
 #' @param main,sub Title and subtitle of the plot (see [graphics::title]).
+#' @param sort_by_ci Logical scalar. When `TRUE` it will sort the x-axis by the
+#' with of the CI in for the first parameter of the model.
+#' @param tnames A named character vector. Alternative names for the terms.
 #' @rdname ergmito_gof
 plot.ergmito_gof <- function(
   x,
@@ -308,6 +311,7 @@ plot.ergmito_gof <- function(
   main   = NULL,
   sub    = NULL,
   tnames = NULL,
+  sort_by_ci = FALSE,
   ...
   ) {
   
@@ -341,8 +345,11 @@ plot.ergmito_gof <- function(
     obs   <- x$target.stats[, k]
     
     if (is.null(xorder)) {
-      xorder <- rev(order(upper - lower))
-    }
+      if (sort_by_ci)
+        xorder <- rev(order(upper - lower))
+      else
+        xorder <- seq_along(upper)
+    } 
     
     # The ranges are obtained from the
     ran_min <- sapply(x$ranges, "[", i = k, j = "min")
@@ -363,16 +370,23 @@ plot.ergmito_gof <- function(
     
     # Confidence interval
     if (length(xseq) > 1) {
-      graphics::polygon(
-        x      = c(xseq, rev(xseq)),
-        y      = c(lower[xorder], rev(upper[xorder])),
-        col    = grDevices::adjustcolor("gray", alpha = .5),
-        border = grDevices::adjustcolor("gray", alpha = .5)
-      ) 
+      # graphics::polygon(
+      #   x      = c(xseq, rev(xseq)),
+      #   y      = c(lower[xorder], rev(upper[xorder])),
+      #   col    = grDevices::adjustcolor("gray", alpha = .5),
+      #   border = grDevices::adjustcolor("gray", alpha = .5)
+      # ) 
+      for (i in seq_along(xseq))
+        graphics::polygon(
+          x      = xseq[i] + c(-.1, .1, .1, -.1)*4,
+          y      = c(lower[xorder][i], lower[xorder][i], upper[xorder][i], upper[xorder][i]),
+          col    = grDevices::adjustcolor("gray", alpha = .5),
+          border = grDevices::adjustcolor("gray", alpha = .5)
+        )
     } else {
       
       graphics::polygon(
-        x      = c(-.1, .1, .1, -.1) + xseq,
+        x      = c(-.1, .1, .1, -.1)*4 + xseq,
         y      = c(lower[xorder], lower[xorder], upper[xorder], upper[xorder]),
         col    = grDevices::adjustcolor("gray", alpha = .5),
         border = grDevices::adjustcolor("gray", alpha = .5)
@@ -383,8 +397,8 @@ plot.ergmito_gof <- function(
     # Bounds
     # rgb(t(col2rgb("darkgray")), maxColorValue = 255)
     bound_col <- grDevices::adjustcolor("#A9A9A9", alpha=.8)
-    bounding_segment(ran_max, lwd = 2, col = bound_col, upper = TRUE)
-    bounding_segment(ran_min, lwd = 2, col = bound_col, upper = FALSE)
+    bounding_segment(ran_max[xorder], lwd = 2, col = bound_col, upper = TRUE)
+    bounding_segment(ran_min[xorder], lwd = 2, col = bound_col, upper = FALSE)
     
     # Points
     graphics::points(

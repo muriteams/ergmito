@@ -142,6 +142,13 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
   # if (!length(attrs))
   #   attrs <- replicate(length(X), numeric(0), simplify = FALSE)
   
+  # Checking the types of objects
+  test <- which(!sapply(X, inherits, what = "matrix"))
+  if (length(test))
+    stop("When `X` is a list, it must be a list of matrices. There are ",
+         "some objects that are not: ", paste(test, collapse = ", "), ".",
+         call. = FALSE)
+  
   ans <- matrix(NA, nrow = length(X), ncol=length(terms))
   
   for (s in seq_along(chunks$from)) {

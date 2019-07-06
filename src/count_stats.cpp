@@ -303,16 +303,29 @@ NumericMatrix count_stats(
   ergm_term_fun fun;
   
   for (int j = 0; j < k; ++j) {
-
+      
     // Getting the function
     get_ergm_term(terms[j], fun);
 
     if (uses_attributes) {
-      for (int i = 0; i < n; ++i)
+      for (int i = 0; i < n; ++i) {
+        
+        // Checking dimmensions
+        if (X[i].nrow() != X[i].ncol())
+          stop("Matrix %i is not a square matrix.", i);
+        
         ans.at(i, j) = fun(X[i], A[i]);
+      }
+        
     } else {
-      for (int i = 0; i < n; ++i)
+      for (int i = 0; i < n; ++i) {
+        // Checking dimmensions
+        if (X[i].nrow() != X[i].ncol())
+          stop("Matrix %i is not a square matrix.", i);
+        
         ans.at(i, j) = fun(X[i], A_empty);
+      }
+        
     }
     
   }
