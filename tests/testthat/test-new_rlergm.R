@@ -2,6 +2,18 @@ context("Sampler")
 
 test_that("Using the count_stats vs ergm::summary_formula is equal", {
   
+  # Single network test
+  set.seed(4532)
+  nets <- rbernoulli(5)
+  Sys.setenv(ERGMITO_TEST = "")
+  set.seed(1);ans0 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L)
+  Sys.setenv(ERGMITO_TEST = 1)
+  set.seed(1);ans1 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L, force = TRUE)
+  
+  expect_equal(ans0$prob, ans1$prob)
+  expect_equal(sum(ans0$prob$`3`), 1)
+  
+  # Multiple network
   set.seed(45532)
   nets <- rbernoulli(c(4,3,4))
   

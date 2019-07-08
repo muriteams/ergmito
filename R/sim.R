@@ -108,12 +108,12 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
     
     for (s in names(ans$networks)) {
       
-      # Generating all statistics
+      # Generating all statistics (both have to match!)
       if (nnets(net) == 1 && nvertex(net) == as.integer(s)) {
         
         net_i <- net
         
-      } else if (nnets(net) > 1 && !length(ergm_model_attrs)) {
+      } else {
         
         net_i <- rbernoulli(as.integer(s))
         
@@ -203,17 +203,23 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
     for (s in names(ans$networks)) {
       
       # Computing probabilities
-      if (nnets(net) == 1 && nvertex(net) == as.integer(s)) {
+      if (nnets(net) == 1) {
         
-        net_i <- net
+        if (nvertex(net) != as.integer(s))
+          net_i <- rbernoulli(as.integer(s))
+        else 
+          net_i <- net
         
-      } else if (nnets(net) > 1 && !length(ergm_model_attrs)) {
+      } else if (nnets(net) > 1) {
+        
+        if (length(ergm_model_attrs))
+          stop("Nodal attributes cannot be used when nnets() > 1L and sizes != nvertex().",
+               call. = FALSE)
         
         net_i <- rbernoulli(as.integer(s))
         
-      } else #if (nnets(net) > 1 && length(ergm_model_attrs)) {
-        stop("Nodal attributes cannot be used when nnets() > 1L and sizes != nvertex().",
-             call. = FALSE)
+      } 
+        
       
       model. <- stats::update.formula(model, net_i ~ .)
       environment(model.) <- environment()

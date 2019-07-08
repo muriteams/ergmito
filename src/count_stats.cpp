@@ -8,9 +8,9 @@ using namespace Rcpp;
 
 inline double count_mutual(const IntegerMatrix & x, const NumericVector & A) {
   
-  int count = 0;
-  for (int i = 0; i < x.nrow(); ++i)
-    for (int j = i; j < x.nrow(); ++j)
+  unsigned int count = 0u;
+  for (unsigned int i = 0u; i < x.nrow(); ++i)
+    for (unsigned int j = i; j < x.nrow(); ++j)
       if (i != j && x(i,j) + x(j, i) > 1)
         ++count;
 
@@ -24,7 +24,7 @@ inline double count_mutual(const IntegerMatrix & x, const NumericVector & A) {
 
 inline double count_edges(const IntegerMatrix & x, const NumericVector & A) {
   
-  int count = 0;
+  unsigned int count = 0u;
   for (IntegerMatrix::const_iterator it = x.begin(); it != x.end(); ++it)
     if (*it > 0)
       ++count;
@@ -39,15 +39,15 @@ inline double count_edges(const IntegerMatrix & x, const NumericVector & A) {
 
 inline double count_ttriad(const IntegerMatrix & x, const NumericVector & A) {
   
-  int count = 0;
+  unsigned int count = 0u;
   
-  for (int i = 0; i < x.nrow(); ++i)
-    for (int j = 0; j < x.nrow(); ++j) {
+  for (unsigned int i = 0u; i < x.nrow(); ++i)
+    for (unsigned int j = 0u; j < x.nrow(); ++j) {
       
       if (x(i,j) == 0)
         continue;
       
-      for (int k = 0; k < x.nrow(); ++k) {
+      for (unsigned int k = 0u; k < x.nrow(); ++k) {
         
         // Label 1
         if (x(i,j) == 1 && x(i,k) == 1 && x(j,k) == 1)
@@ -62,15 +62,15 @@ inline double count_ttriad(const IntegerMatrix & x, const NumericVector & A) {
 
 inline double count_ctriad(const IntegerMatrix & x, const NumericVector & A) {
   
-  int count = 0;
+  unsigned int count = 0u;
   
-  for (int i = 0; i < x.nrow(); ++i)
-    for (int j = 0; j < i; ++j) {
+  for (unsigned int i = 0u; i < x.nrow(); ++i)
+    for (unsigned int j = 0u; j < i; ++j) {
       
       if (x(i,j) == 0)
         continue;
       
-      for (int k = 0; k < i; ++k) {
+      for (unsigned int k = 0u; k < i; ++k) {
         
         // Label 1
         if (x(i, j) == 1 && x(j, k) == 1 && x(k, i) == 1)
@@ -87,8 +87,8 @@ inline double count_nodecov(const IntegerMatrix & x, const NumericVector & A, bo
 
   double count = 0.0;
   
-  for (int i = 0; i < x.nrow(); ++i)
-    for (int j = 0; j < x.nrow(); ++j)
+  for (unsigned int i = 0u; i < x.nrow(); ++i)
+    for (unsigned int j = 0u; j < x.nrow(); ++j)
       if (x(i,j) == 1)
         count += A[ego ? i : j];
   
@@ -106,10 +106,10 @@ inline double count_nodeocov(const IntegerMatrix & x, const NumericVector & A) {
 
 
 inline double count_nodematch(const IntegerMatrix & x, const NumericVector & A) {
-  int count = 0;
+  unsigned int count = 0u;
   
-  for (int i = 0; i < x.nrow(); ++i)
-    for (int j = 0; j < x.nrow(); ++j)
+  for (unsigned int i = 0u; i < x.nrow(); ++i)
+    for (unsigned int j = 0u; j < x.nrow(); ++j)
       if (x(i,j) == 1 && A.at(i) == A.at(j))
         ++count;
       
@@ -124,11 +124,11 @@ inline double count_triangle(const IntegerMatrix & x, const NumericVector & A) {
 
 inline double count_balance(const IntegerMatrix & x, const NumericVector & A) {
   
-  int count = 0, n = x.nrow();
+  unsigned int count = 0u, n = x.nrow();
   int s;
   
-  for (int i = 0; i < n; ++i)
-    for (int j = 0; j < n; ++j) {
+  for (unsigned int i = 0u; i < n; ++i)
+    for (unsigned int j = 0u; j < n; ++j) {
   
       if (i == j)
         continue;
@@ -145,7 +145,7 @@ inline double count_balance(const IntegerMatrix & x, const NumericVector & A) {
       // otherwise we will be double counting.
       else if (s == 0) { // Triad 102
         
-        for (int k = 0; k < i; ++k) {
+        for (unsigned int k = 0u; k < i; ++k) {
           
           if (k == j)
             continue;
@@ -166,7 +166,7 @@ inline double count_balance(const IntegerMatrix & x, const NumericVector & A) {
         if (j >= i)
           break;
         
-        for (int k = 0; k < j; ++k) {
+        for (unsigned int k = 0u; k < j; ++k) {
           
           if (x(i, k) == 0 || x(k, i) == 0 || x(j, k) == 0 || x(k, j) == 0)
             continue;
@@ -185,16 +185,16 @@ inline double count_balance(const IntegerMatrix & x, const NumericVector & A) {
 // Triadic census --------------------------------------------------------------
 inline double count_t300(const IntegerMatrix & x, const NumericVector & A) {
 
-  int count = 0, n = x.nrow();
+  unsigned int count = 0u, n = x.nrow();
 
-  for (int i = 0; i < n; ++i) {
+  for (unsigned int i = 0u; i < n; ++i) {
     
-    for (int j = 0; j < i; ++j) {
+    for (unsigned int j = 0u; j < i; ++j) {
       
       if (x(i, j) == 0 || x(j, i) == 0)
         continue;
       
-      for (int k = 0; k < j; ++k) {
+      for (unsigned int k = 0u; k < j; ++k) {
         
         if (x(i, k) == 0 || x(k, i) == 0 || x(j, k) == 0 || x(k, j) == 0)
           continue;
@@ -211,16 +211,16 @@ inline double count_t300(const IntegerMatrix & x, const NumericVector & A) {
 }
 
 inline double count_t102(const IntegerMatrix & x, const NumericVector & A) {
-  int count = 0, n = x.nrow();
+  unsigned int count = 0u, n = x.nrow();
   
-  for (int i = 0; i < n; ++i) {
+  for (unsigned int i = 0u; i < n; ++i) {
     
-    for (int j = 0; j < n; ++j) {
+    for (unsigned int j = 0u; j < n; ++j) {
       
       if (x(i, j) == 1 || x(j, i) == 1)
         continue;
       
-      for (int k = 0; k < i; ++k) {
+      for (unsigned int k = 0u; k < i; ++k) {
         
         if (x(i, k) == 0 || x(k, i) == 0 || x(j, k) == 1 || x(k, j) == 1)
           continue;
@@ -302,13 +302,13 @@ NumericMatrix count_stats(
   NumericMatrix ans(n, k);
   ergm_term_fun fun;
   
-  for (int j = 0; j < k; ++j) {
+  for (unsigned int j = 0u; j < k; ++j) {
       
     // Getting the function
     get_ergm_term(terms[j], fun);
 
     if (uses_attributes) {
-      for (int i = 0; i < n; ++i) {
+      for (unsigned int i = 0u; i < n; ++i) {
         
         // Checking dimmensions
         if (X[i].nrow() != X[i].ncol())
@@ -318,7 +318,7 @@ NumericMatrix count_stats(
       }
         
     } else {
-      for (int i = 0; i < n; ++i) {
+      for (unsigned int i = 0u; i < n; ++i) {
         // Checking dimmensions
         if (X[i].nrow() != X[i].ncol())
           stop("Matrix %i is not a square matrix.", i);
@@ -363,10 +363,10 @@ inline IntegerMatrix geodesici(const arma::imat & x, bool force = false) {
   
   // List of indices to check
   unsigned int changes = 0u;
-  for (int iter = 0; iter < n; ++iter) {
+  for (unsigned int iter = 0u; iter < n; ++iter) {
     changes = 0;
-    for (int i = 0; i < n; ++i)
-      for (int j = 0; j < n; ++j) {
+    for (unsigned int i = 0u; i < n; ++i)
+      for (unsigned int j = 0u; j < n; ++j) {
         if (i != j && res_tmp.at(i, j) != 0 && (res.at(i, j) == -1)) 
           res.at(i, j) = iter + 1, ++changes;
       }
@@ -386,8 +386,8 @@ ListOf< IntegerMatrix > geodesic(
   
   ListOf< IntegerMatrix > res(X.size());
   
-  int nX = X.size();
-  for (int i = 0; i < nX; ++i)
+  unsigned int nX = X.size();
+  for (unsigned int i = 0u; i < nX; ++i)
     res[i] = geodesici(as< arma::imat >(X[i]), force);
   
   return res;
