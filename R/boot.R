@@ -45,11 +45,12 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
       call.=FALSE)
   
   # Getting the sample, and baseline model
-  IDX          <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
-  model0       <- stats::update.formula(x$formulae$model, nets0[idx] ~ .)
-  target.stats <- x$formulae$target.stats
-  nets0        <- x$network
-  stats        <- x$formulae$stats
+  IDX           <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
+  model0        <- stats::update.formula(x$formulae$model, nets0[idx] ~ .)
+  target.stats  <- x$formulae$target.stats
+  nets0         <- x$network
+  stats.weights <- x$formulae$stats.weights
+  stats.statmat <- x$formulae$stats.statmat
   
   # Creating the cluster and setting the seed
   if (ncpus > 1L && !length(cl)) {
@@ -57,7 +58,9 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     # Setting up the cluster
     cl <- parallel::makePSOCKcluster(ncpus)
     parallel::clusterEvalQ(cl, library(ergmito))
-    parallel::clusterExport(cl, c("model0", "target.stats", "nets0", "stats"), envir = environment())
+    parallel::clusterExport(
+      cl, c("model0", "target.stats", "nets0", "stats.weights", "stats.statmat"),
+      envir = environment())
     
     parallel::clusterSetRNGStream(cl)
 
@@ -72,7 +75,12 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     parallel::parLapply(cl, IDX, function(idx) {
       
       environment(model0) <- environment()
-      ergmito(model0, stats = stats[idx], target.stats = target.stats[idx,,drop=FALSE])
+      ergmito(
+        model0,
+        stats.weights = stats.weights[idx],
+        stats.statmat = stats.statmat[idx],
+        target.stats = target.stats[idx,,drop=FALSE]
+        )
       
     })
     
@@ -81,7 +89,12 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     lapply(IDX, function(idx) {
       
       environment(model0) <- environment()
-      ergmito(model0, stats = stats[idx], target.stats = target.stats[idx,,drop=FALSE])
+      ergmito(
+        model0,
+        stats.weights = stats.weights[idx],
+        stats.statmat = stats.statmat[idx],
+        target.stats = target.stats[idx,,drop=FALSE]
+        )
       
     })
     

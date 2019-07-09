@@ -9,23 +9,27 @@ test_that("As expected 1", {
   gof0  <- gof_ergmito(model)
   
   # Alternative calculation
-  dat <- model$formulae$stats
-  prb <- exact_loglik(dat[[1]]$statmat, coef(model), dat[[1]]$weights, dat[[1]]$statmat)
+  prb <- exact_loglik(
+    x             = model$formulae$stats.statmat[[1]],
+    params        = coef(model),
+    stats.weights = model$formulae$stats.weights[[1]],
+    stats.statmat = model$formulae$stats.statmat[[1]]
+    )
   prb <- exp(prb)
   
   # Adds up to one
-  expect_equal(sum(prb*dat[[1]]$weights), 1)
-  min_max <- range(dat[[1]]$statmat)
+  expect_equal(sum(prb*model$formulae$stats.weights[[1]]), 1)
+  min_max <- range(model$formulae$stats.statmat[[1]])
   
   # Quantiles
-  ord    <- order(dat[[1]]$statmat)
-  cumprb <- cumsum(prb[ord]*dat[[1]]$weights[ord])
+  ord    <- order(model$formulae$stats.statmat[[1]])
+  cumprb <- cumsum(prb[ord]*model$formulae$stats.weights[[1]][ord])
   
   # 90% CI
   idx <- c(max(which(cumprb < .05)), min(which(cumprb > .95)))
   expect_equivalent(
     gof0$ci[[1]][, c("lower-q", "upper-q")],
-    dat[[1]]$statmat[ord][idx]
+    model$formulae$stats.statmat[[1]][ord][idx]
     )
   expect_equivalent(gof0$ci[[1]][, c("lower-p", "upper-p")], cumprb[idx])
   
@@ -42,26 +46,30 @@ test_that("As expected 1", {
   gof0  <- gof_ergmito(model)
   
   # Alternative calculation
-  dat <- model$formulae$stats
-  prb <- exact_loglik(dat[[1]]$statmat, coef(model), dat[[1]]$weights, dat[[1]]$statmat)
+  prb <- exact_loglik(
+    x             = model$formulae$stats.statmat[[1]],
+    params        = coef(model),
+    stats.weights = model$formulae$stats.weights[[1]],
+    stats.statmat = model$formulae$stats.statmat[[1]]
+  )
   prb <- exp(prb)
   
   # Adds up to one
-  expect_equal(sum(prb*dat[[1]]$weights), 1)
-  min_max <- range(dat[[1]]$statmat)
+  expect_equal(sum(prb*model$formulae$stats.weights[[1]]), 1)
+  min_max <- range(model$formulae$stats.statmat[[1]])
   
   # Quantiles
   for (k in 1L:2L) {
     
-    ord <- order(dat[[1]]$statmat[, k])
-    S   <- sort(unique(dat[[1]]$statmat[ord, k]))
+    ord <- order(model$formulae$stats.statmat[[1]][, k])
+    S   <- sort(unique(model$formulae$stats.statmat[[1]][ord, k]))
     
     # Aggregating probs
     cumprb <- numeric(length(S))
     for (i in seq_along(S)) {
       
-      ids       <- which(dat[[1]]$statmat[,k] == S[i])
-      cumprb[i] <- sum(dat[[1]]$weights[ids]*prb[ids])
+      ids       <- which(model$formulae$stats.statmat[[1]][,k] == S[i])
+      cumprb[i] <- sum(model$formulae$stats.weights[[1]][ids]*prb[ids])
     }
     
     cumprb <- cumsum(cumprb)

@@ -77,7 +77,17 @@ plot.ergmito <- function(
   if (!inherits(x, "ergmito"))
     stop("This function only accepts objects of class `ergmito`.", call. = FALSE)
   
-  f <- x$formulae$loglik
+  f <- function(p) {
+    with(
+      x$formulae,
+      loglik(
+        params        = p,
+        target.stats  = target.stats,
+        stats.weights = stats.weights,
+        stats.statmat = stats.statmat
+        )
+    )}
+  
   k <- x$formulae$npars
   
   # Over what domain should we calculate this?

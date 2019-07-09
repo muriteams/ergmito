@@ -156,18 +156,18 @@ gof_ergmito <- function(
       
     } else {
       
-      statmat. <- object$formulae$stats[[i]]$statmat
-      weights. <- object$formulae$stats[[i]]$weights
+      statmat. <- object$formulae$stats.statmat[[i]]
+      weights. <- object$formulae$stats.weights[[i]]
       
       target.stats <- rbind(target.stats, object$formulae$target.stats[i, ])
     }
     
     # Computing the probability of observing each class of networks
     pr[[i]] <- exp(exact_loglik(
-      x       = statmat.[, names(stats::coef(object)), drop = FALSE],
-      statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
-      params  = stats::coef(object),
-      weights = weights.
+      x             = statmat.[, names(stats::coef(object)), drop = FALSE],
+      stats.statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
+      stats.weights = weights.,
+      params        = stats::coef(object)
     ))*weights.
     
     # Calculating the quantiles. First, we need to make some room to the data

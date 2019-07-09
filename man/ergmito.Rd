@@ -11,9 +11,9 @@
 \alias{vcov.ergmito}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
-ergmito(model, gattr_model = NULL, stats = NULL, optim.args = list(),
-  init = NULL, ntries = 5L, use.grad = TRUE, target.stats = NULL,
-  ...)
+ergmito(model, gattr_model = NULL, stats.weights = NULL,
+  stats.statmat = NULL, optim.args = list(), init = NULL,
+  ntries = 5L, use.grad = TRUE, target.stats = NULL, ...)
 
 \method{print}{ergmito}(x, ...)
 
@@ -36,8 +36,9 @@ ergmito(model, gattr_model = NULL, stats = NULL, optim.args = list(),
 \item{gattr_model}{A formula. Model especification for graph attributes. This
 is useful when using multiple networks.}
 
-\item{stats}{List as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}. When this is provided,
-the function does not call \code{ergm.allstats}, which can be useful in simulations.}
+\item{stats.weights, stats.statmat}{Lists as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.
+When this is provided, the function does not call \code{ergm.allstats}, which can
+be useful in simulations.}
 
 \item{optim.args}{List. Passed to \link[stats:optim]{stats::optim}.}
 

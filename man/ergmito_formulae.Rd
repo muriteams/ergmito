@@ -5,7 +5,8 @@
 \title{Processing formulas in \code{ergmito}}
 \usage{
 ergmito_formulae(model, gattr_model = NULL, target.stats = NULL,
-  stats = NULL, env = parent.frame(), ...)
+  stats.weights = NULL, stats.statmat = NULL, env = parent.frame(),
+  ...)
 }
 \arguments{
 \item{model}{A formula. The left-hand-side can be either a small network, or
@@ -17,7 +18,8 @@ is useful when using multiple networks.}
 \item{target.stats}{Observed statistics. If multiple networks, then a list, otherwise
 a named vector (see \link[ergm:summary_formula]{ergm::summary_formula}).}
 
-\item{stats}{A list.}
+\item{stats.weights, stats.statmat}{Lists of sufficient statistics and their
+respective weights.}
 
 \item{env}{Environment in which \code{model} should be evaluated.}
 
@@ -28,9 +30,8 @@ A list of class \code{ergmito_loglik}.
 \itemize{
 \item \code{loglik} A function. The log-likelihood function.
 \item \code{grad} A function. The gradient of the model.
-\item \code{stats} If the number of networks is greater than 1, then a list of objects
-as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats} (one per network). Otherwise, a single
-list returned by the same function.
+\item \code{stats.weights},\code{stats.statmat} two list of objects as returned by
+\link[ergm:ergm.allstats]{ergm::ergm.allstats}.
 \item \code{model} A formula. The model passed.
 \item \code{npars} Integer. Number of parameters.
 \item \code{nnets} Integer. Number of networks to estiamte.

@@ -19,8 +19,8 @@ inline double kappa(
 inline void exact_logliki(
     const arma::rowvec & x,
     const arma::colvec & params,
-    const arma::rowvec & weights,
-    const arma::mat    & statmat,
+    const arma::rowvec & stats_weights,
+    const arma::mat    & stats_statmat,
     arma::vec & ans,
     int i,
     bool as_prob = false
@@ -28,10 +28,10 @@ inline void exact_logliki(
   
   if (!as_prob) {
     ans.at(i) = arma::as_scalar(x * params) - 
-      log(kappa(params, weights, statmat));
+      log(kappa(params, stats_weights, stats_statmat));
   } else {
     ans.at(i) = exp(arma::as_scalar(x * params))/ 
-      kappa(params, weights, statmat);
+      kappa(params, stats_weights, stats_statmat);
   }
   
   return;
@@ -49,8 +49,8 @@ inline void exact_logliki(
 arma::vec exact_loglik(
     const arma::mat & x,
     const arma::colvec & params,
-    const std::vector< arma::rowvec > & weights,
-    const std::vector< arma::mat > & statmat,
+    const std::vector< arma::rowvec > & stats_weights,
+    const std::vector< arma::mat > & stats_statmat,
     bool as_prob = false
 ) {
 
@@ -58,18 +58,18 @@ arma::vec exact_loglik(
   int n = x.n_rows;
   
   // Checking the sizes
-  if (weights.size() != statmat.size())
+  if (stats_weights.size() != stats_statmat.size())
     stop("The weights and statmat lists must have the same length.");
   
-  if (weights.size() > 1u) {
+  if (stats_weights.size() > 1u) {
     
     for (int i = 0; i < n; ++i)
-      exact_logliki(x.row(i), params, weights.at(i), statmat.at(i), ans, i, as_prob);
+      exact_logliki(x.row(i), params, stats_weights.at(i), stats_statmat.at(i), ans, i, as_prob);
     
   } else {
     // In the case that all networks are from the same family, then this becomes
     // a trivial operation.
-    ans = x * params - log(kappa(params, weights.at(0), statmat.at(0)));
+    ans = x * params - log(kappa(params, stats_weights.at(0), stats_statmat.at(0)));
     
   }
   
@@ -82,11 +82,12 @@ arma::vec exact_loglik(
 inline arma::colvec exact_gradienti(
     const arma::rowvec & x,
     const arma::colvec & params,
-    const arma::rowvec & weights,
-    const arma::mat    & statmat
+    const arma::rowvec & stats_weights,
+    const arma::mat    & stats_statmat
 ) {
 
-  return x.t() - (statmat.t() * (weights.t() % exp(statmat * params)))/kappa(params, weights, statmat);
+  return x.t() - (stats_statmat.t() * (stats_weights.t() % exp(stats_statmat * params)))/
+    kappa(params, stats_weights, stats_statmat);
 
 }
 
@@ -101,29 +102,29 @@ inline arma::colvec exact_gradienti(
 arma::colvec exact_gradient(
     const arma::mat & x,
     const arma::colvec & params,
-    const std::vector< arma::rowvec > & weights,
-    const std::vector< arma::mat > & statmat
+    const std::vector< arma::rowvec > & stats_weights,
+    const std::vector< arma::mat > & stats_statmat
 ) {
 
   // Checking the sizes
-  if (weights.size() != statmat.size())
+  if (stats_weights.size() != stats_statmat.size())
     stop("The weights and statmat lists must have the same length.");
 
-  if (weights.size() > 1u) {
+  if (stats_weights.size() > 1u) {
     
     arma::colvec ans(x.n_cols);
     ans.fill(0.0);
     int n = x.n_rows;
 
     for (int i = 0; i < n; ++i)
-      ans += exact_gradienti(x.row(i), params, weights.at(i), statmat.at(i));
+      ans += exact_gradienti(x.row(i), params, stats_weights.at(i), stats_statmat.at(i));
     
     return ans;
 
   } else {
     // In the case that all networks are from the same family, then this becomes
     // a trivial operation.
-    return exact_gradienti(x.row(0), params, weights.at(0), statmat.at(0));
+    return exact_gradienti(x.row(0), params, stats_weights.at(0), stats_statmat.at(0));
 
   }
 

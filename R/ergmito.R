@@ -1,9 +1,9 @@
 
-check_degeneracy <- function(target.stats, stats, threshold = .8, warn = TRUE) {
-  
-  # Retrieving the matrix of sufficient statistics
-  statsmats <- lapply(stats, "[[", "statmat")
-  
+check_degeneracy <- function(
+  target.stats,
+  stats.statmat,
+  threshold = .8, warn = TRUE) {
+
   res <- structure(
     vector("logical", ncol(target.stats)),
     names = colnames(target.stats)
@@ -12,10 +12,10 @@ check_degeneracy <- function(target.stats, stats, threshold = .8, warn = TRUE) {
   for (k in 1L:ncol(target.stats)) {
     
     # Retrieving the space range
-    stats_range <- stats
+    # stats_range <- stats
     
     # Looking for degeneracy at the k-th parameter
-    stat_range <- lapply(statsmats, "[", i=, drop = TRUE)
+    stat_range <- lapply(stats.statmat, "[", i=, drop = TRUE)
     stat_range <- lapply(stat_range, range)
     stat_range <- do.call(rbind, stat_range)
     
@@ -62,8 +62,9 @@ check_degeneracy <- function(target.stats, stats, threshold = .8, warn = TRUE) {
 #' is useful when using multiple networks.
 #' @param optim.args List. Passed to [stats::optim].
 #' @param target.stats A matrix of target statistics (see [ergm::ergm]).
-#' @param stats List as returned by [ergm::ergm.allstats]. When this is provided,
-#' the function does not call `ergm.allstats`, which can be useful in simulations.
+#' @param stats.weights,stats.statmat Lists as returned by [ergm::ergm.allstats].
+#' When this is provided, the function does not call `ergm.allstats`, which can
+#' be useful in simulations.
 #' @param init Either a numeric vector, or a matrix with `ntries` rows. Sets
 #' the starting parameters for the optimization routine.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
@@ -151,13 +152,14 @@ check_degeneracy <- function(target.stats, stats, threshold = .8, warn = TRUE) {
 #' @importFrom MASS ginv
 ergmito <- function(
   model,
-  gattr_model  = NULL,
-  stats        = NULL,
-  optim.args   = list(),
-  init         = NULL,
-  ntries       = 5L,
-  use.grad     = TRUE,
-  target.stats = NULL,
+  gattr_model   = NULL,
+  stats.weights = NULL,
+  stats.statmat = NULL,
+  optim.args    = list(),
+  init          = NULL,
+  ntries        = 5L,
+  use.grad      = TRUE,
+  target.stats  = NULL,
   ...
   ) {
   
@@ -165,15 +167,19 @@ ergmito <- function(
   ergmitoenv <- environment(model)
   formulae   <- ergmito_formulae(
     model,
-    gattr_model  = gattr_model, 
-    target.stats = target.stats,
-    stats        = stats,
-    env          = ergmitoenv,
+    gattr_model   = gattr_model, 
+    target.stats  = target.stats,
+    stats.weights = stats.weights,
+    stats.statmat = stats.statmat,
+    env           = ergmitoenv,
     ...
     )
 
   # Verifying existance of MLE
-  degeneracy <- check_degeneracy(formulae$target.stats, formulae$stats)
+  degeneracy <- check_degeneracy(
+    formulae$target.stats,
+    formulae$stats.statmat
+    )
   
   npars  <- formulae$npars
   
@@ -220,8 +226,10 @@ ergmito <- function(
   optim.args$fn <- formulae$loglik
   if (use.grad) 
     optim.args$gr <- formulae$grad
-  optim.args$stats <- stats$statmat
-  optim.args$hessian <- TRUE
+  optim.args$stats.weights <- formulae$stats.weights
+  optim.args$stats.statmat <- formulae$stats.statmat
+  optim.args$target.stats  <- formulae$target.stats
+  optim.args$hessian       <- TRUE
   
   ans <- vector("list", ntries)
   for (i in 1:ntries) {
@@ -280,7 +288,12 @@ ergmito <- function(
     model <- eval(model)
   
   # Null loglik
-  ll0 <- formulae$loglik(rep(0, length(pnames)))
+  ll0 <- formulae$loglik(
+    params        = rep(0, length(pnames)),
+    stats.weights = formulae$stats.weights,
+    stats.statmat = formulae$stats.statmat,
+    target.stats  = formulae$target.stats
+    )
   
   ans <- structure(
     list(
