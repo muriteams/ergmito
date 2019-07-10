@@ -273,10 +273,10 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
     
     for (i in s)
       ans$prob[[i]] <- exp(exact_loglik(
-        x       = ans$counts[[i]]$stats,
-        params  = theta,
-        weights = ans$counts[[i]]$weights,
-        statmat = ans$counts[[i]]$statmat
+        x             = ans$counts[[i]]$stats,
+        params        = theta,
+        stats.weights = ans$counts[[i]]$weights,
+        stats.statmat = ans$counts[[i]]$statmat
       ))
       
     invisible()

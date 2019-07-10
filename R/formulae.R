@@ -8,7 +8,8 @@
 #' a list of networks. 
 #' @param gattr_model A formula. Model especification for graph attributes. This
 #' is useful when using multiple networks.
-#' @param stats A list.
+#' @param stats.weights,stats.statmat Lists of sufficient statistics and their
+#' respective weights.
 #' @param target.stats Observed statistics. If multiple networks, then a list, otherwise
 #' a named vector (see [ergm::summary_formula]). 
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
@@ -17,9 +18,8 @@
 #' 
 #' - `loglik` A function. The log-likelihood function.
 #' - `grad` A function. The gradient of the model.
-#' - `stats` If the number of networks is greater than 1, then a list of objects
-#' as returned by [ergm::ergm.allstats] (one per network). Otherwise, a single
-#' list returned by the same function.
+#' - `stats.weights`,`stats.statmat` two list of objects as returned by
+#' [ergm::ergm.allstats].
 #' - `model` A formula. The model passed.
 #' - `npars` Integer. Number of parameters.
 #' - `nnets` Integer. Number of networks to estiamte.
@@ -27,10 +27,11 @@
 #' @export
 ergmito_formulae <- function(
   model,
-  gattr_model  = NULL,
-  target.stats = NULL,
-  stats        = NULL,
-  env          = parent.frame(),
+  gattr_model   = NULL,
+  target.stats  = NULL,
+  stats.weights = NULL,
+  stats.statmat = NULL,
+  env           = parent.frame(),
   ...
   ) {
   
@@ -69,12 +70,13 @@ ergmito_formulae <- function(
   model. <- model
   model. <- stats::update.formula(model., LHS[[i]] ~ .)
   
-  formulaeenv <- environment()
-  environment(model.) <- formulaeenv
+  environment(model.) <- environment()
   
   # Checking observed stats and stats
-  if (!length(stats))
-    stats <- vector("list", nnets(LHS))
+  if (!length(stats.weights) | !length(stats.statmat)) {
+    stats.weights <- vector("list", nnets(LHS))
+    stats.statmat <- stats.weights
+  }
   
   # Has the user passed target statistics?
   if (!length(target.stats))
@@ -102,15 +104,18 @@ ergmito_formulae <- function(
       target.stats[[i]][] <- rep(0, length(target.stats[[i]][]))
     
     # Calculating statistics and weights
-    if (!length(stats[[i]]))
-      stats[[i]] <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
+    if (!length(stats.statmat[[i]])) {
+      allstats_i <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
+      stats.statmat[[i]] <- allstats_i$statmat
+      stats.weights[[i]] <- allstats_i$weights
+    }
     
     # Adding graph parameters to the statmat
     if (length(g)) {
-      stats[[i]]$statmat <- cbind(
-        stats[[i]]$statmat,
+      stats.statmat[[i]] <- cbind(
+        stats.statmat[[i]],
         matrix(
-          target.stats[[i]][names(g)], nrow = nrow(stats[[i]]$statmat), ncol=length(g),
+          target.stats[[i]][names(g)], nrow = nrow(stats.statmat[[i]]), ncol=length(g),
           byrow = TRUE, dimnames = list(NULL, names(g))
           )
         )
@@ -120,30 +125,16 @@ ergmito_formulae <- function(
   
   # Coercing objects
   target.stats   <- do.call(rbind, target.stats)
-  weights <- lapply(stats, "[[", "weights")
-  statmat <- lapply(stats, "[[", "statmat")
   
   structure(list(
-    loglik = function(params, stats = NULL, target.stats = NULL) {
+    loglik = function(params, stats.weights, stats.statmat, target.stats) {
       
-      # If no target.stats specified, used the observed in the data
-      if (is.null(target.stats))
-        target.stats <- formulaeenv$target.stats
-      
-      # Are we including anything 
-      ans <- if (!length(stats)) {
-        exact_loglik(
-          params = params, x = target.stats,
-          weights = formulaeenv$weights, statmat = formulaeenv$statmat
-        )
-      } else {
-        exact_loglik(
-          params = params, x = target.stats,
-          weights = stats$weights, statmat = stats$statmat
-        )
-      }
-      
-      ans <- sum(ans)
+      ans <- sum(exact_loglik(
+        params        = params,
+        x             = target.stats,
+        stats.weights = stats.weights,
+        stats.statmat = stats.statmat
+      ))
       
       # If awfully undefined
       if (!is.finite(ans))
@@ -153,33 +144,15 @@ ergmito_formulae <- function(
       # max(ans, -.Machine$double.xmax/1e100)
       
     },
-    grad  = function(params, stats = NULL, target.stats = NULL) {
-      
-      # If no target.stats specified, used the observed in the data
-      if (is.null(target.stats))
-        target.stats <- formulaeenv$target.stats
-      
-      # Are we including anything 
-      ans <- if (!length(stats)) {
-        exact_gradient(
-          params = params, x = target.stats,
-          weights = formulaeenv$weights, statmat = formulaeenv$statmat
-        )
-      } else {
-        exact_gradient(
-          params = params, x = target.stats,
-          weights = stats$weights, statmat = stats$statmat
-        )
-      }
-      
-      # If awfully undefined
-      # if (is.nan(ans))
-      #   return(-.Machine$double.xmax/1e100)
-      # 
-      # max(ans, -.Machine$double.xmax/1e100)
-      
-      # ans[is.nan(ans)] <- .Machine$double.xmax/1e100
-      
+    grad  = function(params, stats.weights, stats.statmat, target.stats) {
+
+      ans <- exact_gradient(
+        params        = params,
+        x             = target.stats,
+        stats.weights = stats.weights,
+        stats.statmat = stats.statmat
+      )
+
       test <- which(is.infinite(ans))
       if (length(test))
         ans[test] <- sign(ans[test])*.Machine$double.xmax/1e100
@@ -187,11 +160,12 @@ ergmito_formulae <- function(
       ans
       
     },
-    target.stats = target.stats,
-    stats        = stats,
-    model        = stats::as.formula(model, env = env),
-    npars        = ncol(target.stats),
-    nnets        = nnets(LHS)
+    target.stats  = target.stats,
+    stats.weights = stats.weights,
+    stats.statmat = stats.statmat,
+    model         = stats::as.formula(model, env = env),
+    npars         = ncol(target.stats),
+    nnets         = nnets(LHS)
   ), class="ergmito_loglik")
   
   
@@ -232,9 +206,9 @@ print.ergmito_loglik <- function(x, ...) {
 #' 
 #' @param x Matrix. Observed statistics
 #' @param params Numeric vector. Parameter values of the model.
-#' @param weights,statmat Vector and Matrix as returned by [ergm::ergm.allstats].
+#' @param stats.weights,stats.statmat Vector and Matrix as returned by [ergm::ergm.allstats].
 #' @export
-exact_loglik <- function(x, params, weights, statmat) {
+exact_loglik <- function(x, params, stats.weights, stats.statmat) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -245,27 +219,27 @@ exact_loglik <- function(x, params, weights, statmat) {
   if (n == 1) {
     # If only one observation
     
-    if (!is.list(weights))
-      weights <- list(weights)
+    if (!is.list(stats.weights))
+      stats.weights <- list(stats.weights)
     
-    if (!is.list(statmat))
-      statmat <- list(statmat)
+    if (!is.list(stats.statmat))
+      stats.statmat <- list(stats.statmat)
     
   } else if (n > 1) {
     # If more than 1, then perhaps we need to recycle the values
     
-    if (!is.list(weights)) {
-      weights <- list(weights)
-    } else if (length(weights) != n) {
-      stop("length(weights) != nrow(x). When class(weights) == 'list', the number",
+    if (!is.list(stats.weights)) {
+      stats.weights <- list(stats.weights)
+    } else if (length(stats.weights) != n) {
+      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
     }
     
-    if (!is.list(statmat)) {
-      statmat <- list(statmat)
-    } else if (length(statmat) != n) {
-      stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
+    if (!is.list(stats.statmat)) {
+      stats.statmat <- list(stats.statmat)
+    } else if (length(stats.statmat) != n) {
+      stop("length(stats.statmat) != nrow(x). When class(stats.statmat) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
     }
@@ -276,13 +250,19 @@ exact_loglik <- function(x, params, weights, statmat) {
 
   # Computing in chunks
   ans <- vector("double", n)
-  if (length(weights) > 1L) {
+  if (length(stats.weights) > 1L) {
     for (s in seq_along(chunks$from)) {
       
       i <- chunks$from[s]
       j <- chunks$to[s]
       
-      ans[i:j] <- exact_loglik.(x[i:j, ,drop=FALSE], params, weights[i:j], statmat[i:j])
+      
+      ans[i:j] <- exact_loglik.(
+        x[i:j, , drop = FALSE],
+        params,
+        stats_weights = stats.weights[i:j],
+        stats_statmat = stats.statmat[i:j]
+        )
       
     }
   } else {
@@ -291,7 +271,12 @@ exact_loglik <- function(x, params, weights, statmat) {
       i <- chunks$from[s]
       j <- chunks$to[s]
       
-      ans[i:j] <- exact_loglik.(x[i:j, ,drop=FALSE], params, weights, statmat)
+      ans[i:j] <- exact_loglik.(
+        x[i:j, ,drop=FALSE],
+        params,
+        stats_weights = stats.weights,
+        stats_statmat = stats.statmat
+        )
       
     }
   }
@@ -309,7 +294,7 @@ exact_loglik2 <- function(params, stat0, stats) {
 
 #' @rdname exact_loglik
 #' @export
-exact_gradient <- function(x, params, weights, statmat) {
+exact_gradient <- function(x, params, stats.weights, stats.statmat) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -320,26 +305,26 @@ exact_gradient <- function(x, params, weights, statmat) {
   if (n == 1) {
     # If only one observation
     
-    if (!is.list(weights))
-      weights <- list(weights)
+    if (!is.list(stats.weights))
+      stats.weights <- list(stats.weights)
     
-    if (!is.list(statmat))
-      statmat <- list(statmat)
+    if (!is.list(stats.statmat))
+      stats.statmat <- list(stats.statmat)
     
   } else if (n > 1) {
     # If more than 1, then perhaps we need to recycle the values
     
-    if (!is.list(weights)) {
-      weights <- list(weights)
-    } else if (length(weights) != n) {
-      stop("length(weights) != nrow(x). When class(weights) == 'list', the number",
+    if (!is.list(stats.weights)) {
+     stats.weights <- list(stats.weights)
+    } else if (length(stats.weights) != n) {
+      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
     }
     
-    if (!is.list(statmat)) {
-      statmat <- list(statmat)
-    } else if (length(statmat) != n) {
+    if (!is.list(stats.statmat)) {
+      stats.statmat <- list(stats.statmat)
+    } else if (length(stats.statmat) != n) {
       stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
@@ -356,7 +341,12 @@ exact_gradient <- function(x, params, weights, statmat) {
     i <- chunks$from[s]
     j <- chunks$to[s]
     
-    ans <- ans + exact_gradient.(x[i:j, ,drop=FALSE], params, weights[i:j], statmat[i:j])
+    ans <- ans + exact_gradient.(
+      x[i:j, ,drop=FALSE],
+      params,
+      stats_weights = stats.weights[i:j],
+      stats_statmat = stats.statmat[i:j]
+      )
     
   }
   

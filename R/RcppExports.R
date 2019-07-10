@@ -20,8 +20,8 @@ geodesic. <- function(X, force = FALSE) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_loglik. <- function(x, params, weights, statmat, as_prob = FALSE) {
-    .Call(`_ergmito_exact_loglik`, x, params, weights, statmat, as_prob)
+exact_loglik. <- function(x, params, stats_weights, stats_statmat, as_prob = FALSE) {
+    .Call(`_ergmito_exact_loglik`, x, params, stats_weights, stats_statmat, as_prob)
 }
 
 #' Vectorized version of gradient function
@@ -31,8 +31,8 @@ exact_loglik. <- function(x, params, weights, statmat, as_prob = FALSE) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_gradient. <- function(x, params, weights, statmat) {
-    .Call(`_ergmito_exact_gradient`, x, params, weights, statmat)
+exact_gradient. <- function(x, params, stats_weights, stats_statmat) {
+    .Call(`_ergmito_exact_gradient`, x, params, stats_weights, stats_statmat)
 }
 
 init_network <- function(n, directed = TRUE, hyper = FALSE, loops = FALSE, multiple = FALSE, bipartite = FALSE) {

@@ -38,5 +38,8 @@ test_that("Multiple nets", {
   expect_equal(coef(ans0), coef(ans1), tolerance = 1e-4)
   expect_equal(vcov(ans0), vcov(ans1)*2, tolerance = 1e-4) # Vcov is half of it!
   
+  expect_output(print(ans0), "ERGMito")
+  expect_output(print(summary(ans0)), "z value")
+  
 })
 

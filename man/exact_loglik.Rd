@@ -5,16 +5,16 @@
 \alias{exact_gradient}
 \title{Vectorized calculation of ERGM exact loglikelihood}
 \usage{
-exact_loglik(x, params, weights, statmat)
+exact_loglik(x, params, stats.weights, stats.statmat)
 
-exact_gradient(x, params, weights, statmat)
+exact_gradient(x, params, stats.weights, stats.statmat)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}
 
 \item{params}{Numeric vector. Parameter values of the model.}
 
-\item{weights, statmat}{Vector and Matrix as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
+\item{stats.weights, stats.statmat}{Vector and Matrix as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
 }
 \description{
 This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics
