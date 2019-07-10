@@ -88,3 +88,34 @@ test_that("As expected 1", {
   
   
 })
+
+test_that("Printing and plotting works", {
+  
+  set.seed(1823)
+  net <- rbernoulli(c(3,4,5,3,4))
+  
+  ans <- ergmito(net ~ ttriad + edges + mutual)
+  
+  gof <- gof_ergmito(ans)
+  
+  expect_output(print(gof), "Exact")
+  
+  expect_silent(plot(gof))
+  
+  
+})
+
+
+test_that("New formulas", {
+  
+  set.seed(184223)
+  net <- rbernoulli(c(3,4,5,3, 5, 3))
+  ans <- ergmito(net ~ ttriad + edges)
+  
+  # Adding a term
+  expect_silent(gof <- gof_ergmito(ans, GOF = ~ mutual + balance))
+  expect_output(print(gof), "Exact")
+  expect_silent(plot(gof))
+  
+})
+  
