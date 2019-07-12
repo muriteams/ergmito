@@ -9,6 +9,7 @@
 \alias{logLik.ergmito}
 \alias{nobs.ergmito}
 \alias{vcov.ergmito}
+\alias{formula.ergmito}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
 ergmito(model, gattr_model = NULL, stats.weights = NULL,
@@ -28,6 +29,8 @@ ergmito(model, gattr_model = NULL, stats.weights = NULL,
 \method{nobs}{ergmito}(object, ...)
 
 \method{vcov}{ergmito}(object, ...)
+
+\method{formula}{ergmito}(x, ...)
 }
 \arguments{
 \item{model}{Model to estimate. See \link[ergm:ergm]{ergm::ergm}. The only difference with
@@ -138,6 +141,24 @@ data(fivenets)
 model1 <- ergmito(fivenets ~ edges + nodematch("female"))
 summary(model1) # This data has know parameters equal to -2.0 and 2.0
 
+\dontrun{
+# Example 3: Likelihood ratio test using the lmtest R package
+
+library(lmtest)
+data(fivenets)
+model1 <- ergmito(fivenets ~ edges + nodematch("female"))
+model2 <- ergmito(fivenets ~ edges + nodematch("female") + mutual)
+
+lrtest(model1, model2)
+# Likelihood ratio test
+# 
+# Model 1: fivenets ~ edges + nodematch("female") 
+# Model 2: fivenets ~ edges + nodematch("female") + mutual
+#   #Df  LogLik Df  Chisq Pr(>Chisq)
+# 1   2 -34.671                     
+# 2   3 -34.205 1 0.9312     0.3346
+
+}
 
 }
 \seealso{

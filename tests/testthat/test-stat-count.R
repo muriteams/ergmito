@@ -16,6 +16,10 @@ test_that("Matches ERGM", {
   
   expect_equivalent(ans0, ans1)
   
+  # Matches the formula syntax
+  ans2 <- count_stats(x[1:100] ~ mutual + edges)
+  expect_equivalent(ans0, ans2)
+  
 })
 
 test_that("Sufficient statistics", {

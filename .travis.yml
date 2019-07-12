@@ -22,3 +22,10 @@ matrix:
       env: R_CODECOV=true
     - os: osx
       osx_image: xcode10.2
+
+# For automatic deploy of the website
+before_deploy: Rscript -e 'remotes::install_cran("pkgdown")'
+deploy:
+  provider: script
+  script: Rscript -e 'pkgdown::deploy_site_github()'
+  skip_cleanup: true

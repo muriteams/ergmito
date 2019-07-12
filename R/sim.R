@@ -289,6 +289,12 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
   ans$get_networks <- function(idx, s) {
     
     s <- as.character(s)
+    test <- which(!(s %in% as.character(sizes)))
+    if (length(test))
+      stop("Some values of `s` are not included in the sampling function:",
+           paste0(s[test], collapse = ", "), ".",
+           call. = FALSE)
+    
     nets <- ans$networks[[s]][idx]
     
     if (sampler_w_attributes) {
@@ -311,6 +317,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
     test <- which(!(s %in% as.character(sizes)))
     if (length(test))
       stop("Some values of `s` are not included in the sampling function.",
+           paste0(s[test], collapse = ", "), ".",
            call. = FALSE)
     
     # If no new set of parameters is used, then 
@@ -338,7 +345,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
   # Call
   ans$call      <- match.call()
   ans$network0  <- net
-  ans$sizes     <- nvertex(net)
+  ans$sizes     <- sizes
   
   structure(
     ans,

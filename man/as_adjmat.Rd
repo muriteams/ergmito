@@ -3,6 +3,7 @@
 \name{as_adjmat}
 \alias{as_adjmat}
 \alias{as_adjmat.network}
+\alias{as_adjmat.matrix}
 \alias{as_adjmat.list}
 \alias{as_adjmat.formula}
 \title{An alternative to \code{as.matrix} to retrieve adjacency matrix fast}
@@ -10,6 +11,8 @@
 as_adjmat(x)
 
 \method{as_adjmat}{network}(x)
+
+\method{as_adjmat}{matrix}(x)
 
 \method{as_adjmat}{list}(x)
 
