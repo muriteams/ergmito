@@ -3,6 +3,7 @@
 S3method("[",ergmito_sampler)
 S3method(as_adjmat,formula)
 S3method(as_adjmat,list)
+S3method(as_adjmat,matrix)
 S3method(as_adjmat,network)
 S3method(coef,ergmito)
 S3method(count_stats,formula)
