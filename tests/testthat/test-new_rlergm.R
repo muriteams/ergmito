@@ -34,7 +34,7 @@ test_that("Using the count_stats vs ergm::summary_formula is equal", {
   ans0 <- new_rergmito(fivenets[[1]] ~ edges + nodematch("female"), theta = coef(mod), mc.cores = 1L)
   Sys.setenv(ERGMITO_TEST = 1)
   ans1 <- new_rergmito(fivenets[[1]] ~ edges + nodematch("female"), theta = coef(mod), mc.cores = 1L, force = TRUE)
-
+  Sys.setenv(ERGMITO_TEST = "")
   
   expect_equal(ans0$prob, ans1$prob)
   expect_equal(sum(ans0$prob$`3`), 1)
