@@ -81,7 +81,9 @@ count_stats.formula <- function(X, ...) {
   
   # Retrieving networks
   LHS <- eval(X[[2]], envir = environment(X))
-  if (network::is.network(LHS))
+  LHS <- as_adjmat(LHS)
+  
+  if (is.matrix(LHS))
     LHS <- list(LHS)
   
   # Analyzing the formula

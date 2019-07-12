@@ -40,3 +40,19 @@ test_that("Using the count_stats vs ergm::summary_formula is equal", {
   expect_equal(sum(ans0$prob$`3`), 1)
   
 })
+
+test_that("Methods work as expected", {
+  
+  set.seed(4532)
+  nets <- rbernoulli(5)
+  ans  <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L)
+  
+  expect_output(print(ans), "ERGMito simulator")
+  expect_output(print(str(ans)), "language new_rergmito")
+  expect_error(ans$get_networks(s = 5), "sampling")
+  expect_error(ans[,5], "sampling")
+  expect_equal(ans$get_networks(s = 3), powerset(3))
+  expect_equal(ans$get_networks(s = 3), ans[,3]$`3`)
+  
+  
+})

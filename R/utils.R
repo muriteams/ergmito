@@ -143,6 +143,10 @@ as_adjmat.network <- function(x) {
 
 #' @export
 #' @rdname as_adjmat
+as_adjmat.matrix <- function(x) x
+
+#' @export
+#' @rdname as_adjmat
 as_adjmat.list <- function(x) {
   lapply(x, as_adjmat)
 }

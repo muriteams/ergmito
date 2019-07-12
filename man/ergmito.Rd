@@ -9,6 +9,7 @@
 \alias{logLik.ergmito}
 \alias{nobs.ergmito}
 \alias{vcov.ergmito}
+\alias{formula.ergmito}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
 ergmito(model, gattr_model = NULL, stats.weights = NULL,
@@ -28,6 +29,8 @@ ergmito(model, gattr_model = NULL, stats.weights = NULL,
 \method{nobs}{ergmito}(object, ...)
 
 \method{vcov}{ergmito}(object, ...)
+
+\method{formula}{ergmito}(x, ...)
 }
 \arguments{
 \item{model}{Model to estimate. See \link[ergm:ergm]{ergm::ergm}. The only difference with
