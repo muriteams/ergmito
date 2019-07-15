@@ -22,6 +22,25 @@ test_that("Matches ERGM", {
   
 })
 
+test_that("Geodesic distances", {
+  
+  data(fivenets)
+  ans0 <- geodesita(fivenets)
+  ans1 <- lapply(fivenets, sna::geodist, inf.replace = NA_integer_)
+  ans1 <- lapply(ans1, "[[", "gdist")
+  
+  # On the fivenets
+  expect_equal(ans0, ans1)
+  
+  # On powerset of 4
+  pset <- powerset(4)
+  ans0 <- geodesita(pset)
+  ans1 <- lapply(pset, sna::geodist, inf.replace = NA_integer_)
+  ans1 <- lapply(ans1, "[[", "gdist")
+  expect_equal(ans0, ans1)
+  
+})
+
 test_that("Sufficient statistics", {
   # Bug in ergm?????? ----------------------------------------------------------
   set.seed(1)
@@ -54,6 +73,16 @@ test_that("Sufficient statistics", {
   
   ans0 <- count_stats(pset3, c("balance"))[,1]
   ans1 <- unname(sapply(pset3, function(p) summary(p ~ balance)))
+  
+  expect_equivalent(ans0, ans1)
+  
+  ans0 <- count_stats(pset3, c("t300"))[,1]
+  ans1 <- unname(sapply(pset3, function(p) summary(p ~ triadcensus(15))))
+  
+  expect_equivalent(ans0, ans1)
+  
+  ans0 <- count_stats(pset3, c("t102"))[,1]
+  ans1 <- unname(sapply(pset3, function(p) summary(p ~ triadcensus(2))))
   
   expect_equivalent(ans0, ans1)
   

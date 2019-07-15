@@ -348,47 +348,56 @@ s <- count_stats(x[1:1e5], c("mutual", "edges"))
 
 */
 
-inline IntegerMatrix geodesici(const arma::imat & x, bool force = false) {
+inline void geodesici(const arma::imat & x, IntegerMatrix & res, bool force = false) {
   
-  int n = x.n_rows;
-  if (n != (int) x.n_cols)
+  unsigned int n = x.n_rows;
+  if (n != x.n_cols)
     stop("Not a square matrix.");
   
-  if (n > 100 && !force)
+  if (n > 100u && !force)
     stop("This is not the best way for computing distances for n > 100 (see ?geodesic).");
   
-  arma::imat res(x.n_rows, x.n_cols);
-  res.fill(-1);
   arma::imat res_tmp = x;
   
   // List of indices to check
-  unsigned int changes = 0u;
-  for (unsigned int iter = 0u; iter < n; ++iter) {
-    changes = 0;
+  unsigned int nmax = n*2;
+  for (unsigned int iter = 0u; iter < nmax; ++iter) {
     for (unsigned int i = 0u; i < n; ++i)
       for (unsigned int j = 0u; j < n; ++j) {
-        if (i != j && res_tmp.at(i, j) != 0 && (res.at(i, j) == -1)) 
-          res.at(i, j) = iter + 1, ++changes;
+        
+        if (i == j) {
+          res(i, j) = 0;
+          continue;
+        }
+          
+        if (i != j && res_tmp.at(i, j) != 0 && (res(i, j) == NA_INTEGER)) 
+          res(i, j) = iter + 1;
       }
       
       // Powermatrix
       res_tmp *= x;
   }
   
-  return wrap(res);
+  return;
   
 }
 
 // [[Rcpp::export(name = "geodesic.")]]
-ListOf< IntegerMatrix > geodesic(
-    const std::vector< IntegerMatrix > & X,
-    bool force = false) {
+std::vector< IntegerMatrix > geodesic(
+    const std::vector< arma::imat > & X,
+    bool force = false
+  ) {
   
-  ListOf< IntegerMatrix > res(X.size());
+  std::vector< IntegerMatrix > res;
+  res.reserve(X.size());
   
   unsigned int nX = X.size();
-  for (unsigned int i = 0u; i < nX; ++i)
-    res[i] = geodesici(as< arma::imat >(X[i]), force);
+  for (unsigned int i = 0u; i < nX; ++i) {
+    IntegerMatrix tmp(X[i].n_rows, X[i].n_cols);
+    tmp.fill(NA_INTEGER);
+    res.push_back(tmp);
+    geodesici(X[i], res[i], force);
+  }
   
   return res;
   

@@ -197,16 +197,7 @@ geodesita <- geodesic
 #' @rdname geodesic
 geodesic.list <- function(x, force = FALSE, ...) {
   
-  # First we turn networks into matrices
-  classes    <- sapply(x, inherits, what = "network")
-  x[classes] <- as_adjmat(x[classes])
-  
-  # Now we check that all the elements are matrices
-  if (!all(sapply(x, "is.matrix")))
-    stop("When `x` is a list, all of its elements should be ",
-         "either of class `network` or class `matrix`.", call. = FALSE)
-  
-  geodesic(x, force = force)
+  geodesic.(as_adjmat(x), force = force)
   
 }
 
@@ -214,7 +205,7 @@ geodesic.list <- function(x, force = FALSE, ...) {
 #' @rdname geodesic
 geodesic.matrix <- function(x, force = FALSE, simplify = FALSE, ...) {
   
-  ans <- geodesic(list(x), force = force)
+  ans <- geodesic.(list(x), force = force)
   if (simplify)
     return(ans[[1]])
   ans

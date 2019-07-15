@@ -17,7 +17,7 @@ be used to split the data.}
 \item{attrname}{Name of the attribute that holds the block ids.}
 }
 \description{
-These two functions are use to go back and forth from a pooled ergm vs a
+These two functions are used to go back and forth from a pooled ergm vs a
 blockdiagonal model, the latter to be fitted using \link[ergm:ergm]{ergm::ergm}.
 }
 \examples{
@@ -28,7 +28,7 @@ data(fivenets)
 fivenets2 <- blockdiagonalize(fivenets, attrname = "block") # A network with
 ans0 <- ergm(
   fivenets2 ~ edges + nodematch("female"),
-  constrains = ~blockdiag("block")
+  constraints = ~blockdiag("block")
   )
 ans1 <- ergmito(fivenets ~ edges + nodematch("female"))
 

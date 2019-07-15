@@ -112,8 +112,8 @@ summary(ans_ergmito)
 #> formula:  net ~ edges + istar(2) 
 #> 
 #>          Estimate Std. Error    z value  Pr(>|z|)
-#> edges  -1.3774881   1.002596 -1.3739207 0.1694663
-#> istar2  0.5065322   1.327007  0.3817102 0.7026763
+#> edges  -1.3774881   1.002596 -1.3739208 0.1694663
+#> istar2  0.5065322   1.327007  0.3817103 0.7026763
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -126,13 +126,13 @@ summary(ans_ergm)
 #> 
 #> Monte Carlo MLE Results:
 #>        Estimate Std. Error MCMC % z value Pr(>|z|)
-#> edges   -1.3516     0.9995      0  -1.352    0.176
-#> istar2   0.4940     1.3518      0   0.365    0.715
+#> edges   -1.4110     0.9995      0  -1.412    0.158
+#> istar2   0.5607     1.3719      0   0.409    0.683
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 13.37  on 10  degrees of freedom
+#>  Residual Deviance: 13.35  on 10  degrees of freedom
 #>  
-#> AIC: 17.37    BIC: 18.34    (Smaller is better.)
+#> AIC: 17.35    BIC: 18.32    (Smaller is better.)
 ```
 
 ## Estimating data with known parameters

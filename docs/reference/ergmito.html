@@ -309,7 +309,7 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt; ==========================
 #&gt; 
 #&gt; Formula:   net ~ edges + mutual
-#&gt; &lt;environment: 0xb0ec520&gt;
+#&gt; &lt;environment: 0x25e1a8c0&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
@@ -334,8 +334,25 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt;                   Estimate Std. Error   z value    Pr(&gt;|z|)
 #&gt; edges            -1.704748  0.5435573 -3.136280 0.001711055
 #&gt; nodematch.female  1.586965  0.6430475  2.467881 0.013591531</div><div class='input'>
+</div></span><span class='co'># NOT RUN {</span>
+<span class='co'># Example 3: Likelihood ratio test using the lmtest R package</span>
 
-</div></span></pre>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>lmtest</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
+<span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))
+<span class='no'>model2</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>) + <span class='no'>mutual</span>)
+
+<span class='fu'><a href='https://rdrr.io/pkg/lmtest/man/lrtest.html'>lrtest</a></span>(<span class='no'>model1</span>, <span class='no'>model2</span>)
+<span class='co'># Likelihood ratio test</span>
+<span class='co'># </span>
+<span class='co'># Model 1: fivenets ~ edges + nodematch("female") </span>
+<span class='co'># Model 2: fivenets ~ edges + nodematch("female") + mutual</span>
+<span class='co'>#   #Df  LogLik Df  Chisq Pr(&gt;Chisq)</span>
+<span class='co'># 1   2 -34.671                     </span>
+<span class='co'># 2   3 -34.205 1 0.9312     0.3346</span>
+
+<span class='co'># }</span><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

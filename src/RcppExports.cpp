@@ -32,12 +32,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // geodesic
-ListOf< IntegerMatrix > geodesic(const std::vector< IntegerMatrix >& X, bool force);
+std::vector< IntegerMatrix > geodesic(const std::vector< arma::imat >& X, bool force);
 RcppExport SEXP _ergmito_geodesic(SEXP XSEXP, SEXP forceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::vector< IntegerMatrix >& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const std::vector< arma::imat >& >::type X(XSEXP);
     Rcpp::traits::input_parameter< bool >::type force(forceSEXP);
     rcpp_result_gen = Rcpp::wrap(geodesic(X, force));
     return rcpp_result_gen;
@@ -69,22 +69,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type stats_statmat(stats_statmatSEXP);
     rcpp_result_gen = Rcpp::wrap(exact_gradient(x, params, stats_weights, stats_statmat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// init_network
-List init_network(int n, bool directed, bool hyper, bool loops, bool multiple, bool bipartite);
-RcppExport SEXP _ergmito_init_network(SEXP nSEXP, SEXP directedSEXP, SEXP hyperSEXP, SEXP loopsSEXP, SEXP multipleSEXP, SEXP bipartiteSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< bool >::type directed(directedSEXP);
-    Rcpp::traits::input_parameter< bool >::type hyper(hyperSEXP);
-    Rcpp::traits::input_parameter< bool >::type loops(loopsSEXP);
-    Rcpp::traits::input_parameter< bool >::type multiple(multipleSEXP);
-    Rcpp::traits::input_parameter< bool >::type bipartite(bipartiteSEXP);
-    rcpp_result_gen = Rcpp::wrap(init_network(n, directed, hyper, loops, multiple, bipartite));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -159,7 +143,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_geodesic", (DL_FUNC) &_ergmito_geodesic, 2},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 5},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 4},
-    {"_ergmito_init_network", (DL_FUNC) &_ergmito_init_network, 6},
     {"_ergmito_matrix_to_network", (DL_FUNC) &_ergmito_matrix_to_network, 6},
     {"_ergmito_make_sets", (DL_FUNC) &_ergmito_make_sets, 1},
     {"_ergmito_powerset", (DL_FUNC) &_ergmito_powerset, 2},

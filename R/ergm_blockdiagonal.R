@@ -1,6 +1,6 @@
 #' Block-diagonal models using `ergm`
 #' 
-#' These two functions are use to go back and forth from a pooled ergm vs a
+#' These two functions are used to go back and forth from a pooled ergm vs a
 #' blockdiagonal model, the latter to be fitted using [ergm::ergm]. 
 #' 
 #' @param x In the case of `blockdiagonalize`, a list of networks or matrices.
@@ -15,7 +15,7 @@
 #' fivenets2 <- blockdiagonalize(fivenets, attrname = "block") # A network with
 #' ans0 <- ergm(
 #'   fivenets2 ~ edges + nodematch("female"),
-#'   constrains = ~blockdiag("block")
+#'   constraints = ~blockdiag("block")
 #'   )
 #' ans1 <- ergmito(fivenets ~ edges + nodematch("female"))
 #' 

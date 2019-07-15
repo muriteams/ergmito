@@ -3,70 +3,70 @@ using namespace Rcpp;
 
 // #define ERGMITO_DEBUG_NETWORK 1
 
-// [[Rcpp::export]]
-List init_network(
-    int n,
-    bool directed  = true,
-    bool hyper     = false,
-    bool loops     = false,
-    bool multiple  = false,
-    bool bipartite = false
-) {
-  
-  if (n < 0)
-    stop("`n` cannot be less than 0.");
-  
-  List emptylist;
-
-  List g = List::create(
-    /* Master edgelist:
-     * This is in itself a list of length (mnext - 1) which, if different from
-     * an empty list, has the following elements: inl (tail), outl (head), alt (attributes)
-     * 
-     * See https://github.com/statnet/network/blob/525286ff257745011f35a58c193c68745f78e853/vignettes/networkVignette.Rnw#L331
-     */ 
-    _["mel"] = List(0),
-    
-    _["gal"] = List::create(     // Graph attribute list
-      _["n"]         = n,
-      _["mnext"]     = 1,        // Next number of edges (next m)
-      _["directed"]  = directed,
-      _["hyper"]     = hyper,
-      _["loops"]     = loops,
-      _["multiple"]  = multiple,
-      _["bipartite"] = bipartite
-    ),
-    _["val"]       = R_NilValue,
-    _["iel"]       = R_NilValue,
-    _["oel"]       = R_NilValue
-    );
-  
-  // Depending if there are nodes, then
-  if (n > 0) {
-
-    std::vector< List > listoflists(n);
-    std::vector< IntegerVector > listofInt(n);
-    
-    // n lists
-    g["val"] = listoflists;
-    g["iel"] = listofInt;
-    g["oel"] = listofInt;
-
-
-  } else {
-
-    // n lists
-    g["val"] = emptylist;
-    g["iel"] = emptylist;
-    g["oel"] = emptylist;
-
-  }
-  
-  g.attr("class") = "network";
-  
-  return g;
-  
-}
+// // [[Rcpp::export]]
+// List init_network(
+//     int n,
+//     bool directed  = true,
+//     bool hyper     = false,
+//     bool loops     = false,
+//     bool multiple  = false,
+//     bool bipartite = false
+// ) {
+//   
+//   if (n < 0)
+//     stop("`n` cannot be less than 0.");
+//   
+//   List emptylist;
+// 
+//   List g = List::create(
+//     /* Master edgelist:
+//      * This is in itself a list of length (mnext - 1) which, if different from
+//      * an empty list, has the following elements: inl (tail), outl (head), alt (attributes)
+//      * 
+//      * See https://github.com/statnet/network/blob/525286ff257745011f35a58c193c68745f78e853/vignettes/networkVignette.Rnw#L331
+//      */ 
+//     _["mel"] = List(0),
+//     
+//     _["gal"] = List::create(     // Graph attribute list
+//       _["n"]         = n,
+//       _["mnext"]     = 1,        // Next number of edges (next m)
+//       _["directed"]  = directed,
+//       _["hyper"]     = hyper,
+//       _["loops"]     = loops,
+//       _["multiple"]  = multiple,
+//       _["bipartite"] = bipartite
+//     ),
+//     _["val"]       = R_NilValue,
+//     _["iel"]       = R_NilValue,
+//     _["oel"]       = R_NilValue
+//     );
+//   
+//   // Depending if there are nodes, then
+//   if (n > 0) {
+// 
+//     std::vector< List > listoflists(n);
+//     std::vector< IntegerVector > listofInt(n);
+//     
+//     // n lists
+//     g["val"] = listoflists;
+//     g["iel"] = listofInt;
+//     g["oel"] = listofInt;
+// 
+// 
+//   } else {
+// 
+//     // n lists
+//     g["val"] = emptylist;
+//     g["iel"] = emptylist;
+//     g["oel"] = emptylist;
+// 
+//   }
+//   
+//   g.attr("class") = "network";
+//   
+//   return g;
+//   
+// }
 
 inline ListOf< List > matrix_to_networki(
     const IntegerMatrix & x,
@@ -91,7 +91,6 @@ inline ListOf< List > matrix_to_networki(
   // for-loop.
   List NA_trueList  = List::create(_["na"] = true);
   List NA_falseList = List::create(_["na"] = false);
-    
   
   int nedge = 0;
   for (int j = 0; j < m; ++j) {
@@ -100,7 +99,7 @@ inline ListOf< List > matrix_to_networki(
     sprintf(&(name[0]), "%i", (unsigned short) j + 1u);
     
     val.at(j) = NA_falseList;
-    val.at(j)["name"] = name;
+    val.at(j)["vertex.names"] = name;
     
     int ni = n;
     if (!directed)
@@ -114,8 +113,8 @@ inline ListOf< List > matrix_to_networki(
       if (x(i, j) != 0) {
         
         List edge = List::create(
-          _["inl"]  = i + 1, //
-          _["outl"] = j + 1, // While we see from 0 to (n-1), R lives in 1 to n.
+          _["inl"]  = j + 1, //
+          _["outl"] = i + 1, // While we see from 0 to (n-1), R lives in 1 to n.
           _["atl"]  = ( x(i, j) == R_NaInt ) ? NA_trueList : NA_falseList
         );
         
