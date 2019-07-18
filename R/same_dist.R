@@ -1,0 +1,103 @@
+same_dist_wrap <- function(x, what) {
+  structure(x, what = what, class = "ergmito_same_dist")
+}
+
+`%notin%` <- function(x, table) any(!(x %in% table))
+
+#' Compare pairs of networks to see if those came from the same distribution
+#' 
+#' If two networks are of the same size, and their vertex attributes are
+#' equal in terms of set comparison, then we say those came from the same
+#' distribution
+#' 
+#' @param net0,net1 Networks to be compared.
+#' @param attrnames Character vector. (optional) Names of the vertex attributes
+#' to be be compared on. This is ignored in the matrix case.
+#' 
+#' @details This function is used during the call of [ergmito_formulae] to
+#' check whether the function can recycle previously computed statistics for
+#' the likelihood function. In the case of models that only contain structural
+#' terms, i.e. attribute less, this can save significant amount of computing
+#' time and memory.
+#' 
+#' @return A logical with an attribute `what`. `TRUE` meaning that the two
+#' networks come from the same distribution, and `FALSE` meaning that they do
+#' not. If `FALSE` the `what` attribute will be equal to either `"size"` or
+#' the name of the attribute that failed the comparison.
+#' 
+#' @examples 
+#' data(fivenets)
+#' same_dist(fivenets[[1]], fivenets[[2]]) # Yes, same size
+#' same_dist(fivenets[[1]], fivenets[[2]], "female") # No, different attr dist
+#' @export
+same_dist <- function(net0, net1, ...) UseMethod("same_dist")
+
+#' @export
+#' @rdname same_dist
+same_dist.matrix <- function(net0, net1, attrnames = NULL) {
+  
+  if (!is.matrix(net1))
+    stop(
+      "Cannot compare two objects with differnt classes. ",
+      "`net0` is of class matrix while `net1` of class '",
+      class(net1), "'.",
+      call. = FALSE
+    )
+  
+  if (nvertex(net0) != nvertex(net1))
+    return(same_dist_wrap(FALSE, "size"))
+  
+  return(same_dist_wrap(TRUE, NULL))
+  
+}
+
+#' @export
+#' @rdname same_dist
+same_dist.network <- function(net0, net1, attrnames = NULL) {
+  
+  if (!network::is.network(net1))
+    stop(
+      "Cannot compare two objects with differnt classes. ",
+      "`net0` is of class network while `net1` of class '",
+      class(net1), "'.",
+      call. = FALSE
+      )
+
+  # 1. Size
+  if (nvertex(net0) != nvertex(net1))
+    return(same_dist_wrap(FALSE, "size"))
+  
+  # 2. Attributes
+  if (!is.null(attrnames)) {
+    
+    # First question: Are the requested attributes present?
+    anames0 <- network::list.vertex.attributes(net0)
+    if (attrnames %notin% anames0)
+      stop(
+        "One or more attributes listed on `attrnames` ",
+        "are not preset in `net0`.", call. = FALSE
+        )
+    
+    anames1 <- network::list.vertex.attributes(net0)
+    if (attrnames %notin% anames1)
+      stop(
+        "One or more attributes listed on `attrnames` ",
+        "are not preset in `net1`.", call. = FALSE
+      )
+    
+    # Now we compare, attribute by attribute
+    for (a in attrnames) {
+      
+      a0 <- sort(network::get.vertex.attribute(net0, a))
+      a1 <- sort(network::get.vertex.attribute(net1, a))
+      
+      if (any(a0 != a1))
+        return(same_dist_wrap(FALSE, a))
+      
+    }
+    
+  }
+  
+  same_dist_wrap(TRUE, attrnames)
+    
+}

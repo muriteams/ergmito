@@ -1,2 +1,2 @@
 all:
-	cd ../ && R CMD build ergmito/ && R CMD check --as-cran --use-valgrind ergmito_*.tar.gz
+	cd ../ && R CMD build ergmito/ && R CMD check --use-valgrind ergmito_*.tar.gz

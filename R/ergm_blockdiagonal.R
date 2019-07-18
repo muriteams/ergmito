@@ -7,6 +7,7 @@
 #' For `splitnetwork` a single network object with a vertex attribute that can
 #' be used to split the data.
 #' @param attrname Name of the attribute that holds the block ids.
+#' @param ... Further arguments passed to the method.
 #' @examples 
 #' \dontrun{
 #' library(ergm)
@@ -121,6 +122,24 @@ splitnetwork <- function(x, attrname) {
   }
   
   L
+  
+}
+
+#' @export
+#' @rdname blockdiagonalize
+#' @param formula An ergm model which's network wil be wrapped with
+#' blockdiagonalize (see details).
+#' @details The function `ergm_blockdiag` is a wrapper function that takes the
+#' model's network, stacks the networks into a single block diagonal net, and
+#' calls [ergm::ergm] with the option `constraints = blockdiag("block")`.
+ergm_blockdiag <- function(formula, ...) {
+  
+  LHS <- eval(match.call()$formula[[2]])
+  LHS <- blockdiagonalize(LHS)
+  formula <- stats::update.formula(formula, LHS ~ .)
+  environment(formula) <- environment()
+  require(ergm)
+  ergm(formula, constraints = ~ blockdiag("block"), ...)
   
 }
 

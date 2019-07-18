@@ -89,7 +89,6 @@ check_degeneracy <- function(
 #' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
 #' - `network`       Networks passed via `model`.
 #' 
-#' @export
 #' @section MLE:
 #' 
 #' Maximum Likelihood Estimates are obtained using the [stats::optim] function.
@@ -168,6 +167,15 @@ check_degeneracy <- function(
 #' 
 #' @importFrom stats optim terms rnorm
 #' @importFrom MASS ginv
+#' @name ergmito
+NULL
+
+ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
+  reltol = .Machine$double.eps / 3 # Higher accuracy for solving the model
+)
+
+#' @export
+#' @rdname ergmito
 ergmito <- function(
   model,
   gattr_model   = NULL,
@@ -223,6 +231,10 @@ ergmito <- function(
   if (!length(optim.args$control))
     optim.args$control <- list()
   optim.args$control$fnscale <- -1
+  
+  for (n in names(ERGMITO_DEFAULT_OPTIM_CONTROL))
+    if (!length(optim.args$control[[n]]))
+      optim.args$control[[n]] <- ERGMITO_DEFAULT_OPTIM_CONTROL[[n]]
   
   # For BFGS 
   if (!length(optim.args$method)) 
@@ -379,7 +391,10 @@ summary.ergmito <- function(object, ...) {
 
 #' @export
 #' @rdname ergmito
-print.ergmito_summary <- function(x, ...) {
+print.ergmito_summary <- function(
+  x,
+  ...
+  ) {
 
   cat("\nERGMito estimates\n")
   if (length(x$degeneracy) && attr(x$degeneracy, "degenerate"))
@@ -387,7 +402,12 @@ print.ergmito_summary <- function(x, ...) {
   if (x$convergence != 0)
     cat("Note: The optimzation did not converged.\n")
   cat("\nformula: ", x$model, "\n\n")
-  print(x$coefs)
+  stats::printCoefmat(x$coefs)
+  
+  cat(paste("AIC:", format(x$aic), 
+            "  ", "BIC:", format(x$bic), 
+            "  ", "(Smaller is better.)", "\n", sep = " "))
+  
   invisible(x)
     
 }

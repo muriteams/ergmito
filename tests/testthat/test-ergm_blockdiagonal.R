@@ -41,4 +41,12 @@ test_that("Blockdiagonal model give somewhat the same answer", {
   
   expect_equal(coef(ans0), coef(ans1), tol=.5)
   
+  ans0 <- ergmito(fivenets ~ edges + nodematch("female"))
+  suppressWarnings(
+  ans1 <- ergm_blockdiag(fivenets ~ edges + nodematch("female"))
+  )
+  
+  expect_equal(coef(ans0), coef(ans1), tol=.5)
+  
 })
+
