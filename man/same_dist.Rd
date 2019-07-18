@@ -8,12 +8,14 @@
 \usage{
 same_dist(net0, net1, ...)
 
-\method{same_dist}{matrix}(net0, net1, attrnames = NULL)
+\method{same_dist}{matrix}(net0, net1, attrnames = NULL, ...)
 
-\method{same_dist}{network}(net0, net1, attrnames = NULL)
+\method{same_dist}{network}(net0, net1, attrnames = NULL, ...)
 }
 \arguments{
 \item{net0, net1}{Networks to be compared.}
+
+\item{...}{Ignored.}
 
 \item{attrnames}{Character vector. (optional) Names of the vertex attributes
 to be be compared on. This is ignored in the matrix case.}

@@ -209,7 +209,6 @@ ergmito_formulae <- function(
 #' It simply looks for the regex pattern [(].*\".+\".*[])] in the formula
 #' terms.
 #' @param x A [stats::formula].
-#' @export
 #' @noRd
 model_has_attrs <- function(x) {
   

@@ -3,11 +3,14 @@
 \name{blockdiagonalize}
 \alias{blockdiagonalize}
 \alias{splitnetwork}
+\alias{ergm_blockdiag}
 \title{Block-diagonal models using \code{ergm}}
 \usage{
 blockdiagonalize(x, attrname = "block")
 
 splitnetwork(x, attrname)
+
+ergm_blockdiag(formula, ...)
 }
 \arguments{
 \item{x}{In the case of \code{blockdiagonalize}, a list of networks or matrices.
@@ -15,10 +18,20 @@ For \code{splitnetwork} a single network object with a vertex attribute that can
 be used to split the data.}
 
 \item{attrname}{Name of the attribute that holds the block ids.}
+
+\item{formula}{An ergm model which's network wil be wrapped with
+blockdiagonalize (see details).}
+
+\item{...}{Further arguments passed to the method.}
 }
 \description{
 These two functions are used to go back and forth from a pooled ergm vs a
 blockdiagonal model, the latter to be fitted using \link[ergm:ergm]{ergm::ergm}.
+}
+\details{
+The function \code{ergm_blockdiag} is a wrapper function that takes the
+model's network, stacks the networks into a single block diagonal net, and
+calls \link[ergm:ergm]{ergm::ergm} with the option \code{constraints = blockdiag("block")}.
 }
 \examples{
 \dontrun{

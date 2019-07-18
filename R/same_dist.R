@@ -13,6 +13,7 @@ same_dist_wrap <- function(x, what) {
 #' @param net0,net1 Networks to be compared.
 #' @param attrnames Character vector. (optional) Names of the vertex attributes
 #' to be be compared on. This is ignored in the matrix case.
+#' @param ... Ignored.
 #' 
 #' @details This function is used during the call of [ergmito_formulae] to
 #' check whether the function can recycle previously computed statistics for
@@ -34,7 +35,7 @@ same_dist <- function(net0, net1, ...) UseMethod("same_dist")
 
 #' @export
 #' @rdname same_dist
-same_dist.matrix <- function(net0, net1, attrnames = NULL) {
+same_dist.matrix <- function(net0, net1, attrnames = NULL, ...) {
   
   if (!is.matrix(net1))
     stop(
@@ -53,7 +54,7 @@ same_dist.matrix <- function(net0, net1, attrnames = NULL) {
 
 #' @export
 #' @rdname same_dist
-same_dist.network <- function(net0, net1, attrnames = NULL) {
+same_dist.network <- function(net0, net1, attrnames = NULL, ...) {
   
   if (!network::is.network(net1))
     stop(
