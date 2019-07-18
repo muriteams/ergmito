@@ -207,7 +207,7 @@ ergmito <- function(
   else if (length(init) == npars && ntries != 1) {
     warning(
       "The set of initial parameters will be extended to match `ntries`.",
-      " The extended initial points will be drawn from a N(0, 1).",
+      " The extended initial points will be drawn from a U[-1, 1].",
       call. =  FALSE)
     
     init <- rbind(init, matrix(stats::runif(npars * (ntries - 1L), -1.0, 1.0), ncol = npars))
@@ -228,18 +228,9 @@ ergmito <- function(
   if (!length(optim.args$method)) 
     optim.args$method <- "BFGS"
     
-  if (optim.args$method == "BFGS" && !length(optim.args$control$reltol)) {
-      optim.args$control$reltol <- .Machine$double.eps*2
-  }
+  # Passed (and default) other than the functions
+  optim.args0 <- optim.args
   
-  # For L-BFGS-B
-  if (optim.args$method == "L-BFGS-B") {
-    if (!length(optim.args$lower)) optim.args$lower <- -50
-    if (!length(optim.args$upper)) optim.args$upper <-  50
-    if (!length(optim.args$control$factr))
-      optim.args$control$factr <- 1e2
-  }
-
   # Setting arguments for optim
   optim.args$fn <- formulae$loglik
   if (use.grad) 
@@ -327,6 +318,7 @@ ergmito <- function(
       network    = eval(model[[2]], envir = ergmitoenv),
       init       = init,
       optim.out  = ans,
+      optim.args = optim.args0,
       degeneracy = degeneracy
     ),
     class = c("ergmito")
