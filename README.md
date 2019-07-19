@@ -111,9 +111,10 @@ summary(ans_ergmito)
 #> 
 #> formula:  net ~ edges + istar(2) 
 #> 
-#>          Estimate Std. Error    z value  Pr(>|z|)
-#> edges  -1.3774881   1.002596 -1.3739208 0.1694663
-#> istar2  0.5065322   1.327007  0.3817103 0.7026763
+#>        Estimate Std. Error z value Pr(>|z|)
+#> edges  -1.37749    1.00260 -1.3739   0.1695
+#> istar2  0.50653    1.32701  0.3817   0.7027
+#> AIC: 17.36312    BIC: 18.33294    (Smaller is better.)
 summary(ans_ergm)
 #> 
 #> ==========================
@@ -154,9 +155,12 @@ summary(model1) # This data has know parameters equal to -2.0 and 2.0
 #> 
 #> formula:  fivenets ~ edges + nodematch("female") 
 #> 
-#>                   Estimate Std. Error   z value    Pr(>|z|)
-#> edges            -1.704748  0.5435573 -3.136280 0.001711055
-#> nodematch.female  1.586965  0.6430475  2.467882 0.013591530
+#>                  Estimate Std. Error z value Pr(>|z|)   
+#> edges            -1.70475    0.54356 -3.1363 0.001711 **
+#> nodematch.female  1.58697    0.64305  2.4679 0.013592 * 
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> AIC: 73.34109    BIC: 77.52978    (Smaller is better.)
 ```
 
 We can also compute GOF

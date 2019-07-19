@@ -47,6 +47,9 @@ ergmito_formulae <- function(
   # What is the first component
   LHS <- eval(model[[2]], envir = env)
   
+  # Checking whether this model has attributes on it or not
+  vattrs <- attr(model_has_attrs(model), "anames")
+  
   # Checking the appropriate types
   if (inherits(LHS, "list")) {
     
@@ -105,9 +108,35 @@ ergmito_formulae <- function(
     
     # Calculating statistics and weights
     if (!length(stats.statmat[[i]])) {
-      allstats_i <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
-      stats.statmat[[i]] <- allstats_i$statmat
-      stats.weights[[i]] <- allstats_i$weights
+      
+      # Smart thing to do, have I calculated this earlier? ---------------------
+      # 1. For now we do it if the model is attr-less model
+      matching_net <- NULL
+      if (i > 1L) {
+        
+        # Can we find a match in the previous set?
+        for (j in 1L:(i-1L)) {
+          
+          # Minimum (and only for now): Have the same size
+          if ( same_dist(LHS[[i]], LHS[[j]], vattrs) ) {
+            matching_net <- j
+            break
+          }
+          
+        }
+        
+      }
+      
+      if (!is.null(matching_net)) {
+        stats.statmat[[i]] <- stats.statmat[[matching_net]]
+        stats.weights[[i]] <- stats.weights[[matching_net]]
+      } else {
+        allstats_i <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
+        stats.statmat[[i]] <- allstats_i$statmat
+        stats.weights[[i]] <- allstats_i$weights
+      }
+      
+      
     }
     
     # Adding graph parameters to the statmat
@@ -115,8 +144,11 @@ ergmito_formulae <- function(
       stats.statmat[[i]] <- cbind(
         stats.statmat[[i]],
         matrix(
-          target.stats[[i]][names(g)], nrow = nrow(stats.statmat[[i]]), ncol=length(g),
-          byrow = TRUE, dimnames = list(NULL, names(g))
+          data     = target.stats[[i]][names(g)],
+          nrow     = nrow(stats.statmat[[i]]),
+          ncol     = length(g),
+          byrow    = TRUE,
+          dimnames = list(NULL, names(g))
           )
         )
     }
@@ -169,6 +201,36 @@ ergmito_formulae <- function(
   ), class="ergmito_loglik")
   
   
+  
+}
+
+#' Test whether the model terms list attributes
+#' 
+#' It simply looks for the regex pattern [(].*\".+\".*[])] in the formula
+#' terms.
+#' @param x A [stats::formula].
+#' @noRd
+model_has_attrs <- function(x) {
+  
+  if (!inherits(x, "formula"))
+    stop("`x` must be a formula.", call. = FALSE)
+  
+  trms <- stats::terms(x)
+  
+  if (any(grepl("[(].*\".+\".*[)]", attr(trms, "term.labels")))) {
+    
+    # Listing attribute names
+    pat    <- "(?<=\")(.+)(?=\")|(?<=\')(.+)(?=\')"
+    anames <- NULL
+    for (a in attr(trms, "term.labels")) {
+      m      <- regexpr(pat, a, perl = TRUE)
+      anames <- c(anames, regmatches(a, m))
+    }
+    
+    return(structure(TRUE, anames = unique(anames)))
+    
+  } else
+    return(structure(FALSE, anames = NULL))
   
 }
 

@@ -89,7 +89,6 @@ check_degeneracy <- function(
 #' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
 #' - `network`       Networks passed via `model`.
 #' 
-#' @export
 #' @section MLE:
 #' 
 #' Maximum Likelihood Estimates are obtained using the [stats::optim] function.
@@ -168,6 +167,15 @@ check_degeneracy <- function(
 #' 
 #' @importFrom stats optim terms rnorm
 #' @importFrom MASS ginv
+#' @name ergmito
+NULL
+
+ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
+  reltol = .Machine$double.eps / 3 # Higher accuracy for solving the model
+)
+
+#' @export
+#' @rdname ergmito
 ergmito <- function(
   model,
   gattr_model   = NULL,
@@ -207,7 +215,7 @@ ergmito <- function(
   else if (length(init) == npars && ntries != 1) {
     warning(
       "The set of initial parameters will be extended to match `ntries`.",
-      " The extended initial points will be drawn from a N(0, 1).",
+      " The extended initial points will be drawn from a U[-1, 1].",
       call. =  FALSE)
     
     init <- rbind(init, matrix(stats::runif(npars * (ntries - 1L), -1.0, 1.0), ncol = npars))
@@ -224,22 +232,17 @@ ergmito <- function(
     optim.args$control <- list()
   optim.args$control$fnscale <- -1
   
+  for (n in names(ERGMITO_DEFAULT_OPTIM_CONTROL))
+    if (!length(optim.args$control[[n]]))
+      optim.args$control[[n]] <- ERGMITO_DEFAULT_OPTIM_CONTROL[[n]]
+  
   # For BFGS 
   if (!length(optim.args$method)) 
     optim.args$method <- "BFGS"
     
-  if (optim.args$method == "BFGS" && !length(optim.args$control$reltol)) {
-      optim.args$control$reltol <- .Machine$double.eps*2
-  }
+  # Passed (and default) other than the functions
+  optim.args0 <- optim.args
   
-  # For L-BFGS-B
-  if (optim.args$method == "L-BFGS-B") {
-    if (!length(optim.args$lower)) optim.args$lower <- -50
-    if (!length(optim.args$upper)) optim.args$upper <-  50
-    if (!length(optim.args$control$factr))
-      optim.args$control$factr <- 1e2
-  }
-
   # Setting arguments for optim
   optim.args$fn <- formulae$loglik
   if (use.grad) 
@@ -327,6 +330,7 @@ ergmito <- function(
       network    = eval(model[[2]], envir = ergmitoenv),
       init       = init,
       optim.out  = ans,
+      optim.args = optim.args0,
       degeneracy = degeneracy
     ),
     class = c("ergmito")
@@ -387,7 +391,10 @@ summary.ergmito <- function(object, ...) {
 
 #' @export
 #' @rdname ergmito
-print.ergmito_summary <- function(x, ...) {
+print.ergmito_summary <- function(
+  x,
+  ...
+  ) {
 
   cat("\nERGMito estimates\n")
   if (length(x$degeneracy) && attr(x$degeneracy, "degenerate"))
@@ -395,7 +402,16 @@ print.ergmito_summary <- function(x, ...) {
   if (x$convergence != 0)
     cat("Note: The optimzation did not converged.\n")
   cat("\nformula: ", x$model, "\n\n")
-  print(x$coefs)
+  stats::printCoefmat(
+    x$coefs,
+    signif.stars  = TRUE,
+    signif.legend = TRUE
+    )
+  
+  cat(paste("AIC:", format(x$aic), 
+            "  ", "BIC:", format(x$bic), 
+            "  ", "(Smaller is better.)", "\n", sep = " "))
+  
   invisible(x)
     
 }

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Power set of Directed Graphs of size <code>n</code> — powerset • ergmito</title>
+<title>Block-diagonal models using <code>ergm</code> — blockdiagonalize • ergmito</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,10 @@
 
 
 
-<meta property="og:title" content="Power set of Directed Graphs of size <code>n</code> — powerset" />
+<meta property="og:title" content="Block-diagonal models using <code>ergm</code> — blockdiagonalize" />
 
-<meta property="og:description" content="Power set of Directed Graphs of size n" />
+<meta property="og:description" content="These two functions are used to go back and forth from a pooled ergm vs a
+blockdiagonal model, the latter to be fitted using ergm::ergm." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -96,66 +97,88 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Power set of Directed Graphs of size <code>n</code></h1>
+    <h1>Block-diagonal models using <code>ergm</code></h1>
     
-    <div class="hidden name"><code>powerset.Rd</code></div>
+    <div class="hidden name"><code>blockdiagonalize.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Power set of Directed Graphs of size <code>n</code></p>
+    <p>These two functions are used to go back and forth from a pooled ergm vs a
+blockdiagonal model, the latter to be fitted using <a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm::ergm</a>.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>powerset</span>(<span class='no'>n</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>chunk_size</span> <span class='kw'>=</span> <span class='fl'>2e+05</span>)</pre>
+    <pre class="usage"><span class='fu'>blockdiagonalize</span>(<span class='no'>x</span>, <span class='kw'>attrname</span> <span class='kw'>=</span> <span class='st'>"block"</span>)
+
+<span class='fu'>splitnetwork</span>(<span class='no'>x</span>, <span class='no'>attrname</span>)
+
+<span class='fu'>ergm_blockdiag</span>(<span class='no'>formula</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>n</th>
-      <td><p>Integer. Number of edges.</p></td>
+      <th>x</th>
+      <td><p>In the case of <code>blockdiagonalize</code>, a list of networks or matrices.
+For <code>splitnetwork</code> a single network object with a vertex attribute that can
+be used to split the data.</p></td>
     </tr>
     <tr>
-      <th>force</th>
-      <td><p>Logical. When <code>TRUE</code> it generates the powerset for <code>n&gt;5</code>, otherwise
-it returns with error.</p></td>
+      <th>attrname</th>
+      <td><p>Name of the attribute that holds the block ids.</p></td>
     </tr>
     <tr>
-      <th>chunk_size</th>
-      <td><p>Number of matrices to process at a time. If n = 5, then
-stack memory on the computer may overflow if <code>chunk_size</code> is relatively large.</p></td>
+      <th>formula</th>
+      <td><p>An ergm model which's network wil be wrapped with
+blockdiagonalize (see details).</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Further arguments passed to the method.</p></td>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>An object of class <a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm::ergm</a>.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The function <code>ergm_blockdiag</code> is a wrapper function that takes the
+model's network, stacks the networks into a single block diagonal net, and
+calls <a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm::ergm</a> with the option <code>constraints = blockdiag("block")</code>.</p>
+<p>One side effect of this function is that it loads the <code>ergm</code> package via
+<a href='https://www.rdocumentation.org/packages/base/topics/ns-load'>requireNamespace</a>, so after executing the function <code>ergm</code> the package will
+be loaded.</p>
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>powerset</span>(<span class='fl'>2</span>)</div><div class='output co'>#&gt; [[1]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    0
-#&gt; [2,]    1    0
-#&gt; 
-#&gt; [[2]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    1
-#&gt; [2,]    1    0
-#&gt; 
-#&gt; [[3]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    1
-#&gt; [2,]    0    0
-#&gt; 
-#&gt; [[4]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    0
-#&gt; [2,]    0    0
-#&gt; </div></pre>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ergm</span>)
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>fivenets</span>)
+
+<span class='no'>fivenets2</span> <span class='kw'>&lt;-</span> <span class='fu'>blockdiagonalize</span>(<span class='no'>fivenets</span>, <span class='kw'>attrname</span> <span class='kw'>=</span> <span class='st'>"block"</span>) <span class='co'># A network with</span>
+<span class='no'>ans0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm</a></span>(
+  <span class='no'>fivenets2</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm-terms'>nodematch</a></span>(<span class='st'>"female"</span>),
+  <span class='kw'>constraints</span> <span class='kw'>=</span> ~<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm-constraints'>blockdiag</a></span>(<span class='st'>"block"</span>)
+  )
+<span class='no'>ans1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm-terms'>nodematch</a></span>(<span class='st'>"female"</span>))
+
+<span class='co'># This is equivalent</span>
+<span class='no'>ans2</span> <span class='kw'>&lt;-</span> <span class='fu'>ergm_blockdiag</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm-terms'>nodematch</a></span>(<span class='st'>"female"</span>))
+
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-            
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 

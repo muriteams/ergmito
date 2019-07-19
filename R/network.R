@@ -102,8 +102,6 @@ matrix_to_network.list <- function(
   
 }
 
-
-
 #' 
 #' #' Alter network objects
 #' #' @param x,attrvalie,attrname see [network::set.vertex.attribute]
