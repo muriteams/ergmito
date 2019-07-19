@@ -297,15 +297,16 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt; 
 #&gt; formula:  net ~ edges + mutual 
 #&gt; 
-#&gt;         Estimate Std. Error    z value  Pr(&gt;|z|)
-#&gt; edges   6.943924   26.32756  0.2637512 0.7919716
-#&gt; mutual -6.246680   26.35290 -0.2370396 0.8126261</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergm</span>)</div><div class='output co'>#&gt; 
+#&gt;        Estimate Std. Error z value Pr(&gt;|z|)
+#&gt; edges    6.9439    26.3276  0.2638   0.7920
+#&gt; mutual  -6.2467    26.3529 -0.2370   0.8126
+#&gt; AIC: 16.47956    BIC: 17.44937    (Smaller is better.) </div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergm</span>)</div><div class='output co'>#&gt; 
 #&gt; ==========================
 #&gt; Summary of model fit
 #&gt; ==========================
 #&gt; 
 #&gt; Formula:   net ~ edges + mutual
-#&gt; &lt;environment: 0x2804b190&gt;
+#&gt; &lt;environment: 0x2871ea20&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
@@ -327,9 +328,12 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt; 
 #&gt; formula:  fivenets ~ edges + nodematch("female") 
 #&gt; 
-#&gt;                   Estimate Std. Error   z value    Pr(&gt;|z|)
-#&gt; edges            -1.704748  0.5435573 -3.136280 0.001711055
-#&gt; nodematch.female  1.586965  0.6430475  2.467881 0.013591531</div><div class='input'>
+#&gt;                  Estimate Std. Error z value Pr(&gt;|z|)   
+#&gt; edges            -1.70475    0.54356 -3.1363 0.001711 **
+#&gt; nodematch.female  1.58697    0.64305  2.4679 0.013592 * 
+#&gt; ---
+#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#&gt; AIC: 73.34109    BIC: 77.52978    (Smaller is better.) </div><div class='input'>
 </div><span class='co'># NOT RUN {</span>
 <span class='co'># Example 3: Likelihood ratio test using the lmtest R package</span>
 
