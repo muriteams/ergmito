@@ -24,6 +24,9 @@ blockdiagonalize (see details).}
 
 \item{...}{Further arguments passed to the method.}
 }
+\value{
+An object of class \link[ergm:ergm]{ergm::ergm}.
+}
 \description{
 These two functions are used to go back and forth from a pooled ergm vs a
 blockdiagonal model, the latter to be fitted using \link[ergm:ergm]{ergm::ergm}.
@@ -32,6 +35,10 @@ blockdiagonal model, the latter to be fitted using \link[ergm:ergm]{ergm::ergm}.
 The function \code{ergm_blockdiag} is a wrapper function that takes the
 model's network, stacks the networks into a single block diagonal net, and
 calls \link[ergm:ergm]{ergm::ergm} with the option \code{constraints = blockdiag("block")}.
+
+One side effect of this function is that it loads the \code{ergm} package via
+\link{requireNamespace}, so after executing the function \code{ergm} the package will
+be loaded.
 }
 \examples{
 \dontrun{
@@ -44,6 +51,9 @@ ans0 <- ergm(
   constraints = ~blockdiag("block")
   )
 ans1 <- ergmito(fivenets ~ edges + nodematch("female"))
+
+# This is equivalent
+ans2 <- ergm_blockdiag(fivenets ~ edges + nodematch("female"))
 
 }
 }

@@ -20,6 +20,9 @@
 #'   )
 #' ans1 <- ergmito(fivenets ~ edges + nodematch("female"))
 #' 
+#' # This is equivalent
+#' ans2 <- ergm_blockdiag(fivenets ~ edges + nodematch("female"))
+#' 
 #' }
 #' @export
 blockdiagonalize <- function(x, attrname = "block") {
@@ -132,13 +135,19 @@ splitnetwork <- function(x, attrname) {
 #' @details The function `ergm_blockdiag` is a wrapper function that takes the
 #' model's network, stacks the networks into a single block diagonal net, and
 #' calls [ergm::ergm] with the option `constraints = blockdiag("block")`.
+#' 
+#' One side effect of this function is that it loads the `ergm` package via
+#' [requireNamespace], so after executing the function `ergm` the package will
+#' be loaded.
+#' 
+#' @return An object of class [ergm::ergm].
 ergm_blockdiag <- function(formula, ...) {
   
   LHS <- eval(match.call()$formula[[2]])
   LHS <- blockdiagonalize(LHS)
   formula <- stats::update.formula(formula, LHS ~ .)
   environment(formula) <- environment()
-  require(ergm)
+  requireNamespace("ergm")
   ergm(formula, constraints = ~ blockdiag("block"), ...)
   
 }

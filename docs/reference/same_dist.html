@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Power set of Directed Graphs of size <code>n</code> — powerset • ergmito</title>
+<title>Compare pairs of networks to see if those came from the same distribution — same_dist • ergmito</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,11 @@
 
 
 
-<meta property="og:title" content="Power set of Directed Graphs of size <code>n</code> — powerset" />
+<meta property="og:title" content="Compare pairs of networks to see if those came from the same distribution — same_dist" />
 
-<meta property="og:description" content="Power set of Directed Graphs of size n" />
+<meta property="og:description" content="If two networks are of the same size, and their vertex attributes are
+equal in terms of set comparison, then we say those came from the same
+distribution" />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -96,66 +98,80 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Power set of Directed Graphs of size <code>n</code></h1>
+    <h1>Compare pairs of networks to see if those came from the same distribution</h1>
     
-    <div class="hidden name"><code>powerset.Rd</code></div>
+    <div class="hidden name"><code>same_dist.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Power set of Directed Graphs of size <code>n</code></p>
+    <p>If two networks are of the same size, and their vertex attributes are
+equal in terms of set comparison, then we say those came from the same
+distribution</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>powerset</span>(<span class='no'>n</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>chunk_size</span> <span class='kw'>=</span> <span class='fl'>2e+05</span>)</pre>
+    <pre class="usage"><span class='fu'>same_dist</span>(<span class='no'>net0</span>, <span class='no'>net1</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for matrix</span>
+<span class='fu'>same_dist</span>(<span class='no'>net0</span>, <span class='no'>net1</span>, <span class='kw'>attrnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for network</span>
+<span class='fu'>same_dist</span>(<span class='no'>net0</span>, <span class='no'>net1</span>, <span class='kw'>attrnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>n</th>
-      <td><p>Integer. Number of edges.</p></td>
+      <th>net0, net1</th>
+      <td><p>Networks to be compared.</p></td>
     </tr>
     <tr>
-      <th>force</th>
-      <td><p>Logical. When <code>TRUE</code> it generates the powerset for <code>n&gt;5</code>, otherwise
-it returns with error.</p></td>
+      <th>...</th>
+      <td><p>Ignored.</p></td>
     </tr>
     <tr>
-      <th>chunk_size</th>
-      <td><p>Number of matrices to process at a time. If n = 5, then
-stack memory on the computer may overflow if <code>chunk_size</code> is relatively large.</p></td>
+      <th>attrnames</th>
+      <td><p>Character vector. (optional) Names of the vertex attributes
+to be be compared on. This is ignored in the matrix case.</p></td>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A logical with an attribute <code>what</code>. <code>TRUE</code> meaning that the two
+networks come from the same distribution, and <code>FALSE</code> meaning that they do
+not. If <code>FALSE</code> the <code>what</code> attribute will be equal to either <code>"size"</code> or
+the name of the attribute that failed the comparison.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function is used during the call of <a href='ergmito_formulae.html'>ergmito_formulae</a> to
+check whether the function can recycle previously computed statistics for
+the likelihood function. In the case of models that only contain structural
+terms, i.e. attribute less, this can save significant amount of computing
+time and memory.</p>
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>powerset</span>(<span class='fl'>2</span>)</div><div class='output co'>#&gt; [[1]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    0
-#&gt; [2,]    1    0
-#&gt; 
-#&gt; [[2]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    1
-#&gt; [2,]    1    0
-#&gt; 
-#&gt; [[3]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    1
-#&gt; [2,]    0    0
-#&gt; 
-#&gt; [[4]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    0
-#&gt; [2,]    0    0
-#&gt; </div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>fivenets</span>)
+<span class='fu'>same_dist</span>(<span class='no'>fivenets</span><span class='kw'>[[</span><span class='fl'>1</span>]], <span class='no'>fivenets</span><span class='kw'>[[</span><span class='fl'>2</span>]]) <span class='co'># Yes, same size</span></div><div class='output co'>#&gt; [1] TRUE
+#&gt; attr(,"class")
+#&gt; [1] "ergmito_same_dist"</div><div class='input'><span class='fu'>same_dist</span>(<span class='no'>fivenets</span><span class='kw'>[[</span><span class='fl'>1</span>]], <span class='no'>fivenets</span><span class='kw'>[[</span><span class='fl'>2</span>]], <span class='st'>"female"</span>) <span class='co'># No, different attr dist</span></div><div class='output co'>#&gt; [1] FALSE
+#&gt; attr(,"what")
+#&gt; [1] "female"
+#&gt; attr(,"class")
+#&gt; [1] "ergmito_same_dist"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-            
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
