@@ -402,7 +402,11 @@ print.ergmito_summary <- function(
   if (x$convergence != 0)
     cat("Note: The optimzation did not converged.\n")
   cat("\nformula: ", x$model, "\n\n")
-  stats::printCoefmat(x$coefs)
+  stats::printCoefmat(
+    x$coefs,
+    signif.stars  = TRUE,
+    signif.legend = TRUE
+    )
   
   cat(paste("AIC:", format(x$aic), 
             "  ", "BIC:", format(x$bic), 
