@@ -91,20 +91,6 @@ ergmito_formulae <- function(
   
   # Need to improve the speed of this!
   for (i in 1L:nnets(LHS)) {
-    # Calculating gattrs_model
-    
-    if (length(gattr_model))
-      g <- gmodel(gattr_model, LHS[[i]])[1,]
-    else
-      g <- NULL
-    
-    # Calculating observed statistics
-    if (!length(target.stats[[i]]))
-      target.stats[[i]] <- c(summary(model.), g)
-    
-    # Should it be normalized to 0?
-    if (length(dots$zeroobs) && dots$zeroobs)
-      target.stats[[i]][] <- rep(0, length(target.stats[[i]][]))
     
     # Calculating statistics and weights
     if (!length(stats.statmat[[i]])) {
@@ -139,6 +125,26 @@ ergmito_formulae <- function(
       
     }
     
+  }
+  
+  for (i in seq_len(nnets(LHS))) {
+    
+    # Calculating gattrs_model
+    
+    if (length(gattr_model))
+      g <- gmodel(gattr_model, LHS[[i]])
+    else
+      g <- NULL
+    
+    # Calculating observed statistics
+    if (!length(target.stats[[i]]))
+      target.stats[[i]] <- c(summary(model.), g)
+    
+    # Should it be normalized to 0?
+    if (length(dots$zeroobs) && dots$zeroobs)
+      target.stats[[i]][] <- rep(0, length(target.stats[[i]][]))
+    
+    # Adding graph level attributes
     # Adding graph parameters to the statmat
     if (length(g)) {
       stats.statmat[[i]] <- cbind(
@@ -149,8 +155,8 @@ ergmito_formulae <- function(
           ncol     = length(g),
           byrow    = TRUE,
           dimnames = list(NULL, names(g))
-          )
         )
+      )
     }
     
   }
@@ -240,12 +246,15 @@ gmodel <- function(model, net) {
   ans <- lapply(netattrs, network::get.network.attribute, x = net)
   names(ans) <- netattrs
     
-  stats::model.matrix(
+  ans <- stats::model.matrix(
     stats::update.formula(model, ~ 0 + .),
     as.data.frame(ans)
-    )
+  )
   
-  
+  structure(
+    ans[1, , drop=TRUE],
+    names = colnames(ans)
+  )
 }
 
 #' @export
@@ -416,13 +425,28 @@ exact_gradient <- function(x, params, stats.weights, stats.statmat) {
   
 }
 
-exact_loglik_gr <- function(params, stat0, stats) {
-  
-  exp_sum  <- exp(stats$statmat %*% params)
-  
-  stat0 - 
-    1/log(stats$weights %*% exp_sum)[1]*(t(stats$statmat) %*% (exp_sum*stats$weights))
-  
-  
-}
+# inline arma::colvec exact_gradienti(
+#   const arma::rowvec & x,
+#   const arma::colvec & params,
+#   const arma::rowvec & stats_weights,
+#   const arma::mat    & stats_statmat
+# ) {
+#   
+#   return x.t() - (stats_statmat.t() * (stats_weights.t() % exp(stats_statmat * params)))/
+#     kappa(params, stats_weights, stats_statmat);
+#   
+# }
+
+# 
+# exact_loglik_gr <- function(params, stat0, stats) {
+#   
+#   exp_sum  <- exp(stats$statmat %*% params)
+#   
+#   RHS <- 1/log(stats$weights %*% exp_sum) *
+#     (t(stats$statmat) %*% (exp_sum*as.vector(stats$weights)))
+#   RHS <- matrix(RHS, nrow=nrow(stat0), ncol=ncol(stat0), byrow = TRUE)
+#   
+#   stat0 - RHS
+#   
+# }
 

@@ -171,7 +171,7 @@ check_degeneracy <- function(
 NULL
 
 ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
-  reltol = .Machine$double.eps / 3 # Higher accuracy for solving the model
+  reltol = .Machine$double.eps^2 # Higher accuracy for solving the model
 )
 
 #' @export

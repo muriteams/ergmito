@@ -39,6 +39,13 @@ test_that("Geodesic distances", {
   ans1 <- lapply(ans1, "[[", "gdist")
   expect_equal(ans0, ans1)
   
+  # Small matrices
+  ans0 <- geodesita(pset[[2]])
+  ans1 <- sna::geodist(pset[[2]], inf.replace = NA_integer_)$gdist
+  ans2 <- geodesita(network::as.network(pset[[2]]))
+  expect_equal(ans0[[1]], ans1)
+  expect_equal(ans0, ans2)
+  
 })
 
 test_that("Sufficient statistics", {
@@ -111,5 +118,14 @@ test_that("Sufficient statistics", {
   
   # network(pset3[[1]], list(age = age[[1]])) %>%
   #           gplot(label = age[[1]])
+  
+})
+
+test_that("checking existance using ergm", {
+  data("fivenets")
+  expect_error(
+    analyze_formula(fivenets ~ edges + edgecitos, check_w_ergm = TRUE),
+    "not found"
+  )
   
 })
