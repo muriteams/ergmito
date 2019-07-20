@@ -93,7 +93,9 @@ model <- net ~ edges + istar(2)
 
 # ERGMito (estimation via MLE)
 ans_ergmito <- ergmito(model)
+```
 
+``` r
 # ERGM (estimation via MC-MLE)
 ans_ergm  <- ergm(model, control = control.ergm(
   MCMC.effectiveSize = 4000,
@@ -193,6 +195,112 @@ plot(fivenets_gof)
 ```
 
 <img src="man/figures/README-fivenets-gof-1.png" width="80%" />
+
+## Fitting block-diagnoal models
+
+The pooled model can be also compared to a block-diagnoal ERGM. The
+package includes three functions to help with this task:
+`blockdiagonalize`, `splitnetwork`, and `ergm_blockdiag`.
+
+``` r
+
+data("fivenets")
+
+# Stacking matrices together
+fivenets_blockdiag <- blockdiagonalize(fivenets, "block_id")
+fivenets_blockdiag # It creates the 'block_id' variable
+#>  Network attributes:
+#>   vertices = 20 
+#>   directed = TRUE 
+#>   hyper = FALSE 
+#>   loops = FALSE 
+#>   multiple = FALSE 
+#>   bipartite = FALSE 
+#>   total edges= 20 
+#>     missing edges= 0 
+#>     non-missing edges= 20 
+#> 
+#>  Vertex attribute names: 
+#>     block_id female name_original vertex.names 
+#> 
+#> No edge attributes
+```
+
+``` r
+# Fitting the model with ERGM
+ans0 <- ergm(
+  fivenets_blockdiag ~ edges + nodematch("female"),
+  constraints = ~ blockdiag("block_id")
+  )
+```
+
+``` r
+ans1 <- ergm_blockdiag(fivenets ~ edges + nodematch("female"))
+```
+
+``` r
+# Now with ergmito
+ans2 <- ergmito(fivenets ~ edges + nodematch("female"))
+
+# All three are equivalent
+cbind(
+  ergm           = coef(ans0),
+  ergm_blockdiag = coef(ans1),
+  ergmito        = coef(ans2)
+)
+#>                       ergm ergm_blockdiag   ergmito
+#> edges            -1.704748      -1.704748 -1.704748
+#> nodematch.female  1.586965       1.586965  1.586965
+```
+
+The benefit of ergmito:
+
+``` r
+t_ergm <- system.time(ergm(
+  fivenets_blockdiag ~ edges + nodematch("female") + ttriad,
+  constraints = ~ blockdiag("block_id")
+  ))
+t_ergmito <- system.time(ergmito(fivenets ~ edges + nodematch("female")  + ttriad))
+```
+
+``` r
+# Relative elapsed time
+(t_ergm/t_ergmito)[3]
+#>  elapsed 
+#> 77.78788
+```
+
+## Fitting a large model
+
+Suppose that we have a large sample of small networks (ego from
+facebook, twitter, etc.), 2,000:
+
+``` r
+set.seed(123)
+bignet <- rbernoulli(sample(3:5, 2000, replace = TRUE))
+
+# Number of vertices
+sum(nvertex(bignet))
+#> [1] 8038
+```
+
+We can fit this model in a memory efficient way.
+
+``` r
+ans0 <- ergmito(bignet ~ edges + mutual)
+summary(ans0)
+#> 
+#> ERGMito estimates
+#> 
+#> formula:  bignet ~ edges + mutual 
+#> 
+#>         Estimate Std. Error z value Pr(>|z|)  
+#> edges   0.052819   0.021882  2.4138  0.01579 *
+#> mutual -0.056832   0.035359 -1.6073  0.10799  
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> AIC: 35497.94    BIC: 35514.24    (Smaller is better.)
+```
 
 # Contributing
 

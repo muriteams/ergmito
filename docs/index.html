@@ -113,95 +113,161 @@
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">model &lt;-<span class="st"> </span>net <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">istar</a></span>(<span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb4-2" title="2"></a>
 <a class="sourceLine" id="cb4-3" title="3"><span class="co"># ERGMito (estimation via MLE)</span></a>
-<a class="sourceLine" id="cb4-4" title="4">ans_ergmito &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(model)</a>
-<a class="sourceLine" id="cb4-5" title="5"></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="co"># ERGM (estimation via MC-MLE)</span></a>
-<a class="sourceLine" id="cb4-7" title="7">ans_ergm  &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm">ergm</a></span>(model, <span class="dt">control =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/control.ergm">control.ergm</a></span>(</a>
-<a class="sourceLine" id="cb4-8" title="8">  <span class="dt">MCMC.effectiveSize =</span> <span class="dv">4000</span>,</a>
-<a class="sourceLine" id="cb4-9" title="9">  <span class="dt">seed =</span> <span class="dv">444</span>)</a>
-<a class="sourceLine" id="cb4-10" title="10">  )</a>
-<a class="sourceLine" id="cb4-11" title="11"></a>
-<a class="sourceLine" id="cb4-12" title="12"><span class="co"># The ergmito should have a larger value</span></a>
-<a class="sourceLine" id="cb4-13" title="13"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm.exact">ergm.exact</a></span>(ans_ergmito<span class="op">$</span>coef, model) <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm.exact">ergm.exact</a></span>(ans_ergm<span class="op">$</span>coef, model)</a>
-<a class="sourceLine" id="cb4-14" title="14"><span class="co">#&gt;      [,1]</span></a>
-<a class="sourceLine" id="cb4-15" title="15"><span class="co">#&gt; [1,] TRUE</span></a>
-<a class="sourceLine" id="cb4-16" title="16"></a>
-<a class="sourceLine" id="cb4-17" title="17"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(ans_ergmito)</a>
-<a class="sourceLine" id="cb4-18" title="18"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-19" title="19"><span class="co">#&gt; ERGMito estimates</span></a>
-<a class="sourceLine" id="cb4-20" title="20"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-21" title="21"><span class="co">#&gt; formula:  net ~ edges + istar(2) </span></a>
-<a class="sourceLine" id="cb4-22" title="22"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-23" title="23"><span class="co">#&gt;        Estimate Std. Error z value Pr(&gt;|z|)</span></a>
-<a class="sourceLine" id="cb4-24" title="24"><span class="co">#&gt; edges  -1.37749    1.00260 -1.3739   0.1695</span></a>
-<a class="sourceLine" id="cb4-25" title="25"><span class="co">#&gt; istar2  0.50653    1.32701  0.3817   0.7027</span></a>
-<a class="sourceLine" id="cb4-26" title="26"><span class="co">#&gt; AIC: 17.36312    BIC: 18.33294    (Smaller is better.)</span></a>
-<a class="sourceLine" id="cb4-27" title="27"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(ans_ergm)</a>
-<a class="sourceLine" id="cb4-28" title="28"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-29" title="29"><span class="co">#&gt; ==========================</span></a>
-<a class="sourceLine" id="cb4-30" title="30"><span class="co">#&gt; Summary of model fit</span></a>
-<a class="sourceLine" id="cb4-31" title="31"><span class="co">#&gt; ==========================</span></a>
-<a class="sourceLine" id="cb4-32" title="32"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-33" title="33"><span class="co">#&gt; Formula:   net ~ edges + istar(2)</span></a>
-<a class="sourceLine" id="cb4-34" title="34"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-35" title="35"><span class="co">#&gt; Iterations:  2 out of 20 </span></a>
-<a class="sourceLine" id="cb4-36" title="36"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-37" title="37"><span class="co">#&gt; Monte Carlo MLE Results:</span></a>
-<a class="sourceLine" id="cb4-38" title="38"><span class="co">#&gt;        Estimate Std. Error MCMC % z value Pr(&gt;|z|)</span></a>
-<a class="sourceLine" id="cb4-39" title="39"><span class="co">#&gt; edges   -1.4110     0.9995      0  -1.412    0.158</span></a>
-<a class="sourceLine" id="cb4-40" title="40"><span class="co">#&gt; istar2   0.5607     1.3719      0   0.409    0.683</span></a>
-<a class="sourceLine" id="cb4-41" title="41"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-42" title="42"><span class="co">#&gt;      Null Deviance: 16.64  on 12  degrees of freedom</span></a>
-<a class="sourceLine" id="cb4-43" title="43"><span class="co">#&gt;  Residual Deviance: 13.35  on 10  degrees of freedom</span></a>
-<a class="sourceLine" id="cb4-44" title="44"><span class="co">#&gt;  </span></a>
-<a class="sourceLine" id="cb4-45" title="45"><span class="co">#&gt; AIC: 17.35    BIC: 18.32    (Smaller is better.)</span></a></code></pre></div>
+<a class="sourceLine" id="cb4-4" title="4">ans_ergmito &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(model)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co"># ERGM (estimation via MC-MLE)</span></a>
+<a class="sourceLine" id="cb5-2" title="2">ans_ergm  &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm">ergm</a></span>(model, <span class="dt">control =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/control.ergm">control.ergm</a></span>(</a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="dt">MCMC.effectiveSize =</span> <span class="dv">4000</span>,</a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="dt">seed =</span> <span class="dv">444</span>)</a>
+<a class="sourceLine" id="cb5-5" title="5">  )</a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="co"># The ergmito should have a larger value</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm.exact">ergm.exact</a></span>(ans_ergmito<span class="op">$</span>coef, model) <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm.exact">ergm.exact</a></span>(ans_ergm<span class="op">$</span>coef, model)</a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt;      [,1]</span></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt; [1,] TRUE</span></a>
+<a class="sourceLine" id="cb5-11" title="11"></a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(ans_ergmito)</a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-14" title="14"><span class="co">#&gt; ERGMito estimates</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-16" title="16"><span class="co">#&gt; formula:  net ~ edges + istar(2) </span></a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-18" title="18"><span class="co">#&gt;        Estimate Std. Error z value Pr(&gt;|z|)</span></a>
+<a class="sourceLine" id="cb5-19" title="19"><span class="co">#&gt; edges  -1.37749    1.00260 -1.3739   0.1695</span></a>
+<a class="sourceLine" id="cb5-20" title="20"><span class="co">#&gt; istar2  0.50653    1.32701  0.3817   0.7027</span></a>
+<a class="sourceLine" id="cb5-21" title="21"><span class="co">#&gt; AIC: 17.36312    BIC: 18.33294    (Smaller is better.)</span></a>
+<a class="sourceLine" id="cb5-22" title="22"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(ans_ergm)</a>
+<a class="sourceLine" id="cb5-23" title="23"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-24" title="24"><span class="co">#&gt; ==========================</span></a>
+<a class="sourceLine" id="cb5-25" title="25"><span class="co">#&gt; Summary of model fit</span></a>
+<a class="sourceLine" id="cb5-26" title="26"><span class="co">#&gt; ==========================</span></a>
+<a class="sourceLine" id="cb5-27" title="27"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-28" title="28"><span class="co">#&gt; Formula:   net ~ edges + istar(2)</span></a>
+<a class="sourceLine" id="cb5-29" title="29"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-30" title="30"><span class="co">#&gt; Iterations:  2 out of 20 </span></a>
+<a class="sourceLine" id="cb5-31" title="31"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-32" title="32"><span class="co">#&gt; Monte Carlo MLE Results:</span></a>
+<a class="sourceLine" id="cb5-33" title="33"><span class="co">#&gt;        Estimate Std. Error MCMC % z value Pr(&gt;|z|)</span></a>
+<a class="sourceLine" id="cb5-34" title="34"><span class="co">#&gt; edges   -1.4110     0.9995      0  -1.412    0.158</span></a>
+<a class="sourceLine" id="cb5-35" title="35"><span class="co">#&gt; istar2   0.5607     1.3719      0   0.409    0.683</span></a>
+<a class="sourceLine" id="cb5-36" title="36"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-37" title="37"><span class="co">#&gt;      Null Deviance: 16.64  on 12  degrees of freedom</span></a>
+<a class="sourceLine" id="cb5-38" title="38"><span class="co">#&gt;  Residual Deviance: 13.35  on 10  degrees of freedom</span></a>
+<a class="sourceLine" id="cb5-39" title="39"><span class="co">#&gt;  </span></a>
+<a class="sourceLine" id="cb5-40" title="40"><span class="co">#&gt; AIC: 17.35    BIC: 18.32    (Smaller is better.)</span></a></code></pre></div>
 </div>
 <div id="estimating-data-with-known-parameters" class="section level2">
 <h2 class="hasAnchor">
 <a href="#estimating-data-with-known-parameters" class="anchor"></a>Estimating data with known parameters</h2>
 <p>The following example shows the estimation of a dataset that is included in the package, <code>fivenets</code>. This set of five networks was generated using the <code>new_rergmito</code> function which allows creating a function to draw random ERGMs with a fixed set of parameters, in this case, <code>edges = -2.0</code> and <code>nodematch("female") = 2.0</code></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(fivenets)</a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3">model1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>))</a>
-<a class="sourceLine" id="cb5-4" title="4"></a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(model1) <span class="co"># This data has know parameters equal to -2.0 and 2.0</span></a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt; ERGMito estimates</span></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt; formula:  fivenets ~ edges + nodematch("female") </span></a>
-<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-11" title="11"><span class="co">#&gt;                  Estimate Std. Error z value Pr(&gt;|z|)   </span></a>
-<a class="sourceLine" id="cb5-12" title="12"><span class="co">#&gt; edges            -1.70475    0.54356 -3.1363 0.001711 **</span></a>
-<a class="sourceLine" id="cb5-13" title="13"><span class="co">#&gt; nodematch.female  1.58697    0.64305  2.4679 0.013592 * </span></a>
-<a class="sourceLine" id="cb5-14" title="14"><span class="co">#&gt; ---</span></a>
-<a class="sourceLine" id="cb5-15" title="15"><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a>
-<a class="sourceLine" id="cb5-16" title="16"><span class="co">#&gt; AIC: 73.34109    BIC: 77.52978    (Smaller is better.)</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(fivenets)</a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3">model1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>))</a>
+<a class="sourceLine" id="cb6-4" title="4"></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(model1) <span class="co"># This data has know parameters equal to -2.0 and 2.0</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="co">#&gt; ERGMito estimates</span></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="co">#&gt; formula:  fivenets ~ edges + nodematch("female") </span></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-11" title="11"><span class="co">#&gt;                  Estimate Std. Error z value Pr(&gt;|z|)   </span></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="co">#&gt; edges            -1.70475    0.54356 -3.1363 0.001711 **</span></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="co">#&gt; nodematch.female  1.58697    0.64305  2.4679 0.013592 * </span></a>
+<a class="sourceLine" id="cb6-14" title="14"><span class="co">#&gt; ---</span></a>
+<a class="sourceLine" id="cb6-15" title="15"><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a>
+<a class="sourceLine" id="cb6-16" title="16"><span class="co">#&gt; AIC: 73.34109    BIC: 77.52978    (Smaller is better.)</span></a></code></pre></div>
 <p>We can also compute GOF</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">fivenets_gof &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito_gof.html">gof_ergmito</a></span>(model1)</a>
-<a class="sourceLine" id="cb6-2" title="2">fivenets_gof</a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="co">#&gt; Goodness-of-fit for edges </span></a>
-<a class="sourceLine" id="cb6-5" title="5"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-6" title="6"><span class="co">#&gt;       obs min mean max lower upper lower prob. upper prob.</span></a>
-<a class="sourceLine" id="cb6-7" title="7"><span class="co">#&gt; net 1   2   0  3.7  12     0     6      0.0081        0.96</span></a>
-<a class="sourceLine" id="cb6-8" title="8"><span class="co">#&gt; net 2   7   0  3.7  12     0     6      0.0081        0.96</span></a>
-<a class="sourceLine" id="cb6-9" title="9"><span class="co">#&gt; net 3   4   0  3.1  12     0     6      0.0206        0.99</span></a>
-<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt; net 4   5   0  5.6  12     2     8      0.0309        0.95</span></a>
-<a class="sourceLine" id="cb6-11" title="11"><span class="co">#&gt; net 5   2   0  3.7  12     0     6      0.0081        0.96</span></a>
-<a class="sourceLine" id="cb6-12" title="12"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-13" title="13"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-14" title="14"><span class="co">#&gt; Goodness-of-fit for nodematch.female </span></a>
-<a class="sourceLine" id="cb6-15" title="15"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-16" title="16"><span class="co">#&gt;       obs min mean max lower upper lower prob. upper prob.</span></a>
-<a class="sourceLine" id="cb6-17" title="17"><span class="co">#&gt; net 1   2   0  2.8   6     0     5       0.022        0.99</span></a>
-<a class="sourceLine" id="cb6-18" title="18"><span class="co">#&gt; net 2   5   0  2.8   6     0     5       0.022        0.99</span></a>
-<a class="sourceLine" id="cb6-19" title="19"><span class="co">#&gt; net 3   3   0  1.9   4     0     3       0.079        0.95</span></a>
-<a class="sourceLine" id="cb6-20" title="20"><span class="co">#&gt; net 4   5   0  5.6  12     2     8       0.031        0.95</span></a>
-<a class="sourceLine" id="cb6-21" title="21"><span class="co">#&gt; net 5   1   0  2.8   6     0     5       0.022        0.99</span></a>
-<a class="sourceLine" id="cb6-22" title="22"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-23" title="23"><span class="co">#&gt; Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof_ergmito).</span></a>
-<a class="sourceLine" id="cb6-24" title="24"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(fivenets_gof)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">fivenets_gof &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito_gof.html">gof_ergmito</a></span>(model1)</a>
+<a class="sourceLine" id="cb7-2" title="2">fivenets_gof</a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="co">#&gt; Goodness-of-fit for edges </span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-6" title="6"><span class="co">#&gt;       obs min mean max lower upper lower prob. upper prob.</span></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="co">#&gt; net 1   2   0  3.7  12     0     6      0.0081        0.96</span></a>
+<a class="sourceLine" id="cb7-8" title="8"><span class="co">#&gt; net 2   7   0  3.7  12     0     6      0.0081        0.96</span></a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="co">#&gt; net 3   4   0  3.1  12     0     6      0.0206        0.99</span></a>
+<a class="sourceLine" id="cb7-10" title="10"><span class="co">#&gt; net 4   5   0  5.6  12     2     8      0.0309        0.95</span></a>
+<a class="sourceLine" id="cb7-11" title="11"><span class="co">#&gt; net 5   2   0  3.7  12     0     6      0.0081        0.96</span></a>
+<a class="sourceLine" id="cb7-12" title="12"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-13" title="13"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-14" title="14"><span class="co">#&gt; Goodness-of-fit for nodematch.female </span></a>
+<a class="sourceLine" id="cb7-15" title="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-16" title="16"><span class="co">#&gt;       obs min mean max lower upper lower prob. upper prob.</span></a>
+<a class="sourceLine" id="cb7-17" title="17"><span class="co">#&gt; net 1   2   0  2.8   6     0     5       0.022        0.99</span></a>
+<a class="sourceLine" id="cb7-18" title="18"><span class="co">#&gt; net 2   5   0  2.8   6     0     5       0.022        0.99</span></a>
+<a class="sourceLine" id="cb7-19" title="19"><span class="co">#&gt; net 3   3   0  1.9   4     0     3       0.079        0.95</span></a>
+<a class="sourceLine" id="cb7-20" title="20"><span class="co">#&gt; net 4   5   0  5.6  12     2     8       0.031        0.95</span></a>
+<a class="sourceLine" id="cb7-21" title="21"><span class="co">#&gt; net 5   1   0  2.8   6     0     5       0.022        0.99</span></a>
+<a class="sourceLine" id="cb7-22" title="22"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-23" title="23"><span class="co">#&gt; Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof_ergmito).</span></a>
+<a class="sourceLine" id="cb7-24" title="24"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(fivenets_gof)</a></code></pre></div>
 <p><img src="reference/figures/README-fivenets-gof-1.png" width="80%"></p>
+</div>
+<div id="fitting-block-diagnoal-models" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fitting-block-diagnoal-models" class="anchor"></a>Fitting block-diagnoal models</h2>
+<p>The pooled model can be also compared to a block-diagnoal ERGM. The package includes three functions to help with this task: <code>blockdiagonalize</code>, <code>splitnetwork</code>, and <code>ergm_blockdiag</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"fivenets"</span>)</a>
+<a class="sourceLine" id="cb8-3" title="3"></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="co"># Stacking matrices together</span></a>
+<a class="sourceLine" id="cb8-5" title="5">fivenets_blockdiag &lt;-<span class="st"> </span><span class="kw"><a href="reference/blockdiagonalize.html">blockdiagonalize</a></span>(fivenets, <span class="st">"block_id"</span>)</a>
+<a class="sourceLine" id="cb8-6" title="6">fivenets_blockdiag <span class="co"># It creates the 'block_id' variable</span></a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="co">#&gt;  Network attributes:</span></a>
+<a class="sourceLine" id="cb8-8" title="8"><span class="co">#&gt;   vertices = 20 </span></a>
+<a class="sourceLine" id="cb8-9" title="9"><span class="co">#&gt;   directed = TRUE </span></a>
+<a class="sourceLine" id="cb8-10" title="10"><span class="co">#&gt;   hyper = FALSE </span></a>
+<a class="sourceLine" id="cb8-11" title="11"><span class="co">#&gt;   loops = FALSE </span></a>
+<a class="sourceLine" id="cb8-12" title="12"><span class="co">#&gt;   multiple = FALSE </span></a>
+<a class="sourceLine" id="cb8-13" title="13"><span class="co">#&gt;   bipartite = FALSE </span></a>
+<a class="sourceLine" id="cb8-14" title="14"><span class="co">#&gt;   total edges= 20 </span></a>
+<a class="sourceLine" id="cb8-15" title="15"><span class="co">#&gt;     missing edges= 0 </span></a>
+<a class="sourceLine" id="cb8-16" title="16"><span class="co">#&gt;     non-missing edges= 20 </span></a>
+<a class="sourceLine" id="cb8-17" title="17"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb8-18" title="18"><span class="co">#&gt;  Vertex attribute names: </span></a>
+<a class="sourceLine" id="cb8-19" title="19"><span class="co">#&gt;     block_id female name_original vertex.names </span></a>
+<a class="sourceLine" id="cb8-20" title="20"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb8-21" title="21"><span class="co">#&gt; No edge attributes</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="co"># Fitting the model with ERGM</span></a>
+<a class="sourceLine" id="cb9-2" title="2">ans0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm">ergm</a></span>(</a>
+<a class="sourceLine" id="cb9-3" title="3">  fivenets_blockdiag <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>),</a>
+<a class="sourceLine" id="cb9-4" title="4">  <span class="dt">constraints =</span> <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-constraints">blockdiag</a></span>(<span class="st">"block_id"</span>)</a>
+<a class="sourceLine" id="cb9-5" title="5">  )</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">ans1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/blockdiagonalize.html">ergm_blockdiag</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># Now with ergmito</span></a>
+<a class="sourceLine" id="cb11-2" title="2">ans2 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>))</a>
+<a class="sourceLine" id="cb11-3" title="3"></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="co"># All three are equivalent</span></a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
+<a class="sourceLine" id="cb11-6" title="6">  <span class="dt">ergm           =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(ans0),</a>
+<a class="sourceLine" id="cb11-7" title="7">  <span class="dt">ergm_blockdiag =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(ans1),</a>
+<a class="sourceLine" id="cb11-8" title="8">  <span class="dt">ergmito        =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(ans2)</a>
+<a class="sourceLine" id="cb11-9" title="9">)</a>
+<a class="sourceLine" id="cb11-10" title="10"><span class="co">#&gt;                       ergm ergm_blockdiag   ergmito</span></a>
+<a class="sourceLine" id="cb11-11" title="11"><span class="co">#&gt; edges            -1.704748      -1.704748 -1.704748</span></a>
+<a class="sourceLine" id="cb11-12" title="12"><span class="co">#&gt; nodematch.female  1.586965       1.586965  1.586965</span></a></code></pre></div>
+<p>The benefit of ergmito:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">t_ergm &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm">ergm</a></span>(</a>
+<a class="sourceLine" id="cb12-2" title="2">  fivenets_blockdiag <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>) <span class="op">+</span><span class="st"> </span>ttriad,</a>
+<a class="sourceLine" id="cb12-3" title="3">  <span class="dt">constraints =</span> <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-constraints">blockdiag</a></span>(<span class="st">"block_id"</span>)</a>
+<a class="sourceLine" id="cb12-4" title="4">  ))</a>
+<a class="sourceLine" id="cb12-5" title="5">t_ergmito &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(<span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>)  <span class="op">+</span><span class="st"> </span>ttriad))</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="co"># Relative elapsed time</span></a>
+<a class="sourceLine" id="cb13-2" title="2">(t_ergm<span class="op">/</span>t_ergmito)[<span class="dv">3</span>]</a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="co">#&gt;  elapsed </span></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="co">#&gt; 77.78788</span></a></code></pre></div>
+<!-- ## Fitting a large model -->
+<!-- Suppose that we have a large sample of small networks (ego from facebook, twitter, etc.), 2,000: -->
+<!-- ```{r large-dgp} -->
+<!-- set.seed(123) -->
+<!-- bignet <- rbernoulli(sample(3:5, 2000, replace = TRUE)) -->
+<!-- # Number of vertices -->
+<!-- sum(nvertex(bignet)) -->
+<!-- ``` -->
+<!-- We can fit this model in a memory efficient way. -->
+<!-- ```{r large-fit, cache=TRUE} -->
+<!-- ans0 <- ergmito(bignet ~ edges + mutual) -->
+<!-- summary(ans0) -->
+<!-- ``` -->
 </div>
 </div>
 <div id="contributing" class="section level1">
