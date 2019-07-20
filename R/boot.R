@@ -75,11 +75,12 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     parallel::parLapply(cl, IDX, function(idx) {
       
       environment(model0) <- environment()
-      ergmito(
+      tryCatch(ergmito(
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
         target.stats = target.stats[idx,,drop=FALSE]
+        ), error = function(e) e
         )
       
     })
@@ -89,12 +90,12 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     lapply(IDX, function(idx) {
       
       environment(model0) <- environment()
-      ergmito(
+      tryCatch(ergmito(
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
         target.stats = target.stats[idx,,drop=FALSE]
-        )
+        ), error = function(e) e)
       
     })
     
