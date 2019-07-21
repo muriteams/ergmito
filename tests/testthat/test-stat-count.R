@@ -58,62 +58,86 @@ test_that("Sufficient statistics", {
   expect_equivalent(ans0, ans1)
   #-----------------------------------------------------------------------------
   
-  ans0 <- count_stats(pset3, c("mutual"))[,1]
-  ans1 <- unname(sapply(pset3, function(p) summary(p ~ mutual)))
+  estats <- c(
+    `mutual`          = "mutual",
+    `edges`           = "edges",
+    `ctriad`          = "ctriad",
+    `ttriad`          = "ttriad",
+    `triangle`        = "triangle",
+    `balance`         = "balance",
+    `triadcensus(15)` = "t300",
+    `triadcensus(2)`  = "t102",
+    `idegree1.5`      = "idegree1.5",
+    `odegree1.5`      = "odegree1.5"
+  )
   
-  expect_equivalent(ans0, ans1)
+  for (s in seq_along(estats)) {
+    ans0 <- count_stats(pset3, c(estats[s]))[,1]
+    ans1 <- unname(sapply(pset3, function(p) {
+      fm <- as.formula(paste0("p ~ ", names(estats)[s]))
+      environment(fm) <- environment()
+      summary(fm)
+      }))
+    
+    expect_equivalent(ans0, ans1)
+  }
   
-  ans0 <- count_stats(pset3, c("edges"))[,1]
-  ans1 <- unname(sapply(pset3, function(p) summary(p ~ edges)))
+  pset5 <- powerset(5)
+  pset5 <- pset5[order(sapply(pset5, sum))]
+  pset5 <- c(head(pset5, 25), tail(pset5, 25))
+  for (star in c("istar", "ostar"))
+  for (i in 1:4) {
+    ans0 <- count_stats(pset5, paste0(star, i))[,1]
+    fm <- as.formula(paste0("p ~ ",star, "(", i, ")"))
+    ans1 <- unname(sapply(pset5, function(p) {
+      environment(fm) <- environment()
+      summary(fm)
+      }))
+    
+    expect_equivalent(ans0, ans1)
+  }
   
-  expect_equivalent(ans0, ans1)
   
-  ans0 <- count_stats(pset3, c("ctriad"))[,1]
-  ans1 <- unname(sapply(pset3, function(p) summary(p ~ ctriad)))
-  
-  expect_equivalent(ans0, ans1)
-  
-  ans0 <- count_stats(pset3, c("triangle"))[,1]
-  ans1 <- unname(sapply(pset3, function(p) summary(p ~ triangle)))
-  
-  expect_equivalent(ans0, ans1)
-  
-  ans0 <- count_stats(pset3, c("balance"))[,1]
-  ans1 <- unname(sapply(pset3, function(p) summary(p ~ balance)))
-  
-  expect_equivalent(ans0, ans1)
-  
-  ans0 <- count_stats(pset3, c("t300"))[,1]
-  ans1 <- unname(sapply(pset3, function(p) summary(p ~ triadcensus(15))))
-  
-  expect_equivalent(ans0, ans1)
-  
-  ans0 <- count_stats(pset3, c("t102"))[,1]
-  ans1 <- unname(sapply(pset3, function(p) summary(p ~ triadcensus(2))))
-  
-  expect_equivalent(ans0, ans1)
-  
-  # Nodecovar
+  # Attribute based ------------------------------------------------------------
   set.seed(44)
-  age <- lapply(nvertex(pset3), rpois, lambda=4)
+  age <- lapply(nvertex(pset5), rpois, lambda=4)
   
-  ans0 <- count_stats(pset3, "nodeocov", age)
-  ans1 <- unname(sapply(seq_along(pset3), function(i) {
-    summary(network::network(pset3[[i]], list(age = age[[i]]), "age") ~ nodeocov("age"))
+  ans0 <- count_stats(pset5, "nodeocov", age)
+  ans1 <- unname(sapply(seq_along(pset5), function(i) {
+    summary(network::network(pset5[[i]], list(age = age[[i]]), "age") ~ nodeocov("age"))
     }))
   
   expect_equivalent(ans0, ans1)
   
-  # Nodecovar
-  set.seed(44)
-  age <- lapply(nvertex(pset3), rpois, lambda=4)
-  
-  ans0 <- count_stats(pset3, "nodeicov", age)
-  ans1 <- unname(sapply(seq_along(pset3), function(i) {
-    summary(network::network(pset3[[i]], list(age = age[[i]]), "age") ~ nodeicov("age"))
+  ans0 <- count_stats(pset5, "nodeicov", age)
+  ans1 <- unname(sapply(seq_along(pset5), function(i) {
+    summary(network::network(pset5[[i]], list(age = age[[i]]), "age") ~ nodeicov("age"))
   }))
   
   expect_equivalent(ans0, ans1)
+  
+  ans0 <- count_stats(pset5, "absdiff", age)
+  ans1 <- unname(sapply(seq_along(pset5), function(i) {
+    summary(network::network(pset5[[i]], list(age = age[[i]]), "age") ~ absdiff("age"))
+  }))
+  
+  expect_equivalent(ans0, ans1)
+  
+  for (star in c("istar", "ostar"))
+    for (i in 1:4) {
+      ans0 <- count_stats(pset5, paste0(star, i), age)
+      ans1 <- integer(length(pset5))
+      for (g in seq_along(pset5)) {
+        net <- network::network(pset5[[g]], list(age = age[[g]]), "age")
+        fm <- as.formula(paste0("net ~ ", star, "(",i, ", attr=\"age\")"))
+
+        ans1[g] <- summary(fm)
+      }
+
+      expect_equivalent(ans0, ans1)
+    }
+  
+  
   
   
   # network(pset3[[1]], list(age = age[[1]])) %>%

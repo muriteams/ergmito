@@ -8,7 +8,7 @@
 using namespace Rcpp;
 
 // count_available
-CharacterVector count_available(int i);
+std::vector< std::string > count_available(int i);
 RcppExport SEXP _ergmito_count_available(SEXP iSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

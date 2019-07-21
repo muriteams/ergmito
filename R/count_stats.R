@@ -47,6 +47,9 @@ analyze_formula <- function(x, check_w_ergm = FALSE) {
   
   # Capturing attributes
   terms_attrs <- vector("list", length(terms_passed))
+  # ostar <- function(i, attr = NULL) {
+  #   list(name = paste0("ostar", i), attr = attr)
+  # }
   for (term in which(has_attr)) {
     terms_attrs[[term]] <- gsub("\"?[)].*", "", gsub(".+[(]\"?", "", terms_passed[term]))
   }
@@ -81,28 +84,29 @@ count_stats.formula <- function(X, ...) {
   
   # Retrieving networks
   LHS <- eval(X[[2]], envir = environment(X))
-  LHS <- as_adjmat(LHS)
-  
   if (is.matrix(LHS))
     LHS <- list(LHS)
   
   # Analyzing the formula
   ergm_model <- analyze_formula(X)
   
-  # # Can we do it?
-  # available <- which(!(ergm_model$names %in% count_available()))
-  # if (length(available)) 
-  #   stop("The following terms cannot be computed")
+  # Can we do it?
+  available <- which(!(ergm_model$names %in% count_available()))
+  if (length(available))
+    stop("The following terms cannot be computed")
   
   # Capturing attributes
   for (a in seq_along(ergm_model$attrnames)) {
     ergm_model$attrs[[a]] <- if (is.null(ergm_model$attrnames[[a]]))
-      numeric(0)
+      double(0)
     else
       lapply(LHS, function(net) {
         network::get.vertex.attribute(net, attrname = ergm_model$attrnames[[a]])
       })
   }
+  
+  # Coercion is later since we need to check for arguments
+  LHS <- as_adjmat(LHS)
   
   # Coercing into the appropiate type
   if (network::is.network(LHS))

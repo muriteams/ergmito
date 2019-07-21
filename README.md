@@ -260,46 +260,48 @@ t_ergm <- system.time(ergm(
   fivenets_blockdiag ~ edges + nodematch("female") + ttriad,
   constraints = ~ blockdiag("block_id")
   ))
-t_ergmito <- system.time(ergmito(fivenets ~ edges + nodematch("female")  + ttriad))
+t_ergmito <- system.time(
+  ergmito(fivenets ~ edges + nodematch("female")  + ttriad)
+  )
 ```
 
 ``` r
 # Relative elapsed time
 (t_ergm/t_ergmito)[3]
 #>  elapsed 
-#> 77.78788
+#> 110.6667
 ```
 
 ## Fitting a large model
 
 Suppose that we have a large sample of small networks (ego from
-facebook, twitter, etc.), 2,000:
+facebook, twitter, etc.), 20,000 which account for 80,000 vertices:
 
 ``` r
 set.seed(123)
-bignet <- rbernoulli(sample(3:5, 2000, replace = TRUE))
+bignet <- rbernoulli(sample(3:5, 20000, replace = TRUE))
 
 # Number of vertices
 sum(nvertex(bignet))
-#> [1] 8038
+#> [1] 80089
 ```
 
 We can fit this model in a memory efficient way.
 
 ``` r
-ans0 <- ergmito(bignet ~ edges + mutual)
+system.time(ans0 <- ergmito(bignet ~ edges + mutual))
+#>    user  system elapsed 
+#>   4.140   0.016   4.155
 summary(ans0)
 #> 
 #> ERGMito estimates
 #> 
 #> formula:  bignet ~ edges + mutual 
 #> 
-#>         Estimate Std. Error z value Pr(>|z|)  
-#> edges   0.052819   0.021882  2.4138  0.01579 *
-#> mutual -0.056832   0.035359 -1.6073  0.10799  
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> AIC: 35497.94    BIC: 35514.24    (Smaller is better.)
+#>          Estimate Std. Error z value Pr(>|z|)
+#> edges  -0.0021702  0.0068674 -0.3160    0.752
+#> mutual -0.0015521  0.0112247 -0.1383    0.890
+#> AIC: 352097.2    BIC: 352118.1    (Smaller is better.)
 ```
 
 # Contributing

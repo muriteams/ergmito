@@ -37,8 +37,12 @@ ergmito_formulae <- function(
   
   # Collecting extra options
   dots <- list(...)
-  if (!length(dots$zeroobs))
-    dots$zeroobs <- FALSE
+  if (length(dots$zeroobs) && dots$zeroobs) {
+    zeroobs <- TRUE
+  } else {
+    zeroobs <- FALSE
+  }
+  dots$zeroobs <- FALSE
 
   # Capturing model
   if (!inherits(model, "formula"))
@@ -117,7 +121,11 @@ ergmito_formulae <- function(
         stats.statmat[[i]] <- stats.statmat[[matching_net]]
         stats.weights[[i]] <- stats.weights[[matching_net]]
       } else {
-        allstats_i <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
+        allstats_i <- do.call(
+          ergm::ergm.allstats, 
+          # We correct for zero obs later
+          c(list(formula = model.), dots)
+          )
         stats.statmat[[i]] <- allstats_i$statmat
         stats.weights[[i]] <- allstats_i$weights
       }
@@ -127,42 +135,77 @@ ergmito_formulae <- function(
     
   }
   
+  if (all(sapply(target.stats, length) == 0)) {
+    
+    # Should we use summary.formula?
+    model_analysis <- analyze_formula(model)
+    if (all(model_analysis$names %in% AVAILABLE_STATS())) {
+      
+      target.stats <- count_stats(model)
+      
+      # Still need to get it once b/c of naming
+      i <- 1
+      colnames(target.stats) <- names(
+        summary(model.)
+      )
+      
+    } else {
+      for (i in seq_len(nnets(LHS))) {
+        # Calculating observed statistics
+        if (!length(target.stats[[i]]))
+          target.stats[[i]] <- c(summary(model.))
+
+      }
+      
+      # Coercing objects
+      target.stats   <- do.call(rbind, target.stats)
+    }
+    
+  }
+  
+  g <- vector("list", nnets(LHS))
   for (i in seq_len(nnets(LHS))) {
     
     # Calculating gattrs_model
-    
     if (length(gattr_model))
-      g <- gmodel(gattr_model, LHS[[i]])
-    else
-      g <- NULL
-    
-    # Calculating observed statistics
-    if (!length(target.stats[[i]]))
-      target.stats[[i]] <- c(summary(model.), g)
-    
-    # Should it be normalized to 0?
-    if (length(dots$zeroobs) && dots$zeroobs)
-      target.stats[[i]][] <- rep(0, length(target.stats[[i]][]))
+      g[[i]] <- gmodel(gattr_model, LHS[[i]])
     
     # Adding graph level attributes
     # Adding graph parameters to the statmat
-    if (length(g)) {
+    if (length(g[[i]])) {
+      
       stats.statmat[[i]] <- cbind(
         stats.statmat[[i]],
         matrix(
-          data     = target.stats[[i]][names(g)],
+          data     = g[[i]],
           nrow     = nrow(stats.statmat[[i]]),
-          ncol     = length(g),
+          ncol     = length(g[[i]]),
           byrow    = TRUE,
-          dimnames = list(NULL, names(g))
+          dimnames = list(NULL, names(g[[i]]))
         )
       )
     }
     
   }
   
-  # Coercing objects
-  target.stats   <- do.call(rbind, target.stats)
+  if (all(sapply(g, length) != 0))
+    target.stats <- cbind(target.stats, do.call(rbind, g))
+  
+  # Should it be normalized to 0?
+  if (zeroobs)
+    for (i in seq_len(nnets(LHS))) {
+      stats.statmat[[i]] <- stats.statmat[[i]] - 
+        matrix(
+          data  = target.stats[i, ],
+          nrow  = nrow(stats.statmat[[i]]),
+          ncol  = ncol(target.stats),
+          byrow = TRUE
+          )
+      
+      target.stats[i, ] <- 0
+      
+    }
+  
   
   structure(list(
     loglik = function(params, stats.weights, stats.statmat, target.stats) {

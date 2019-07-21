@@ -175,14 +175,16 @@ t_ergm <- system.time(ergm(
   fivenets_blockdiag ~ edges + nodematch("female") + ttriad,
   constraints = ~ blockdiag("block_id")
   ))
-t_ergmito <- system.time(ergmito(fivenets ~ edges + nodematch("female")  + ttriad))
+t_ergmito <- system.time(
+  ergmito(fivenets ~ edges + nodematch("female")  + ttriad)
+  )
 ```
 
 ```{r, echo=FALSE}
-t_ergm <- structure(c(user.self = 5.076, sys.self = 0.056, elapsed = 5.134, 
-user.child = 0.016, sys.child = 0.016), class = "proc_time")
-t_ergmito <-structure(c(user.self = 0.0599999999999987, sys.self = 0.00800000000000001, 
-elapsed = 0.0660000000000025, user.child = 0, sys.child = 0), class = "proc_time")
+t_ergm <- structure(c(user.self = 5.236, sys.self = 0.072, elapsed = 5.312, 
+user.child = 0.00800000000000001, sys.child = 0.02), class = "proc_time")
+t_ergmito <-structure(c(user.self = 0.0359999999999996, sys.self = 0.012, 
+elapsed = 0.0479999999999983, user.child = 0, sys.child = 0), class = "proc_time")
 ```
 
 
@@ -193,11 +195,11 @@ elapsed = 0.0660000000000025, user.child = 0, sys.child = 0), class = "proc_time
 
 ## Fitting a large model
 
-Suppose that we have a large sample of small networks (ego from facebook, twitter, etc.), 2,000:
+Suppose that we have a large sample of small networks (ego from facebook, twitter, etc.), 20,000 which account for 80,000 vertices:
 
 ```{r large-dgp}
 set.seed(123)
-bignet <- rbernoulli(sample(3:5, 2000, replace = TRUE))
+bignet <- rbernoulli(sample(3:5, 20000, replace = TRUE))
 
 # Number of vertices
 sum(nvertex(bignet))
@@ -206,7 +208,7 @@ sum(nvertex(bignet))
 We can fit this model in a memory efficient way.
 
 ```{r large-fit, cache=TRUE}
-ans0 <- ergmito(bignet ~ edges + mutual)
+system.time(ans0 <- ergmito(bignet ~ edges + mutual))
 summary(ans0)
 ```
 

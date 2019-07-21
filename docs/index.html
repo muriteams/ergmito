@@ -250,24 +250,38 @@
 <a class="sourceLine" id="cb12-2" title="2">  fivenets_blockdiag <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>) <span class="op">+</span><span class="st"> </span>ttriad,</a>
 <a class="sourceLine" id="cb12-3" title="3">  <span class="dt">constraints =</span> <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-constraints">blockdiag</a></span>(<span class="st">"block_id"</span>)</a>
 <a class="sourceLine" id="cb12-4" title="4">  ))</a>
-<a class="sourceLine" id="cb12-5" title="5">t_ergmito &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(<span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>)  <span class="op">+</span><span class="st"> </span>ttriad))</a></code></pre></div>
+<a class="sourceLine" id="cb12-5" title="5">t_ergmito &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(</a>
+<a class="sourceLine" id="cb12-6" title="6">  <span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>)  <span class="op">+</span><span class="st"> </span>ttriad)</a>
+<a class="sourceLine" id="cb12-7" title="7">  )</a></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="co"># Relative elapsed time</span></a>
 <a class="sourceLine" id="cb13-2" title="2">(t_ergm<span class="op">/</span>t_ergmito)[<span class="dv">3</span>]</a>
 <a class="sourceLine" id="cb13-3" title="3"><span class="co">#&gt;  elapsed </span></a>
-<a class="sourceLine" id="cb13-4" title="4"><span class="co">#&gt; 77.78788</span></a></code></pre></div>
-<!-- ## Fitting a large model -->
-<!-- Suppose that we have a large sample of small networks (ego from facebook, twitter, etc.), 2,000: -->
-<!-- ```{r large-dgp} -->
-<!-- set.seed(123) -->
-<!-- bignet <- rbernoulli(sample(3:5, 2000, replace = TRUE)) -->
-<!-- # Number of vertices -->
-<!-- sum(nvertex(bignet)) -->
-<!-- ``` -->
-<!-- We can fit this model in a memory efficient way. -->
-<!-- ```{r large-fit, cache=TRUE} -->
-<!-- ans0 <- ergmito(bignet ~ edges + mutual) -->
-<!-- summary(ans0) -->
-<!-- ``` -->
+<a class="sourceLine" id="cb13-4" title="4"><span class="co">#&gt; 110.6667</span></a></code></pre></div>
+</div>
+<div id="fitting-a-large-model" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fitting-a-large-model" class="anchor"></a>Fitting a large model</h2>
+<p>Suppose that we have a large sample of small networks (ego from facebook, twitter, etc.), 20,000 which account for 80,000 vertices:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">123</span>)</a>
+<a class="sourceLine" id="cb14-2" title="2">bignet &lt;-<span class="st"> </span><span class="kw"><a href="reference/rbernoulli.html">rbernoulli</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="dv">3</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">20000</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb14-3" title="3"></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="co"># Number of vertices</span></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">sum</a></span>(<span class="kw"><a href="reference/nvertex.html">nvertex</a></span>(bignet))</a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="co">#&gt; [1] 80089</span></a></code></pre></div>
+<p>We can fit this model in a memory efficient way.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(ans0 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(bignet <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span>mutual))</a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="co">#&gt;    user  system elapsed </span></a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="co">#&gt;   3.616   0.060   3.677</span></a>
+<a class="sourceLine" id="cb15-4" title="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(ans0)</a>
+<a class="sourceLine" id="cb15-5" title="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb15-6" title="6"><span class="co">#&gt; ERGMito estimates</span></a>
+<a class="sourceLine" id="cb15-7" title="7"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb15-8" title="8"><span class="co">#&gt; formula:  bignet ~ edges + mutual </span></a>
+<a class="sourceLine" id="cb15-9" title="9"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb15-10" title="10"><span class="co">#&gt;          Estimate Std. Error z value Pr(&gt;|z|)</span></a>
+<a class="sourceLine" id="cb15-11" title="11"><span class="co">#&gt; edges  -0.0021702  0.0068674 -0.3160    0.752</span></a>
+<a class="sourceLine" id="cb15-12" title="12"><span class="co">#&gt; mutual -0.0015521  0.0112247 -0.1383    0.890</span></a>
+<a class="sourceLine" id="cb15-13" title="13"><span class="co">#&gt; AIC: 352097.2    BIC: 352118.1    (Smaller is better.)</span></a></code></pre></div>
 </div>
 </div>
 <div id="contributing" class="section level1">

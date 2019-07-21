@@ -8,9 +8,9 @@ using namespace Rcpp;
 
 inline double count_mutual(const IntegerMatrix & x, const NumericVector & A) {
   
-  unsigned int count = 0u;
-  for (unsigned int i = 0u; i < x.nrow(); ++i)
-    for (unsigned int j = i; j < x.nrow(); ++j)
+  unsigned int count = 0u, i, j, n = (unsigned int) x.nrow();
+  for (i = 0u; i < n; ++i)
+    for (j = i; j < n; ++j)
       if (i != j && x(i,j) + x(j, i) > 1)
         ++count;
 
@@ -40,14 +40,15 @@ inline double count_edges(const IntegerMatrix & x, const NumericVector & A) {
 inline double count_ttriad(const IntegerMatrix & x, const NumericVector & A) {
   
   unsigned int count = 0u;
+  unsigned int i, j, k, n = (unsigned int) x.nrow();
   
-  for (unsigned int i = 0u; i < x.nrow(); ++i)
-    for (unsigned int j = 0u; j < x.nrow(); ++j) {
+  for (i = 0u; i < n; ++i)
+    for (j = 0u; j < n; ++j) {
       
       if (x(i,j) == 0)
         continue;
       
-      for (unsigned int k = 0u; k < x.nrow(); ++k) {
+      for (k = 0u; k < n; ++k) {
         
         // Label 1
         if (x(i,j) == 1 && x(i,k) == 1 && x(j,k) == 1)
@@ -63,14 +64,15 @@ inline double count_ttriad(const IntegerMatrix & x, const NumericVector & A) {
 inline double count_ctriad(const IntegerMatrix & x, const NumericVector & A) {
   
   unsigned int count = 0u;
+  unsigned int i, j, k, n = (unsigned int) x.nrow();
   
-  for (unsigned int i = 0u; i < x.nrow(); ++i)
-    for (unsigned int j = 0u; j < i; ++j) {
+  for (i = 0u; i < n; ++i)
+    for (j = 0u; j < i; ++j) {
       
       if (x(i,j) == 0)
         continue;
       
-      for (unsigned int k = 0u; k < i; ++k) {
+      for (k = 0u; k < i; ++k) {
         
         // Label 1
         if (x(i, j) == 1 && x(j, k) == 1 && x(k, i) == 1)
@@ -83,12 +85,24 @@ inline double count_ctriad(const IntegerMatrix & x, const NumericVector & A) {
   
 }
 
+inline double count_absdiff(const IntegerMatrix & x, const NumericVector & A) {
+  double count = 0.0;
+  unsigned int i, j, n = (unsigned int) x.nrow();
+  for (i = 0u; i < n; ++i)
+    for (j = 0u; j < n; ++j)
+      if (x(i,j) == 1)
+        count += fabs(A[i] - A[j]);
+  
+  return count;
+}
+
 inline double count_nodecov(const IntegerMatrix & x, const NumericVector & A, bool ego) {
 
   double count = 0.0;
+  unsigned int n = (unsigned int) x.nrow(), i, j;
   
-  for (unsigned int i = 0u; i < x.nrow(); ++i)
-    for (unsigned int j = 0u; j < x.nrow(); ++j)
+  for (i = 0u; i < n; ++i)
+    for (j = 0u; j < n; ++j)
       if (x(i,j) == 1)
         count += A[ego ? i : j];
   
@@ -106,10 +120,11 @@ inline double count_nodeocov(const IntegerMatrix & x, const NumericVector & A) {
 
 
 inline double count_nodematch(const IntegerMatrix & x, const NumericVector & A) {
-  unsigned int count = 0u;
   
-  for (unsigned int i = 0u; i < x.nrow(); ++i)
-    for (unsigned int j = 0u; j < x.nrow(); ++j)
+  unsigned int count = 0u, i, j, n = (unsigned int) x.nrow();
+  
+  for (i = 0u; i < n; ++i)
+    for (j = 0u; j < n; ++j)
       if (x(i,j) == 1 && A.at(i) == A.at(j))
         ++count;
       
@@ -122,13 +137,237 @@ inline double count_triangle(const IntegerMatrix & x, const NumericVector & A) {
   
 }
 
+inline double count_idegree15(const IntegerMatrix & x, const NumericVector & A) {
+  return sum(pow(colSums(x), 1.5));
+}
+inline double count_odegree15(const IntegerMatrix & x, const NumericVector & A) {
+  return sum(pow(rowSums(x), 1.5));
+}
+// inline double count_degree15(const IntegerMatrix & x, const NumericVector & A) {
+//   return sum(pow(rowSums(x) + colSums(x), 1.5));
+// }
+
+inline double count_star1(
+    const IntegerMatrix & x,
+    const NumericVector & A,
+    bool out = true
+) {
+  
+  // We only use the first element of the count
+  int count = 0;
+  unsigned int i, j, n = (unsigned int) x.nrow();
+  
+  // If it is outgoing, then point to it...
+  unsigned int * head_j,  * tail_j;
+  if (out) 
+    head_j = &i, tail_j = &j;
+  else 
+    head_j = &j, tail_j = &i;
+  
+  for (i = 0u; i < n; ++i) 
+    for (j = 0u; j < n; ++j) {
+      
+      if (i == j)
+        continue;
+      
+      if ((x(*head_j, *tail_j) == 1) &&
+          (A.size() == 0 || (A[i] == A[j])))
+        count += 1;
+    }
+    
+    return (double) count;
+  
+}
+
+inline double count_istar1(const IntegerMatrix & x, const NumericVector & A) {
+  
+  return count_star1(x, A, false);
+  
+}
+
+inline double count_ostar1(const IntegerMatrix & x, const NumericVector & A) {
+  
+  return count_star1(x, A, true);
+  
+}
+
+inline double count_star2(
+    const IntegerMatrix & x,
+    const NumericVector & A,
+    bool out = true
+  ) {
+  
+  // We only use the first element of the count
+  int count = 0;
+  unsigned int i, j, k, n = (unsigned int) x.nrow();
+  
+  // If it is outgoing, then point to it...
+  unsigned int * head_j,  * tail_j, * head_k, * tail_k;
+  if (out) 
+    head_j = &i, tail_j = &j, head_k = &i, tail_k = &k;
+  else 
+    head_j = &j, tail_j = &i, head_k = &k, tail_k = &i;
+  
+  for (i = 0u; i < n; ++i) 
+    for (j = 0u; j < n; ++j) {
+    
+      if (i == j)
+        continue;
+      
+      for (k = j; k < n; ++k) {
+        
+        if ((i == k) | (k == j))
+          continue;
+        
+        if ((x(*head_j, *tail_j) == 1) && (x(*head_k, *tail_k) == 1) &&
+            (A.size() == 0 || (A[i] == A[j] && A[i] == A[k])))
+          count += 1;
+      }
+    }
+      
+  return (double) count;
+  
+}
+
+inline double count_istar2(const IntegerMatrix & x, const NumericVector & A) {
+  
+  return count_star2(x, A, false);
+  
+}
+
+inline double count_ostar2(const IntegerMatrix & x, const NumericVector & A) {
+  
+  return count_star2(x, A, true);
+  
+}
+
+inline double count_star3(const IntegerMatrix & x, const NumericVector & A,
+                          bool out) {
+  
+  // We only use the first element of the count
+  int count = 0;
+  unsigned int i, j, k, l, n = (unsigned int) x.nrow();
+  
+  // If it is outgoing, then point to it...
+  unsigned int * head_j,  * tail_j, * head_k, * tail_k, * head_l, * tail_l;
+  if (out) 
+    head_j = &i, tail_j = &j,
+      head_k = &i, tail_k = &k,
+      head_l = &i, tail_l = &l;
+  else 
+    head_j = &j, tail_j = &i,
+      head_k = &k, tail_k = &i,
+      head_l = &l, tail_l = &i;
+  
+  for (i = 0u; i < n; ++i)
+    for (j = 0u; j < n; ++j) {
+      
+      if (i == j)
+        continue;
+      
+      for (k = j; k < n; ++k) {
+        
+        if ((i == k) | (j == k))
+          continue;
+        
+        for (l = k; l < n; ++l) {
+          
+          if ((i == l) | (k == l) | (j == l))
+            continue;
+          
+          if (
+              (x(*head_j, *tail_j) == 1) && (x(*head_k, *tail_k) == 1) && (x(*head_l, *tail_l) == 1) &&
+                ((A.size() == 0) || (A[i] == A[j] && A[i] == A[k] && A[i] == A[l]))
+          )
+            count += 1;
+        }
+          
+      }
+    }
+        
+  return (double) count;
+        
+}
+
+inline double count_ostar3(const IntegerMatrix & x, const NumericVector & A) {
+  return count_star3(x, A, true);
+}
+
+inline double count_istar3(const IntegerMatrix & x, const NumericVector & A) {
+  return count_star3(x, A, false);
+}
+
+inline double count_star4(const IntegerMatrix & x, const NumericVector & A,
+                           bool out) {
+  
+  // We only use the first element of the count
+  int count = 0;
+  unsigned int i, j, k, l, m, n = (unsigned int) x.nrow();
+  
+  // If it is outgoing, then point to it...
+  unsigned int * head_j,  * tail_j, * head_k, * tail_k, * head_l, * tail_l,
+  *head_m, *tail_m;
+  if (out) 
+    head_j = &i, tail_j = &j,
+      head_k = &i, tail_k = &k,
+      head_l = &i, tail_l = &l,
+      head_m = &i, tail_m = &m;
+  else 
+    head_j = &j, tail_j = &i,
+      head_k = &k, tail_k = &i,
+      head_l = &l, tail_l = &i,
+      head_m = &m, tail_m = &i;
+  
+  for (i = 0u; i < n; ++i) 
+    for (j = 0u; j < n; ++j) { 
+      
+      if (i == j)
+        continue;
+      
+      for (k = j; k < n; ++k) {
+        
+        if ((i == k) | (j == k))
+          continue;
+        
+        for (l = k; l < n; ++l) {
+          
+          if ((i == l) | (j == l) | (k == l))
+            continue;
+          
+          for (m = l; m < n; ++m) {
+            
+            if ((i == m) | (j == m) | (k == m) | (l == m))
+              continue;
+            
+            if (
+                (x(*head_j, *tail_j) == 1) && (x(*head_k, *tail_k) == 1) && (x(*head_l, *tail_l) == 1) && (x(*head_m, *tail_m) == 1) &&
+                  ((A.size() == 0u) || (A[i] == A[j] && A[i] == A[k] && A[i] == A[l] && A[i] == A[m]))
+              )
+              count += 1;
+          }
+        }
+      }
+    }
+          
+  return (double) count;
+          
+}
+
+inline double count_ostar4(const IntegerMatrix & x, const NumericVector & A) {
+  return count_star4(x, A, true);
+}
+  
+inline double count_istar4(const IntegerMatrix & x, const NumericVector & A) {
+  return count_star4(x, A, false);
+}
+
 inline double count_balance(const IntegerMatrix & x, const NumericVector & A) {
   
-  unsigned int count = 0u, n = x.nrow();
+  unsigned int count = 0u, n = x.nrow(), i, j, k;
   int s;
   
-  for (unsigned int i = 0u; i < n; ++i)
-    for (unsigned int j = 0u; j < n; ++j) {
+  for (i = 0u; i < n; ++i)
+    for (j = 0u; j < n; ++j) {
   
       if (i == j)
         continue;
@@ -145,7 +384,7 @@ inline double count_balance(const IntegerMatrix & x, const NumericVector & A) {
       // otherwise we will be double counting.
       else if (s == 0) { // Triad 102
         
-        for (unsigned int k = 0u; k < i; ++k) {
+        for (k = 0u; k < i; ++k) {
           
           if (k == j)
             continue;
@@ -241,39 +480,58 @@ typedef double (*ergm_term_fun)(const IntegerMatrix & x, const NumericVector & A
 
 void get_ergm_term(std::string term, ergm_term_fun & fun) {
   
-  if (term == "mutual")         fun = &count_mutual;
-  else if (term == "edges")     fun = &count_edges;
-  else if (term == "ttriad")    fun = &count_ttriad;
-  else if (term == "ctriad")    fun = &count_ctriad;
-  else if (term == "nodeicov")  fun = &count_nodeicov;
-  else if (term == "nodeocov")  fun = &count_nodeocov;
-  else if (term == "nodematch") fun = &count_nodematch;
-  else if (term == "triangle")  fun = &count_triangle;
-  else if (term == "balance")   fun = &count_balance;
-  else if (term == "t300")      fun = &count_t300;
-  else if (term == "t102")      fun = &count_t102;
+  if (term == "mutual")          fun = &count_mutual;
+  else if (term == "edges")      fun = &count_edges;
+  else if (term == "ttriad")     fun = &count_ttriad;
+  else if (term == "ctriad")     fun = &count_ctriad;
+  else if (term == "ctriple")    fun = &count_ctriad;
+  else if (term == "nodeicov")   fun = &count_nodeicov;
+  else if (term == "nodeocov")   fun = &count_nodeocov;
+  else if (term == "nodematch")  fun = &count_nodematch;
+  else if (term == "triangle")   fun = &count_triangle;
+  else if (term == "balance")    fun = &count_balance;
+  else if (term == "t300")       fun = &count_t300;
+  else if (term == "t102")       fun = &count_t102;
+  else if (term == "absdiff")    fun = &count_absdiff;
+  // else if (term == "degree1.5")  fun = &count_degree15;
+  else if (term == "idegree1.5") fun = &count_idegree15;
+  else if (term == "odegree1.5") fun = &count_odegree15;
+  else if (term == "ostar1")     fun = &count_ostar1;
+  else if (term == "ostar2")     fun = &count_ostar2;
+  else if (term == "ostar3")     fun = &count_ostar3;
+  else if (term == "ostar4")     fun = &count_ostar4;
+  else if (term == "istar1")     fun = &count_istar1;
+  else if (term == "istar2")     fun = &count_istar2;
+  else if (term == "istar3")     fun = &count_istar3;
+  else if (term == "istar4")     fun = &count_istar4;
   else
-    stop("The term %s is not available.", term);
+    stop("The term %s is not available in ergmito.", term);
   
   return;
   
 }
 
 // [[Rcpp::export]]
-CharacterVector count_available(int i = 0) {
-  return CharacterVector::create(
+std::vector< std::string > count_available(int i = 0) {
+  return {
     "mutual",
     "edges",
     "ttriad",
-    "ctriad",
+    "ctriad", "ctriple",
     "nodeicov",
     "nodeocov",
     "nodematch",
     "triangle",
     "balance",
     "t300",
-    "t102"
-  );
+    "t102",
+    "absdiff",
+    // "degree1.5",
+    "idegree1.5",
+    "odegree1.5",
+    "ostar1", "ostar2", "ostar3", "ostar4",
+    "istar1", "istar2", "istar3", "istar4"}
+  ;
 }
 
 // Count Network Statistics
@@ -287,8 +545,8 @@ NumericMatrix count_stats(
   // List b;
   // b.containsElementNamed("parameter1");
   
-  int n = X.size();
-  int k = terms.size();
+  unsigned int n = X.size();
+  unsigned int k = terms.size();
   
   bool uses_attributes = false;
   NumericVector A_empty(0);
@@ -312,7 +570,7 @@ NumericMatrix count_stats(
         
         // Checking dimmensions
         if (X[i].nrow() != X[i].ncol())
-          stop("Matrix %i is not a square matrix.", i);
+          stop("Matrix %i is not a square matrix.", i + 1);
         
         ans.at(i, j) = fun(X[i], A[i]);
       }
@@ -321,7 +579,7 @@ NumericMatrix count_stats(
       for (unsigned int i = 0u; i < n; ++i) {
         // Checking dimmensions
         if (X[i].nrow() != X[i].ncol())
-          stop("Matrix %i is not a square matrix.", i);
+          stop("Matrix %i is not a square matrix.", i + 1);
         
         ans.at(i, j) = fun(X[i], A_empty);
       }
@@ -360,10 +618,10 @@ inline void geodesici(const arma::imat & x, IntegerMatrix & res, bool force = fa
   arma::imat res_tmp = x;
   
   // List of indices to check
-  unsigned int nmax = n*2;
-  for (unsigned int iter = 0u; iter < nmax; ++iter) {
-    for (unsigned int i = 0u; i < n; ++i)
-      for (unsigned int j = 0u; j < n; ++j) {
+  unsigned int nmax = n*2, iter, i, j;
+  for (iter = 0u; iter < nmax; ++iter) {
+    for (i = 0u; i < n; ++i)
+      for (j = 0u; j < n; ++j) {
         
         if (i == j) {
           res(i, j) = 0;
