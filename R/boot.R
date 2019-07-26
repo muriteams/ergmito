@@ -104,7 +104,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   # Computing variance/covariance matrix
   coefs <- do.call(rbind, lapply(boot_estimates, stats::coef))
   
-  x$covar  <- stats::var(coefs)
+  x$covar  <- stats::var(coefs, na.rm = TRUE)
   x$call   <- match.call()
   x$R      <- R
   x$sample <- IDX

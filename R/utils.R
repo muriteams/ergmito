@@ -132,10 +132,11 @@ as_adjmat.network <- function(x) {
   
   ties <- x$mel[sapply(x$mel, length) > 0L]
   
-  ans[cbind(
-    sapply(ties, "[[", "outl"),
-    sapply(ties, "[[", "inl")
-  )] <- 1L
+  if (length(ties))
+    ans[cbind(
+      sapply(ties, "[[", "outl"),
+      sapply(ties, "[[", "inl")
+    )] <- 1L
   
   ans
 

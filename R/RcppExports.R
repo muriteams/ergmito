@@ -13,6 +13,10 @@ geodesic. <- function(X, force = FALSE) {
     .Call(`_ergmito_geodesic`, X, force)
 }
 
+induced_submat. <- function(nets, vs) {
+    .Call(`_ergmito_induced_submat`, nets, vs)
+}
+
 #' Vectorized version of loglikelihood function
 #' 
 #' @param x Matrix of statistic. `nnets * nstats`.

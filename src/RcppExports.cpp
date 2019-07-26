@@ -43,6 +43,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// induced_submat
+std::vector< IntegerMatrix > induced_submat(const std::vector< IntegerMatrix >& nets, const std::vector< IntegerVector >& vs);
+RcppExport SEXP _ergmito_induced_submat(SEXP netsSEXP, SEXP vsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector< IntegerMatrix >& >::type nets(netsSEXP);
+    Rcpp::traits::input_parameter< const std::vector< IntegerVector >& >::type vs(vsSEXP);
+    rcpp_result_gen = Rcpp::wrap(induced_submat(nets, vs));
+    return rcpp_result_gen;
+END_RCPP
+}
 // exact_loglik
 arma::vec exact_loglik(const arma::mat& x, const arma::colvec& params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat, bool as_prob);
 RcppExport SEXP _ergmito_exact_loglik(SEXP xSEXP, SEXP paramsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP, SEXP as_probSEXP) {
@@ -141,6 +153,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_count_available", (DL_FUNC) &_ergmito_count_available, 1},
     {"_ergmito_count_stats", (DL_FUNC) &_ergmito_count_stats, 3},
     {"_ergmito_geodesic", (DL_FUNC) &_ergmito_geodesic, 2},
+    {"_ergmito_induced_submat", (DL_FUNC) &_ergmito_induced_submat, 2},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 5},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 4},
     {"_ergmito_matrix_to_network", (DL_FUNC) &_ergmito_matrix_to_network, 6},

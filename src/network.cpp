@@ -1,6 +1,112 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+// List induced_subnetwork(
+//     const List & net,
+//     const IntegerVector & v,
+//     bool check = true
+//   ) {
+//   
+//   List newnet;
+//   
+//   // Checking out the master edgelist
+//   if (!net.containsElementNamed("mel"))
+//     stop("No `mel`.");
+//   
+//   // Explicit conversion, hopefully is not that painful?
+//   ListOf< List > mel = as< ListOf< List > >(net["mel"]);
+//   for (unsigned int i = 0; i < mel.size(); ++i) {
+//     
+//     if (mel[i].size() == 0)
+//       continue;
+//     
+//     if (check && !mel[i].containsElementNamed("inl"))
+//       stop("No `inl` element in `net$mel`");
+// 
+//     if (check && !mel[i].containsElementNamed("outl"))
+//       stop("No `outl` element in `net$mel`");
+//     
+//     IntegerVector inl = mel[i]["inl"];
+//     if (inl.size() == 0)
+//       continue;
+//     
+//     IntegerVector outl = mel[i]["inl"];
+//     
+//     
+//   }
+//   
+//   return net2;
+//   
+// }
+// 
+// // // [[Rcpp::export]]
+// // inline IntegerMatrix as_adjmati(const List & net, bool check = true) {
+// //   
+// //   if (check && !net.containsElementNamed("gal"))
+// //     stop("No network attributes `gal`");
+// //   
+// //   if (check && !net.containsElementNamed("mel"))
+// //     stop("No master edge list `mel`");
+// //   
+// //   List gal = net["gal"];
+// //   List mel = net["mel"];
+// //   
+// //   if (check && !gal.containsElementNamed("n"))
+// //     stop("No `n` element in in `net$gal`.");
+// //   unsigned int n = (unsigned int) gal["n"];
+// //   
+// //   IntegerMatrix res(n, n);
+// //   res.fill(0);
+// //   
+// //   unsigned int head, tail;
+// //   
+// //   // Rprintf("Entering the loop\n");
+// //   for (auto i = 0u; i < mel.size(); ++i) {
+// //     
+// //     // An empty object (not uncommon)
+// //     if (mel[i] == 0u)
+// //       continue;
+// //     
+// //     // Rprintf("Inside the loop\n");
+// //     List meli = mel.at(i);
+// //     
+// //     
+// //     
+// //     if (check && !meli.containsElementNamed("inl"))
+// //       stop("No `inl` element in `net$mel`");
+// //     
+// //     if (check && !meli.containsElementNamed("outl"))
+// //       stop("No `outl` element in `net$mel`");
+// //     
+// //     head = meli["inl"];
+// //     tail = meli["outl"];
+// //     
+// //     // Rprintf("in %d and out %d\n", head, tail);
+// //     
+// //     res(head - 1, tail - 1) = 1;
+// //     
+// //   }
+// //   return res;
+// //   
+// // }
+// 
+// // //' @export
+// // //' @param check logical scalar.
+// // //' @rdname as_adjmat 
+// // // [[Rcpp::export(name = "as_adjmat2")]]
+// // std::vector< IntegerMatrix > as_adjmat(
+// //     const std::vector< List > & x,
+// //     bool check = true
+// // ) {
+// //   
+// //   std::vector< IntegerMatrix > ans(x.size());
+// //   for (auto i = 0u; i < x.size(); ++i)
+// //     ans[i] = as_adjmati(x[i], check);
+// //   
+// //   return ans;
+// //   
+// // }
+
 // #define ERGMITO_DEBUG_NETWORK 1
 
 // // [[Rcpp::export]]

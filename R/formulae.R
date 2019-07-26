@@ -188,6 +188,9 @@ ergmito_formulae <- function(
     
   }
   
+  if (is.list(target.stats))
+    target.stats <- do.call(rbind, target.stats)
+  
   if (all(sapply(g, length) != 0))
     target.stats <- cbind(target.stats, do.call(rbind, g))
   
