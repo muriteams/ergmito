@@ -28,7 +28,7 @@ ergmito(model, gattr_model = NULL, stats.weights = NULL,
 
 \method{nobs}{ergmito}(object, ...)
 
-\method{vcov}{ergmito}(object, ...)
+\method{vcov}{ergmito}(object, solver = NULL, ...)
 
 \method{formula}{ergmito}(x, ...)
 }
@@ -60,6 +60,10 @@ This is intended for testing only (internal use).}
 \code{...} are passed to \link{ergmito_formulae}.}
 
 \item{x, object}{An object of class \code{ergmito}}
+
+\item{solver}{Function. Used to compute the inverse of the hessian matrix. When
+not null, the variance-covariance matrix is recomputed using that function.
+By default, \code{ergmito} uses \link[MASS:ginv]{MASS::ginv}.}
 }
 \value{
 An list of class \code{ergmito}:

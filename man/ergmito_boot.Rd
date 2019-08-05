@@ -26,8 +26,16 @@ ergmito_boot(x, ..., R, ncpus = 1L, cl = NULL)
 
 \item{cl}{An object of class \code{cluster} (see \link[parallel:makePSOCKcluster]{parallel::makePSOCKcluster})}
 }
+\value{
+An object of class \code{ergmito_boot} and \link{ergmito}
+}
 \description{
 Bootstrap of ergmito
+}
+\details{
+The resulting sample of parameters estimates is then used to compute
+the variance-covariance matrix of the model. Cases in which \code{Inf}/\code{NaN}/\code{NA}
+values were returned are excluded from the calculation.
 }
 \examples{
 

@@ -10,4 +10,7 @@ build:
 clean:
 	rm  ../ergmito_*.tar.gz
 
+install:
+	Rscript -e "Rcpp::compileAttributes();devtools::document()" && R CMD INSTALL --preclean .
+
 .PHONY: check checkv build clean 

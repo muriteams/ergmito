@@ -10,6 +10,13 @@
 #' @export
 #' @importFrom parallel makePSOCKcluster stopCluster clusterEvalQ clusterExport
 #' @importFrom stats update.formula var
+#' 
+#' @details The resulting sample of parameters estimates is then used to compute
+#' the variance-covariance matrix of the model. Cases in which `Inf`/`NaN`/`NA`
+#' values were returned are excluded from the calculation.
+#' 
+#' @return An object of class `ergmito_boot` and [ergmito]
+#' 
 #' @examples 
 #' 
 #' # Simulating 20 bernoulli networks of size 4
@@ -90,12 +97,12 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     lapply(IDX, function(idx) {
       
       environment(model0) <- environment()
-      tryCatch(ergmito(
+      tryCatch(suppressWarnings(ergmito(
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
         target.stats = target.stats[idx,,drop=FALSE]
-        ), error = function(e) e)
+        )), error = function(e) e)
       
     })
     
@@ -104,7 +111,16 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   # Computing variance/covariance matrix
   coefs <- do.call(rbind, lapply(boot_estimates, stats::coef))
   
-  x$covar  <- stats::var(coefs, na.rm = TRUE)
+  # Tagging finite results
+  are_finate <- max.col(coefs)
+  are_finate <- which(is.finite(coefs[cbind(1:R, are_finate)]))
+  
+  if (length(are_finate) < 2) {
+    stop("At most one of the replicates had finite estimates (not Inf/NA/NaN).",
+         call. = FALSE)
+  } 
+  
+  x$covar  <- stats::var(coefs[are_finate, , drop = FALSE])
   x$call   <- match.call()
   x$R      <- R
   x$sample <- IDX

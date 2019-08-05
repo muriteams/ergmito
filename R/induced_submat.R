@@ -5,7 +5,7 @@
 #' 
 #' @param x Either a list or single matrices or network objects.
 #' @param v Either a list or a single integer vector of vertices to subset.
-#' @param ...
+#' @param ... Currently ignored.
 #' 
 #' @details Depending on the lengths of `x` and `v`, the function can take the
 #' following strategies:

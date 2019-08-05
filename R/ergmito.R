@@ -210,22 +210,24 @@ ergmito <- function(
   npars  <- formulae$npars
   
   # Checking initial parameters
-  if (!length(init))
+  if (ntries < 1) {
+    stop("`ntries` should be a positive integer.", call. = FALSE)
+  } else if (!length(init)) {
     init <- matrix(stats::runif(npars * ntries, -1.0, 1.0), ncol = npars)
-  else if (length(init) == npars && ntries != 1) {
+  } else if (ntries != 1 && length(init) == npars) {
     warning(
       "The set of initial parameters will be extended to match `ntries`.",
       " The extended initial points will be drawn from a U[-1, 1].",
       call. =  FALSE)
     
     init <- rbind(init, matrix(stats::runif(npars * (ntries - 1L), -1.0, 1.0), ncol = npars))
-  } else
+  } else if (ntries == 1L && length(init) != npars) {
     stop(
       "Invalid number of inital parameters (`init`).",
       " See the section 'MLE' in ?ergmito.",
       call. = FALSE
       )
-  
+  }
 
   # Checking optim parameters --------------------------------------------------
   if (!length(optim.args$control))
@@ -366,6 +368,8 @@ summary.ergmito <- function(object, ...) {
   sdval <- sqrt(diag(vcov(object)))
   z     <- coef(object)/sdval
   
+  is_boot <- inherits(object, "ergmito_boot")
+  
   # Generating table
   ans <- structure(
     list(
@@ -381,9 +385,10 @@ summary.ergmito <- function(object, ...) {
     bic         = stats::BIC(object),
     model       = deparse(object$formulae$model),
     degeneracy  = object$degeneracy,
-    convergence = object$optim.out$convergence
+    convergence = object$optim.out$convergence,
+    R           = ifelse(is_boot, object$R, 1L)
     ),
-    class = "ergmito_summary"
+    class = c("ergmito_summary", if (is_boot) "ergmito_summary_boot" else  NULL)
   )
   
   ans
@@ -397,6 +402,10 @@ print.ergmito_summary <- function(
   ) {
 
   cat("\nERGMito estimates\n")
+  
+  if (x$R > 1L)
+    cat("\n(bootstrapped model with ", x$R, " replicates.)\n")
+  
   if (length(x$degeneracy) && attr(x$degeneracy, "degenerate"))
     cat("Note: Degenerate or near-degenerate model. The MLE may not exists\n")
   if (x$convergence != 0)
@@ -444,10 +453,16 @@ nobs.ergmito <- function(object, ...) {
 }
 
 #' @export
+#' @param solver Function. Used to compute the inverse of the hessian matrix. When
+#' not null, the variance-covariance matrix is recomputed using that function.
+#' By default, `ergmito` uses [MASS::ginv].
 #' @rdname ergmito
-vcov.ergmito <- function(object, ...) {
+vcov.ergmito <- function(object, solver = NULL, ...) {
   
-  object$covar
+  if (is.null(solver))
+    return(object$covar)
+  
+  - solver(object$optim.out$hessian)
   
 }
 
