@@ -138,7 +138,7 @@ to fit, since more than that can become infeasible.</p>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/nobs'>nobs</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/vcov'>vcov</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/vcov'>vcov</a></span>(<span class='no'>object</span>, <span class='kw'>solver</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/formula'>formula</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
@@ -193,6 +193,12 @@ This is intended for testing only (internal use).</p></td>
     <tr>
       <th>x, object</th>
       <td><p>An object of class <code>ergmito</code></p></td>
+    </tr>
+    <tr>
+      <th>solver</th>
+      <td><p>Function. Used to compute the inverse of the hessian matrix. When
+not null, the variance-covariance matrix is recomputed using that function.
+By default, <code>ergmito</code> uses <a href='https://www.rdocumentation.org/packages/MASS/topics/ginv'>MASS::ginv</a>.</p></td>
     </tr>
     </table>
     
@@ -284,7 +290,7 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt; <span class='message'>level selection have changed in 3.10.0. See terms help for more</span>
 #&gt; <span class='message'>details. Use ‘options(ergm.term=list(version="3.9.4"))’ to use old</span>
 #&gt; <span class='message'>behavior.</span></div><div class='input'><span class='no'>ans_ergmito</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>model</span>)
-<span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>NOTE: Messages ‘Error in mcexit(0L)...’ may appear; please disregard them.</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.001099.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
+<span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.001099.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
 #&gt;   Lapack routine dgesv: system is exactly singular: U[2,2] = 0</div><div class='output co'>#&gt; <span class='warning'>Warning: Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.00064.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged twice. Stopping.</span></div><div class='output co'>#&gt; <span class='message'>Finished MCMLE.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; <span class='message'>Using 20 bridges: </span></div><div class='output co'>#&gt; <span class='message'>1 </span></div><div class='output co'>#&gt; <span class='message'>2 </span></div><div class='output co'>#&gt; <span class='message'>3 </span></div><div class='output co'>#&gt; <span class='message'>4 </span></div><div class='output co'>#&gt; <span class='message'>5 </span></div><div class='output co'>#&gt; <span class='message'>6 </span></div><div class='output co'>#&gt; <span class='message'>7 </span></div><div class='output co'>#&gt; <span class='message'>8 </span></div><div class='output co'>#&gt; <span class='message'>9 </span></div><div class='output co'>#&gt; <span class='message'>10 </span></div><div class='output co'>#&gt; <span class='message'>11 </span></div><div class='output co'>#&gt; <span class='message'>12 </span></div><div class='output co'>#&gt; <span class='message'>13 </span></div><div class='output co'>#&gt; <span class='message'>14 </span></div><div class='output co'>#&gt; <span class='message'>15 </span></div><div class='output co'>#&gt; <span class='message'>16 </span></div><div class='output co'>#&gt; <span class='message'>17 </span></div><div class='output co'>#&gt; <span class='message'>18 </span></div><div class='output co'>#&gt; <span class='message'>19 </span></div><div class='output co'>#&gt; <span class='message'>20 </span></div><div class='output co'>#&gt; <span class='message'>.</span></div><div class='output co'>#&gt; <span class='message'>This model was fit using MCMC.  To examine model diagnostics and check</span>
 #&gt; <span class='message'>for degeneracy, use the mcmc.diagnostics() function.</span></div><div class='input'>
 <span class='co'># The ergmito should have a larger value</span>
@@ -306,7 +312,7 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt; ==========================
 #&gt; 
 #&gt; Formula:   net ~ edges + mutual
-#&gt; &lt;environment: 0x2871ea20&gt;
+#&gt; &lt;environment: 0x27e4b6d8&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
