@@ -1,5 +1,11 @@
-same_dist_wrap <- function(x, what) {
-  structure(x, what = what, class = "ergmito_same_dist")
+same_dist_wrap <- function(x, what, map01 = NULL, map10 = NULL) {
+  structure(
+    x,
+    what = what,
+    class = "ergmito_same_dist",
+    map01 = map01,
+    map10 = map10
+    )
 }
 
 `%notin%` <- function(x, table) any(!(x %in% table))
@@ -86,16 +92,67 @@ same_dist.network <- function(net0, net1, attrnames = NULL, ...) {
         "are not preset in `net1`.", call. = FALSE
       )
     
-    # Now we compare, attribute by attribute
-    for (a in attrnames) {
+    # Now we compare, joint attribute distribution. While may not be necessary
+    # all the time, it is safer to do so.
+    a0 <- matrix(nrow = nvertex(net0), ncol = length(attrnames))
+    a1 <- matrix(nrow = nvertex(net0), ncol = length(attrnames))
+    for (i in seq_along(attrnames)) {
       
-      a0 <- sort(network::get.vertex.attribute(net0, a))
-      a1 <- sort(network::get.vertex.attribute(net1, a))
-      
-      if (any(a0 != a1))
-        return(same_dist_wrap(FALSE, a))
+      a0[,i] <- network::get.vertex.attribute(net0, attrnames[i])
+      a1[,i] <- network::get.vertex.attribute(net1, attrnames[i])
       
     }
+    
+    # Sorting the arguments accordingly... This is ugly, but it should be OK for
+    # now
+    if (length(attrnames) == 1L) {
+      
+      ord0 <- order(a0[,1])
+      ord1 <- order(a1[,1])
+      
+    } else if (length(attrnames) == 2L) {
+      
+      ord0 <- order(a0[,1], a0[,2])
+      ord1 <- order(a1[,1], a1[,2])
+      
+    } else if (length(attrnames) == 3L) {
+      
+      ord0 <- order(a0[,1], a0[,2], a0[,3])
+      ord1 <- order(a1[,1], a1[,2], a1[,3])
+      
+    } else if (length(attrnames) == 4L) {
+      
+      ord0 <- order(a0[,1], a0[,2], a0[,3], a0[,4])
+      ord1 <- order(a1[,1], a1[,2], a1[,3], a1[,4])
+      
+    } else if (length(attrnames) == 5L) {
+      
+      ord0 <- order(a0[,1], a0[,2], a0[,3], a0[,4], a0[,5])
+      ord1 <- order(a1[,1], a1[,2], a1[,3], a1[,4], a1[,5])
+      
+    } else if (length(attrnames) == 6L) {
+      
+      ord0 <- order(a0[,1], a0[,2], a0[,3], a0[,4], a0[,5], a0[,6])
+      ord1 <- order(a1[,1], a1[,2], a1[,3], a1[,4], a1[,5], a1[,6])
+      
+    }
+    
+    if (any(a0[ord0,] != a1[ord1,]))
+      return(same_dist_wrap(FALSE, attrnames))
+    
+    # Returning permutations, this can be useful if one wants to do something
+    # for one and map it ot the other... this was hard to figure out!
+    n <- nvertex(net0)
+    ord0_ <- order(ord0)
+    ord1_ <- order(ord1)
+    return(
+      same_dist_wrap(
+        TRUE, attrnames,
+        map01 = ord0[ord1_],
+        map10 = ord1[ord0_]
+        )
+    )
+    
     
   }
   

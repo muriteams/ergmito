@@ -35,6 +35,7 @@ A list of class \code{ergmito_loglik}.
 \item \code{model} A formula. The model passed.
 \item \code{npars} Integer. Number of parameters.
 \item \code{nnets} Integer. Number of networks to estiamte.
+\item \code{vertex.attr} Character vector. Vertex attributes used in the model.
 }
 }
 \description{

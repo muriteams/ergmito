@@ -23,3 +23,62 @@ test_that("class matrix works", {
   # expect_error(same_dist(nets[[1]], nets[[2]], "females"))
   
 })
+
+test_that("multiple attributes, and mapping", {
+  
+  data("fivenets")
+  
+  # Single variable
+  net1 <- fivenets[[1]]
+  network::set.vertex.attribute(net1, "test", c(.1, .8, .2, .4))
+  
+  net2 <- network::permute.vertexIDs(
+    network::network.copy(net1),
+    v = c(2,4,1,3)
+    )
+  
+  ans <- same_dist(net1, net2, "test")
+
+  expect_equal(
+    network::get.vertex.attribute(net1, "test")[attr(ans, "map01")],
+    network::get.vertex.attribute(net2, "test")
+  )
+  
+  expect_equal(
+    network::get.vertex.attribute(net2, "test")[attr(ans, "map10")],
+    network::get.vertex.attribute(net1, "test")
+  )
+  
+  # More than 1
+  net1 <- fivenets[[1]]
+  network::set.vertex.attribute(net1, "test1", c(.1, .8, .2, .4))
+  network::set.vertex.attribute(net1, "test2", c(.5, 0, .3, .1))
+  
+  net2 <- network::permute.vertexIDs(
+    network::network.copy(net1),
+    v = c(2,4,1,3)
+  )
+  
+  ans <- same_dist(net1, net2, c("test1", "test2"))
+  
+  expect_equal(
+    network::get.vertex.attribute(net1, "test1")[attr(ans, "map01")],
+    network::get.vertex.attribute(net2, "test1")
+  )
+  
+  expect_equal(
+    network::get.vertex.attribute(net2, "test1")[attr(ans, "map10")],
+    network::get.vertex.attribute(net1, "test1")
+  )
+  
+  expect_equal(
+    network::get.vertex.attribute(net1, "test2")[attr(ans, "map01")],
+    network::get.vertex.attribute(net2, "test2")
+  )
+  
+  expect_equal(
+    network::get.vertex.attribute(net2, "test2")[attr(ans, "map10")],
+    network::get.vertex.attribute(net1, "test2")
+  )
+  
+})

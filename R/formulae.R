@@ -23,6 +23,7 @@
 #' - `model` A formula. The model passed.
 #' - `npars` Integer. Number of parameters.
 #' - `nnets` Integer. Number of networks to estiamte.
+#' - `vertex.attr` Character vector. Vertex attributes used in the model.
 #' 
 #' @export
 ergmito_formulae <- function(
@@ -249,7 +250,8 @@ ergmito_formulae <- function(
     stats.statmat = stats.statmat,
     model         = stats::as.formula(model, env = env),
     npars         = ncol(target.stats),
-    nnets         = nnets(LHS)
+    nnets         = nnets(LHS),
+    vertex.attrs  = vattrs
   ), class="ergmito_loglik")
   
   

@@ -57,8 +57,10 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
   }
   
   # Getting the estimates
-  if (!length(theta))
+  if (!length(theta)) {
+    environment(model) <- parent.frame()
     theta <- coef(ergmito(model, zeroobs = FALSE))
+  }
   
   # Obtaining the network(s) object
   net   <- eval(model[[2]], envir = environment(model))

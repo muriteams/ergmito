@@ -1,33 +1,57 @@
-#' Simulation method
-#' @noRd
-# simulate.ergmito <- function(
-#   object,
-#   nsims    = 1,
-#   seed     = NULL,
-#   mc_cores = 2L,
-#   ...) {
-#   
-#   # Generating samples
-#   n    <- network::network.size(object$network)
-#   nets <- powerset(n)
-#   
-#   # Computing statistics
-#   fm <- object$formula
-#   fm[[2]] <- bquote(net0)
-#   stats <- parallel::mclapply(nets, function(net0) {
-#     environment(fm) <- environment()
-#     summary(fm)
-#   })
-#   
-#   stats0 <- summary(object$formula)
-#   
-#   stats <- do.call(rbind, stats) -
-#     matrix(stats0, nrow = length(stats), ncol=length(stats0), byrow = TRUE)
-#   
-#   list(
-#     net0 = object$network,
-#     nets = nets,
-#     prob = exp(stats %*% object$coef)*exp(object$loglikelihood)
-#   )
-#   
-# }
+#' Draw samples from a fitted `ergmito` model
+#' @param object An object of class [ergmito].
+#' @param nsim Integer scalar. Number of samples to draw from the selected set 
+#' of networks.
+#' @param seed See [stats::simulate]
+#' @param which_networks Integer vector. Specifies what networks to sample from.
+#' It must be within 1 and `nnets(object)`.
+#' @param ... Further arguments passed to [new_rergmito].
+#' @export
+#' @examples 
+#' data(fivenets)
+#' fit <- ergmito(fivenets ~ edges + nodematch("female"))
+#' 
+#' # Drawing 200 samples from networks 1 and 3 from the model
+#' ans <- simulate(fit, nsim = 200, which_networks = c(1, 3))
+#' @importFrom stats simulate
+simulate.ergmito <- function(
+  object,
+  nsim           = 1,
+  seed           = NULL,
+  which_networks = 1L,
+  ...) {
+  
+  # Catching the model and preparing for local evaluation
+  model  <- stats::formula(object)
+  model. <- stats::update.formula(model, networks[[i]] ~ .)
+  environment(model.) <- environment()
+  
+  if (!is.null(seed))
+    set.seed(seed)
+  
+  # Retrieving the networks
+  if (any((which_networks > nnets(object)) | (which_networks < 1)))
+    stop("`which_networks` should be an integer within [1, nnets(object)].",
+         call. = FALSE)
+  
+  networks <- eval(model[[2]], environment(model))[which_networks]
+
+  # Step 2: Loop through the networks to generate the predictions:
+  samples <- vector("list", length(which_networks))
+  for (i in seq_along(networks)) {
+    
+    # Generating sample, and later on, adding up matrices
+    sampler <- new_rergmito(
+      model = model.,
+      theta = coef(object),
+      sizes = nvertex(networks[[i]]),
+      ...
+    )
+    
+    samples[[i]] <- sampler$sample(n = nsim, s = nvertex(networks[[i]]), ...)
+    
+  }
+  
+  samples
+  
+}
