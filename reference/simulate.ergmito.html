@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Random bernoulli graph — rbernoulli • ergmito</title>
+<title>Draw samples from a fitted <code>ergmito</code> model — simulate.ergmito • ergmito</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Random bernoulli graph — rbernoulli" />
+<meta property="og:title" content="Draw samples from a fitted <code>ergmito</code> model — simulate.ergmito" />
 
-<meta property="og:description" content="Random bernoulli graph" />
+<meta property="og:description" content="Draw samples from a fitted ergmito model" />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -96,72 +96,61 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Random bernoulli graph</h1>
+    <h1>Draw samples from a fitted <code>ergmito</code> model</h1>
     
-    <div class="hidden name"><code>rbernoulli.Rd</code></div>
+    <div class="hidden name"><code>simulate.ergmito.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Random bernoulli graph</p>
+    <p>Draw samples from a fitted <code>ergmito</code> model</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>rbernoulli</span>(<span class='no'>n</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</pre>
+    <pre class="usage"><span class='co'># S3 method for ergmito</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/simulate'>simulate</a></span>(<span class='no'>object</span>, <span class='kw'>nsim</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>which_networks</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>n</th>
-      <td><p>Integer vector. Size of the graph. If <code>length(n) &gt; 1</code>, then it will
-a list of random graphs.</p></td>
+      <th>object</th>
+      <td><p>An object of class <a href='ergmito.html'>ergmito</a>.</p></td>
     </tr>
     <tr>
-      <th>p</th>
-      <td><p>Probability of a tie</p></td>
+      <th>nsim</th>
+      <td><p>Integer scalar. Number of samples to draw from the selected set
+of networks.</p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p>See <a href='https://www.rdocumentation.org/packages/stats/topics/simulate'>stats::simulate</a></p></td>
+    </tr>
+    <tr>
+      <th>which_networks</th>
+      <td><p>Integer vector. Specifies what networks to sample from.
+It must be within 1 and <code><a href='nvertex.html'>nnets(object)</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Further arguments passed to <a href='new_rergmito.html'>new_rergmito</a>.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A square matrix of size <code>n</code> with zeros in the diagonal.</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># A graph of size 4</span>
-<span class='fu'>rbernoulli</span>(<span class='fl'>4</span>)</div><div class='output co'>#&gt;      [,1] [,2] [,3] [,4]
-#&gt; [1,]    0    1    0    0
-#&gt; [2,]    1    0    1    1
-#&gt; [3,]    0    1    0    0
-#&gt; [4,]    1    1    1    0</div><div class='input'>
-<span class='co'># 3 graphs of various sizes</span>
-<span class='fu'>rbernoulli</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>3</span>, <span class='fl'>4</span>, <span class='fl'>2</span>))</div><div class='output co'>#&gt; [[1]]
-#&gt;      [,1] [,2] [,3]
-#&gt; [1,]    0    0    0
-#&gt; [2,]    1    0    0
-#&gt; [3,]    1    0    0
-#&gt; 
-#&gt; [[2]]
-#&gt;      [,1] [,2] [,3] [,4]
-#&gt; [1,]    0    1    0    0
-#&gt; [2,]    1    0    1    0
-#&gt; [3,]    1    1    0    0
-#&gt; [4,]    0    1    0    0
-#&gt; 
-#&gt; [[3]]
-#&gt;      [,1] [,2]
-#&gt; [1,]    0    0
-#&gt; [2,]    0    0
-#&gt; </div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>fivenets</span>)
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))
+
+<span class='co'># Drawing 200 samples from networks 1 and 3 from the model</span>
+<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/simulate'>simulate</a></span>(<span class='no'>fit</span>, <span class='kw'>nsim</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='kw'>which_networks</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>))</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-      
+            
       <li><a href="#examples">Examples</a></li>
     </ul>
 
