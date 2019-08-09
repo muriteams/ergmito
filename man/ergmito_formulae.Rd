@@ -39,6 +39,7 @@ A list of class \code{ergmito_loglik}.
 }
 }
 \description{
-The ERGMitos R package allows estimating pooled ERGMs by aggregating
-independent networks together.
+Analyze formula objects returning the matrices of weights and sufficient
+statistics to be used in the model together with the log-likelihood and
+gradient functions for joint models.
 }

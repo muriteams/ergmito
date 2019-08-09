@@ -1,8 +1,9 @@
 
 #' Processing formulas in `ergmito`
 #' 
-#' The ERGMitos R package allows estimating pooled ERGMs by aggregating
-#' independent networks together. 
+#' Analyze formula objects returning the matrices of weights and sufficient 
+#' statistics to be used in the model together with the log-likelihood and
+#' gradient functions for joint models. 
 #' 
 #' @param model A formula. The left-hand-side can be either a small network, or
 #' a list of networks. 
@@ -93,6 +94,22 @@ ergmito_formulae <- function(
        # the target.stats as a list instead of a matrix, which is not the best.
        # For now it should be OK.
     target.stats <- lapply(1:nrow(target.stats), function(i) target.stats[i,])
+  
+  # Checking types
+  test <- sapply(LHS, inherits, what = "network")
+  if (length(which(test))) {
+    test[test] <- test[test] & !sapply(LHS[test], network::is.directed)
+    
+    test <- which(test)
+    if (length(test))
+      stop(
+        "One or more networks in the model are undirected. Currently, ",
+        "undirected networks are not supported by ergmito (but will, in the ",
+        "future). The following networks are marked as undirected: ",
+        paste(test, collapse = ", "), ".", call. = FALSE
+        )
+    
+  }
   
   # Need to improve the speed of this!
   for (i in 1L:nnets(LHS)) {
