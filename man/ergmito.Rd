@@ -14,7 +14,7 @@
 \usage{
 ergmito(model, gattr_model = NULL, stats.weights = NULL,
   stats.statmat = NULL, optim.args = list(), init = NULL,
-  ntries = 5L, use.grad = TRUE, target.stats = NULL, ...)
+  use.grad = TRUE, target.stats = NULL, ...)
 
 \method{print}{ergmito}(x, ...)
 
@@ -45,11 +45,8 @@ be useful in simulations.}
 
 \item{optim.args}{List. Passed to \link[stats:optim]{stats::optim}.}
 
-\item{init}{Either a numeric vector, or a matrix with \code{ntries} rows. Sets
-the starting parameters for the optimization routine.}
-
-\item{ntries}{Integer. In case of no convergence, number of times that the
-\code{optim} function should be re-run.}
+\item{init}{A numeric vector. Sets the starting parameters for the
+optimization routine. Default is a vector of zeros.}
 
 \item{use.grad}{Logical. When \code{TRUE} passes the gradient function to \code{optim}.
 This is intended for testing only (internal use).}
@@ -94,15 +91,6 @@ Maximum Likelihood Estimates are obtained using the \link[stats:optim]{stats::op
 The default method for maximization is \code{BFGS} using both the loglikelihood
 function and its corresponding gradient.
 
-Anecdotically, while the optimization process should be realitvely straight
-forward, in some cases a near-degenerate set of observed statistics may
-yield suboptimal solutions. Because of this reason, the parameter \code{ntries}
-allows the user to specify how many runs of \code{optim} should be done before
-returning. In general, optimization via \code{optim} is very fast, which is why
-this part of the function doesn't impact the actual wall time significantly
-(the most part of the time that the function takes to run is caused by the
-computation of the stats natrices using the \link[ergm:ergm.allstats]{ergm::ergm.allstats} function.)
-
 Another important factor to consider is the existance of the MLE estiates.
 As shown in Handcock (2003), if the observed statitcs are near the border
 if the support function (e.g. too many edges or almost none), then, even if
@@ -112,11 +100,14 @@ then the MLE estimates do not exists. In general, this should not be an issue
 in the context of the pooled model, as the variability of observed statistics
 should be enough to avoid those situations.
 
-The function \code{ergmito} will try to identify possible cases of model degeneracy,
-and if identified, then try to re estimate the model parameters using larger
-values than the ones obtained, if the log-likelihood is greater, then it is
+The function \code{ergmito} will try to identify possible cases of non-existance,
+of the MLE, and if identified then try to re estimate the model parameters using
+larger values than the ones obtained, if the log-likelihood is greater, then it is
 assumed that the model is degenerate and the corresponding values will be
-replaced with either \code{+Inf} or  \code{-Inf}.
+replaced with either \code{+Inf} or  \code{-Inf}. By default, this behavior is checked
+anytime that the absolute value of the estimates is greater than 5, or the
+sufficient statistics were flagged as potentially outside of the interior of
+the support (close to zero or to its max).
 }
 
 \examples{

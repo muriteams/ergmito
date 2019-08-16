@@ -22,7 +22,7 @@ test_that("Graph attributes", {
   for (i in seq_along(fivenets))
     network::set.network.attribute(fivenets[[i]], "y" ,A[i])
   
-  expect_silent(ans<-ergmito(fivenets ~ edges + mutual, gattr=~ y))
+  expect_silent(ans <- ergmito(fivenets ~ edges + mutual, gattr=~ y))
   expect_output(print(ans$formulae), "elements by using")
   
 })

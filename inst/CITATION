@@ -20,6 +20,10 @@ bibentry(bibtype = "Misc",
              email = "vegayon@usc.edu", comment = c(ORCID = "0000-0002-3171-0844")
              ),
            person(
+             given = "Andrew", family = "Slaughter",
+             email = "vegayon@usc.edu", comment = c(ORCID = "0000-0002-3171-0844")
+             ),
+           person(
              given = "Kayla", family = "de la Haye",
              email = "delahaye@usc.edu", comment = c(ORCID = "0000-0002-2536-7701")
            )

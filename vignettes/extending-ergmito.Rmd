@@ -1,0 +1,138 @@
+---
+title: "Extending ergmito"
+author: "George G. Vega Yon"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Extending ergmito}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The `ergmito`'s workhorse are two other functions: (1) `ergm`'s `ergm.allstats`
+which is used to compute the support of model's sufficient statistics, and (2)
+`ergmito_formulae` which is a wrapper of that same function, and that returns a
+list including the following two functions: `loglike` and `grad`, the functions
+to calculate the joint log-likelihood of the model and its gradient.
+
+```{r example}
+library(ergmito)
+data(fivenets)
+model_object <- ergmito_formulae(fivenets ~ edges + ttriad)
+
+# Printing the model object
+model_object
+
+# Printing the loglikelihood function
+model_object$loglik
+```
+
+Notice that, while the function `ergmito_formulae` returns all the components 
+needed to compute the joint likelihood, the function still needs all the parameters
+to be passed explicitly. The description of the parameters, which is also available
+in the package manual, is:
+
+- `params` a numeric vector with the parameters for the sufficient statistics
+- `stats.weights` a list of vectors. The weights that go along the sufficient
+statistics on the support.
+- `stats.statmat` a list of matrices with the sufficient statistics on the
+support of the function.
+- `target.stats` a matrix with the observed sufficient statistics.
+
+We can take a look at each component from our previous object:
+
+```{r looking-at-the-components}
+# The vectors of weights
+str(model_object$stats.weights)
+
+# The matrices of the sufficient statistics
+str(model_object$stats.statmat)
+
+# The target statistic
+model_object$target.stats
+```
+
+All this is closely related to the output object from the function `ergm.allstats`.
+The next section shows how all this works together to estimate the model parameters
+using Metropolis-Hastings MCMC.
+
+# Example: Bayesian inference with fivenets
+
+Suppose that we have a prior regarding the distribution of the `fivenets` model:
+The `edges` parameter is normally distributed with mean -1 and variance 2, while
+the `nodematch("female")` term has the same distribution but with mean 1. We can
+implement this model using a metropolis hastings ratio. First, we need to define
+the log of the posterior distribution:
+
+```{r}
+# Analyzing the model
+model_object <- ergmito_formulae(fivenets ~ edges + nodematch("female")) 
+
+# Defining the logposterior
+logposterior <- function(p) {
+  model_object$loglik(
+    params = p,
+    stats.weights = model_object$stats.weights,
+    stats.statmat = model_object$stats.statmat,
+    target.stats = model_object$target.stats
+  ) + 
+  sum(dnorm(p, mean = c(-1,1), sd = sqrt(2), log = TRUE))
+}
+ 
+```
+
+For this example, we are using an R package that is yet to be submitted to CRAN
+(already published in the Journal of Open Source Software), fmcmc. To install it
+you can type:
+
+```r
+devtools::install_github("USCbiostats/fmcmc")
+```
+
+Here is how we put everything together:
+
+```{r}
+# Loading the required R packages
+library(fmcmc)
+library(coda)
+
+# Is it working?
+logposterior(c(-1, 1))
+
+# Now, calling the MCMC function from the fmcmc R package
+ans <- MCMC(
+  fun     = logposterior,
+  initial = c(0, 0),
+  # 5,000 steps sampling one of every ten iterations
+  nsteps  = 5000,
+  thin    = 10,
+  # We are using a normal transition kernel with .5 scale and updates are done
+  # one variable at a time in a random order
+  kernel = kernel_normal(scale = .5, scheme = "random")
+  )
+```
+
+We can now visualize our results. Since the resulting object is of class `mcmc.list`,
+which is implemented in the `coda` R package for MCMC diagnostics, we can use
+all the methods included in the package:
+
+```{r looking-at-the-output, fig.height=7, fig.width=7}
+plot(ans)
+summary(ans)
+```
+
+Finally, we can compare this result with what we obtain from the `ergmito` function
+
+```{r}
+summary(ergmito(fivenets ~ edges + nodematch("female")))
+```
+
+
+

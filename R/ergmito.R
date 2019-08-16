@@ -65,12 +65,10 @@ check_degeneracy <- function(
 #' @param stats.weights,stats.statmat Lists as returned by [ergm::ergm.allstats].
 #' When this is provided, the function does not call `ergm.allstats`, which can
 #' be useful in simulations.
-#' @param init Either a numeric vector, or a matrix with `ntries` rows. Sets
-#' the starting parameters for the optimization routine.
+#' @param init A numeric vector. Sets the starting parameters for the
+#' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
 #' This is intended for testing only (internal use).
-#' @param ntries Integer. In case of no convergence, number of times that the 
-#' `optim` function should be re-run.
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
 #' `...` are passed to [ergmito_formulae].
 #' 
@@ -94,16 +92,7 @@ check_degeneracy <- function(
 #' Maximum Likelihood Estimates are obtained using the [stats::optim] function.
 #' The default method for maximization is `BFGS` using both the loglikelihood
 #' function and its corresponding gradient.
-#' 
-#' Anecdotically, while the optimization process should be realitvely straight
-#' forward, in some cases a near-degenerate set of observed statistics may
-#' yield suboptimal solutions. Because of this reason, the parameter `ntries`
-#' allows the user to specify how many runs of `optim` should be done before
-#' returning. In general, optimization via `optim` is very fast, which is why
-#' this part of the function doesn't impact the actual wall time significantly
-#' (the most part of the time that the function takes to run is caused by the
-#' computation of the stats natrices using the [ergm::ergm.allstats] function.)
-#' 
+#'  
 #' Another important factor to consider is the existance of the MLE estiates.
 #' As shown in Handcock (2003), if the observed statitcs are near the border
 #' if the support function (e.g. too many edges or almost none), then, even if
@@ -113,11 +102,14 @@ check_degeneracy <- function(
 #' in the context of the pooled model, as the variability of observed statistics
 #' should be enough to avoid those situations.
 #' 
-#' The function `ergmito` will try to identify possible cases of model degeneracy,
-#' and if identified, then try to re estimate the model parameters using larger
-#' values than the ones obtained, if the log-likelihood is greater, then it is 
+#' The function `ergmito` will try to identify possible cases of non-existance,
+#' of the MLE, and if identified then try to re estimate the model parameters using
+#' larger values than the ones obtained, if the log-likelihood is greater, then it is 
 #' assumed that the model is degenerate and the corresponding values will be
-#' replaced with either `+Inf` or  `-Inf`.
+#' replaced with either `+Inf` or  `-Inf`. By default, this behavior is checked
+#' anytime that the absolute value of the estimates is greater than 5, or the
+#' sufficient statistics were flagged as potentially outside of the interior of
+#' the support (close to zero or to its max).
 #' 
 #' 
 #' @examples 
@@ -183,7 +175,6 @@ ergmito <- function(
   stats.statmat = NULL,
   optim.args    = list(),
   init          = NULL,
-  ntries        = 5L,
   use.grad      = TRUE,
   target.stats  = NULL,
   ...
@@ -209,25 +200,10 @@ ergmito <- function(
   
   npars  <- formulae$npars
   
-  # Checking initial parameters
-  if (ntries < 1) {
-    stop("`ntries` should be a positive integer.", call. = FALSE)
-  } else if (!length(init)) {
-    init <- matrix(stats::runif(npars * ntries, -1.0, 1.0), ncol = npars)
-  } else if (ntries != 1 && length(init) == npars) {
-    warning(
-      "The set of initial parameters will be extended to match `ntries`.",
-      " The extended initial points will be drawn from a U[-1, 1].",
-      call. =  FALSE)
-    
-    init <- rbind(init, matrix(stats::runif(npars * (ntries - 1L), -1.0, 1.0), ncol = npars))
-  } else if (ntries == 1L && length(init) != npars) {
-    stop(
-      "Invalid number of inital parameters (`init`).",
-      " See the section 'MLE' in ?ergmito.",
-      call. = FALSE
-      )
-  }
+  # Checking the values of the initial parameters, if an undefined value is passed
+  # then replace it with a very large but tend to infinite value
+  if (!length(init))
+    init <- rep(0, npars)
 
   # Checking optim parameters --------------------------------------------------
   if (!length(optim.args$control))
@@ -253,41 +229,38 @@ ergmito <- function(
   optim.args$stats.statmat <- formulae$stats.statmat
   optim.args$target.stats  <- formulae$target.stats
   optim.args$hessian       <- TRUE
+  optim.args$par           <- init
   
-  ans <- vector("list", ntries)
-  for (i in 1:ntries) {
-    optim.args$par <- init[i, , drop=TRUE]
-    ans <- do.call(stats::optim, optim.args)
-    
-    if (ans$convergence == 0)
-      break
-  }
-  
-  if ((i == ntries) && !ans$convergence)
-    warning("The optim function did not converged.", call. = FALSE)
+  ans <- do.call(stats::optim, optim.args)
 
   # If denegeracy is plausible, then the solution may be close to infinite
-  if (attr(degeneracy, "degenerate")) {
+  solution <- ans$par
+  ll1      <- ans$value
+  if (attr(degeneracy, "degenerate") | any(abs(solution) > 5.0)) {
     
-    optim.args$par <- ans$par
-    optim.args$par[attr(degeneracy, "which")] <-
-      optim.args$par[attr(degeneracy, "which")]*2.0
+    solution_inf <- solution
+    solution_inf[attr(degeneracy, "which")] <-
+      solution_inf[attr(degeneracy, "which")] * 2.0
+      
+    # Estimating the loglike function using a degenerate case
+    ll1_inf <- formulae$loglik(
+      params        = solution_inf,
+      stats.weights = formulae$stats.weights,
+      stats.statmat = formulae$stats.statmat,
+      target.stats  = formulae$target.stats
+    )
     
-    # Rerunning the optimization funtion with a parameter near infinite
-    # to see if the likelihood function increases value. If it does, then
-    # we will update the values
-    ans1 <- do.call(stats::optim, optim.args)
-    
-    if (ans$value < ans1$value) {
+    if (ll1_inf > ans$value) {
       
       # This should come with a warning
       warning("A correction has been made in order to achieve the right MLE.",
               " In this case, the theoretical estimates are near +-Inf, hence",
               " the MLE may not exist.", call. = FALSE, immediate. = TRUE)
       
-      ans <- ans1
-      ans$par[attr(degeneracy, "which")] <- 
-        Inf * sign(ans$par[attr(degeneracy, "which")])
+      # Updating the likelihood function
+      solution[attr(degeneracy, "which")] <- Inf * sign(solution[attr(degeneracy, "which")])
+      ll1      <- ll1_inf
+      
     }
     
   }
@@ -296,6 +269,7 @@ ergmito <- function(
   pnames         <- colnames(formulae$target.stats)
   names(ans$par) <- pnames
   covar.         <- -MASS::ginv(ans$hessian)
+  names(solution) <- pnames
   
   # If we reached this level, then we shouldn't be reporting any meaningful
   # for that parameter
@@ -321,9 +295,9 @@ ergmito <- function(
   ans <- structure(
     list(
       call       = match.call(),
-      coef       = ans$par,
+      coef       = solution,
       iterations = ans$counts["function"],
-      mle.lik    = structure(ans$value, class="logLik", df=length(ans$par)),
+      mle.lik    = structure(ll1, class="logLik", df=length(ans$par)),
       null.lik   = structure(ll0, class="logLik", df=0),
       covar      = covar.,
       coef.init  = init,

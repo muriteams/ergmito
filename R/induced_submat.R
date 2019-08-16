@@ -41,6 +41,8 @@ induced_submat.list <- function(x, v, ...) {
   if (!is.list(v))
     v <- list(v)
   
+  x <- as_adjmat(x)
+  
   induced_submat.(x, v)
   
 }

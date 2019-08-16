@@ -22,13 +22,31 @@ test_that("Prediction on new data works", {
   data(fivenets)
   
   # bernoulli graph
-  fit <- ergmito(fivenets ~ edges + nodematch("female")) 
+  fit <- ergmito(fivenets ~ edges + nodematch("female"))
   
   net1 <- fivenets[[1]]
-  ans0 <- predict(fit, newdata = net1)
-  ans1 <- predict(fit)[1]
+  net1_list_net <- fivenets[1]
+  
+  ans0 <- predict(fit)[1]
+  ans1 <- predict(fit, newdata = net1)
+  ans2 <- predict(fit, newdata = net1_list_net)
   
   expect_equal(ans0, ans1)
+  expect_equal(ans0, ans2)
+
+  fit <- ergmito(fivenets ~ edges + ttriad)
+  
+  ans0 <- predict(fit)[1]
+  ans1 <- predict(fit, newdata = net1)
+  ans2 <- predict(fit, newdata = net1_list_net)
+  ans3 <- predict(fit, newdata = as_adjmat(net1))
+  ans4 <- predict(fit, newdata = as_adjmat(net1_list_net))
+  
+  expect_equal(ans0, ans1)
+  expect_equal(ans0, ans2)
+  expect_equal(ans0, ans3)
+  expect_equal(ans0, ans4)
   
 })
+
 
