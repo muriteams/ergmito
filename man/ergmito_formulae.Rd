@@ -2,6 +2,7 @@
 % Please edit documentation in R/formulae.R
 \name{ergmito_formulae}
 \alias{ergmito_formulae}
+\alias{ergmito_loglik}
 \title{Processing formulas in \code{ergmito}}
 \usage{
 ergmito_formulae(model, gattr_model = NULL, target.stats = NULL,
@@ -36,6 +37,7 @@ A list of class \code{ergmito_loglik}.
 \item \code{npars} Integer. Number of parameters.
 \item \code{nnets} Integer. Number of networks to estiamte.
 \item \code{vertex.attr} Character vector. Vertex attributes used in the model.
+\item \code{term.names} Names of the terms used in the model.
 }
 }
 \description{

@@ -1,52 +1,3 @@
-
-check_degeneracy <- function(
-  target.stats,
-  stats.statmat,
-  threshold = .8, warn = TRUE) {
-
-  res <- structure(
-    vector("logical", ncol(target.stats)),
-    names = colnames(target.stats)
-    )
-  
-  for (k in 1L:ncol(target.stats)) {
-    
-    # Retrieving the space range
-    # stats_range <- stats
-    
-    # Looking for degeneracy at the k-th parameter
-    stat_range <- lapply(stats.statmat, "[", i=, drop = TRUE)
-    stat_range <- lapply(stat_range, range)
-    stat_range <- do.call(rbind, stat_range)
-    
-    res[k] <- mean((target.stats[, k] == stat_range[, 1L]) | 
-      (target.stats[, k] == stat_range[, 2L]))
-    
-  }
-  
-  attr(res, "threshold") <- threshold
-  test <- which(res >= threshold)
-  if (length(test)) {
-    
-    if (warn)
-    warning("The observed statistics (target.statistics) are near or at the",
-            "boundary of its support, i.e. the Maximum Likelihood Estimates may",
-            "not exist or be hard to be estimated. In particular,", 
-            " the statistics \"", paste(names(res)[test], collapse="\", \""), 
-            "\".", call. = FALSE, immediate. = TRUE)
-    
-    attr(res, "degenerate") <- TRUE
-    attr(res, "which")      <- test
-  } else {
-    attr(res, "degenerate") <- FALSE
-    attr(res, "which")      <- NULL
-  }
-  
-  res
-  
-  
-}
-
 #' Estimation of ERGMs using Exact likelihood functions
 #' 
 #' As a difference from [ergm::ergm][ergm], `ergmito` uses the exact log-likelihood
@@ -160,6 +111,7 @@ check_degeneracy <- function(
 #' @importFrom stats optim terms rnorm
 #' @importFrom MASS ginv
 #' @name ergmito
+#' @include ergmito-checkers.R
 NULL
 
 ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
@@ -193,7 +145,7 @@ ergmito <- function(
     )
 
   # Verifying existance of MLE
-  degeneracy <- check_degeneracy(
+  degeneracy <- check_support(
     formulae$target.stats,
     formulae$stats.statmat
     )
@@ -232,6 +184,9 @@ ergmito <- function(
   optim.args$par           <- init
   
   ans <- do.call(stats::optim, optim.args)
+  
+  # Checking the convergence
+  estimates <- check_convergence(ans, formulae)
 
   # If denegeracy is plausible, then the solution may be close to infinite
   solution <- ans$par

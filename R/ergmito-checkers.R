@@ -1,0 +1,263 @@
+check_support <- function(
+  target.stats,
+  stats.statmat,
+  threshold = .8, warn = TRUE) {
+  
+  res <- structure(
+    vector("logical", ncol(target.stats)),
+    names = colnames(target.stats)
+  )
+  
+  for (k in 1L:ncol(target.stats)) {
+    
+    # Retrieving the space range
+    # stats_range <- stats
+    
+    # Looking for degeneracy at the k-th parameter
+    stat_range <- lapply(stats.statmat, "[", i=, drop = TRUE)
+    stat_range <- lapply(stat_range, range)
+    stat_range <- do.call(rbind, stat_range)
+    
+    res[k] <- mean((target.stats[, k] == stat_range[, 1L]) | 
+                     (target.stats[, k] == stat_range[, 2L]))
+    
+  }
+  
+  attr(res, "threshold") <- threshold
+  test <- which(res >= threshold)
+  if (length(test)) {
+    
+    if (warn)
+      warning("The observed statistics (target.statistics) are near or at the",
+              "boundary of its support, i.e. the Maximum Likelihood Estimates may",
+              "not exist or be hard to be estimated. In particular,", 
+              " the statistics \"", paste(names(res)[test], collapse="\", \""), 
+              "\".", call. = FALSE, immediate. = TRUE)
+    
+    attr(res, "degenerate") <- TRUE
+    attr(res, "which")      <- test
+  } else {
+    attr(res, "degenerate") <- FALSE
+    attr(res, "which")      <- NULL
+  }
+  
+  res
+  
+  
+}
+
+#' This is used to generate notes
+#' @noRd
+CONVERGENCE_DICTIONARY <- list(
+  `00` = NULL,
+  `01` = "optim converged, but the Hessian is not p.s.d.",
+  `10` = "optim did not converged, but the estimates look OK.",
+  `11` = "optim did not converged, and the Hessian is not p.s.d.",
+  `20` = paste(
+    "A subset of the parameters estimates was replaced with +/-Inf.",
+    "The Hessian matrix of the subset that is not +/-Inf is p.s.d."
+  ),
+  `21` = paste(
+    "A subset of the parameters estimates was replaced with +/-Inf.",
+    "The Hessian matrix of the subset that is not +/-Inf is not p.s.d."
+  ),
+  `30` = "The model did not converged. MLE may not exists."
+)
+
+map_convergence_message(x) {
+  CONVERGENCE_DICTIONARY[[sprintf("%02d", x)]]
+}
+
+#' Check the convergece of ergmito estimates
+#' 
+#' This is an internal function used to check the convergence of the optim function.
+#' 
+#' @param optim_output A list output from the [stats::optim] function.
+#' @param model An object of class [ergmito_loglik].
+#' @param theta_threshold Numeric scalar. Level at which a parameter estimate
+#' will be questioned.
+#' @return A list with the following components:
+#' 
+#' - `par` Updated set of parameters
+#' - `vcov` Updated variance-covariance matrix
+#' - `valid` Vector of integers with the parameters that are marked as OK.
+#' - `status` Return code of the analysis. See details.
+#' 
+#' @section Return codes: 
+#' 
+#' The function makes an analysis of the outcome of the model and makes the corresponding
+#' adjustments when required. In particular, we check:
+#' 
+#' 1. Whether the optimization algorithm converged or not
+#' 
+#' 2. If the obtained estimates maximize the function. If this is not the case,
+#'    the function checks whether the MLE may not exist. This usually happens
+#'    when the loglikelihood function can improve by making increments to parameters
+#'    that are already tagged as large. If the ll improves, then the value is
+#'    replaced with `Inf` (+- depending on the sign of the parameter).
+#'    
+#' 3. If the Hessian is semi-positive-definite, i.e. if it is invertible. If it 
+#'    is not, it usually means that the function did not converged, in which 
+#'    case we will use [MASS::ginv] instead.
+#'    
+#' The return codes are composed of two numbers, the first number gives information
+#' regarding of the parameter estimates, while the second number give information
+#' about the variance covaiance matrix.
+#' 
+#' Column 1:
+#' 
+#' - 0: Converged and estimates at the max.
+#' - 1: It did not converged, but I see no issue in the max.
+#' - 2: One or more estimates went to +/-Inf
+#' - 3: All went to hell. All estimates went to +/-Inf
+#' 
+#' Column 2: 
+#' 
+#' - 0: VCov worked fine
+#' - 1: Vcov not psd
+#' 
+#' Possible codes:
+#' 
+#' - 00 Everything OK
+#' - 01 Convergence, but the hessian is not psd
+#' - 20 One or more estimates went to inf, all finite were able to be inverted.
+#' - 21 One or more are inf, hessian is not psd
+#' - 10 Optim did not reported convergence, but things look OK.
+#' - 11 Optim did not converged, but the hessian is not psd. 
+#' - 30 All estimates went to Inf (degenerate distribution).
+#' 
+#' @keywords Internal
+check_convergence <- function(
+  optim_output,
+  model,
+  theta_threshold = 5.0
+  ) {
+  
+  # Baseline check... we are passing the right type.
+  if (!inherits(model, "ergmito_loglik"))
+    stop(
+      "`model` has to be an object of class \"ergmito_loglik\". This is an ",
+      "internal function, are you sure you want to use this directly?.",
+      call. = TRUE
+      )
+  
+  # Checking values of the convergence
+  over_threshold <- which(abs(optim_output$par) > theta_threshold)
+  
+  k <- length(optim_output$par)
+  estimates <- list(
+    par    = structure(optim_output$par, names = model$term.names),
+    vcov   = matrix(
+      nrow = k, ncol = k,
+      dimnames = with(model, list(term.names, term.names))
+      ),
+    valid  = 1L:k,
+    status = ifelse(optim_output$convergence == 0L, 0L, 1L),
+    note   = NULL
+    )
+  
+  # Step 1: Checking parameter estimates ---------------------------------------
+  if (length(over_threshold)) {
+    
+    # Should we replace with Inf?
+    newpars  <- optim_output$par
+    modified <- NULL 
+    for (i in over_threshold) {
+      
+      tmppar    <- optim_output$par
+      tmppar[i] <- tmppar[i] * 1.5
+      
+      newll <- model$loglik(
+        params        = tmppar,
+        stats.weights = model$stats.weights,
+        stats.statmat = model$stats.statmat,
+        target.stats  = model$target.stats
+      )
+      
+      # Updating the values to be inf, if needed.
+      if (newll > optim_output$value) {
+        newpars[i] <- sign(newpars[i])*Inf
+        modified   <- c(modified, i)
+      }
+        
+    }
+    
+    # Updating parameters, if needed
+    estimates$par    <- newpars
+    estimates$valid  <- setdiff(estimates$valid, modified)
+    
+    # Are we in hell?
+    if (!length(estimates$valid)) {
+      
+      warning(
+        "All parameters went to +-Inf. This suggests the MLE may not exist.",
+        call. = FALSE
+        )
+      
+      estimates$status <- 30L
+      estimates$note   <- map_convergence_message(estimates$status)
+      return(estimates)
+    } 
+    
+    estimates$status <- 20L
+    
+  }
+  
+  # Step 2: Checking variance cov-matrix ---------------------------------------
+  
+  # Trying to compute the variance co-variance matrix, on the right ones.
+  vcov. <- tryCatch(
+    with(estimates, solve(-optim_output$hessian[valid, ][, valid])),
+    error = function(e) e
+    )
+  
+  if (inherits(vcov., "error")) {
+    
+    # Trying to estimate using the Generalized Inverse
+    estimates$vcov <- with(estimates, MASS::ginv(
+      -optim_output$hessian[valid, ][, valid]
+    ))
+    
+    # Wasn't able to fully estimate it...
+    estimates$status <- estimates$status + 1L
+    
+  } else {
+    estimates$vcov[] <- vcov.
+  }
+  
+  # Returning, asis
+  estimates$note <- map_convergence_message(estimates$status)
+  return(estimates)
+
+  
+}
+
+
+#' Possible problems:
+#' 
+#' - The sufficient statistics lay too proximate to the boundaries of its 
+#'   support. For example a triadic term has been included in a model in which
+#'   the observed graph has either zero or the max number of possible triads.
+#'   
+#'   If this happens, it a lot of times it could be that the MLE does not exists.
+#'  
+#' - A multi-modal distribution: This makes the maximization problem hard in 
+#'   terms of finding a global maximum.
+#'   
+#' Flags:
+#' 
+#' - Not semi-positive definite Hessian: The global has not been found. Most of
+#'   the cases it could be related to a model with a set of sufficient statistics
+#'   near the boundary
+#'   
+#' - Parameters estimate too big. Anything outside of 5 is a candidate for a 
+#'   problem in the function. 
+#'   
+#' - Maximum number of iterations reached: This is related to the previous
+#'   situation. If the sufficient statistics are near the boundary of the
+#'   support, then in many cases the theoretical optimum lies at +/-Infinite.
+#'   
+#'   
+#'   
+#' 
+#' @noRd 

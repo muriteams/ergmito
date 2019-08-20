@@ -25,7 +25,9 @@
 #' - `npars` Integer. Number of parameters.
 #' - `nnets` Integer. Number of networks to estiamte.
 #' - `vertex.attr` Character vector. Vertex attributes used in the model.
+#' - `term.names` Names of the terms used in the model.
 #' 
+#' @aliases ergmito_loglik
 #' @export
 ergmito_formulae <- function(
   model,
@@ -268,7 +270,8 @@ ergmito_formulae <- function(
     model         = stats::as.formula(model, env = env),
     npars         = ncol(target.stats),
     nnets         = nnets(LHS),
-    vertex.attrs  = vattrs
+    vertex.attrs  = vattrs,
+    term.names    = colnames(target.stats)
   ), class="ergmito_loglik")
   
   
