@@ -112,7 +112,6 @@
 #' @importFrom stats optim terms rnorm
 #' @importFrom MASS ginv
 #' @name ergmito
-#' @include ergmito-checkers.R
 NULL
 
 ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
