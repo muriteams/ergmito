@@ -75,6 +75,7 @@ An list of class \code{ergmito}:
 used in the optimization.
 \item \code{formulae}      An object of class \link[=ergmito_formulae]{ergmito_loglik}.
 \item \code{network}       Networks passed via \code{model}.
+\item \code{status},\code{note} Convergence code. See \link{check_convergence}
 }
 }
 \description{

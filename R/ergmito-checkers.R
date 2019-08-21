@@ -1,7 +1,14 @@
+#' @rdname check_convergence
+#' @param target.stats,stats.statmat See [ergmito_formulae].
+#' @param threshold Numeric scalar. Confidence range for flagging an observed
+#' statistic as potentially near the boundary.
+#' @param warn logical scalar.
 check_support <- function(
   target.stats,
   stats.statmat,
-  threshold = .8, warn = TRUE) {
+  threshold = .8,
+  warn = TRUE
+  ) {
   
   res <- structure(
     vector("logical", ncol(target.stats)),
@@ -28,10 +35,10 @@ check_support <- function(
   if (length(test)) {
     
     if (warn)
-      warning("The observed statistics (target.statistics) are near or at the",
+      warning("The observed statistics (target.statistics) are near or at the ",
               "boundary of its support, i.e. the Maximum Likelihood Estimates may",
               "not exist or be hard to be estimated. In particular,", 
-              " the statistics \"", paste(names(res)[test], collapse="\", \""), 
+              " the statistic(s) \"", paste(names(res)[test], collapse="\", \""), 
               "\".", call. = FALSE, immediate. = TRUE)
     
     attr(res, "degenerate") <- TRUE
@@ -53,18 +60,15 @@ CONVERGENCE_DICTIONARY <- list(
   `01` = "optim converged, but the Hessian is not p.s.d.",
   `10` = "optim did not converged, but the estimates look OK.",
   `11` = "optim did not converged, and the Hessian is not p.s.d.",
-  `20` = paste(
-    "A subset of the parameters estimates was replaced with +/-Inf.",
-    "The Hessian matrix of the subset that is not +/-Inf is p.s.d."
-  ),
+  `20` = "A subset of the parameters estimates was replaced with +/-Inf.",
   `21` = paste(
     "A subset of the parameters estimates was replaced with +/-Inf.",
     "The Hessian matrix of the subset that is not +/-Inf is not p.s.d."
   ),
-  `30` = "The model did not converged. MLE may not exists."
+  `30` = "All parameters went to +/-Inf suggesting that the MLE may not exists."
 )
 
-map_convergence_message(x) {
+map_convergence_message <- function(x) {
   CONVERGENCE_DICTIONARY[[sprintf("%02d", x)]]
 }
 
@@ -74,7 +78,8 @@ map_convergence_message(x) {
 #' 
 #' @param optim_output A list output from the [stats::optim] function.
 #' @param model An object of class [ergmito_loglik].
-#' @param theta_threshold Numeric scalar. Level at which a parameter estimate
+#' @param support As returned by `check_support`.
+#' @param crit Numeric scalar. Level at which a parameter estimate
 #' will be questioned.
 #' @return A list with the following components:
 #' 
@@ -82,6 +87,7 @@ map_convergence_message(x) {
 #' - `vcov` Updated variance-covariance matrix
 #' - `valid` Vector of integers with the parameters that are marked as OK.
 #' - `status` Return code of the analysis. See details.
+#' - `note` A note accompaining the status.
 #' 
 #' @section Return codes: 
 #' 
@@ -113,24 +119,25 @@ map_convergence_message(x) {
 #' 
 #' Column 2: 
 #' 
-#' - 0: VCov worked fine
-#' - 1: Vcov not psd
+#' - 0: Hessian is p.s.d.
+#' - 1: Hessian is not not p.s.d.
 #' 
-#' Possible codes:
+#' Possible codes and corresponding messages:
 #' 
-#' - 00 Everything OK
-#' - 01 Convergence, but the hessian is not psd
-#' - 20 One or more estimates went to inf, all finite were able to be inverted.
-#' - 21 One or more are inf, hessian is not psd
-#' - 10 Optim did not reported convergence, but things look OK.
-#' - 11 Optim did not converged, but the hessian is not psd. 
-#' - 30 All estimates went to Inf (degenerate distribution).
+#' - 00 All OK (no message).
+#' - 01 \Sexpr{ergmito:::map_convergence_message(01)}. % Convergence, but the hessian is not psd
+#' - 10 \Sexpr{ergmito:::map_convergence_message(10)}. % Optim did not reported convergence, but things look OK.
+#' - 11 \Sexpr{ergmito:::map_convergence_message(11)}. % Optim did not converged, but the hessian is not psd. 
+#' - 20 \Sexpr{ergmito:::map_convergence_message(20)}. % One or more estimates went to inf, all finite were able to be inverted.
+#' - 21 \Sexpr{ergmito:::map_convergence_message(21)}. % One or more are inf, hessian is not psd
+#' - 30 \Sexpr{ergmito:::map_convergence_message(30)}. % All estimates went to Inf (degenerate distribution).
 #' 
 #' @keywords Internal
 check_convergence <- function(
   optim_output,
   model,
-  theta_threshold = 5.0
+  support,
+  crit = 5.0
   ) {
   
   # Baseline check... we are passing the right type.
@@ -142,13 +149,17 @@ check_convergence <- function(
       )
   
   # Checking values of the convergence
-  over_threshold <- which(abs(optim_output$par) > theta_threshold)
+  to_check <- unique(c(
+    which(abs(optim_output$par) > crit),
+    attr(support, "which")
+  ))
+  
   
   k <- length(optim_output$par)
   estimates <- list(
     par    = structure(optim_output$par, names = model$term.names),
     vcov   = matrix(
-      nrow = k, ncol = k,
+      0.0, nrow = k, ncol = k,
       dimnames = with(model, list(term.names, term.names))
       ),
     valid  = 1L:k,
@@ -157,12 +168,12 @@ check_convergence <- function(
     )
   
   # Step 1: Checking parameter estimates ---------------------------------------
-  if (length(over_threshold)) {
+  if (length(to_check)) {
     
     # Should we replace with Inf?
     newpars  <- optim_output$par
     modified <- NULL 
-    for (i in over_threshold) {
+    for (i in to_check) {
       
       tmppar    <- optim_output$par
       tmppar[i] <- tmppar[i] * 1.5
@@ -183,7 +194,7 @@ check_convergence <- function(
     }
     
     # Updating parameters, if needed
-    estimates$par    <- newpars
+    estimates$par[]    <- newpars
     estimates$valid  <- setdiff(estimates$valid, modified)
     
     # Are we in hell?
@@ -197,9 +208,10 @@ check_convergence <- function(
       estimates$status <- 30L
       estimates$note   <- map_convergence_message(estimates$status)
       return(estimates)
-    } 
+    } else if (length(modified)) {
+      estimates$status <- 20L
+    }
     
-    estimates$status <- 20L
     
   }
   
@@ -215,7 +227,7 @@ check_convergence <- function(
     
     # Trying to estimate using the Generalized Inverse
     estimates$vcov <- with(estimates, MASS::ginv(
-      -optim_output$hessian[valid, ][, valid]
+      -optim_output$hessian[valid, , drop = FALSE][, valid, drop = FALSE]
     ))
     
     # Wasn't able to fully estimate it...
