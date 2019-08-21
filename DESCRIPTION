@@ -56,6 +56,5 @@ Collate:
     'same_dist.R'
     'sim.R'
     'simulate.R'
-    'terms.R'
     'texreg.R'
     'utils.R'
