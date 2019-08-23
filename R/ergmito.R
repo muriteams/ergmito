@@ -230,7 +230,7 @@ ergmito <- function(
       call       = match.call(),
       coef       = estimates$par,
       iterations = ans$counts["function"],
-      mle.lik    = structure(ans$value, class="logLik", df=length(ans$par)),
+      mle.lik    = structure(estimates$ll, class="logLik", df=length(ans$par)),
       null.lik   = structure(ll0, class="logLik", df=0),
       covar      = estimates$vcov,
       coef.init  = init,

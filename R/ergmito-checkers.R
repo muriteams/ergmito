@@ -62,8 +62,8 @@ CONVERGENCE_DICTIONARY <- list(
   `11` = "optim did not converged, and the Hessian is not p.s.d.",
   `20` = "A subset of the parameters estimates was replaced with +/-Inf.",
   `21` = paste(
-    "A subset of the parameters estimates was replaced with +/-Inf.",
-    "The Hessian matrix of the subset that is not +/-Inf is not p.s.d."
+    "A subset of the parameters estimates was replaced with +/-Inf, ",
+    "and the Hessian matrix is not p.s.d."
   ),
   `30` = "All parameters went to +/-Inf suggesting that the MLE may not exists."
 )
@@ -164,8 +164,12 @@ check_convergence <- function(
       ),
     valid  = 1L:k,
     status = ifelse(optim_output$convergence == 0L, 0L, 1L),
-    note   = NULL
+    note   = NULL,
+    ll     = optim_output$value
     )
+  
+  # We will update this later
+  estimates$vcov <- optim_output$hessian
   
   # Step 1: Checking parameter estimates ---------------------------------------
   if (length(to_check)) {
@@ -209,6 +213,28 @@ check_convergence <- function(
       estimates$note   <- map_convergence_message(estimates$status)
       return(estimates)
     } else if (length(modified)) {
+      
+      # Updating the hessian matrix. We cannot use infite values for this step
+      # since optimHess will return with an error. That's why we just use a
+      # very large value instead
+      newpars <- estimates$par
+      newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)])*1e5
+      estimates$hessian <- stats::optimHess(
+        par = newpars, fn = model$loglik, gr = model$grad,
+        stats.weights = model$stats.weights,
+        stats.statmat = model$stats.statmat,
+        target.stats  = model$target.stats
+      )
+      
+      # The observed likelihood will change as well, it may be the case that it
+      # becomes undefined b/c of the fact that 0 * Inf = NaN
+      estimates$ll <- model$loglik(
+        estimates$par,
+        stats.weights = model$stats.weights,
+        stats.statmat = model$stats.statmat,
+        target.stats  = model$target.stats
+      )
+      
       estimates$status <- 20L
     }
     
@@ -218,17 +244,12 @@ check_convergence <- function(
   # Step 2: Checking variance cov-matrix ---------------------------------------
   
   # Trying to compute the variance co-variance matrix, on the right ones.
-  vcov. <- tryCatch(
-    with(estimates, solve(-optim_output$hessian[valid, ][, valid])),
-    error = function(e) e
-    )
+  vcov. <- tryCatch(solve(-estimates$vcov), error = function(e) e)
   
   if (inherits(vcov., "error")) {
     
     # Trying to estimate using the Generalized Inverse
-    estimates$vcov <- with(estimates, MASS::ginv(
-      -optim_output$hessian[valid, , drop = FALSE][, valid, drop = FALSE]
-    ))
+    estimates$vcov <- MASS::ginv(-estimates$hessian)
     
     # Wasn't able to fully estimate it...
     estimates$status <- estimates$status + 1L
