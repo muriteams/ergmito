@@ -14,7 +14,7 @@
 \usage{
 ergmito(model, gattr_model = NULL, stats.weights = NULL,
   stats.statmat = NULL, optim.args = list(), init = NULL,
-  use.grad = TRUE, target.stats = NULL, ...)
+  use.grad = TRUE, target.stats = NULL, ntries = 5L, ...)
 
 \method{print}{ergmito}(x, ...)
 
@@ -52,6 +52,9 @@ optimization routine. Default is a vector of zeros.}
 This is intended for testing only (internal use).}
 
 \item{target.stats}{A matrix of target statistics (see \link[ergm:ergm]{ergm::ergm}).}
+
+\item{ntries}{Integer scalar. Number of tries to estimate the MLE in case that
+\code{optim} does not converge (see details).}
 
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}
@@ -109,6 +112,10 @@ replaced with either \code{+Inf} or  \code{-Inf}. By default, this behavior is c
 anytime that the absolute value of the estimates is greater than 5, or the
 sufficient statistics were flagged as potentially outside of the interior of
 the support (close to zero or to its max).
+
+In the case of \code{ntries}, if the \code{optim} function reports no convergence,
+\code{ergmito} will try again perturbing the \code{init} parameter by adding a Unif(-1,1)
+vector.
 }
 
 \examples{

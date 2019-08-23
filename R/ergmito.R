@@ -20,6 +20,8 @@
 #' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
 #' This is intended for testing only (internal use).
+#' @param ntries Integer scalar. Number of tries to estimate the MLE in case that
+#' `optim` does not converge (see details).
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
 #' `...` are passed to [ergmito_formulae].
 #' 
@@ -63,6 +65,9 @@
 #' sufficient statistics were flagged as potentially outside of the interior of
 #' the support (close to zero or to its max).
 #' 
+#' In the case of `ntries`, if the `optim` function reports no convergence, 
+#' `ergmito` will try again perturbing the `init` parameter by adding a Unif(-1,1)
+#' vector.
 #' 
 #' @examples 
 #' 
@@ -129,6 +134,7 @@ ergmito <- function(
   init          = NULL,
   use.grad      = TRUE,
   target.stats  = NULL,
+  ntries        = 5L,
   ...
   ) {
   
@@ -183,7 +189,22 @@ ergmito <- function(
   optim.args$hessian       <- TRUE
   optim.args$par           <- init
   
-  ans <- do.call(stats::optim, optim.args)
+  # Will try to solve the problem more than once... if needed
+  ntry <- 1L
+  while (ntry <= ntries) {
+    
+    ans <- do.call(stats::optim, optim.args)
+    
+    if (ans$convergence == 0)
+      break
+    
+    # Resetting the parameters for the optimization, now this time we start
+    # from the init parameters + some random value
+    optim.args$par <- stats::rnorm(formulae$npars, -2, 2)
+    
+    ntry <- ntry + 1
+    
+  }
   
   # Checking the convergence
   estimates <- check_convergence(
