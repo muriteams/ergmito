@@ -169,7 +169,7 @@ check_convergence <- function(
     )
   
   # We will update this later
-  estimates$vcov <- optim_output$hessian
+  estimates$vcov[] <- optim_output$hessian
   
   # Step 1: Checking parameter estimates ---------------------------------------
   if (length(to_check)) {

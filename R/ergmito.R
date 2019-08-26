@@ -20,8 +20,7 @@
 #' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
 #' This is intended for testing only (internal use).
-#' @param ntries Integer scalar. Number of tries to estimate the MLE in case that
-#' `optim` does not converge (see details).
+#' @param ntries Integer scalar. Number of tries to estimate the MLE (see details).
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
 #' `...` are passed to [ergmito_formulae].
 #' 
@@ -40,6 +39,9 @@
 #' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
 #' - `network`       Networks passed via `model`.
 #' - `status`,`note` Convergence code. See [check_convergence]
+#' - `best_try`      Integer scalar. Index of the run with the highest loglike value.
+#' - `history`       Matrix of size `ntries * (k + 1)`. History of the parameter
+#'   estimates and the reached loglike values.
 #' 
 #' @section MLE:
 #' 
@@ -65,9 +67,11 @@
 #' sufficient statistics were flagged as potentially outside of the interior of
 #' the support (close to zero or to its max).
 #' 
-#' In the case of `ntries`, if the `optim` function reports no convergence, 
-#' `ergmito` will try again perturbing the `init` parameter by adding a Unif(-1,1)
-#' vector.
+#' In the case of `ntries`, the optimization is repeated that number of times,
+#' each time perturbing the `init` parameter by adding a Normally distributed
+#' vector. The result which reaches the highest loglikelihood will be the one
+#' reported as parameter estimates. This feature is intended for testing only.
+#' Anecdotally, `optim` reaches the max in the first try.
 #' 
 #' @examples 
 #' 
@@ -160,7 +164,7 @@ ergmito <- function(
   
   # Checking the values of the initial parameters, if an undefined value is passed
   # then replace it with a very large but tend to infinite value
-  if (!length(init))
+  if (!length(init)) 
     init <- rep(0, npars)
 
   # Checking optim parameters --------------------------------------------------
@@ -191,12 +195,25 @@ ergmito <- function(
   
   # Will try to solve the problem more than once... if needed
   ntry <- 1L
+  history <- matrix(
+    NA, nrow = ntries, ncol = formulae$npars + 1,
+    dimnames = list(1L:ntries, c(formulae$term.names, "value"))
+    )
   while (ntry <= ntries) {
     
-    ans <- do.call(stats::optim, optim.args)
+    cur_ans <- do.call(stats::optim, optim.args)
     
-    if (ans$convergence == 0)
-      break
+    if ((ntry == 1L) || (ans$value < cur_ans$value)) {
+      ans      <- cur_ans
+      best_try <- ntry
+    }
+     
+    
+    # Storing the current value
+    history[ntry, ] <- c(cur_ans$par, cur_ans$value)
+    
+    # if (ans$convergence == 0)
+    #   break
     
     # Resetting the parameters for the optimization, now this time we start
     # from the init parameters + some random value
@@ -241,7 +258,9 @@ ergmito <- function(
       optim.out  = ans,
       optim.args = optim.args0,
       status     = estimates$status,
-      note       = estimates$note
+      note       = estimates$note,
+      best_try   = best_try,
+      history    = history
     ),
     class = c("ergmito")
     )
