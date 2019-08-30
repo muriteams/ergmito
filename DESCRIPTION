@@ -36,7 +36,10 @@ Suggests:
     covr,
     sna,
     lmtest,
-    fmcmc
+    fmcmc,
+    coda,
+    knitr,
+    rmarkdown
 Collate: 
     'RcppExports.R'
     'boot.R'
@@ -59,3 +62,4 @@ Collate:
     'simulate.R'
     'texreg.R'
     'utils.R'
+VignetteBuilder: knitr
