@@ -35,7 +35,8 @@ Suggests:
     testthat,
     covr,
     sna,
-    lmtest
+    lmtest,
+    fmcmc
 Collate: 
     'RcppExports.R'
     'boot.R'

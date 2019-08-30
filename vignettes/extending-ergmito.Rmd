@@ -88,15 +88,8 @@ logposterior <- function(p) {
  
 ```
 
-For this example, we are using an R package that is yet to be submitted to CRAN
-(already published in the Journal of Open Source Software), fmcmc. To install it
-you can type:
-
-```r
-devtools::install_github("USCbiostats/fmcmc")
-```
-
-Here is how we put everything together:
+For this example, we are using the fmcmc R package. Here is how we put
+everything together:
 
 ```{r}
 # Loading the required R packages

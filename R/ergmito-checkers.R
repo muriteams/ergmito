@@ -249,7 +249,7 @@ check_convergence <- function(
   if (inherits(vcov., "error")) {
     
     # Trying to estimate using the Generalized Inverse
-    estimates$vcov <- MASS::ginv(-estimates$hessian)
+    estimates$vcov[] <- MASS::ginv(-estimates$vcov)
     
     # Wasn't able to fully estimate it...
     estimates$status <- estimates$status + 1L

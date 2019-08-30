@@ -201,6 +201,7 @@ ergmito <- function(
     )
   while (ntry <= ntries) {
     
+    # Maximizign the likelihood and storing the value
     cur_ans <- do.call(stats::optim, optim.args)
     
     if ((ntry == 1L) || (ans$value < cur_ans$value)) {
@@ -212,8 +213,9 @@ ergmito <- function(
     # Storing the current value
     history[ntry, ] <- c(cur_ans$par, cur_ans$value)
     
-    # if (ans$convergence == 0)
-    #   break
+    # We don't need to do this again.
+    if (ntries == 1L)
+      break
     
     # Resetting the parameters for the optimization, now this time we start
     # from the init parameters + some random value
