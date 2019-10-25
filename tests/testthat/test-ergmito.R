@@ -17,12 +17,12 @@ test_that("Higher than ergm", {
 test_that("Graph attributes", {
   
   data(fivenets)
-  set.seed(12)
-  A <- rbinom(5, 1, .5)
+  set.seed(121)
+  A <- rbinom(5, 1, .3)
   for (i in seq_along(fivenets))
     network::set.network.attribute(fivenets[[i]], "y" ,A[i])
   
-  expect_silent(ans <- ergmito(fivenets ~ edges + mutual, gattr=~ y))
+  expect_warning(ans <- ergmito(fivenets ~ edges + mutual, gattr=~ y), "\"y\"")
   expect_output(print(ans$formulae), "elements by using")
   
 })

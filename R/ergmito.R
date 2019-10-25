@@ -159,7 +159,7 @@ ergmito <- function(
     formulae$target.stats,
     formulae$stats.statmat
     )
-  
+
   npars  <- formulae$npars
   
   # Checking the values of the initial parameters, if an undefined value is passed

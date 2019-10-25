@@ -21,7 +21,7 @@ check_support <- function(
     # stats_range <- stats
     
     # Looking for degeneracy at the k-th parameter
-    stat_range <- lapply(stats.statmat, "[", i=, drop = TRUE)
+    stat_range <- lapply(stats.statmat, "[", i=, j = k, drop = TRUE)
     stat_range <- lapply(stat_range, range)
     stat_range <- do.call(rbind, stat_range)
     
@@ -190,7 +190,7 @@ check_convergence <- function(
       )
       
       # Updating the values to be inf, if needed.
-      if (newll > optim_output$value) {
+      if (newll >= optim_output$value) {
         newpars[i] <- sign(newpars[i])*Inf
         modified   <- c(modified, i)
       }
