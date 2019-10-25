@@ -1,4 +1,5 @@
 #include <RcppArmadillo.h>
+#include "ergmito_types.h"
 using namespace Rcpp;
 
 // [[Rcpp::plugins(cpp11)]]
@@ -11,7 +12,7 @@ inline double kappa(
     const arma::mat    & statmat
 ) {
   
-  return arma::as_scalar(weights * exp(statmat * params));
+  return arma::as_scalar(weights * exp(statmat * params - AVOID_BIG_EXP));
   
 }
 
@@ -27,10 +28,10 @@ inline void exact_logliki(
 ) {
   
   if (!as_prob) {
-    ans.at(i) = arma::as_scalar(x * params) - 
+    ans.at(i) = arma::as_scalar(x * params) - AVOID_BIG_EXP -
       log(kappa(params, stats_weights, stats_statmat));
   } else {
-    ans.at(i) = exp(arma::as_scalar(x * params))/ 
+    ans.at(i) = exp(arma::as_scalar(x * params) - AVOID_BIG_EXP)/ 
       kappa(params, stats_weights, stats_statmat);
   }
   
@@ -69,7 +70,8 @@ arma::vec exact_loglik(
   } else {
     // In the case that all networks are from the same family, then this becomes
     // a trivial operation.
-    ans = x * params - log(kappa(params, stats_weights.at(0), stats_statmat.at(0)));
+    ans = x * params - AVOID_BIG_EXP -
+      log(kappa(params, stats_weights.at(0), stats_statmat.at(0)));
     
   }
   
@@ -86,8 +88,10 @@ inline arma::colvec exact_gradienti(
     const arma::mat    & stats_statmat
 ) {
 
-  return x.t() - (stats_statmat.t() * (stats_weights.t() % exp(stats_statmat * params)))/
-    kappa(params, stats_weights, stats_statmat);
+  return x.t() - (
+      stats_statmat.t() * (
+          stats_weights.t() % exp(stats_statmat * params - AVOID_BIG_EXP)
+  ))/kappa(params, stats_weights, stats_statmat);
 
 }
 

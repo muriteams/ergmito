@@ -20,6 +20,7 @@
 #' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
 #' This is intended for testing only (internal use).
+#' @param ntries Integer scalar. Number of tries to estimate the MLE (see details).
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
 #' `...` are passed to [ergmito_formulae].
 #' 
@@ -37,6 +38,10 @@
 #'   used in the optimization.
 #' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
 #' - `network`       Networks passed via `model`.
+#' - `status`,`note` Convergence code. See [check_convergence]
+#' - `best_try`      Integer scalar. Index of the run with the highest loglike value.
+#' - `history`       Matrix of size `ntries * (k + 1)`. History of the parameter
+#'   estimates and the reached loglike values.
 #' 
 #' @section MLE:
 #' 
@@ -62,6 +67,11 @@
 #' sufficient statistics were flagged as potentially outside of the interior of
 #' the support (close to zero or to its max).
 #' 
+#' In the case of `ntries`, the optimization is repeated that number of times,
+#' each time perturbing the `init` parameter by adding a Normally distributed
+#' vector. The result which reaches the highest loglikelihood will be the one
+#' reported as parameter estimates. This feature is intended for testing only.
+#' Anecdotally, `optim` reaches the max in the first try.
 #' 
 #' @examples 
 #' 
@@ -111,7 +121,6 @@
 #' @importFrom stats optim terms rnorm
 #' @importFrom MASS ginv
 #' @name ergmito
-#' @include ergmito-checkers.R
 NULL
 
 ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
@@ -129,6 +138,7 @@ ergmito <- function(
   init          = NULL,
   use.grad      = TRUE,
   target.stats  = NULL,
+  ntries        = 5L,
   ...
   ) {
   
@@ -145,16 +155,16 @@ ergmito <- function(
     )
 
   # Verifying existance of MLE
-  degeneracy <- check_support(
+  support <- check_support(
     formulae$target.stats,
     formulae$stats.statmat
     )
-  
+
   npars  <- formulae$npars
   
   # Checking the values of the initial parameters, if an undefined value is passed
   # then replace it with a very large but tend to infinite value
-  if (!length(init))
+  if (!length(init)) 
     init <- rep(0, npars)
 
   # Checking optim parameters --------------------------------------------------
@@ -183,57 +193,44 @@ ergmito <- function(
   optim.args$hessian       <- TRUE
   optim.args$par           <- init
   
-  ans <- do.call(stats::optim, optim.args)
+  # Will try to solve the problem more than once... if needed
+  ntry <- 1L
+  history <- matrix(
+    NA, nrow = ntries, ncol = formulae$npars + 1,
+    dimnames = list(1L:ntries, c(formulae$term.names, "value"))
+    )
+  while (ntry <= ntries) {
+    
+    # Maximizign the likelihood and storing the value
+    cur_ans <- do.call(stats::optim, optim.args)
+    
+    if ((ntry == 1L) || (ans$value < cur_ans$value)) {
+      ans      <- cur_ans
+      best_try <- ntry
+    }
+     
+    
+    # Storing the current value
+    history[ntry, ] <- c(cur_ans$par, cur_ans$value)
+    
+    # We don't need to do this again.
+    if (ntries == 1L)
+      break
+    
+    # Resetting the parameters for the optimization, now this time we start
+    # from the init parameters + some random value
+    optim.args$par <- stats::rnorm(formulae$npars, -2, 2)
+    
+    ntry <- ntry + 1
+    
+  }
   
   # Checking the convergence
-  estimates <- check_convergence(ans, formulae)
-
-  # If denegeracy is plausible, then the solution may be close to infinite
-  solution <- ans$par
-  ll1      <- ans$value
-  if (attr(degeneracy, "degenerate") | any(abs(solution) > 5.0)) {
-    
-    solution_inf <- solution
-    solution_inf[attr(degeneracy, "which")] <-
-      solution_inf[attr(degeneracy, "which")] * 2.0
-      
-    # Estimating the loglike function using a degenerate case
-    ll1_inf <- formulae$loglik(
-      params        = solution_inf,
-      stats.weights = formulae$stats.weights,
-      stats.statmat = formulae$stats.statmat,
-      target.stats  = formulae$target.stats
+  estimates <- check_convergence(
+    optim_output = ans,
+    model        = formulae,
+    support      = support
     )
-    
-    if (ll1_inf > ans$value) {
-      
-      # This should come with a warning
-      warning("A correction has been made in order to achieve the right MLE.",
-              " In this case, the theoretical estimates are near +-Inf, hence",
-              " the MLE may not exist.", call. = FALSE, immediate. = TRUE)
-      
-      # Updating the likelihood function
-      solution[attr(degeneracy, "which")] <- Inf * sign(solution[attr(degeneracy, "which")])
-      ll1      <- ll1_inf
-      
-    }
-    
-  }
-  
-  # Capturing the names of the parameters
-  pnames         <- colnames(formulae$target.stats)
-  names(ans$par) <- pnames
-  covar.         <- -MASS::ginv(ans$hessian)
-  names(solution) <- pnames
-  
-  # If we reached this level, then we shouldn't be reporting any meaningful
-  # for that parameter
-  if (any(is.infinite(ans$par))) {
-    covar.[attr(degeneracy, "which"), ] <- NA
-    covar.[, attr(degeneracy, "which")] <- NA
-  }
-  
-  dimnames(covar.) <- list(pnames, pnames)
   
   # Capturing model
   if (!inherits(model, "formula"))
@@ -241,7 +238,7 @@ ergmito <- function(
   
   # Null loglik
   ll0 <- formulae$loglik(
-    params        = rep(0, length(pnames)),
+    params        = rep(0, length(estimates$par)),
     stats.weights = formulae$stats.weights,
     stats.statmat = formulae$stats.statmat,
     target.stats  = formulae$target.stats
@@ -250,11 +247,11 @@ ergmito <- function(
   ans <- structure(
     list(
       call       = match.call(),
-      coef       = solution,
+      coef       = estimates$par,
       iterations = ans$counts["function"],
-      mle.lik    = structure(ll1, class="logLik", df=length(ans$par)),
+      mle.lik    = structure(estimates$ll, class="logLik", df=length(ans$par)),
       null.lik   = structure(ll0, class="logLik", df=0),
-      covar      = covar.,
+      covar      = estimates$vcov,
       coef.init  = init,
       formulae   = formulae,
       nobs       = NA,
@@ -262,7 +259,10 @@ ergmito <- function(
       init       = init,
       optim.out  = ans,
       optim.args = optim.args0,
-      degeneracy = degeneracy
+      status     = estimates$status,
+      note       = estimates$note,
+      best_try   = best_try,
+      history    = history
     ),
     class = c("ergmito")
     )
@@ -279,10 +279,8 @@ ergmito <- function(
 print.ergmito <- function(x, ...) {
   
   cat("\nERGMito estimates\n")
-  if (length(x$degeneracy) && attr(x$degeneracy, "degenerate"))
-    cat("Note: Degenerate or near-degenerate model. The MLE may not exists.\n")
-  if (x$optim.out$convergence != 0)
-    cat("Note: The optimzation did not converged.\n")
+  if (length(x$note))
+    cat(sprintf("note: %s\n", x$note))
     
   print(structure(unclass(x), class="ergm"))
   invisible(x)
@@ -313,8 +311,7 @@ summary.ergmito <- function(object, ...) {
     aic         = stats::AIC(object),
     bic         = stats::BIC(object),
     model       = deparse(object$formulae$model),
-    degeneracy  = object$degeneracy,
-    convergence = object$optim.out$convergence,
+    note        = object$note,
     R           = ifelse(is_boot, object$R, 1L)
     ),
     class = c("ergmito_summary", if (is_boot) "ergmito_summary_boot" else  NULL)
@@ -335,10 +332,8 @@ print.ergmito_summary <- function(
   if (x$R > 1L)
     cat("\n(bootstrapped model with ", x$R, " replicates.)\n")
   
-  if (length(x$degeneracy) && attr(x$degeneracy, "degenerate"))
-    cat("Note: Degenerate or near-degenerate model. The MLE may not exists\n")
-  if (x$convergence != 0)
-    cat("Note: The optimzation did not converged.\n")
+  if (length(x$note))
+    cat(sprintf("note: %s\n", x$note))
   cat("\nformula: ", x$model, "\n\n")
   stats::printCoefmat(
     x$coefs,
@@ -391,7 +386,10 @@ vcov.ergmito <- function(object, solver = NULL, ...) {
   if (is.null(solver))
     return(object$covar)
   
-  - solver(object$optim.out$hessian)
+  structure(
+    - solver(object$optim.out$hessian),
+    dimnames = dimnames(object$covar)
+  )
   
 }
 

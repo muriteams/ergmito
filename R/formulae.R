@@ -242,7 +242,7 @@ ergmito_formulae <- function(
       
       # If awfully undefined
       if (!is.finite(ans))
-        return(sign(ans) * .Machine$double.xmax * 1e-100)
+        return(-.Machine$double.xmax * 1e-100)
       else
         return(ans)
       # max(ans, -.Machine$double.xmax/1e100)
@@ -257,9 +257,9 @@ ergmito_formulae <- function(
         stats.statmat = stats.statmat
       )
 
-      test <- which(is.infinite(ans))
+      test <- which(!is.finite(ans))
       if (length(test))
-        ans[test] <- sign(ans[test])*.Machine$double.xmax/1e100
+        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
       
       ans
       

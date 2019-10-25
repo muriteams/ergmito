@@ -14,7 +14,7 @@
 \usage{
 ergmito(model, gattr_model = NULL, stats.weights = NULL,
   stats.statmat = NULL, optim.args = list(), init = NULL,
-  use.grad = TRUE, target.stats = NULL, ...)
+  use.grad = TRUE, target.stats = NULL, ntries = 5L, ...)
 
 \method{print}{ergmito}(x, ...)
 
@@ -53,6 +53,8 @@ This is intended for testing only (internal use).}
 
 \item{target.stats}{A matrix of target statistics (see \link[ergm:ergm]{ergm::ergm}).}
 
+\item{ntries}{Integer scalar. Number of tries to estimate the MLE (see details).}
+
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}
 
@@ -75,6 +77,10 @@ An list of class \code{ergmito}:
 used in the optimization.
 \item \code{formulae}      An object of class \link[=ergmito_formulae]{ergmito_loglik}.
 \item \code{network}       Networks passed via \code{model}.
+\item \code{status},\code{note} Convergence code. See \link{check_convergence}
+\item \code{best_try}      Integer scalar. Index of the run with the highest loglike value.
+\item \code{history}       Matrix of size \code{ntries * (k + 1)}. History of the parameter
+estimates and the reached loglike values.
 }
 }
 \description{
@@ -108,6 +114,12 @@ replaced with either \code{+Inf} or  \code{-Inf}. By default, this behavior is c
 anytime that the absolute value of the estimates is greater than 5, or the
 sufficient statistics were flagged as potentially outside of the interior of
 the support (close to zero or to its max).
+
+In the case of \code{ntries}, the optimization is repeated that number of times,
+each time perturbing the \code{init} parameter by adding a Normally distributed
+vector. The result which reaches the highest loglikelihood will be the one
+reported as parameter estimates. This feature is intended for testing only.
+Anecdotally, \code{optim} reaches the max in the first try.
 }
 
 \examples{
