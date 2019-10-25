@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Example of a group of small networks — fivenets • ergmito</title>
+<title>Check the convergece of ergmito estimates — check_support • ergmito</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,11 +42,8 @@
 
 
 
-<meta property="og:title" content="Example of a group of small networks — fivenets" />
-<meta property="og:description" content="This list of networks was generated using the new_rergmito sampler from a
-set of 5 baseline networks with a random vector of female. The sufficient
-statistics that generate this data are edges and  nodematch(&quot;female&quot;) with parameters
--2.0 and 2.0 respectively." />
+<meta property="og:title" content="Check the convergece of ergmito estimates — check_support" />
+<meta property="og:description" content="This is an internal function used to check the convergence of the optim function." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -123,34 +120,122 @@ statistics that generate this data are edges and  nodematch(&quot;female&quot;) 
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Example of a group of small networks</h1>
+    <h1>Check the convergece of ergmito estimates</h1>
     
-    <div class="hidden name"><code>fivenets.Rd</code></div>
+    <div class="hidden name"><code>check_convergence.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This list of networks was generated using the <a href='new_rergmito.html'>new_rergmito</a> sampler from a
-set of 5 baseline networks with a random vector of <code>female</code>. The sufficient
-statistics that generate this data are <code>edges</code> and  <code>nodematch("female")</code> with parameters
--2.0 and 2.0 respectively.</p>
+    <p>This is an internal function used to check the convergence of the optim function.</p>
     </div>
 
-    <pre class="usage"><span class='no'>fivenets</span></pre>
+    <pre class="usage"><span class='fu'>check_support</span>(<span class='no'>target.stats</span>, <span class='no'>stats.statmat</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
+  <span class='kw'>warn</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='fu'>check_convergence</span>(<span class='no'>optim_output</span>, <span class='no'>model</span>, <span class='no'>support</span>, <span class='kw'>crit</span> <span class='kw'>=</span> <span class='fl'>5</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>target.stats, stats.statmat</th>
+      <td><p>See <a href='ergmito_formulae.html'>ergmito_formulae</a>.</p></td>
+    </tr>
+    <tr>
+      <th>threshold</th>
+      <td><p>Numeric scalar. Confidence range for flagging an observed
+statistic as potentially near the boundary.</p></td>
+    </tr>
+    <tr>
+      <th>warn</th>
+      <td><p>logical scalar.</p></td>
+    </tr>
+    <tr>
+      <th>optim_output</th>
+      <td><p>A list output from the <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a> function.</p></td>
+    </tr>
+    <tr>
+      <th>model</th>
+      <td><p>An object of class <a href='ergmito_formulae.html'>ergmito_loglik</a>.</p></td>
+    </tr>
+    <tr>
+      <th>support</th>
+      <td><p>As returned by <code>check_support</code>.</p></td>
+    </tr>
+    <tr>
+      <th>crit</th>
+      <td><p>Numeric scalar. Level at which a parameter estimate
+will be questioned.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A list with the following components:</p><ul>
+<li><p><code>par</code> Updated set of parameters</p></li>
+<li><p><code>vcov</code> Updated variance-covariance matrix</p></li>
+<li><p><code>valid</code> Vector of integers with the parameters that are marked as OK.</p></li>
+<li><p><code>status</code> Return code of the analysis. See details.</p></li>
+<li><p><code>note</code> A note accompaining the status.</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="return-codes"><a class="anchor" href="#return-codes"></a>Return codes</h2>
+
+    
 
 
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+<p>The function makes an analysis of the outcome of the model and makes the corresponding
+adjustments when required. In particular, we check:</p><ol>
+<li><p>Whether the optimization algorithm converged or not</p></li>
+<li><p>If the obtained estimates maximize the function. If this is not the case,
+the function checks whether the MLE may not exist. This usually happens
+when the loglikelihood function can improve by making increments to parameters
+that are already tagged as large. If the ll improves, then the value is
+replaced with <code>Inf</code> (+- depending on the sign of the parameter).</p></li>
+<li><p>If the Hessian is semi-positive-definite, i.e. if it is invertible. If it
+is not, it usually means that the function did not converged, in which
+case we will use <a href='https://rdrr.io/pkg/MASS/man/ginv.html'>MASS::ginv</a> instead.</p></li>
+</ol>
 
-    <p>An object of class <code>list</code> of length 5.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+<p>The return codes are composed of two numbers, the first number gives information
+regarding of the parameter estimates, while the second number give information
+about the variance covaiance matrix.</p>
+<p>Column 1:</p><ul>
+<li><p>0: Converged and estimates at the max.</p></li>
+<li><p>1: It did not converged, but I see no issue in the max.</p></li>
+<li><p>2: One or more estimates went to +/-Inf</p></li>
+<li><p>3: All went to hell. All estimates went to +/-Inf</p></li>
+</ul>
 
-    <p>The original sampler can be found in <a href='fivesamplers.html'>fivesamplers</a>.</p>
+<p>Column 2:</p><ul>
+<li><p>0: Hessian is p.s.d.</p></li>
+<li><p>1: Hessian is not not p.s.d.</p></li>
+</ul>
+
+<p>Possible codes and corresponding messages:</p><ul>
+<li><p>00 All OK (no message).</p></li>
+<li><p>01 optim converged, but the Hessian is not p.s.d.
+. <!-- % Convergence, but the hessian is not psd --></p></li>
+<li><p>10 optim did not converged, but the estimates look OK.
+. <!-- % Optim did not reported convergence, but things look OK. --></p></li>
+<li><p>11 optim did not converged, and the Hessian is not p.s.d.
+. <!-- % Optim did not converged, but the hessian is not psd. --></p></li>
+<li><p>20 A subset of the parameters estimates was replaced with +/-Inf.
+. <!-- % One or more estimates went to inf, all finite were able to be inverted. --></p></li>
+<li><p>21 A subset of the parameters estimates was replaced with +/-Inf,  and the Hessian matrix is not p.s.d.
+. <!-- % One or more are inf, hessian is not psd --></p></li>
+<li><p>30 All parameters went to +/-Inf suggesting that the MLE may not exists.
+. <!-- % All estimates went to Inf (degenerate distribution). --></p></li>
+</ul>
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#format">Format</a></li>
-      <li><a href="#details">Details</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
+      <li><a href="#return-codes">Return codes</a></li>
     </ul>
 
   </div>

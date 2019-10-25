@@ -8,21 +8,32 @@
 
 <title>Estimation of ERGMs using Exact likelihood functions — ergmito • ergmito</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,16 +41,16 @@
 
 
 
-<meta property="og:title" content="Estimation of ERGMs using Exact likelihood functions — ergmito" />
 
+<meta property="og:title" content="Estimation of ERGMs using Exact likelihood functions — ergmito" />
 <meta property="og:description" content="As a difference from ergm::ergm, ergmito uses the exact log-likelihood
 function for fitting the model. This implies that all the 2^(n*(n-1))
 graphs are generated for computing the normalizing constant of the ERGM
 model. This implies that models with up to 5 nodes are relatively simple
 to fit, since more than that can become infeasible." />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -51,6 +62,7 @@ to fit, since more than that can become infeasible." />
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
 
 
   </head>
@@ -77,15 +89,26 @@ to fit, since more than that can become infeasible." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/extending-ergmito.html">Extending ergmito</a>
+    </li>
+  </ul>
+</li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -95,6 +118,7 @@ to fit, since more than that can become infeasible." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -106,49 +130,47 @@ to fit, since more than that can become infeasible." />
     </div>
 
     <div class="ref-description">
-    
     <p>As a difference from ergm::ergm, <code>ergmito</code> uses the exact log-likelihood
 function for fitting the model. This implies that all the <code>2^(n*(n-1))</code>
 graphs are generated for computing the normalizing constant of the ERGM
 model. This implies that models with up to 5 nodes are relatively simple
 to fit, since more than that can become infeasible.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>ergmito</span>(<span class='no'>model</span>, <span class='kw'>gattr_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>stats.weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>stats.statmat</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>optim.args</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(), <span class='kw'>init</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>ntries</span> <span class='kw'>=</span> <span class='fl'>5L</span>, <span class='kw'>use.grad</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>target.stats</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+  <span class='kw'>stats.statmat</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>optim.args</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='kw'>init</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>use.grad</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>target.stats</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ntries</span> <span class='kw'>=</span> <span class='fl'>5L</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/summary'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito_summary</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/coef'>coef</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coef</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/logLik'>logLik</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/stats/logLik.html'>logLik</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/nobs'>nobs</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/stats/nobs.html'>nobs</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/vcov'>vcov</a></span>(<span class='no'>object</span>, <span class='kw'>solver</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/stats/vcov.html'>vcov</a></span>(<span class='no'>object</span>, <span class='kw'>solver</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/formula'>formula</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
-    
+<span class='fu'><a href='https://rdrr.io/r/stats/formula.html'>formula</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>model</th>
-      <td><p>Model to estimate. See <a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm::ergm</a>. The only difference with
+      <td><p>Model to estimate. See <a href='https://rdrr.io/pkg/ergm/man/ergm.html'>ergm::ergm</a>. The only difference with
 <code>ergm</code> is that the LHS can be a list of networks.</p></td>
     </tr>
     <tr>
@@ -158,23 +180,18 @@ is useful when using multiple networks.</p></td>
     </tr>
     <tr>
       <th>stats.weights, stats.statmat</th>
-      <td><p>Lists as returned by <a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.allstats'>ergm::ergm.allstats</a>.
+      <td><p>Lists as returned by <a href='https://rdrr.io/pkg/ergm/man/ergm.allstats.html'>ergm::ergm.allstats</a>.
 When this is provided, the function does not call <code>ergm.allstats</code>, which can
 be useful in simulations.</p></td>
     </tr>
     <tr>
       <th>optim.args</th>
-      <td><p>List. Passed to <a href='https://www.rdocumentation.org/packages/stats/topics/optim'>stats::optim</a>.</p></td>
+      <td><p>List. Passed to <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a>.</p></td>
     </tr>
     <tr>
       <th>init</th>
-      <td><p>Either a numeric vector, or a matrix with <code>ntries</code> rows. Sets
-the starting parameters for the optimization routine.</p></td>
-    </tr>
-    <tr>
-      <th>ntries</th>
-      <td><p>Integer. In case of no convergence, number of times that the
-<code>optim</code> function should be re-run.</p></td>
+      <td><p>A numeric vector. Sets the starting parameters for the
+optimization routine. Default is a vector of zeros.</p></td>
     </tr>
     <tr>
       <th>use.grad</th>
@@ -183,7 +200,11 @@ This is intended for testing only (internal use).</p></td>
     </tr>
     <tr>
       <th>target.stats</th>
-      <td><p>A matrix of target statistics (see <a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm::ergm</a>).</p></td>
+      <td><p>A matrix of target statistics (see <a href='https://rdrr.io/pkg/ergm/man/ergm.html'>ergm::ergm</a>).</p></td>
+    </tr>
+    <tr>
+      <th>ntries</th>
+      <td><p>Integer scalar. Number of tries to estimate the MLE (see details).</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -198,40 +219,37 @@ This is intended for testing only (internal use).</p></td>
       <th>solver</th>
       <td><p>Function. Used to compute the inverse of the hessian matrix. When
 not null, the variance-covariance matrix is recomputed using that function.
-By default, <code>ergmito</code> uses <a href='https://www.rdocumentation.org/packages/MASS/topics/ginv'>MASS::ginv</a>.</p></td>
+By default, <code>ergmito</code> uses <a href='https://rdrr.io/pkg/MASS/man/ginv.html'>MASS::ginv</a>.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An list of class <code>ergmito</code>:</p><ul>
 <li><p><code>call</code>          The program call.</p></li>
 <li><p><code>coef</code>          Named vector. Parameter estimates.</p></li>
 <li><p><code>iterations</code>    Integer. Number of times the loglikelihood was evaluated
-(see <a href='https://www.rdocumentation.org/packages/stats/topics/optim'>stats::optim</a>).</p></li>
+(see <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a>).</p></li>
 <li><p><code>loglikelihood</code> Numeric. Final value of the objective function.</p></li>
-<li><p><code>covar</code>         Square matrix of size <code><a href='https://www.rdocumentation.org/packages/base/topics/length'>length(coef)</a></code>. Variance-covariance matrix</p></li>
-<li><p><code>coef.init</code>     Named vector of length <code><a href='https://www.rdocumentation.org/packages/base/topics/length'>length(coef)</a></code>. Initial set of parameters
+<li><p><code>covar</code>         Square matrix of size <code><a href='https://rdrr.io/r/base/length.html'>length(coef)</a></code>. Variance-covariance matrix</p></li>
+<li><p><code>coef.init</code>     Named vector of length <code><a href='https://rdrr.io/r/base/length.html'>length(coef)</a></code>. Initial set of parameters
 used in the optimization.</p></li>
 <li><p><code>formulae</code>      An object of class <a href='ergmito_formulae.html'>ergmito_loglik</a>.</p></li>
 <li><p><code>network</code>       Networks passed via <code>model</code>.</p></li>
+<li><p><code>status</code>,<code>note</code> Convergence code. See <a href='check_convergence.html'>check_convergence</a></p></li>
+<li><p><code>best_try</code>      Integer scalar. Index of the run with the highest loglike value.</p></li>
+<li><p><code>history</code>       Matrix of size <code>ntries * (k + 1)</code>. History of the parameter
+estimates and the reached loglike values.</p></li>
 </ul>
 
-    
     <h2 class="hasAnchor" id="mle"><a class="anchor" href="#mle"></a>MLE</h2>
 
     
-    <p>Maximum Likelihood Estimates are obtained using the <a href='https://www.rdocumentation.org/packages/stats/topics/optim'>stats::optim</a> function.
+
+
+<p>Maximum Likelihood Estimates are obtained using the <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a> function.
 The default method for maximization is <code>BFGS</code> using both the loglikelihood
 function and its corresponding gradient.</p>
-<p>Anecdotically, while the optimization process should be realitvely straight
-forward, in some cases a near-degenerate set of observed statistics may
-yield suboptimal solutions. Because of this reason, the parameter <code>ntries</code>
-allows the user to specify how many runs of <code>optim</code> should be done before
-returning. In general, optimization via <code>optim</code> is very fast, which is why
-this part of the function doesn't impact the actual wall time significantly
-(the most part of the time that the function takes to run is caused by the
-computation of the stats natrices using the <a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.allstats'>ergm::ergm.allstats</a> function.)</p>
 <p>Another important factor to consider is the existance of the MLE estiates.
 As shown in Handcock (2003), if the observed statitcs are near the border
 if the support function (e.g. too many edges or almost none), then, even if
@@ -240,27 +258,33 @@ the optima. Moreover, if the target (observed) statistics live in the boundary,
 then the MLE estimates do not exists. In general, this should not be an issue
 in the context of the pooled model, as the variability of observed statistics
 should be enough to avoid those situations.</p>
-<p>The function <code>ergmito</code> will try to identify possible cases of model degeneracy,
-and if identified, then try to re estimate the model parameters using larger
-values than the ones obtained, if the log-likelihood is greater, then it is
+<p>The function <code>ergmito</code> will try to identify possible cases of non-existance,
+of the MLE, and if identified then try to re estimate the model parameters using
+larger values than the ones obtained, if the log-likelihood is greater, then it is
 assumed that the model is degenerate and the corresponding values will be
-replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
-    
+replaced with either <code>+Inf</code> or  <code>-Inf</code>. By default, this behavior is checked
+anytime that the absolute value of the estimates is greater than 5, or the
+sufficient statistics were flagged as potentially outside of the interior of
+the support (close to zero or to its max).</p>
+<p>In the case of <code>ntries</code>, the optimization is repeated that number of times,
+each time perturbing the <code>init</code> parameter by adding a Normally distributed
+vector. The result which reaches the highest loglikelihood will be the one
+reported as parameter estimates. This feature is intended for testing only.
+Anecdotally, <code>optim</code> reaches the max in the first try.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>The function <a href='plot.ergmito.html'>plot.ergmito</a> for post-estimation diagnostics.</p></div>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'># Generating a small graph</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>12</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>12</span>)
 <span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='fl'>4</span>
 <span class='no'>net</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rbernoulli.html'>rbernoulli</a></span>(<span class='no'>n</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>.7</span>)
 
 <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='no'>net</span> ~ <span class='no'>edges</span> + <span class='no'>mutual</span>
 
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ergm</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: network</span></div><div class='output co'>#&gt; <span class='message'>network: Classes for Relational Data</span>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ergm</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: network</span></div><div class='output co'>#&gt; <span class='message'>network: Classes for Relational Data</span>
 #&gt; <span class='message'>Version 1.15 created on 2019-04-01.</span>
 #&gt; <span class='message'>copyright (c) 2005, Carter T. Butts, University of California-Irvine</span>
 #&gt; <span class='message'>                    Mark S. Handcock, University of California -- Los Angeles</span>
@@ -290,46 +314,46 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt; <span class='message'>level selection have changed in 3.10.0. See terms help for more</span>
 #&gt; <span class='message'>details. Use ‘options(ergm.term=list(version="3.9.4"))’ to use old</span>
 #&gt; <span class='message'>behavior.</span></div><div class='input'><span class='no'>ans_ergmito</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>model</span>)
-<span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.001099.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
-#&gt;   Lapack routine dgesv: system is exactly singular: U[2,2] = 0</div><div class='output co'>#&gt; <span class='warning'>Warning: Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.00064.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged twice. Stopping.</span></div><div class='output co'>#&gt; <span class='message'>Finished MCMLE.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; <span class='message'>Using 20 bridges: </span></div><div class='output co'>#&gt; <span class='message'>1 </span></div><div class='output co'>#&gt; <span class='message'>2 </span></div><div class='output co'>#&gt; <span class='message'>3 </span></div><div class='output co'>#&gt; <span class='message'>4 </span></div><div class='output co'>#&gt; <span class='message'>5 </span></div><div class='output co'>#&gt; <span class='message'>6 </span></div><div class='output co'>#&gt; <span class='message'>7 </span></div><div class='output co'>#&gt; <span class='message'>8 </span></div><div class='output co'>#&gt; <span class='message'>9 </span></div><div class='output co'>#&gt; <span class='message'>10 </span></div><div class='output co'>#&gt; <span class='message'>11 </span></div><div class='output co'>#&gt; <span class='message'>12 </span></div><div class='output co'>#&gt; <span class='message'>13 </span></div><div class='output co'>#&gt; <span class='message'>14 </span></div><div class='output co'>#&gt; <span class='message'>15 </span></div><div class='output co'>#&gt; <span class='message'>16 </span></div><div class='output co'>#&gt; <span class='message'>17 </span></div><div class='output co'>#&gt; <span class='message'>18 </span></div><div class='output co'>#&gt; <span class='message'>19 </span></div><div class='output co'>#&gt; <span class='message'>20 </span></div><div class='output co'>#&gt; <span class='message'>.</span></div><div class='output co'>#&gt; <span class='message'>This model was fit using MCMC.  To examine model diagnostics and check</span>
+<span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm.html'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.0004675.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
+#&gt;   Lapack routine dgesv: system is exactly singular: U[2,2] = 0</div><div class='output co'>#&gt; <span class='warning'>Warning: Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.0005863.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged twice. Stopping.</span></div><div class='output co'>#&gt; <span class='message'>Finished MCMLE.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; <span class='message'>Using 20 bridges: </span></div><div class='output co'>#&gt; <span class='message'>1 </span></div><div class='output co'>#&gt; <span class='message'>2 </span></div><div class='output co'>#&gt; <span class='message'>3 </span></div><div class='output co'>#&gt; <span class='message'>4 </span></div><div class='output co'>#&gt; <span class='message'>5 </span></div><div class='output co'>#&gt; <span class='message'>6 </span></div><div class='output co'>#&gt; <span class='message'>7 </span></div><div class='output co'>#&gt; <span class='message'>8 </span></div><div class='output co'>#&gt; <span class='message'>9 </span></div><div class='output co'>#&gt; <span class='message'>10 </span></div><div class='output co'>#&gt; <span class='message'>11 </span></div><div class='output co'>#&gt; <span class='message'>12 </span></div><div class='output co'>#&gt; <span class='message'>13 </span></div><div class='output co'>#&gt; <span class='message'>14 </span></div><div class='output co'>#&gt; <span class='message'>15 </span></div><div class='output co'>#&gt; <span class='message'>16 </span></div><div class='output co'>#&gt; <span class='message'>17 </span></div><div class='output co'>#&gt; <span class='message'>18 </span></div><div class='output co'>#&gt; <span class='message'>19 </span></div><div class='output co'>#&gt; <span class='message'>20 </span></div><div class='output co'>#&gt; <span class='message'>.</span></div><div class='output co'>#&gt; <span class='message'>This model was fit using MCMC.  To examine model diagnostics and check</span>
 #&gt; <span class='message'>for degeneracy, use the mcmc.diagnostics() function.</span></div><div class='input'>
 <span class='co'># The ergmito should have a larger value</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergmito</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;           [,1]
-#&gt; [1,] -6.239781</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm.exact'>ergm.exact</a></span>(<span class='no'>ans_ergm</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;           [,1]
-#&gt; [1,] -6.238408</div><div class='input'>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergmito</span>)</div><div class='output co'>#&gt; 
+<span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm.exact.html'>ergm.exact</a></span>(<span class='no'>ans_ergmito</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;           [,1]
+#&gt; [1,] -6.239077</div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm.exact.html'>ergm.exact</a></span>(<span class='no'>ans_ergm</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;          [,1]
+#&gt; [1,] -6.23833</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>ans_ergmito</span>)</div><div class='output co'>#&gt; 
 #&gt; ERGMito estimates
-#&gt; Note: The optimzation did not converged.
+#&gt; note: optim converged, but the Hessian is not p.s.d.
 #&gt; 
 #&gt; formula:  net ~ edges + mutual 
 #&gt; 
 #&gt;        Estimate Std. Error z value Pr(&gt;|z|)
-#&gt; edges    6.9439    26.3276  0.2638   0.7920
-#&gt; mutual  -6.2467    26.3529 -0.2370   0.8126
-#&gt; AIC: 16.47956    BIC: 17.44937    (Smaller is better.) </div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>ans_ergm</span>)</div><div class='output co'>#&gt; 
+#&gt; edges    7.5994    36.4847  0.2083   0.8350
+#&gt; mutual  -6.9074    36.5030 -0.1892   0.8499
+#&gt; AIC: 16.47815    BIC: 17.44797    (Smaller is better.) </div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>ans_ergm</span>)</div><div class='output co'>#&gt; 
 #&gt; ==========================
 #&gt; Summary of model fit
 #&gt; ==========================
 #&gt; 
 #&gt; Formula:   net ~ edges + mutual
-#&gt; &lt;environment: 0x27857d78&gt;
+#&gt; &lt;environment: 0x27e9bdd0&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
 #&gt; Monte Carlo MLE Results:
 #&gt;        Estimate Std. Error MCMC % z value Pr(&gt;|z|)
-#&gt; edges     19.15         NA     NA      NA       NA
+#&gt; edges     19.16         NA     NA      NA       NA
 #&gt; mutual   -18.47         NA     NA      NA       NA
 #&gt; 
 #&gt;      Null Deviance: 16.64  on 12  degrees of freedom
-#&gt;  Residual Deviance: 12.50  on 10  degrees of freedom
+#&gt;  Residual Deviance: 12.38  on 10  degrees of freedom
 #&gt;  
-#&gt; AIC: 16.5    BIC: 17.47    (Smaller is better.) </div><div class='input'>
+#&gt; AIC: 16.38    BIC: 17.35    (Smaller is better.) </div><div class='input'>
 <span class='co'># Example 2: Estimating an ERGMito using data with know DGP parameters -----</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>fivenets</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
 
-<span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm-terms'>nodematch</a></span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: `set_attrs()` is deprecated as of rlang 0.3.0</span>
-#&gt; <span class='warning'>This warning is displayed once per session.</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/summary.formula'>summary</a></span>(<span class='no'>model1</span>) <span class='co'># This data has know parameters equal to -2.0 and 2.0</span></div><div class='output co'>#&gt; 
+<span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: `set_attrs()` is deprecated as of rlang 0.3.0</span>
+#&gt; <span class='warning'>This warning is displayed once per session.</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>model1</span>) <span class='co'># This data has know parameters equal to -2.0 and 2.0</span></div><div class='output co'>#&gt; 
 #&gt; ERGMito estimates
 #&gt; 
 #&gt; formula:  fivenets ~ edges + nodematch("female") 
@@ -340,15 +364,15 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 #&gt; ---
 #&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #&gt; AIC: 73.34109    BIC: 77.52978    (Smaller is better.) </div><div class='input'>
-</div><span class='co'># NOT RUN {</span>
+<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'># Example 3: Likelihood ratio test using the lmtest R package</span>
 
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>lmtest</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>fivenets</span>)
-<span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm-terms'>nodematch</a></span>(<span class='st'>"female"</span>))
-<span class='no'>model2</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ergm/topics/ergm-terms'>nodematch</a></span>(<span class='st'>"female"</span>) + <span class='no'>mutual</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>lmtest</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
+<span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))
+<span class='no'>model2</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>) + <span class='no'>mutual</span>)
 
-<span class='fu'><a href='https://www.rdocumentation.org/packages/lmtest/topics/lrtest'>lrtest</a></span>(<span class='no'>model1</span>, <span class='no'>model2</span>)
+<span class='fu'><a href='https://rdrr.io/pkg/lmtest/man/lrtest.html'>lrtest</a></span>(<span class='no'>model1</span>, <span class='no'>model2</span>)
 <span class='co'># Likelihood ratio test</span>
 <span class='co'># </span>
 <span class='co'># Model 1: fivenets ~ edges + nodematch("female") </span>
@@ -357,25 +381,21 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 <span class='co'># 1   2 -34.671                     </span>
 <span class='co'># 2   3 -34.205 1 0.9312     0.3346</span>
 
-<span class='co'># }</span><div class='input'>
-</div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#mle">MLE</a></li>
-
       <li><a href="#see-also">See also</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -383,13 +403,16 @@ replaced with either <code>+Inf</code> or  <code>-Inf</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

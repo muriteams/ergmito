@@ -6,13 +6,20 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Exponential Random Graph Models for Small Networks • ergmito</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Exponential Random Graph Models for Small Networks">
 <meta property="og:description" content="The package implements simulation and estimation algorithms for 
   Exponential Random Graph Models in the case of small networks using exact
-  statistics. As a difference from the 'ergm' package, 'ergmito' skips the
+  statistics. As a difference from the ergm package, ergmito skips the
   MCMC part of the estimation process and goes straight to MLE.">
 <meta property="og:image" content="/logo.png">
 <meta name="twitter:card" content="summary">
@@ -22,7 +29,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-article">
+    <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -42,12 +49,24 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
   <a href="reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="articles/extending-ergmito.html">Extending ergmito</a>
+    </li>
+  </ul>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right"></ul>
@@ -59,13 +78,10 @@
 <!--/.navbar -->
 
       
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    
 
-    
-    
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+      </header><div class="row">
+  <div class="contents col-md-9">
+
 <div id="ergmito-estimation-of-little-ergms-using-exact-likelihood" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#ergmito-estimation-of-little-ergms-using-exact-likelihood" class="anchor"></a>ergmito: Estimation of Little ‘ERGMs’ using exact likelihood <img src="reference/figures/logo.png" align="right" width="180px">
@@ -92,7 +108,7 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># install.packages("devtools")</span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">"muriteams/ergmito"</span>)</a></code></pre></div>
 <p>This requires compilation. Windows users can download the lates compiled version from appveyor <a href="https://ci.appveyor.com/project/gvegayon/ergmito/build/artifacts">here</a>. The file to download is the one named <code>ergmito_[version number].zip</code>. Once donwloaded, you can install typing the following:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"[path to the zipfile]/ergmito_[version number].zip"</span>, <span class="dt">repos =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"[path to the zipfile]/ergmito_[version number].zip"</span>, <span class="dt">repos =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
 <p>In the case of Mac users, and in particular, those with Mojave version, they may need to install the following <a href="https://github.com/fxcoudert/gfortran-for-macOS/releases" class="uri">https://github.com/fxcoudert/gfortran-for-macOS/releases</a></p>
 </div>
 <div id="example" class="section level2">
@@ -100,32 +116,32 @@
 <a href="#example" class="anchor"></a>Example</h2>
 <p>In the following example we simulate a small network with 4 vertices and estimate the model parameters using <code>ergm</code> and <code>ergmito</code>. We start by generating the graph</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># Generating a small graph</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ergmito)</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ergm)</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(sna)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ergmito)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ergm)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(sna)</a>
 <a class="sourceLine" id="cb3-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">12123</span>)</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">12123</span>)</a>
 <a class="sourceLine" id="cb3-7" data-line-number="7">n   &lt;-<span class="st"> </span><span class="dv">4</span></a>
 <a class="sourceLine" id="cb3-8" data-line-number="8">net &lt;-<span class="st"> </span><span class="kw"><a href="reference/rbernoulli.html">rbernoulli</a></span>(n, <span class="dt">p =</span> <span class="fl">.3</span>)</a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="kw"><a href="https://www.rdocumentation.org/packages/sna/topics/gplot">gplot</a></span>(net)</a></code></pre></div>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="kw"><a href="https://rdrr.io/pkg/sna/man/gplot.html">gplot</a></span>(net)</a></code></pre></div>
 <p><img src="reference/figures/README-net2-1.png" width="80%"></p>
 <p>To estimate the model</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">model &lt;-<span class="st"> </span>net <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">istar</a></span>(<span class="dv">2</span>)</a>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">model &lt;-<span class="st"> </span>net <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">istar</a></span>(<span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co"># ERGMito (estimation via MLE)</span></a>
 <a class="sourceLine" id="cb4-4" data-line-number="4">ans_ergmito &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(model)</a></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># ERGM (estimation via MC-MLE)</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">ans_ergm  &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm">ergm</a></span>(model, <span class="dt">control =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/control.ergm">control.ergm</a></span>(</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">ans_ergm  &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm.html">ergm</a></span>(model, <span class="dt">control =</span> <span class="kw"><a href="https://rdrr.io/pkg/ergm/man/control.ergm.html">control.ergm</a></span>(</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3">  <span class="dt">MCMC.effectiveSize =</span> <span class="dv">4000</span>,</a>
 <a class="sourceLine" id="cb5-4" data-line-number="4">  <span class="dt">seed =</span> <span class="dv">444</span>)</a>
 <a class="sourceLine" id="cb5-5" data-line-number="5">  )</a>
 <a class="sourceLine" id="cb5-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co"># The ergmito should have a larger value</span></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm.exact">ergm.exact</a></span>(ans_ergmito<span class="op">$</span>coef, model) <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm.exact">ergm.exact</a></span>(ans_ergm<span class="op">$</span>coef, model)</a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm.exact.html">ergm.exact</a></span>(ans_ergmito<span class="op">$</span>coef, model) <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm.exact.html">ergm.exact</a></span>(ans_ergm<span class="op">$</span>coef, model)</a>
 <a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt;      [,1]</span></a>
 <a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt; [1,] TRUE</span></a>
 <a class="sourceLine" id="cb5-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(ans_ergmito)</a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(ans_ergmito)</a>
 <a class="sourceLine" id="cb5-13" data-line-number="13"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb5-14" data-line-number="14"><span class="co">#&gt; ERGMito estimates</span></a>
 <a class="sourceLine" id="cb5-15" data-line-number="15"><span class="co">#&gt; </span></a>
@@ -135,7 +151,7 @@
 <a class="sourceLine" id="cb5-19" data-line-number="19"><span class="co">#&gt; edges  -1.37749    1.00260 -1.3739   0.1695</span></a>
 <a class="sourceLine" id="cb5-20" data-line-number="20"><span class="co">#&gt; istar2  0.50653    1.32701  0.3817   0.7027</span></a>
 <a class="sourceLine" id="cb5-21" data-line-number="21"><span class="co">#&gt; AIC: 17.36312    BIC: 18.33294    (Smaller is better.)</span></a>
-<a class="sourceLine" id="cb5-22" data-line-number="22"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(ans_ergm)</a>
+<a class="sourceLine" id="cb5-22" data-line-number="22"><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(ans_ergm)</a>
 <a class="sourceLine" id="cb5-23" data-line-number="23"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb5-24" data-line-number="24"><span class="co">#&gt; ==========================</span></a>
 <a class="sourceLine" id="cb5-25" data-line-number="25"><span class="co">#&gt; Summary of model fit</span></a>
@@ -159,11 +175,11 @@
 <h2 class="hasAnchor">
 <a href="#estimating-data-with-known-parameters" class="anchor"></a>Estimating data with known parameters</h2>
 <p>The following example shows the estimation of a dataset that is included in the package, <code>fivenets</code>. This set of five networks was generated using the <code>new_rergmito</code> function which allows creating a function to draw random ERGMs with a fixed set of parameters, in this case, <code>edges = -2.0</code> and <code>nodematch("female") = 2.0</code></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(fivenets)</a>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(fivenets)</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">model1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>))</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">model1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">nodematch</a></span>(<span class="st">"female"</span>))</a>
 <a class="sourceLine" id="cb6-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(model1) <span class="co"># This data has know parameters equal to -2.0 and 2.0</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(model1) <span class="co"># This data has know parameters equal to -2.0 and 2.0</span></a>
 <a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#&gt; ERGMito estimates</span></a>
 <a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt; </span></a>
@@ -199,7 +215,7 @@
 <a class="sourceLine" id="cb7-21" data-line-number="21"><span class="co">#&gt; net 5   1   0  2.8   6     0     5       0.022        0.99</span></a>
 <a class="sourceLine" id="cb7-22" data-line-number="22"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb7-23" data-line-number="23"><span class="co">#&gt; Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof_ergmito).</span></a>
-<a class="sourceLine" id="cb7-24" data-line-number="24"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(fivenets_gof)</a></code></pre></div>
+<a class="sourceLine" id="cb7-24" data-line-number="24"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(fivenets_gof)</a></code></pre></div>
 <p><img src="reference/figures/README-fivenets-gof-1.png" width="80%"></p>
 </div>
 <div id="fitting-block-diagnoal-models" class="section level2">
@@ -207,7 +223,7 @@
 <a href="#fitting-block-diagnoal-models" class="anchor"></a>Fitting block-diagnoal models</h2>
 <p>The pooled model can be also compared to a block-diagnoal ERGM. The package includes three functions to help with this task: <code>blockdiagonalize</code>, <code>splitnetwork</code>, and <code>ergm_blockdiag</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"fivenets"</span>)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"fivenets"</span>)</a>
 <a class="sourceLine" id="cb8-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co"># Stacking matrices together</span></a>
 <a class="sourceLine" id="cb8-5" data-line-number="5">fivenets_blockdiag &lt;-<span class="st"> </span><span class="kw"><a href="reference/blockdiagonalize.html">blockdiagonalize</a></span>(fivenets, <span class="st">"block_id"</span>)</a>
@@ -228,30 +244,30 @@
 <a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co">#&gt; No edge attributes</span></a></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># Fitting the model with ERGM</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">ans0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm">ergm</a></span>(</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3">  fivenets_blockdiag <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>),</a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">  <span class="dt">constraints =</span> <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-constraints">blockdiag</a></span>(<span class="st">"block_id"</span>)</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">ans0 &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm.html">ergm</a></span>(</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">  fivenets_blockdiag <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">nodematch</a></span>(<span class="st">"female"</span>),</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">  <span class="dt">constraints =</span> <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-constraints.html">blockdiag</a></span>(<span class="st">"block_id"</span>)</a>
 <a class="sourceLine" id="cb9-5" data-line-number="5">  )</a></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">ans1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/blockdiagonalize.html">ergm_blockdiag</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">ans1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/blockdiagonalize.html">ergm_blockdiag</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">nodematch</a></span>(<span class="st">"female"</span>))</a></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co"># Now with ergmito</span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">ans2 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>))</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">ans2 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">nodematch</a></span>(<span class="st">"female"</span>))</a>
 <a class="sourceLine" id="cb11-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co"># All three are equivalent</span></a>
-<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
-<a class="sourceLine" id="cb11-6" data-line-number="6">  <span class="dt">ergm           =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(ans0),</a>
-<a class="sourceLine" id="cb11-7" data-line-number="7">  <span class="dt">ergm_blockdiag =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(ans1),</a>
-<a class="sourceLine" id="cb11-8" data-line-number="8">  <span class="dt">ergmito        =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(ans2)</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">  <span class="dt">ergm           =</span> <span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(ans0),</a>
+<a class="sourceLine" id="cb11-7" data-line-number="7">  <span class="dt">ergm_blockdiag =</span> <span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(ans1),</a>
+<a class="sourceLine" id="cb11-8" data-line-number="8">  <span class="dt">ergmito        =</span> <span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(ans2)</a>
 <a class="sourceLine" id="cb11-9" data-line-number="9">)</a>
 <a class="sourceLine" id="cb11-10" data-line-number="10"><span class="co">#&gt;                       ergm ergm_blockdiag   ergmito</span></a>
 <a class="sourceLine" id="cb11-11" data-line-number="11"><span class="co">#&gt; edges            -1.704748      -1.704748 -1.704748</span></a>
 <a class="sourceLine" id="cb11-12" data-line-number="12"><span class="co">#&gt; nodematch.female  1.586965       1.586965  1.586965</span></a></code></pre></div>
 <p>The benefit of ergmito:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">t_ergm &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm">ergm</a></span>(</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">  fivenets_blockdiag <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>) <span class="op">+</span><span class="st"> </span>ttriad,</a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">  <span class="dt">constraints =</span> <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-constraints">blockdiag</a></span>(<span class="st">"block_id"</span>)</a>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">t_ergm &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm.html">ergm</a></span>(</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2">  fivenets_blockdiag <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">nodematch</a></span>(<span class="st">"female"</span>) <span class="op">+</span><span class="st"> </span>ttriad,</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3">  <span class="dt">constraints =</span> <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-constraints.html">blockdiag</a></span>(<span class="st">"block_id"</span>)</a>
 <a class="sourceLine" id="cb12-4" data-line-number="4">  ))</a>
-<a class="sourceLine" id="cb12-5" data-line-number="5">t_ergmito &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(</a>
-<a class="sourceLine" id="cb12-6" data-line-number="6">  <span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">nodematch</a></span>(<span class="st">"female"</span>)  <span class="op">+</span><span class="st"> </span>ttriad)</a>
+<a class="sourceLine" id="cb12-5" data-line-number="5">t_ergmito &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(</a>
+<a class="sourceLine" id="cb12-6" data-line-number="6">  <span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">nodematch</a></span>(<span class="st">"female"</span>)  <span class="op">+</span><span class="st"> </span>ttriad)</a>
 <a class="sourceLine" id="cb12-7" data-line-number="7">  )</a></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co"># Relative elapsed time</span></a>
 <a class="sourceLine" id="cb13-2" data-line-number="2">(t_ergm<span class="op">/</span>t_ergmito)[<span class="dv">3</span>]</a>
@@ -262,17 +278,17 @@
 <h2 class="hasAnchor">
 <a href="#fitting-a-large-model" class="anchor"></a>Fitting a large model</h2>
 <p>Suppose that we have a large sample of small networks (ego from facebook, twitter, etc.), 20,000 which account for 80,000 vertices:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">123</span>)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">bignet &lt;-<span class="st"> </span><span class="kw"><a href="reference/rbernoulli.html">rbernoulli</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="dv">3</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">20000</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>))</a>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">123</span>)</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">bignet &lt;-<span class="st"> </span><span class="kw"><a href="reference/rbernoulli.html">rbernoulli</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/sample.html">sample</a></span>(<span class="dv">3</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">20000</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>))</a>
 <a class="sourceLine" id="cb14-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co"># Number of vertices</span></a>
-<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/ergm-terms">sum</a></span>(<span class="kw"><a href="reference/nvertex.html">nvertex</a></span>(bignet))</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">sum</a></span>(<span class="kw"><a href="reference/nvertex.html">nvertex</a></span>(bignet))</a>
 <a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; [1] 80089</span></a></code></pre></div>
 <p>We can fit this model in a memory efficient way.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(ans0 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(bignet <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span>mutual))</a>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(ans0 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(bignet <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span>mutual))</a>
 <a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co">#&gt;    user  system elapsed </span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt;   4.248   0.036   4.285</span></a>
-<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/ergm/topics/summary.formula">summary</a></span>(ans0)</a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt;   4.140   0.016   4.155</span></a>
+<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(ans0)</a>
 <a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; ERGMito estimates</span></a>
 <a class="sourceLine" id="cb15-7" data-line-number="7"><span class="co">#&gt; </span></a>
@@ -289,6 +305,7 @@
 <a href="#contributing" class="anchor"></a>Contributing</h1>
 <p>Please note that the ‘ergmito’ project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 </div>
+
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -297,6 +314,12 @@
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
 <li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+</ul>
+</div>
+<div class="community">
+<h2>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
 </ul>
 </div>
 <div class="citation">
@@ -308,13 +331,13 @@
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>George Vega Yon <br><small class="roles"> Maintainer, author </small> <a href="https://orcid.org/0000-0002-3171-0844" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
+<li>George Vega Yon <br><small class="roles"> Maintainer, author </small> <a href="https://orcid.org/0000-0002-3171-0844" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID"></a> </li>
 <li>Army Research Laboratory and the U.S. Army Research Office <br><small class="roles"> Funder </small>  <br><small>(Grant Number W911NF-15-1-0577)</small>
 </li>
 </ul>
 </div>
 
-      <div class="dev-status">
+  <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://www.tidyverse.org/lifecycle/#experimental"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="lifecycle"></a></li>
@@ -325,7 +348,6 @@
 </ul>
 </div>
 </div>
-
 </div>
 
 
@@ -334,12 +356,14 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>
