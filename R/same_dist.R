@@ -1,7 +1,7 @@
 same_dist_wrap <- function(x, what, map01 = NULL, map10 = NULL) {
   structure(
     x,
-    what = what,
+    what  = what,
     class = "ergmito_same_dist",
     map01 = map01,
     map10 = map10
@@ -103,40 +103,10 @@ same_dist.network <- function(net0, net1, attrnames = NULL, ...) {
       
     }
     
-    # Sorting the arguments accordingly... This is ugly, but it should be OK for
-    # now
-    if (length(attrnames) == 1L) {
-      
-      ord0 <- order(a0[,1])
-      ord1 <- order(a1[,1])
-      
-    } else if (length(attrnames) == 2L) {
-      
-      ord0 <- order(a0[,1], a0[,2])
-      ord1 <- order(a1[,1], a1[,2])
-      
-    } else if (length(attrnames) == 3L) {
-      
-      ord0 <- order(a0[,1], a0[,2], a0[,3])
-      ord1 <- order(a1[,1], a1[,2], a1[,3])
-      
-    } else if (length(attrnames) == 4L) {
-      
-      ord0 <- order(a0[,1], a0[,2], a0[,3], a0[,4])
-      ord1 <- order(a1[,1], a1[,2], a1[,3], a1[,4])
-      
-    } else if (length(attrnames) == 5L) {
-      
-      ord0 <- order(a0[,1], a0[,2], a0[,3], a0[,4], a0[,5])
-      ord1 <- order(a1[,1], a1[,2], a1[,3], a1[,4], a1[,5])
-      
-    } else if (length(attrnames) == 6L) {
-      
-      ord0 <- order(a0[,1], a0[,2], a0[,3], a0[,4], a0[,5], a0[,6])
-      ord1 <- order(a1[,1], a1[,2], a1[,3], a1[,4], a1[,5], a1[,6])
-      
-    }
-    
+    # Sorting the arguments accordingly
+    ord0 <- do.call("order", lapply(1:length(attrnames), function(i) a0[,i]))
+    ord1 <- do.call("order", lapply(1:length(attrnames), function(i) a1[,i]))
+
     if (any(a0[ord0,] != a1[ord1,]))
       return(same_dist_wrap(FALSE, attrnames))
     

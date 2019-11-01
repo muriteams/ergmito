@@ -31,7 +31,6 @@ Imports:
 LinkingTo: Rcpp, RcppArmadillo
 License: MIT + file LICENSE
 Suggests: 
-    testthat,
     covr,
     sna,
     lmtest,

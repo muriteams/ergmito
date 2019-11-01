@@ -1,12 +1,6 @@
-context("Surface function works just fine")
+set.seed(1)
+net <- rbernoulli(rep(5, 5))
+ans <- ergmito(net ~ edges + mutual)
 
-test_that("Simple call with 2 parameters", {
+expect_silent(plot(ans))
   
-  set.seed(1)
-  net <- rbernoulli(rep(5, 5))
-  ans <- ergmito(net ~ edges + mutual)
-  
-  expect_silent(plot(ans))
-  
-  
-})
