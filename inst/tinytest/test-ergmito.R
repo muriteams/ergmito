@@ -1,19 +1,14 @@
-context("Likelihood function")
 
-test_that("Higher than ergm", {
-  
-  # Pre-fitted ergm
-  load("test-data-for-tests.rda")
-  
-  ans1 <-ergmito(net ~ mutual + edges)
-  
-  ans0 <- ergm::ergm.exact(coef(ans0), net ~ mutual + edges)
-  ans1 <- ergm::ergm.exact(coef(ans1), net ~ mutual + edges)
-  
-  expect_lt(ans0, ans1)
-  
-})
+# Pre-fitted ergm
+load(system.file("test-data-for-tests.rda"), package="ergmito")
 
+ans1 <-ergmito(net ~ mutual + edges)
+
+ans0 <- ergm::ergm.exact(coef(ans0), net ~ mutual + edges)
+ans1 <- ergm::ergm.exact(coef(ans1), net ~ mutual + edges)
+
+expect_lt(ans0, ans1)
+  
 test_that("Graph attributes", {
   
   data(fivenets)
