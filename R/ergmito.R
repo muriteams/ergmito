@@ -124,7 +124,7 @@
 NULL
 
 ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
-  reltol = .Machine$double.eps^2 # Higher accuracy for solving the model
+  reltol = .Machine$double.eps^1.5 # Higher accuracy for solving the model
 )
 
 #' @export
@@ -138,7 +138,7 @@ ergmito <- function(
   init          = NULL,
   use.grad      = TRUE,
   target.stats  = NULL,
-  ntries        = 5L,
+  ntries        = 1L,
   ...
   ) {
   
