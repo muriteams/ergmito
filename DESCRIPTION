@@ -28,38 +28,18 @@ Imports:
     utils,
     methods,
     graphics
-LinkingTo: 
-    Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo
 License: MIT + file LICENSE
 Suggests: 
-    testthat,
     covr,
     sna,
     lmtest,
     fmcmc,
     coda,
     knitr,
-    rmarkdown
-Collate: 
-    'RcppExports.R'
-    'boot.R'
-    'count_stats.R'
-    'data.R'
-    'ergm_blockdiagonal.R'
-    'ergmito-checkers.R'
-    'ergmito-package.R'
-    'ergmito.R'
-    'ergmito_surface.R'
-    'formulae.R'
-    'gof.R'
-    'induced_submat.R'
-    'network.R'
-    'powerset.R'
-    'predict.R'
-    'random.R'
-    'same_dist.R'
-    'sim.R'
-    'simulate.R'
-    'texreg.R'
-    'utils.R'
+    rmarkdown, tinytest
+Collate: 'RcppExports.R' 'boot.R' 'count_stats.R' 'data.R' 'ergm_blockdiagonal.R' 'ergmito-checkers.R'
+            'ergmito-package.R' 'ergmito.R' 'ergmito_surface.R' 'formulae.R' 'gof.R' 'induced_submat.R'
+            'network.R' 'powerset.R' 'predict.R' 'random.R' 'same_dist.R' 'sim.R' 'simulate.R' 'texreg.R'
+            'utils.R'
 VignetteBuilder: knitr
