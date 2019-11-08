@@ -66,17 +66,17 @@ SEXP powerset(int n, bool force = false) {
   
 }
 
-// [[Rcpp::export]]
-int print_powerset(SEXP sets) {
-  
-  Rcpp::XPtr< vecvecint > sets_ptr(sets);
-  for (vecvecint::const_iterator it = sets_ptr->begin(); it != sets_ptr->end(); ++it) {
-    print(wrap(*it));
-  }
-  
-  return 0;
-  
-}
+// // [[Rcpp::export]]
+// int print_powerset(SEXP sets) {
+//   
+//   Rcpp::XPtr< vecvecint > sets_ptr(sets);
+//   for (vecvecint::const_iterator it = sets_ptr->begin(); it != sets_ptr->end(); ++it) {
+//     print(wrap(*it));
+//   }
+//   
+//   return 0;
+//   
+// }
 
 // This is another wrapper, this takes care of turning those integer vectors
 // into NumericMatrix of size 2.

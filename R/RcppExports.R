@@ -51,10 +51,6 @@ make_sets <- function(n) {
     .Call(`_ergmito_powerset`, n, force)
 }
 
-print_powerset <- function(sets) {
-    .Call(`_ergmito_print_powerset`, sets)
-}
-
 wrap_powerset <- function(sets, from, to, n) {
     .Call(`_ergmito_wrap_powerset`, sets, from, to, n)
 }

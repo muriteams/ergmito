@@ -123,17 +123,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// print_powerset
-int print_powerset(SEXP sets);
-RcppExport SEXP _ergmito_print_powerset(SEXP setsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type sets(setsSEXP);
-    rcpp_result_gen = Rcpp::wrap(print_powerset(sets));
-    return rcpp_result_gen;
-END_RCPP
-}
 // wrap_powerset
 List wrap_powerset(SEXP sets, int from, int to, int n);
 RcppExport SEXP _ergmito_wrap_powerset(SEXP setsSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP nSEXP) {
@@ -159,7 +148,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_matrix_to_network", (DL_FUNC) &_ergmito_matrix_to_network, 6},
     {"_ergmito_make_sets", (DL_FUNC) &_ergmito_make_sets, 1},
     {"_ergmito_powerset", (DL_FUNC) &_ergmito_powerset, 2},
-    {"_ergmito_print_powerset", (DL_FUNC) &_ergmito_print_powerset, 1},
     {"_ergmito_wrap_powerset", (DL_FUNC) &_ergmito_wrap_powerset, 4},
     {NULL, NULL, 0}
 };
