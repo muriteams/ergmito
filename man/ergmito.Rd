@@ -56,6 +56,9 @@ This is intended for testing only (internal use).}
 
 \item{ntries}{Integer scalar. Number of tries to estimate the MLE (see details).}
 
+\item{ncores}{Integer scalar. Number of cores (threads) for parallel
+computation.}
+
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}
 
@@ -82,6 +85,8 @@ used in the optimization.
 \item \code{best_try}      Integer scalar. Index of the run with the highest loglike value.
 \item \code{history}       Matrix of size \code{ntries * (k + 1)}. History of the parameter
 estimates and the reached loglike values.
+\item \code{timer}         Vector of times (for benchmarking). Each unit marks the starting
+point of the step.
 }
 }
 \description{

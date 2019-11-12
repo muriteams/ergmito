@@ -511,7 +511,7 @@ void get_ergm_term(std::string term, ergm_term_fun & fun) {
   
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 std::vector< std::string > count_available(int i = 0) {
   return {
     "mutual",
@@ -535,7 +535,7 @@ std::vector< std::string > count_available(int i = 0) {
 }
 
 // Count Network Statistics
-// [[Rcpp::export(name="count_stats.")]]
+// [[Rcpp::export(name="count_stats.", rng = false)]]
 NumericMatrix count_stats(
     const ListOf< IntegerMatrix > & X,
     const std::vector< std::string > & terms,
@@ -640,7 +640,7 @@ inline void geodesici(const arma::imat & x, IntegerMatrix & res, bool force = fa
   
 }
 
-// [[Rcpp::export(name = "geodesic.")]]
+// [[Rcpp::export(name = "geodesic.", rng = false)]]
 std::vector< IntegerMatrix > geodesic(
     const std::vector< arma::imat > & X,
     bool force = false

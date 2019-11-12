@@ -7,7 +7,7 @@
 \usage{
 exact_loglik(x, params, stats.weights, stats.statmat, ncores = 1L)
 
-exact_gradient(x, params, stats.weights, stats.statmat)
+exact_gradient(x, params, stats.weights, stats.statmat, ncores = 1L)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}

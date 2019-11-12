@@ -12,7 +12,6 @@ std::vector< std::string > count_available(int i);
 RcppExport SEXP _ergmito_count_available(SEXP iSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type i(iSEXP);
     rcpp_result_gen = Rcpp::wrap(count_available(i));
     return rcpp_result_gen;
@@ -23,7 +22,6 @@ NumericMatrix count_stats(const ListOf< IntegerMatrix >& X, const std::vector< s
 RcppExport SEXP _ergmito_count_stats(SEXP XSEXP, SEXP termsSEXP, SEXP ASEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf< IntegerMatrix >& >::type X(XSEXP);
     Rcpp::traits::input_parameter< const std::vector< std::string >& >::type terms(termsSEXP);
     Rcpp::traits::input_parameter< const ListOf< NumericVector >& >::type A(ASEXP);
@@ -36,7 +34,6 @@ std::vector< IntegerMatrix > geodesic(const std::vector< arma::imat >& X, bool f
 RcppExport SEXP _ergmito_geodesic(SEXP XSEXP, SEXP forceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::vector< arma::imat >& >::type X(XSEXP);
     Rcpp::traits::input_parameter< bool >::type force(forceSEXP);
     rcpp_result_gen = Rcpp::wrap(geodesic(X, force));
@@ -60,7 +57,6 @@ arma::vec exact_loglik(const arma::mat& x, const arma::colvec& params, const std
 RcppExport SEXP _ergmito_exact_loglik(SEXP xSEXP, SEXP paramsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP, SEXP as_probSEXP, SEXP ncoresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
@@ -76,7 +72,6 @@ arma::colvec exact_gradient(const arma::mat& x, const arma::colvec& params, cons
 RcppExport SEXP _ergmito_exact_gradient(SEXP xSEXP, SEXP paramsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP, SEXP ncoresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
@@ -91,7 +86,6 @@ ListOf< List > matrix_to_network(const ListOf< IntegerMatrix >& x, const Logical
 RcppExport SEXP _ergmito_matrix_to_network(SEXP xSEXP, SEXP directedSEXP, SEXP hyperSEXP, SEXP loopsSEXP, SEXP multipleSEXP, SEXP bipartiteSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf< IntegerMatrix >& >::type x(xSEXP);
     Rcpp::traits::input_parameter< const LogicalVector& >::type directed(directedSEXP);
     Rcpp::traits::input_parameter< const LogicalVector& >::type hyper(hyperSEXP);
@@ -107,7 +101,6 @@ vecint make_sets(int n);
 RcppExport SEXP _ergmito_make_sets(SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     rcpp_result_gen = Rcpp::wrap(make_sets(n));
     return rcpp_result_gen;
@@ -118,7 +111,6 @@ SEXP powerset(int n, bool force);
 RcppExport SEXP _ergmito_powerset(SEXP nSEXP, SEXP forceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< bool >::type force(forceSEXP);
     rcpp_result_gen = Rcpp::wrap(powerset(n, force));
@@ -130,7 +122,6 @@ List wrap_powerset(SEXP sets, int from, int to, int n);
 RcppExport SEXP _ergmito_wrap_powerset(SEXP setsSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sets(setsSEXP);
     Rcpp::traits::input_parameter< int >::type from(fromSEXP);
     Rcpp::traits::input_parameter< int >::type to(toSEXP);

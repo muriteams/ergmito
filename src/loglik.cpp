@@ -47,7 +47,7 @@ inline void exact_logliki(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-// [[Rcpp::export(name = "exact_loglik.")]]
+// [[Rcpp::export(name = "exact_loglik.", rng = false)]]
 arma::vec exact_loglik(
     const arma::mat & x,
     const arma::colvec & params,
@@ -57,7 +57,6 @@ arma::vec exact_loglik(
     int ncores = 1
 ) {
 
-  arma::vec ans(x.n_rows);
   int n = x.n_rows;
   
   // Setting the cores
@@ -67,14 +66,20 @@ arma::vec exact_loglik(
   if (stats_weights.size() != stats_statmat.size())
     stop("The weights and statmat lists must have the same length.");
   
-  // if (stats_weights.size() > 1u) {
+  if (stats_weights.size() > 1u) {
+    
+    arma::vec ans(x.n_rows);
     
 #pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) default(none) \
   firstprivate(params, as_prob, n)
-  for (int i = 0; i < n; ++i)
-    exact_logliki(x.row(i), params, stats_weights.at(i), stats_statmat.at(i), ans, i, as_prob);
+    for (int i = 0; i < n; ++i)
+      exact_logliki(x.row(i), params, stats_weights.at(i), stats_statmat.at(i), ans, i, as_prob);
 
-  return ans;
+    return ans;
+  
+  } else
+    return x * params - AVOID_BIG_EXP -
+      log(kappa(params, stats_weights.at(0), stats_statmat.at(0)));
   
 }
 
@@ -101,7 +106,7 @@ inline arma::colvec exact_gradienti(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-// [[Rcpp::export(name = "exact_gradient.")]]
+// [[Rcpp::export(name = "exact_gradient.", rng = false)]]
 arma::colvec exact_gradient(
     const arma::mat & x,
     const arma::colvec & params,
@@ -122,7 +127,7 @@ arma::colvec exact_gradient(
     int n = x.n_rows;
     arma::mat ans(x.n_cols, n);
     ans.fill(0.0);
-
+    
 #pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) default(none) \
     firstprivate(params, n)
     for (int i = 0; i < n; ++i)

@@ -21,6 +21,8 @@
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
 #' This is intended for testing only (internal use).
 #' @param ntries Integer scalar. Number of tries to estimate the MLE (see details).
+#' @param ncores Integer scalar. Number of cores (threads) for parallel
+#' computation.
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
 #' `...` are passed to [ergmito_formulae].
 #' 
@@ -42,6 +44,8 @@
 #' - `best_try`      Integer scalar. Index of the run with the highest loglike value.
 #' - `history`       Matrix of size `ntries * (k + 1)`. History of the parameter
 #'   estimates and the reached loglike values.
+#' - `timer`         Vector of times (for benchmarking). Each unit marks the starting
+#'   point of the step.
 #' 
 #' @section MLE:
 #' 
@@ -142,9 +146,13 @@ ergmito <- function(
   ncores        = 1L,
   ...
   ) {
-  
+
+  # Keeping track of time
+  timer_start <- Sys.time()
+
   # Generating the objective function
   ergmitoenv <- environment(model)
+
   formulae   <- ergmito_formulae(
     model,
     gattr_model   = gattr_model, 
@@ -154,13 +162,16 @@ ergmito <- function(
     env           = ergmitoenv,
     ...
     )
-
+  timer <- c(ergmito_formulae = difftime(Sys.time(), timer_start, units = "secs"))
+  
   # Verifying existance of MLE
+  timer0 <- Sys.time()
   support <- check_support(
     formulae$target.stats,
     formulae$stats.statmat
     )
-
+  timer <- c(timer, check_support = difftime(Sys.time(), timer0, units = "secs"))
+  
   npars  <- formulae$npars
   
   # Checking the values of the initial parameters, if an undefined value is passed
@@ -201,6 +212,8 @@ ergmito <- function(
     NA, nrow = ntries, ncol = formulae$npars + 1,
     dimnames = list(1L:ntries, c(formulae$term.names, "value"))
     )
+  
+  timer0 <- Sys.time()
   while (ntry <= ntries) {
     
     # Maximizign the likelihood and storing the value
@@ -226,12 +239,18 @@ ergmito <- function(
     ntry <- ntry + 1
     
   }
+  timer <- c(timer, optim = difftime(Sys.time(), timer0, units = "secs"))
   
   # Checking the convergence
+  timer0 <- Sys.time()
   estimates <- check_convergence(
     optim_output = ans,
     model        = formulae,
     support      = support
+    )
+  timer <- c(
+    timer,
+    chec_covergence = difftime(Sys.time(), timer0, units = "secs")
     )
   
   # Capturing model
@@ -272,6 +291,8 @@ ergmito <- function(
   ans$nobs <- nvertex(ans$network)
   ans$nobs <- sum(ans$nobs*(ans$nobs - 1))
   
+  timer <- c(timer, total = difftime(Sys.time(), timer_start, units = "secs"))
+  ans$timer <- timer
   ans
   
 }
