@@ -8,7 +8,7 @@
 \title{Goodness of Fit diagnostics for ERGMito models}
 \usage{
 gof_ergmito(object, GOF = NULL, probs = c(0.05, 0.95),
-  sim_ci = FALSE, R = 50000L, ...)
+  sim_ci = FALSE, R = 50000L, ncores = 1L, ...)
 
 \method{print}{ergmito_gof}(x, digits = 2L, ...)
 
@@ -27,6 +27,8 @@ quantiles analytically, otherwise it samples from the ERGM distribution.}
 
 \item{R}{Integer scalar. Number of simulations to generate (passed to \link{sample}).
 This is only used if \code{sim_ci = TRUE}.}
+
+\item{ncores}{Integer scalar. Number of cores to use for parallel computations.}
 
 \item{...}{Further arguments passed to \link[stats:quantile]{stats::quantile}.}
 

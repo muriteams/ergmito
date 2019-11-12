@@ -231,13 +231,14 @@ ergmito_formulae <- function(
   
   
   structure(list(
-    loglik = function(params, stats.weights, stats.statmat, target.stats) {
+    loglik = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
       
       ans <- sum(exact_loglik(
         params        = params,
         x             = target.stats,
         stats.weights = stats.weights,
-        stats.statmat = stats.statmat
+        stats.statmat = stats.statmat,
+        ncores        = ncores
       ))
       
       # If awfully undefined
@@ -248,13 +249,14 @@ ergmito_formulae <- function(
       # max(ans, -.Machine$double.xmax/1e100)
       
     },
-    grad  = function(params, stats.weights, stats.statmat, target.stats) {
+    grad  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
 
       ans <- exact_gradient(
         params        = params,
         x             = target.stats,
         stats.weights = stats.weights,
-        stats.statmat = stats.statmat
+        stats.statmat = stats.statmat,
+        ncores        = ncores
       )
 
       test <- which(!is.finite(ans))
@@ -346,8 +348,9 @@ print.ergmito_loglik <- function(x, ...) {
 #' @param x Matrix. Observed statistics
 #' @param params Numeric vector. Parameter values of the model.
 #' @param stats.weights,stats.statmat Vector and Matrix as returned by [ergm::ergm.allstats].
+#' @param ncores Integer scalar. Number of cores to use with OpenMP (if available).
 #' @export
-exact_loglik <- function(x, params, stats.weights, stats.statmat) {
+exact_loglik <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -400,7 +403,8 @@ exact_loglik <- function(x, params, stats.weights, stats.statmat) {
         x[i:j, , drop = FALSE],
         params,
         stats_weights = stats.weights[i:j],
-        stats_statmat = stats.statmat[i:j]
+        stats_statmat = stats.statmat[i:j],
+        ncores        = ncores
         )
       
     }
@@ -414,7 +418,8 @@ exact_loglik <- function(x, params, stats.weights, stats.statmat) {
         x[i:j, ,drop=FALSE],
         params,
         stats_weights = stats.weights,
-        stats_statmat = stats.statmat
+        stats_statmat = stats.statmat,
+        ncores        = ncores
         )
       
     }
@@ -433,7 +438,7 @@ exact_loglik2 <- function(params, stat0, stats) {
 
 #' @rdname exact_loglik
 #' @export
-exact_gradient <- function(x, params, stats.weights, stats.statmat) {
+exact_gradient <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -484,7 +489,8 @@ exact_gradient <- function(x, params, stats.weights, stats.statmat) {
       x[i:j, ,drop=FALSE],
       params,
       stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j]
+      stats_statmat = stats.statmat[i:j],
+      ncores        = ncores
       )
     
   }

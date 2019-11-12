@@ -1,4 +1,5 @@
 #include <RcppArmadillo.h>
+#include <omp.h>
 #include "ergmito_types.h"
 using namespace Rcpp;
 
@@ -52,29 +53,27 @@ arma::vec exact_loglik(
     const arma::colvec & params,
     const std::vector< arma::rowvec > & stats_weights,
     const std::vector< arma::mat > & stats_statmat,
-    bool as_prob = false
+    bool as_prob = false,
+    int ncores = 1
 ) {
 
   arma::vec ans(x.n_rows);
   int n = x.n_rows;
   
+  // Setting the cores
+  omp_set_num_threads(ncores);
+  
   // Checking the sizes
   if (stats_weights.size() != stats_statmat.size())
     stop("The weights and statmat lists must have the same length.");
   
-  if (stats_weights.size() > 1u) {
+  // if (stats_weights.size() > 1u) {
     
-    for (int i = 0; i < n; ++i)
-      exact_logliki(x.row(i), params, stats_weights.at(i), stats_statmat.at(i), ans, i, as_prob);
-    
-  } else {
-    // In the case that all networks are from the same family, then this becomes
-    // a trivial operation.
-    ans = x * params - AVOID_BIG_EXP -
-      log(kappa(params, stats_weights.at(0), stats_statmat.at(0)));
-    
-  }
-  
+#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) default(none) \
+  firstprivate(params, as_prob, n)
+  for (int i = 0; i < n; ++i)
+    exact_logliki(x.row(i), params, stats_weights.at(i), stats_statmat.at(i), ans, i, as_prob);
+
   return ans;
   
 }
@@ -107,23 +106,29 @@ arma::colvec exact_gradient(
     const arma::mat & x,
     const arma::colvec & params,
     const std::vector< arma::rowvec > & stats_weights,
-    const std::vector< arma::mat > & stats_statmat
+    const std::vector< arma::mat > & stats_statmat,
+    int ncores
 ) {
 
   // Checking the sizes
   if (stats_weights.size() != stats_statmat.size())
     stop("The weights and statmat lists must have the same length.");
 
+  // Setting the cores (not used right now)
+  omp_set_num_threads(ncores);
+  
   if (stats_weights.size() > 1u) {
     
-    arma::colvec ans(x.n_cols);
-    ans.fill(0.0);
     int n = x.n_rows;
+    arma::mat ans(x.n_cols, n);
+    ans.fill(0.0);
 
+#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) default(none) \
+    firstprivate(params, n)
     for (int i = 0; i < n; ++i)
-      ans += exact_gradienti(x.row(i), params, stats_weights.at(i), stats_statmat.at(i));
+      ans.col(i) = exact_gradienti(x.row(i), params, stats_weights.at(i), stats_statmat.at(i));
     
-    return ans;
+    return sum(ans, 1);
 
   } else {
     // In the case that all networks are from the same family, then this becomes

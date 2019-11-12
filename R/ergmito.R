@@ -139,6 +139,7 @@ ergmito <- function(
   use.grad      = TRUE,
   target.stats  = NULL,
   ntries        = 1L,
+  ncores        = 1L,
   ...
   ) {
   
@@ -192,6 +193,7 @@ ergmito <- function(
   optim.args$target.stats  <- formulae$target.stats
   optim.args$hessian       <- TRUE
   optim.args$par           <- init
+  optim.args$ncores        <- ncores
   
   # Will try to solve the problem more than once... if needed
   ntry <- 1L

@@ -14,7 +14,8 @@
 \usage{
 ergmito(model, gattr_model = NULL, stats.weights = NULL,
   stats.statmat = NULL, optim.args = list(), init = NULL,
-  use.grad = TRUE, target.stats = NULL, ntries = 1L, ...)
+  use.grad = TRUE, target.stats = NULL, ntries = 1L, ncores = 1L,
+  ...)
 
 \method{print}{ergmito}(x, ...)
 

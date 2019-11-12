@@ -24,8 +24,8 @@ induced_submat. <- function(nets, vs) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_loglik. <- function(x, params, stats_weights, stats_statmat, as_prob = FALSE) {
-    .Call(`_ergmito_exact_loglik`, x, params, stats_weights, stats_statmat, as_prob)
+exact_loglik. <- function(x, params, stats_weights, stats_statmat, as_prob = FALSE, ncores = 1L) {
+    .Call(`_ergmito_exact_loglik`, x, params, stats_weights, stats_statmat, as_prob, ncores)
 }
 
 #' Vectorized version of gradient function
@@ -35,8 +35,8 @@ exact_loglik. <- function(x, params, stats_weights, stats_statmat, as_prob = FAL
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_gradient. <- function(x, params, stats_weights, stats_statmat) {
-    .Call(`_ergmito_exact_gradient`, x, params, stats_weights, stats_statmat)
+exact_gradient. <- function(x, params, stats_weights, stats_statmat, ncores) {
+    .Call(`_ergmito_exact_gradient`, x, params, stats_weights, stats_statmat, ncores)
 }
 
 matrix_to_network. <- function(x, directed, hyper, loops, multiple, bipartite) {
