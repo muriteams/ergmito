@@ -15,7 +15,8 @@ replicate_vertex_attr <- function(x, attrname, value) {
 #' @param theta Named vector. Model parameters.
 #' @param x An object of class `ergmito_sampler`.
 #' @param sizes Integer vector. Values between 2 to 5 (6 becomes too intensive).
-#' @param mc.cores Integer. Passed to [parallel::mclapply]
+#' @param ncores Integer. Number of processors to use.
+#' @param cl An object of class [cluster][parallel::makeCluster].
 #' @param force Logical. When `FALSE` (default) will try to use `ergmito`'s stat
 #' count functions (see [count_stats]). This means that if one of the requested
 #' statistics in not avialable in `ergmito`, then we will use `ergm` to compute
@@ -44,9 +45,16 @@ replicate_vertex_attr <- function(x, attrname, value) {
 #' 
 #' 
 #' @export
-#' @importFrom parallel mclapply
-new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
-                         force = FALSE, ...) {
+#' @importFrom parallel clusterEvalQ makeCluster makeForkCluster clusterExport
+new_rergmito <- function(
+  model, 
+  theta  = NULL,
+  sizes  = NULL,
+  cl     = NULL,
+  ncores = 1L,
+  force  = FALSE,
+  ...
+  ) {
   
   # environment(model) <- parent.frame()
   
@@ -107,7 +115,7 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
     
     # We will use this updated version
     model. <- stats::update.formula(model, net_i ~ .)
-    
+    environment(model.) <- environment()
     for (s in names(ans$networks)) {
       
       # Generating all statistics (both have to match!)
@@ -121,41 +129,81 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
         
       } 
       
-      # if (network::is.network(net) || is.matrix(net))
-      #   net_i <- net
-      # else if (is.list(net))
-      #   net_i <- net[[1]]
         
       # Computing all stats
-      environment(model.) <- environment()
       S <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
       
       # Doing parlapply over the networks. Notice that we split the chunks using
       # splitIndices instead of applying the function directly since count_stats
       # receives lists (so multiple networks at the same time).
-      ans$counts[[s]] <- parallel::mclapply(
-        X   = parallel::splitIndices(length(ans$networks[[s]]), mc.cores), 
-        FUN = function(idx) {
+      if (!is.null(cl) | ncores > 1L) {
+        
+        # Creating cluster object, if needed
+        if (.Platform$OS.type == "unix" && is.null(cl)) {
           
-          # Making room
-          smat <- matrix(ncol = length(ergm_model$names), nrow = length(idx))
-          for (j in seq_along(ergm_model$names)) 
-            smat[,j] <- count_stats(
+          on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+          cl <- parallel::makeForkCluster(ncores)
+          
+        } else if (is.null(cl)) {
+          
+          on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+          cl <- parallel::makeCluster(ncores)
+          parallel::clusterEvalQ(cl, library(ergmito))
+          parallel::clusterExport(cl, c("ergm_model", "ans"), envir = environment())
+          
+        }
+        
+        ans$counts[[s]] <- parallel::parLapply(
+          cl  = cl,
+          X   = parallel::splitIndices(length(ans$networks[[s]]), ncores), 
+          FUN = function(idx) {
+            
+            # Making room
+            smat <- matrix(ncol = length(ergm_model$names), nrow = length(idx))
+            for (j in seq_along(ergm_model$names)) 
+              smat[,j] <- count_stats(
                 X     = ans$networks[[s]][idx],
                 terms = ergm_model$names[j],
                 # All individuals have the same data
                 attrs = replicate(length(idx), ergm_model$attrs[[j]], simplify = FALSE)
-                )
-          
-          # Returning a single matrix with network statistics
-          smat
-          
-        })
+              )
+            
+            # Returning a single matrix with network statistics
+            smat
+            
+          })
+        
+      } else {
+        
+        ans$counts[[s]] <- lapply(
+          X   = parallel::splitIndices(length(ans$networks[[s]]), ncores),
+          FUN = function(idx) {
+            
+            # Making room
+            smat <- matrix(ncol = length(ergm_model$names), nrow = length(idx))
+            for (j in seq_along(ergm_model$names)) 
+              smat[,j] <- count_stats(
+                X     = ans$networks[[s]][idx],
+                terms = ergm_model$names[j],
+                # All individuals have the same data
+                attrs = replicate(length(idx), ergm_model$attrs[[j]], simplify = FALSE)
+              )
+            
+            # Returning a single matrix with network statistics
+            smat
+            
+          })
+        
+      }
+        
+        
+        
+      }
       
       # Adding the results
       ans$counts[[s]] <- do.call(rbind, ans$counts[[s]])
       ans$counts[[s]] <- c(list(stats = ans$counts[[s]]), S)
-    }
+      
     
   } else {
     # THE ERGM WAY -------------------------------------------------------------
@@ -231,27 +279,53 @@ new_rergmito <- function(model, theta = NULL, sizes = NULL, mc.cores = 2L,
       # Updating the model (again)
       model. <- stats::update.formula(model, ans$networks[[s]][[i]] ~ .)
       
-      ans$counts[[s]] <- parallel::mclapply(
-        parallel::splitIndices(length(ans$networks[[s]]), mc.cores),
-        function(idx) {
+      # Creating cluster object, if needed
+      if (ncores > 1L && .Platform$OS.type == "unix" && is.null(cl)) {
         
-        # Getting the corresponding powerset
-        stats <- matrix(
-          nrow = length(idx),
-          ncol = length(terms), dimnames = list(NULL, terms)
-          )
+        on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+        cl <- parallel::makeForkCluster(ncores)
         
-        # Updating the environment
-        environment(model.) <- environment()
+      } else if (ncores > 1L && is.null(cl)) {
         
-        # In the first iteration we need to compute the statsmat
-        for (i in idx) 
-          stats[i, terms] <- summary(model.)
+        on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+        cl <- parallel::makeCluster(ncores)
+        parallel::clusterEvalQ(cl, library(ergmito))
+        parallel::clusterExport(cl, c("ans", "model.", "terms"), envir = environment())
         
-        stats
-        
-      })
+      }
+      ncores <- length(cl)
       
+      if (ncores > 1L) {
+        
+        ans$counts[[s]] <- parallel::parLapply(
+          cl  = cl,
+          X   = seq_along(ans$networks[[s]]),
+          FUN = function(i) {
+          
+          # Updating the environment
+          environment(model.) <- environment()
+          
+          # In the first iteration we need to compute the statsmat
+          summary(model.)
+          
+        })
+        
+      } else {
+        
+        ans$counts[[s]] <- lapply(
+          X   = seq_along(ans$networks[[s]]),
+          FUN = function(i) {
+            
+            # Updating the environment
+            environment(model.) <- environment()
+            
+            # In the first iteration we need to compute the statsmat
+            summary(model.)
+
+          })
+        
+      }
+        
       ans$counts[[s]] <- do.call(rbind, ans$counts[[s]])
       ans$counts[[s]] <- c(list(stats = ans$counts[[s]]), S)
       

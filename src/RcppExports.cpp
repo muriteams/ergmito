@@ -53,12 +53,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // exact_loglik
-arma::vec exact_loglik(const arma::mat& x, const arma::colvec& params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat, bool as_prob, int ncores);
+arma::vec exact_loglik(const arma::mat& x, const arma::colvec params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat, bool as_prob, int ncores);
 RcppExport SEXP _ergmito_exact_loglik(SEXP xSEXP, SEXP paramsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP, SEXP as_probSEXP, SEXP ncoresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type stats_statmat(stats_statmatSEXP);
     Rcpp::traits::input_parameter< bool >::type as_prob(as_probSEXP);
@@ -68,12 +68,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // exact_gradient
-arma::colvec exact_gradient(const arma::mat& x, const arma::colvec& params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat, int ncores);
+arma::colvec exact_gradient(const arma::mat& x, const arma::colvec params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat, int ncores);
 RcppExport SEXP _ergmito_exact_gradient(SEXP xSEXP, SEXP paramsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP, SEXP ncoresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type stats_statmat(stats_statmatSEXP);
     Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);

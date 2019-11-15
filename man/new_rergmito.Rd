@@ -6,8 +6,8 @@
 \alias{print.ergmito_sampler}
 \title{ERGMito sampler}
 \usage{
-new_rergmito(model, theta = NULL, sizes = NULL, mc.cores = 2L,
-  force = FALSE, ...)
+new_rergmito(model, theta = NULL, sizes = NULL, cl = NULL,
+  ncores = 1L, force = FALSE, ...)
 
 \method{[}{ergmito_sampler}(x, i, j, ...)
 
@@ -20,7 +20,9 @@ new_rergmito(model, theta = NULL, sizes = NULL, mc.cores = 2L,
 
 \item{sizes}{Integer vector. Values between 2 to 5 (6 becomes too intensive).}
 
-\item{mc.cores}{Integer. Passed to \link[parallel:mclapply]{parallel::mclapply}}
+\item{cl}{An object of class \link[parallel:makeCluster]{cluster}.}
+
+\item{ncores}{Integer. Number of processors to use.}
 
 \item{force}{Logical. When \code{FALSE} (default) will try to use \code{ergmito}'s stat
 count functions (see \link{count_stats}). This means that if one of the requested

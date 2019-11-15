@@ -1,5 +1,9 @@
 #include <RcppArmadillo.h>
-#include <omp.h>
+
+#ifndef SKIP_OMP
+  #include <omp.h>
+#endif
+
 #include "ergmito_types.h"
 using namespace Rcpp;
 
@@ -50,7 +54,7 @@ inline void exact_logliki(
 // [[Rcpp::export(name = "exact_loglik.", rng = false)]]
 arma::vec exact_loglik(
     const arma::mat & x,
-    const arma::colvec & params,
+    const arma::colvec params,
     const std::vector< arma::rowvec > & stats_weights,
     const std::vector< arma::mat > & stats_statmat,
     bool as_prob = false,
@@ -59,8 +63,10 @@ arma::vec exact_loglik(
 
   int n = x.n_rows;
   
+#ifndef SKIP_OMP
   // Setting the cores
   omp_set_num_threads(ncores);
+#endif
   
   // Checking the sizes
   if (stats_weights.size() != stats_statmat.size())
@@ -70,10 +76,13 @@ arma::vec exact_loglik(
     
     arma::vec ans(x.n_rows);
     
-#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) default(none) \
-  firstprivate(params, as_prob, n)
+#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) \
+    default(shared) firstprivate(params, as_prob, n)
     for (int i = 0; i < n; ++i)
-      exact_logliki(x.row(i), params, stats_weights.at(i), stats_statmat.at(i), ans, i, as_prob);
+      exact_logliki(
+        x.row(i), params, stats_weights.at(i), stats_statmat.at(i), ans, i,
+        as_prob
+      );
 
     return ans;
   
@@ -109,7 +118,7 @@ inline arma::colvec exact_gradienti(
 // [[Rcpp::export(name = "exact_gradient.", rng = false)]]
 arma::colvec exact_gradient(
     const arma::mat & x,
-    const arma::colvec & params,
+    const arma::colvec params,
     const std::vector< arma::rowvec > & stats_weights,
     const std::vector< arma::mat > & stats_statmat,
     int ncores
@@ -120,7 +129,9 @@ arma::colvec exact_gradient(
     stop("The weights and statmat lists must have the same length.");
 
   // Setting the cores (not used right now)
+#ifndef SKIP_OMP
   omp_set_num_threads(ncores);
+#endif
   
   if (stats_weights.size() > 1u) {
     
@@ -128,17 +139,21 @@ arma::colvec exact_gradient(
     arma::mat ans(x.n_cols, n);
     ans.fill(0.0);
     
-#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) default(none) \
-    firstprivate(params, n)
+#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) \
+    default(shared) firstprivate(params, n)
     for (int i = 0; i < n; ++i)
-      ans.col(i) = exact_gradienti(x.row(i), params, stats_weights.at(i), stats_statmat.at(i));
+      ans.col(i) = exact_gradienti(
+        x.row(i), params, stats_weights.at(i), stats_statmat.at(i)
+      );
     
     return sum(ans, 1);
 
   } else {
     // In the case that all networks are from the same family, then this becomes
     // a trivial operation.
-    return exact_gradienti(x.row(0), params, stats_weights.at(0), stats_statmat.at(0));
+    return exact_gradienti(
+      x.row(0), params, stats_weights.at(0), stats_statmat.at(0)
+    );
 
   }
 
