@@ -9,8 +9,10 @@ after_success:
 # For some reason statnet.common is not found in the oldrel (I think)
 # r_github_packages:
 #  - muriteams/statnet.common
-  
-brew_packages: libgit2
+
+brew_packages:
+  - libgit2
+  - clang-omp
 
 # We don't want the devel version on OSX
 matrix:
