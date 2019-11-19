@@ -12,7 +12,7 @@ after_success:
 
 brew_packages:
   - libgit2
-  - clang-omp
+  - homebrew/boneyard/clamp-omp
 
 # We don't want the devel version on OSX
 matrix:
