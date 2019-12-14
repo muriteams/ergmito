@@ -3,11 +3,14 @@
 \name{exact_loglik}
 \alias{exact_loglik}
 \alias{exact_gradient}
+\alias{exact_hessian}
 \title{Vectorized calculation of ERGM exact loglikelihood}
 \usage{
 exact_loglik(x, params, stats.weights, stats.statmat, ncores = 1L)
 
 exact_gradient(x, params, stats.weights, stats.statmat, ncores = 1L)
+
+exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}

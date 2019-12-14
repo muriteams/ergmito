@@ -39,6 +39,17 @@ exact_gradient. <- function(x, params, stats_weights, stats_statmat, ncores) {
     .Call(`_ergmito_exact_gradient`, x, params, stats_weights, stats_statmat, ncores)
 }
 
+#' Vectorized version of gradient function
+#' 
+#' @param x Matrix of statistic. `nnets * nstats`.
+#' @param params Vector of coefficients.
+#' @param weights A list of weights matrices (for `statmat`).
+#' @param statmat A list of matrices with statistics for each row in `x`.
+#' @noRd
+exact_hessian. <- function(x, params, stats_weights, stats_statmat, ncores) {
+    .Call(`_ergmito_exact_hessian`, x, params, stats_weights, stats_statmat, ncores)
+}
+
 matrix_to_network. <- function(x, directed, hyper, loops, multiple, bipartite) {
     .Call(`_ergmito_matrix_to_network`, x, directed, hyper, loops, multiple, bipartite)
 }

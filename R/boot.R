@@ -82,13 +82,18 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     parallel::parLapply(cl, IDX, function(idx) {
       
       environment(model0) <- environment()
-      tryCatch(ergmito(
+      ans <- tryCatch(ergmito(
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
         target.stats = target.stats[idx,,drop=FALSE]
         ), error = function(e) e
         )
+      
+      if (inherits(ans, "error"))
+        return(NULL)
+      
+      stats::coef(ans)
       
     })
     
@@ -97,24 +102,27 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     lapply(IDX, function(idx) {
       
       environment(model0) <- environment()
-      tryCatch(suppressWarnings(ergmito(
+      ans <- tryCatch(suppressWarnings(ergmito(
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
         target.stats = target.stats[idx,,drop=FALSE]
         )), error = function(e) e)
       
+      if (inherits(ans, "error"))
+        return(NULL)
+      
+      stats::coef(ans)
     })
     
   }
   
   # Computing variance/covariance matrix
-  coefs <- do.call(rbind, lapply(boot_estimates, stats::coef))
+  coefs <- do.call(rbind, boot_estimates)
   
   # Tagging finite results
-  are_finate <- max.col(coefs)
-  are_finate <- which(is.finite(coefs[cbind(1:R, are_finate)]))
-  
+  are_finate <- which(is.finite(coefs), arr.ind = TRUE)[, 1L]
+
   if (length(are_finate) < 2) {
     stop("At most one of the replicates had finite estimates (not Inf/NA/NaN).",
          call. = FALSE)

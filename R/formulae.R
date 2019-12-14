@@ -266,6 +266,23 @@ ergmito_formulae <- function(
       ans
       
     },
+    hess  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
+      
+      ans <- exact_hessian(
+        params        = params,
+        x             = target.stats,
+        stats.weights = stats.weights,
+        stats.statmat = stats.statmat,
+        ncores        = ncores
+      )
+      
+      test <- which(!is.finite(ans))
+      if (length(test))
+        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
+      
+      ans
+      
+    },
     target.stats  = target.stats,
     stats.weights = stats.weights,
     stats.statmat = stats.statmat,
@@ -492,6 +509,69 @@ exact_gradient <- function(x, params, stats.weights, stats.statmat, ncores = 1L)
       stats_statmat = stats.statmat[i:j],
       ncores        = ncores
       )
+    
+  }
+  
+  ans
+  
+}
+
+#' @rdname exact_loglik
+#' @export
+exact_hessian <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
+  
+  # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
+  chunks <- make_chunks(nrow(x), 4e5)
+  
+  n <- nrow(x)
+  
+  # Checking the weights and stats mat
+  if (n == 1) {
+    # If only one observation
+    
+    if (!is.list(stats.weights))
+      stats.weights <- list(stats.weights)
+    
+    if (!is.list(stats.statmat))
+      stats.statmat <- list(stats.statmat)
+    
+  } else if (n > 1) {
+    # If more than 1, then perhaps we need to recycle the values
+    
+    if (!is.list(stats.weights)) {
+      stats.weights <- list(stats.weights)
+    } else if (length(stats.weights) != n) {
+      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
+    
+    if (!is.list(stats.statmat)) {
+      stats.statmat <- list(stats.statmat)
+    } else if (length(stats.statmat) != n) {
+      stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
+    
+  } else 
+    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
+  
+  
+  # Computing in chunks
+  ans <- matrix(0, nrow = length(params), ncol = length(params))
+  for (s in seq_along(chunks$from)) {
+    
+    i <- chunks$from[s]
+    j <- chunks$to[s]
+    
+    ans <- ans + exact_hessian.(
+      x[i:j, ,drop=FALSE],
+      params,
+      stats_weights = stats.weights[i:j],
+      stats_statmat = stats.statmat[i:j],
+      ncores        = ncores
+    )
     
   }
   

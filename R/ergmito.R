@@ -23,6 +23,10 @@
 #' @param ntries Integer scalar. Number of tries to estimate the MLE (see details).
 #' @param ncores Integer scalar. Number of cores (threads) for parallel
 #' computation.
+#' @param keep.stats Logical scalar. When `TRUE` (the default), the matrices
+#' and vectors associated with the sufficient statistics will be returned.
+#' Otherwise the function discards them. This may be useful for saving memory
+#' space when estimating multiple models.
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
 #' `...` are passed to [ergmito_formulae].
 #' 
@@ -144,6 +148,7 @@ ergmito <- function(
   target.stats  = NULL,
   ntries        = 1L,
   ncores        = 1L,
+  keep.stats    = TRUE,
   ...
   ) {
 
@@ -287,6 +292,11 @@ ergmito <- function(
     ),
     class = c("ergmito")
     )
+  
+  if (!keep.stats) {
+    ans$formulae$stats.weights <- NULL
+    ans$formulae$stats.statmat <- NULL
+  }
   
   ans$nobs <- nvertex(ans$network)
   ans$nobs <- sum(ans$nobs*(ans$nobs - 1))

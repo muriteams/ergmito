@@ -15,7 +15,7 @@
 ergmito(model, gattr_model = NULL, stats.weights = NULL,
   stats.statmat = NULL, optim.args = list(), init = NULL,
   use.grad = TRUE, target.stats = NULL, ntries = 1L, ncores = 1L,
-  ...)
+  keep.stats = TRUE, ...)
 
 \method{print}{ergmito}(x, ...)
 
@@ -58,6 +58,11 @@ This is intended for testing only (internal use).}
 
 \item{ncores}{Integer scalar. Number of cores (threads) for parallel
 computation.}
+
+\item{keep.stats}{Logical scalar. When \code{TRUE} (the default), the matrices
+and vectors associated with the sufficient statistics will be returned.
+Otherwise the function discards them. This may be useful for saving memory
+space when estimating multiple models.}
 
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}

@@ -81,6 +81,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// exact_hessian
+arma::mat exact_hessian(const arma::mat& x, const arma::colvec params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat, int ncores);
+RcppExport SEXP _ergmito_exact_hessian(SEXP xSEXP, SEXP paramsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP, SEXP ncoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
+    Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type stats_statmat(stats_statmatSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(exact_hessian(x, params, stats_weights, stats_statmat, ncores));
+    return rcpp_result_gen;
+END_RCPP
+}
 // matrix_to_network
 ListOf< List > matrix_to_network(const ListOf< IntegerMatrix >& x, const LogicalVector& directed, const LogicalVector& hyper, const LogicalVector& loops, const LogicalVector& multiple, const LogicalVector& bipartite);
 RcppExport SEXP _ergmito_matrix_to_network(SEXP xSEXP, SEXP directedSEXP, SEXP hyperSEXP, SEXP loopsSEXP, SEXP multipleSEXP, SEXP bipartiteSEXP) {
@@ -138,6 +152,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_induced_submat", (DL_FUNC) &_ergmito_induced_submat, 2},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 6},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 5},
+    {"_ergmito_exact_hessian", (DL_FUNC) &_ergmito_exact_hessian, 5},
     {"_ergmito_matrix_to_network", (DL_FUNC) &_ergmito_matrix_to_network, 6},
     {"_ergmito_make_sets", (DL_FUNC) &_ergmito_make_sets, 1},
     {"_ergmito_powerset", (DL_FUNC) &_ergmito_powerset, 2},
