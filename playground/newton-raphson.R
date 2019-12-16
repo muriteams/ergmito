@@ -1,37 +1,35 @@
-nr <- function(x, fn, d, H, ..., tol = 1e-10, maxiter = 100) {
+nr <- function(x, fn, d, H, ..., tol = 1e-5, maxiter = 100) {
   
   time0 <- Sys.time()
   
-  d0 <- d(x, ...)
-  d1 <- d0
   i  <- 0L
   while (i < maxiter) {
     
     i  <- i + 1L
     
     # Updating the value
-    x <- x - solve(H(x, ...)) %*% d0 / 2 # solve(H(x, ...)) %*% d0
+    d0 <- d(x, ...)
+    x1 <- x - solve(H(x, ...)) %*% d0 # solve(H(x, ...)) %*% d0
+    d1 <- d(x1, ...)
       
     # Computing the values
-    d1 <- d(x, ...)
-
-    if (norm(d1) < tol)
+    if (norm(d1 - d0) < tol)
       break
     
-    # message("Current value of d(x) = ", norm(d1))
+    message("Current value of x = ", norm(d1 - d0))
+    x <- x1
     
-    d0 <- d1
   }
   
   time1 <- Sys.time()
   
   list(
-    par         = as.vector(x),
-    value       = fn(x, ...),
+    par         = as.vector(x1),
+    value       = fn(x1, ...),
     counts      = c(`function` = 0, gradient = i),
     convergence = ifelse(i == maxiter, 1, 0),
     message     = NULL,
-    hessian     = H(x, ...),
+    hessian     = H(x1, ...),
     time        = difftime(time1, time0, units = "s")
   )
   
@@ -43,11 +41,11 @@ library(ergmito)
 data("fivenets")
 set.seed(1331)
 nets <- rbernoulli(rep(5, 40), .2)
-model <- nets ~ edges # + mutual
+model <- fivenets ~ edges + nodematch("female")
 f <- ergmito_formulae(model)
 
 ans0 <- nr(
-  rep(0, 1),
+  rep(0, 2),
   d  = f$grad,
   H  = f$hess, 
   fn = f$loglik,
@@ -58,7 +56,10 @@ ans0 <- nr(
 ans0
 ans1 <- ergmito(model)
 ans1 <- c(ans1$optim.out, list(time = ans1$time["optim"], value = logLik(ans1)))
-ans0$value < ans1$value
+ans0$value - ans1$value
 
-ans0$time
-ans1$time["optim"]
+ans0$time;ans1$time
+
+ans0$counts;ans1$counts
+
+ans0$par;ans1$par

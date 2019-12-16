@@ -102,22 +102,13 @@ inline arma::colvec exact_gradienti(
 ) {
 
   // Speeding up a bit calculations (this is already done)
-  arma::colvec exp_stat_params = exp(stats_statmat * params - 100);
-  arma::colvec ans(params.size());
-  double normconst = arma::as_scalar(stats_weights * exp_stat_params);
+  arma::colvec exp_stat_params = exp(stats_statmat * params);
   
-  for (unsigned int i = 0u; i < params.size(); ++i)
-    ans[i] = x[i] - 
-      arma::as_scalar(stats_weights * (exp_stat_params % stats_statmat.col(i)))/
-        normconst;
+  return x.t() - (
+      stats_statmat.t() * (
+          stats_weights.t() % exp_stat_params
+      ))/arma::as_scalar(stats_weights * exp_stat_params);
   
-  // return x.t() - (
-  //     stats_weights * (exp_stat_params % )
-  //     stats_statmat.t() * (
-  //         stats_weights.t() % exp_stat_params
-  //     ))/arma::as_scalar(stats_weights * exp_stat_params);
-  
-  return ans;
 
 }
 
@@ -182,33 +173,21 @@ inline arma::mat exact_hessiani(
   
   // Speeding up a bit calculations (this is already done)
   arma::colvec Z = exp(stats_statmat * params);
-  arma::rowvec WZ = stats_weights % Z.t();
+  double weighted_exp = arma::as_scalar(stats_weights * Z);
+  arma::rowvec WZ = stats_weights % Z.t() / weighted_exp;
   // Z.print("\nZ");
   // stats_weights.print("\nstats_weights");
   
   unsigned int K = params.size();
   unsigned int n = stats_weights.size();
   arma::mat H(K, K);
-  H.fill(0.0);
-  
-    // Calculating another product
-  // Computing the hessian
-  double weighted_exp = arma::as_scalar(stats_weights * Z - 100);
-  double weighted_exp2 = pow(weighted_exp, 2.0);
-  
-  // Rprintf("weighted_exp: %.4f\n", weighted_exp);
-  
+  arma::rowvec WZS = WZ * stats_statmat;
+
   for (unsigned int k0 = 0u; k0 < K; ++k0) {
-    
     for (unsigned int k1 = 0u; k1 <= k0; ++k1) {
-      H(k0, k1) = -
-        (
-            arma::as_scalar(
+      H(k0, k1) = - arma::as_scalar(
               WZ * (stats_statmat.col(k0) % stats_statmat.col(k1))
-            ) * weighted_exp -
-            arma::as_scalar(WZ * stats_statmat.col(k0)) * 
-            arma::as_scalar(WZ * stats_statmat.col(k1))
-      ) / weighted_exp2;
+            ) - WZS[k0] * WZS[k1];
       
       if (k0 != k1)
         H(k1, k0) = H(k0, k1);

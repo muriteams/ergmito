@@ -23,5 +23,5 @@ microbenchmark(
       stats.weights = stats.weights,
       stats.statmat = stats.statmat
     )
-  })
+  }), times = 1000, unit = "relative"
 )
