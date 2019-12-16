@@ -1,4 +1,9 @@
+library(ergmito)
+
+data(fivenets)
 ans <- ergmito(fivenets ~ edges + ttriad + nodematch("female"))
+
+library(microbenchmark)
 
 microbenchmark(
   exact = with(ans$formulae, {
