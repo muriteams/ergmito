@@ -11,7 +11,7 @@ fivesamplers
 \description{
 This list contains five ERGMito samplers. Each one of these was built using
 a random bernoulli graph with an attribute \code{female}. The parameters used for
-creating the sampler are \code{(edges = -2.0, nodematch("female") = 2.0)}. A example
+creating the sampler are \verb{(edges = -2.0, nodematch("female") = 2.0)}. A example
 of a dataset generated with this is \link{fivenets}.
 }
 \keyword{datasets}

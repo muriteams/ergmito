@@ -169,7 +169,13 @@ check_convergence <- function(
     )
   
   # We will update this later
-  estimates$vcov[] <- optim_output$hessian
+  # estimates$vcov[] <- optim_output$hessian
+  estimates$vcov[] <- exact_hessian(
+    x             = model$target.stats,
+    params        = optim_output$par,
+    stats.weights = model$stats.weights,
+    stats.statmat = model$stats.statmat
+  )
   
   # Step 1: Checking parameter estimates ---------------------------------------
   if (length(to_check)) {
@@ -219,11 +225,17 @@ check_convergence <- function(
       # very large value instead
       newpars <- estimates$par
       newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)])*1e5
-      estimates$hessian <- stats::optimHess(
-        par = newpars, fn = model$loglik, gr = model$grad,
+      # estimates$hessian <- stats::optimHess(
+      #   par = newpars, fn = model$loglik, gr = model$grad,
+      #   stats.weights = model$stats.weights,
+      #   stats.statmat = model$stats.statmat,
+      #   target.stats  = model$target.stats
+      # )
+      estimates$vcov <- exact_hessian(
+        x             = model$target.stats,
+        params        = newpars,
         stats.weights = model$stats.weights,
-        stats.statmat = model$stats.statmat,
-        target.stats  = model$target.stats
+        stats.statmat = model$stats.statmat
       )
       
       # The observed likelihood will change as well, it may be the case that it

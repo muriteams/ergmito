@@ -7,13 +7,27 @@
 \alias{plot.ergmito_gof}
 \title{Goodness of Fit diagnostics for ERGMito models}
 \usage{
-gof_ergmito(object, GOF = NULL, probs = c(0.05, 0.95),
-  sim_ci = FALSE, R = 50000L, ncores = 1L, ...)
+gof_ergmito(
+  object,
+  GOF = NULL,
+  probs = c(0.05, 0.95),
+  sim_ci = FALSE,
+  R = 50000L,
+  ncores = 1L,
+  ...
+)
 
 \method{print}{ergmito_gof}(x, digits = 2L, ...)
 
-\method{plot}{ergmito_gof}(x, y = NULL, main = NULL, sub = NULL,
-  tnames = NULL, sort_by_ci = FALSE, ...)
+\method{plot}{ergmito_gof}(
+  x,
+  y = NULL,
+  main = NULL,
+  sub = NULL,
+  tnames = NULL,
+  sort_by_ci = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \link{ergmito}.}

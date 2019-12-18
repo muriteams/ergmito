@@ -6,8 +6,15 @@
 \alias{print.ergmito_sampler}
 \title{ERGMito sampler}
 \usage{
-new_rergmito(model, theta = NULL, sizes = NULL, cl = NULL,
-  ncores = 1L, force = FALSE, ...)
+new_rergmito(
+  model,
+  theta = NULL,
+  sizes = NULL,
+  cl = NULL,
+  ncores = 1L,
+  force = FALSE,
+  ...
+)
 
 \method{[}{ergmito_sampler}(x, i, j, ...)
 
@@ -50,7 +57,7 @@ calculate the likelihoods.
 \item \code{theta}
 }
 
-The indexing method \code{[.ergmito_sampler} returns a named list of length
+The indexing method \verb{[.ergmito_sampler} returns a named list of length
 \code{length(j)}.
 }
 \description{
@@ -63,7 +70,7 @@ some of the functions of the package (ergm) with poor speed performance. This
 led us to "reinvent the wheel" in some cases to speed things up, this includes
 calculating observed statistics in a list of networks.
 
-The indexing method, \code{[.ergmito_sampler}, allows extracting networks
+The indexing method, \verb{[.ergmito_sampler}, allows extracting networks
 directly by passing indexes. \code{i} indicates the index of the networks to draw,
 which go from 1 through \code{2^(n*(n-1))}, and \code{j} indicates the requested
 size.

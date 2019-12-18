@@ -12,7 +12,8 @@ after_success:
 
 brew_packages:
   - libgit2
-  - homebrew/boneyard/clamp-omp
+  - llvm
+  - libomp
 
 # We don't want the devel version on OSX
 matrix:

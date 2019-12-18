@@ -4,8 +4,7 @@
 \alias{simulate.ergmito}
 \title{Draw samples from a fitted \code{ergmito} model}
 \usage{
-\method{simulate}{ergmito}(object, nsim = 1, seed = NULL,
-  which_networks = 1L, ...)
+\method{simulate}{ergmito}(object, nsim = 1, seed = NULL, which_networks = 1L, ...)
 }
 \arguments{
 \item{object}{An object of class \link{ergmito}.}

@@ -12,10 +12,20 @@
 \alias{formula.ergmito}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
-ergmito(model, gattr_model = NULL, stats.weights = NULL,
-  stats.statmat = NULL, optim.args = list(), init = NULL,
-  use.grad = TRUE, target.stats = NULL, ntries = 1L, ncores = 1L,
-  keep.stats = TRUE, ...)
+ergmito(
+  model,
+  gattr_model = NULL,
+  stats.weights = NULL,
+  stats.statmat = NULL,
+  optim.args = list(),
+  init = NULL,
+  use.grad = TRUE,
+  target.stats = NULL,
+  ntries = 1L,
+  ncores = 1L,
+  keep.stats = TRUE,
+  ...
+)
 
 \method{print}{ergmito}(x, ...)
 

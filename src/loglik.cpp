@@ -102,7 +102,7 @@ inline arma::colvec exact_gradienti(
 ) {
 
   // Speeding up a bit calculations (this is already done)
-  arma::colvec exp_stat_params = exp(stats_statmat * params);
+  arma::colvec exp_stat_params = exp(stats_statmat * params - AVOID_BIG_EXP);
   
   return x.t() - (
       stats_statmat.t() * (
@@ -174,7 +174,8 @@ inline arma::mat exact_hessiani(
   // Speeding up a bit calculations (this is already done)
   arma::colvec Z = exp(stats_statmat * params);
   double weighted_exp = arma::as_scalar(stats_weights * Z);
-  arma::rowvec WZ = stats_weights % Z.t() / weighted_exp;
+  double weighted_exp2 = pow(weighted_exp, 2.0);
+  arma::rowvec WZ = stats_weights % Z.t();
   // Z.print("\nZ");
   // stats_weights.print("\nstats_weights");
   
@@ -185,9 +186,9 @@ inline arma::mat exact_hessiani(
 
   for (unsigned int k0 = 0u; k0 < K; ++k0) {
     for (unsigned int k1 = 0u; k1 <= k0; ++k1) {
-      H(k0, k1) = - arma::as_scalar(
-              WZ * (stats_statmat.col(k0) % stats_statmat.col(k1))
-            ) - WZS[k0] * WZS[k1];
+      H(k0, k1) = - (arma::as_scalar(
+              WZ * (stats_statmat.col(k0) % stats_statmat.col(k1)) * weighted_exp
+      ) - WZS[k0] * WZS[k1]) / weighted_exp2;
       
       if (k0 != k1)
         H(k1, k0) = H(k0, k1);
@@ -239,7 +240,8 @@ arma::mat exact_hessian(
         );
     
     arma::mat H(K, K);
-    for (unsigned int i = 0u; i < n; ++i)
+    H = ans[0];
+    for (unsigned int i = 1u; i < n; ++i)
       H += ans[i];
     
     return H;

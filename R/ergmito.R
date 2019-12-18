@@ -207,7 +207,7 @@ ergmito <- function(
   optim.args$stats.weights <- formulae$stats.weights
   optim.args$stats.statmat <- formulae$stats.statmat
   optim.args$target.stats  <- formulae$target.stats
-  optim.args$hessian       <- TRUE
+  optim.args$hessian       <- FALSE
   optim.args$par           <- init
   optim.args$ncores        <- ncores
   

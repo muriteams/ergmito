@@ -5,9 +5,15 @@
 \alias{ergmito_loglik}
 \title{Processing formulas in \code{ergmito}}
 \usage{
-ergmito_formulae(model, gattr_model = NULL, target.stats = NULL,
-  stats.weights = NULL, stats.statmat = NULL, env = parent.frame(),
-  ...)
+ergmito_formulae(
+  model,
+  gattr_model = NULL,
+  target.stats = NULL,
+  stats.weights = NULL,
+  stats.statmat = NULL,
+  env = parent.frame(),
+  ...
+)
 }
 \arguments{
 \item{model}{A formula. The left-hand-side can be either a small network, or

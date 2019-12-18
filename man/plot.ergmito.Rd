@@ -4,10 +4,18 @@
 \alias{plot.ergmito}
 \title{Function to visualize the optimization surface}
 \usage{
-\method{plot}{ergmito}(x, y = NULL, domain = NULL, plot. = TRUE,
-  par_args = list(), image_args = list(), breaks = 50L,
-  extension = 4L, params_labs = stats::setNames(names(coef(x)),
-  names(coef(x))), ...)
+\method{plot}{ergmito}(
+  x,
+  y = NULL,
+  domain = NULL,
+  plot. = TRUE,
+  par_args = list(),
+  image_args = list(),
+  breaks = 50L,
+  extension = 4L,
+  params_labs = stats::setNames(names(coef(x)), names(coef(x))),
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \link{ergmito}.}

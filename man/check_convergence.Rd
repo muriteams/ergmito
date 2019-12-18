@@ -5,8 +5,7 @@
 \alias{check_convergence}
 \title{Check the convergece of ergmito estimates}
 \usage{
-check_support(target.stats, stats.statmat, threshold = 0.8,
-  warn = TRUE)
+check_support(target.stats, stats.statmat, threshold = 0.8, warn = TRUE)
 
 check_convergence(optim_output, model, support, crit = 5)
 }
@@ -78,12 +77,12 @@ Column 2:
 Possible codes and corresponding messages:
 \itemize{
 \item 00 All OK (no message).
-\item 01 \Sexpr{ergmito:::map_convergence_message(01)}. % Convergence, but the hessian is not psd
-\item 10 \Sexpr{ergmito:::map_convergence_message(10)}. % Optim did not reported convergence, but things look OK.
-\item 11 \Sexpr{ergmito:::map_convergence_message(11)}. % Optim did not converged, but the hessian is not psd.
-\item 20 \Sexpr{ergmito:::map_convergence_message(20)}. % One or more estimates went to inf, all finite were able to be inverted.
-\item 21 \Sexpr{ergmito:::map_convergence_message(21)}. % One or more are inf, hessian is not psd
-\item 30 \Sexpr{ergmito:::map_convergence_message(30)}. % All estimates went to Inf (degenerate distribution).
+\item 01 \Sexpr{ergmito:::map_convergence_message(01)}. \% Convergence, but the hessian is not psd
+\item 10 \Sexpr{ergmito:::map_convergence_message(10)}. \% Optim did not reported convergence, but things look OK.
+\item 11 \Sexpr{ergmito:::map_convergence_message(11)}. \% Optim did not converged, but the hessian is not psd.
+\item 20 \Sexpr{ergmito:::map_convergence_message(20)}. \% One or more estimates went to inf, all finite were able to be inverted.
+\item 21 \Sexpr{ergmito:::map_convergence_message(21)}. \% One or more are inf, hessian is not psd
+\item 30 \Sexpr{ergmito:::map_convergence_message(30)}. \% All estimates went to Inf (degenerate distribution).
 }
 }
 
