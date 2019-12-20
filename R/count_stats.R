@@ -84,7 +84,7 @@ count_stats.formula <- function(X, ...) {
   
   # Retrieving networks
   LHS <- eval(X[[2]], envir = environment(X))
-  if (is.matrix(LHS) | inherits(LHS, "network"))
+  if (inherits(LHS, "matrix") | inherits(LHS, "network"))
     LHS <- list(LHS)
   
   # Analyzing the formula

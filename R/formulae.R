@@ -62,10 +62,16 @@ ergmito_formulae <- function(
   if (inherits(LHS, "list")) {
     
     # Are all either matrices or networks?
-    test <- which(!(sapply(LHS, class) %in% c("matrix", "network")))
+    test <- which(!(
+      sapply(LHS, inherits, what = "matrix") | sapply(LHS, inherits, what = "network")
+      ))
     if (length(test))
-      stop("One of the components is not a matrix `", deparse(model[[2]]),
-         "` is of class ", class(LHS), ".", call. = FALSE)
+      stop(
+        "One of the components is not a matrix `", deparse(model[[2]]),
+        "` is of class ",
+        paste(sapply(LHS, class)[test], collapse = ", "),
+        ".",
+        call. = FALSE)
     
   } else if (inherits(LHS, "matrix") | inherits(LHS, "network")) {
     
