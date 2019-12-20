@@ -5,7 +5,7 @@
 #' @param seed See [stats::simulate]
 #' @param which_networks Integer vector. Specifies what networks to sample from.
 #' It must be within 1 and `nnets(object)`.
-#' @param ... Further arguments passed to [new_rergmito].
+#' @param theta,... Further arguments passed to [new_rergmito].
 #' @export
 #' @examples 
 #' data(fivenets)
@@ -19,7 +19,9 @@ simulate.ergmito <- function(
   nsim           = 1,
   seed           = NULL,
   which_networks = 1L,
-  ...) {
+  theta          = NULL,
+  ...
+  ) {
   
   # Catching the model and preparing for local evaluation
   model  <- stats::formula(object)
@@ -38,17 +40,27 @@ simulate.ergmito <- function(
 
   # Step 2: Loop through the networks to generate the predictions:
   samples <- vector("list", length(which_networks))
+  dots <- list(...)
+  
+  if ("sizes" %in% names(dots))
+    stop(
+      "The parameter `sizes` cannot be passed to simulate. To specify different ",
+      "sizes use the function `new_rergmito` directly. Otherwise, use the ",
+      "argument `which_networks` to use one or more networks as reference.",
+      call. = FALSE
+      )
+  
   for (i in seq_along(networks)) {
     
     # Generating sample, and later on, adding up matrices
     sampler <- new_rergmito(
       model = model.,
-      theta = coef(object),
+      theta = if (is.null(theta)) coef(object) else theta,
       sizes = nvertex(networks[[i]]),
       ...
     )
     
-    samples[[i]] <- sampler$sample(n = nsim, s = nvertex(networks[[i]]), ...)
+    samples[[i]] <- sampler$sample(n = nsim, s = nvertex(networks[[i]]))
     
   }
   

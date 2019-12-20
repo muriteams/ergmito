@@ -3,6 +3,7 @@ set.seed(12344)
 net <- rbernoulli(4, .3)
 model <- ergmito(net ~ edges)
 gof0  <- gof_ergmito(model)
+gof1  <- gof_ergmito(model, sim_ci = TRUE)
 
 # Alternative calculation
 prb <- exact_loglik(
@@ -24,8 +25,13 @@ cumprb <- cumsum(prb[ord]*model$formulae$stats.weights[[1]][ord])
 # 90% CI
 idx <- c(max(which(cumprb < .05)), min(which(cumprb > .95)))
 expect_equivalent(
-gof0$ci[[1]][, c("lower-q", "upper-q")],
-model$formulae$stats.statmat[[1]][ord][idx]
+  gof0$ci[[1]][, c("lower-q", "upper-q")],
+  model$formulae$stats.statmat[[1]][ord][idx]
+)
+expect_equivalent(
+  gof1$ci[[1]][, c("lower-q", "upper-q")],
+  model$formulae$stats.statmat[[1]][ord][idx],
+  tol = .01
 )
 expect_equivalent(gof0$ci[[1]][, c("lower-p", "upper-p")], cumprb[idx])
   

@@ -140,3 +140,6 @@ expect_error(
   "not found"
 )
 
+expect_error(
+  analyze_formula()
+)

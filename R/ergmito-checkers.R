@@ -225,18 +225,20 @@ check_convergence <- function(
       # very large value instead
       newpars <- estimates$par
       newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)])*1e5
-      # estimates$hessian <- stats::optimHess(
-      #   par = newpars, fn = model$loglik, gr = model$grad,
-      #   stats.weights = model$stats.weights,
-      #   stats.statmat = model$stats.statmat,
-      #   target.stats  = model$target.stats
-      # )
-      estimates$vcov <- exact_hessian(
-        x             = model$target.stats,
-        params        = newpars,
+      estimates$vcov <- stats::optimHess(
+        par           = newpars,
+        fn            = model$loglik,
+        gr            = model$grad,
         stats.weights = model$stats.weights,
-        stats.statmat = model$stats.statmat
+        stats.statmat = model$stats.statmat,
+        target.stats  = model$target.stats
       )
+      # estimates$vcov <- model$hess(
+      #   x             = model$target.stats,
+      #   params        = newpars,
+      #   stats.weights = model$stats.weights,
+      #   stats.statmat = model$stats.statmat
+      # )
       
       # The observed likelihood will change as well, it may be the case that it
       # becomes undefined b/c of the fact that 0 * Inf = NaN

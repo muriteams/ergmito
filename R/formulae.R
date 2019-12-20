@@ -272,23 +272,23 @@ ergmito_formulae <- function(
       ans
       
     },
-    hess  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
-      
-      ans <- exact_hessian(
-        params        = params,
-        x             = target.stats,
-        stats.weights = stats.weights,
-        stats.statmat = stats.statmat,
-        ncores        = ncores
-      )
-      
-      test <- which(!is.finite(ans))
-      if (length(test))
-        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
-      
-      ans
-      
-    },
+    # hess  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
+    #   
+    #   ans <- exact_hessian(
+    #     params        = params,
+    #     x             = target.stats,
+    #     stats.weights = stats.weights,
+    #     stats.statmat = stats.statmat,
+    #     ncores        = ncores
+    #   )
+    #   
+    #   test <- which(!is.finite(ans))
+    #   if (length(test))
+    #     ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
+    #   
+    #   ans
+    #   
+    # },
     target.stats  = target.stats,
     stats.weights = stats.weights,
     stats.statmat = stats.statmat,

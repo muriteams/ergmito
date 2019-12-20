@@ -56,17 +56,17 @@ analyze_formula <- function(x, check_w_ergm = FALSE) {
   
   terms_names <- gsub("[(].+", "", terms_passed)
   
-  # Do the terms exists?
-  if (check_w_ergm) {
-    terms_exists <- sapply(terms_names, function(z) {
-      out <- utils::capture.output(ergm::search.ergmTerms(name = z))[1]
-      !grepl("^No terms named", out, ignore.case = TRUE)
-      })
-    
-    if (any(!terms_exists))
-      stop("The following terms are not found in `ergm`: ", 
-           paste(terms_names[!terms_exists], sep = ", "), ".", call. = FALSE)
-  }
+  # # Do the terms exists?
+  # if (check_w_ergm) {
+  #   terms_exists <- sapply(terms_names, function(z) {
+  #     out <- utils::capture.output(ergm::search.ergmTerms(name = z))[1]
+  #     !grepl("^No terms named", out, ignore.case = TRUE)
+  #     })
+  #   
+  #   if (any(!terms_exists))
+  #     stop("The following terms are not found in `ergm`: ", 
+  #          paste(terms_names[!terms_exists], sep = ", "), ".", call. = FALSE)
+  # }
   
   list(
     passed    = terms_passed,

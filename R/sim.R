@@ -156,7 +156,7 @@ new_rergmito <- function(
         ans$counts[[s]] <- parallel::parLapply(
           cl  = cl,
           X   = parallel::splitIndices(length(ans$networks[[s]]), ncores), 
-          FUN = function(idx) {
+          fun = function(idx) {
             
             # Making room
             smat <- matrix(ncol = length(ergm_model$names), nrow = length(idx))
