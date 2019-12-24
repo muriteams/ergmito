@@ -104,18 +104,33 @@ ergmito_formulae <- function(
     target.stats <- lapply(1:nrow(target.stats), function(i) target.stats[i,])
   
   # Checking types
-  test <- sapply(LHS, inherits, what = "network")
+  test     <- sapply(LHS, inherits, what = "network")
+  directed <- TRUE
   if (length(which(test))) {
     test[test] <- test[test] & !sapply(LHS[test], network::is.directed)
     
     test <- which(test)
-    if (length(test))
+    
+    if ((length(test) != 0) & (length(test) < length(LHS))) {
+      
       stop(
-        "One or more networks in the model are undirected. Currently, ",
-        "undirected networks are not supported by ergmito (but will, in the ",
-        "future). The following networks are marked as undirected: ",
-        paste(test, collapse = ", "), ".", call. = FALSE
+        "All networks should be of the same type. Right now, networks ",
+        paste(test, collapse = ", "), " are undirected while networks ",
+        paste(setdiff(1:length(LHS), test), collapse = ", "), " are directed.",
+        call. = FALSE
         )
+      
+    } else if (length(test)) {
+      
+      warning(
+        "ergmito does not fully support undirected graphs (yet). We will ",
+        "continue with the estimation process, but simulation is not supported ",
+        "for now.", call. = FALSE
+        )
+      
+      directed <- FALSE
+      
+    }
     
   }
   
@@ -165,7 +180,7 @@ ergmito_formulae <- function(
     
     # Should we use summary.formula?
     model_analysis <- analyze_formula(model)
-    if (all(model_analysis$names %in% AVAILABLE_STATS())) {
+    if (directed && all(model_analysis$names %in% AVAILABLE_STATS())) {
       
       target.stats <- count_stats(model)
       

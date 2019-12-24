@@ -58,6 +58,16 @@ new_rergmito <- function(
   
   # environment(model) <- parent.frame()
   
+  # Checking whether we are dealing with undirected networks
+  are_undirected <- which(is_undirected(model))
+  if (length(are_undirected))
+    stop(
+      "Simulation for undirected networks is not supported yet. The following ",
+      "networks in the model are undirected: ",
+      paste(are_undirected, collapse = ", "),
+      call. = FALSE
+      )
+  
   # What are the sizes
   if (!length(sizes)) {
     sizes <- nvertex(model)

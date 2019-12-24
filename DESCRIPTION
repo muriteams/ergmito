@@ -1,6 +1,6 @@
 Package: ergmito
-Version: 0.1-0
-Date: 2018-09-24
+Version: 0.1-1
+Date: 2019-12-23
 Title: Exponential Random Graph Models for Small Networks
 Description: Implementation of simulation and estimation algorithms for 
   Exponential Random Graph Models in the case of small networks using exact

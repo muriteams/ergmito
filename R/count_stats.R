@@ -56,18 +56,6 @@ analyze_formula <- function(x, check_w_ergm = FALSE) {
   
   terms_names <- gsub("[(].+", "", terms_passed)
   
-  # # Do the terms exists?
-  # if (check_w_ergm) {
-  #   terms_exists <- sapply(terms_names, function(z) {
-  #     out <- utils::capture.output(ergm::search.ergmTerms(name = z))[1]
-  #     !grepl("^No terms named", out, ignore.case = TRUE)
-  #     })
-  #   
-  #   if (any(!terms_exists))
-  #     stop("The following terms are not found in `ergm`: ", 
-  #          paste(terms_names[!terms_exists], sep = ", "), ".", call. = FALSE)
-  # }
-  
   list(
     passed    = terms_passed,
     names     = terms_names,
@@ -84,9 +72,21 @@ count_stats.formula <- function(X, ...) {
   
   # Retrieving networks
   LHS <- eval(X[[2]], envir = environment(X))
+  
   if (inherits(LHS, "matrix") | inherits(LHS, "network"))
     LHS <- list(LHS)
+
+  # Checking which ones are undirected
+  are_undirected <- is_undirected(LHS)
+  are_undirected <- which(are_undirected)
   
+  if (length(are_undirected))
+    stop(
+      "Counting statistics in undirected networks is not supported yet. ",
+      "The following networks in the formula are undirected: ",
+      paste(are_undirected, collapse = ", "), ".", call. = FALSE
+      )
+    
   # Analyzing the formula
   ergm_model <- analyze_formula(X)
   
@@ -127,9 +127,9 @@ count_stats.formula <- function(X, ...) {
   for (j in 1:ncol(out)) {
     
     out[, j] <- count_stats(
-      X = LHS,
-      ergm_model$names[j],
-      ergm_model$attrs[[j]]
+      X     = LHS,
+      terms = ergm_model$names[j],
+      attrs = ergm_model$attrs[[j]]
       )
     
   }
