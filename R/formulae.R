@@ -235,7 +235,6 @@ ergmito_formulae <- function(
       
     }
   
-  
   structure(list(
     loglik = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
       
@@ -365,13 +364,47 @@ print.ergmito_loglik <- function(x, ...) {
 
 #' Vectorized calculation of ERGM exact loglikelihood
 #' 
-#' This function can be compared to [ergm::ergm.exact] with the statistics
-#' centered at `x`, the observed statistic.
+#' This function can be compared to [ergm::ergm.exact] with the statistics not
+#' centered at `x`, the vector of observed statistics.
 #' 
 #' @param x Matrix. Observed statistics
 #' @param params Numeric vector. Parameter values of the model.
 #' @param stats.weights,stats.statmat Vector and Matrix as returned by [ergm::ergm.allstats].
 #' @param ncores Integer scalar. Number of cores to use with OpenMP (if available).
+#' @examples 
+#' data(fivenets)
+#' ans <- ergmito(fivenets ~ edges + nodematch("female"))
+#' 
+#' # This computes the likelihood for all the networks independently
+#' with(ans$formulae, {
+#'   exact_loglik(
+#'     x      = target.stats,
+#'     params = coef(ans),
+#'     stats.weights = stats.weights,
+#'     stats.statmat = stats.statmat
+#'   )
+#' })
+#' 
+#' # This should be close to zero
+#' with(ans$formulae, {
+#'   exact_gradient(
+#'     x      = target.stats,
+#'     params = coef(ans),
+#'     stats.weights = stats.weights,
+#'     stats.statmat = stats.statmat
+#'   )
+#' })
+#' 
+#' # Finally, the hessian
+#' with(ans$formulae, {
+#'   exact_hessian(
+#'     x      = target.stats,
+#'     params = coef(ans),
+#'     stats.weights = stats.weights,
+#'     stats.statmat = stats.statmat
+#'   )
+#' })
+#' 
 #' @export
 exact_loglik <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
   

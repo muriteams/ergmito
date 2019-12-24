@@ -92,6 +92,7 @@ An list of class \code{ergmito}:
 (see \link[stats:optim]{stats::optim}).
 \item \code{loglikelihood} Numeric. Final value of the objective function.
 \item \code{covar}         Square matrix of size \code{length(coef)}. Variance-covariance matrix
+computed using the exact hessian as implemented in \link{exact_hessian}.
 \item \code{coef.init}     Named vector of length \code{length(coef)}. Initial set of parameters
 used in the optimization.
 \item \code{formulae}      An object of class \link[=ergmito_formulae]{ergmito_loglik}.

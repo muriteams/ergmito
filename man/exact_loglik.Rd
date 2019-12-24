@@ -22,6 +22,41 @@ exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
 \item{ncores}{Integer scalar. Number of cores to use with OpenMP (if available).}
 }
 \description{
-This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics
-centered at \code{x}, the observed statistic.
+This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not
+centered at \code{x}, the vector of observed statistics.
+}
+\examples{
+data(fivenets)
+ans <- ergmito(fivenets ~ edges + nodematch("female"))
+
+# This computes the likelihood for all the networks independently
+with(ans$formulae, {
+  exact_loglik(
+    x      = target.stats,
+    params = coef(ans),
+    stats.weights = stats.weights,
+    stats.statmat = stats.statmat
+  )
+})
+
+# This should be close to zero
+with(ans$formulae, {
+  exact_gradient(
+    x      = target.stats,
+    params = coef(ans),
+    stats.weights = stats.weights,
+    stats.statmat = stats.statmat
+  )
+})
+
+# Finally, the hessian
+with(ans$formulae, {
+  exact_hessian(
+    x      = target.stats,
+    params = coef(ans),
+    stats.weights = stats.weights,
+    stats.statmat = stats.statmat
+  )
+})
+
 }

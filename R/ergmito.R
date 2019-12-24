@@ -40,6 +40,7 @@
 #'   (see [stats::optim]).
 #' - `loglikelihood` Numeric. Final value of the objective function.
 #' - `covar`         Square matrix of size `length(coef)`. Variance-covariance matrix
+#'   computed using the exact hessian as implemented in [exact_hessian].
 #' - `coef.init`     Named vector of length `length(coef)`. Initial set of parameters
 #'   used in the optimization.
 #' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
