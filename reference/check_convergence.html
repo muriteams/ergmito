@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/exact-gradient-and-hessian.html">Exact Gradient and Hessian</a>
+    </li>
     <li>
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
@@ -129,8 +132,7 @@
     <p>This is an internal function used to check the convergence of the optim function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>check_support</span>(<span class='no'>target.stats</span>, <span class='no'>stats.statmat</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
-  <span class='kw'>warn</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+    <pre class="usage"><span class='fu'>check_support</span>(<span class='no'>target.stats</span>, <span class='no'>stats.statmat</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>warn</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='fu'>check_convergence</span>(<span class='no'>optim_output</span>, <span class='no'>model</span>, <span class='no'>support</span>, <span class='kw'>crit</span> <span class='kw'>=</span> <span class='fl'>5</span>)</pre>
 
@@ -215,17 +217,17 @@ about the variance covaiance matrix.</p>
 <p>Possible codes and corresponding messages:</p><ul>
 <li><p>00 All OK (no message).</p></li>
 <li><p>01 optim converged, but the Hessian is not p.s.d.
-. <!-- % Convergence, but the hessian is not psd --></p></li>
+. % Convergence, but the hessian is not psd</p></li>
 <li><p>10 optim did not converged, but the estimates look OK.
-. <!-- % Optim did not reported convergence, but things look OK. --></p></li>
+. % Optim did not reported convergence, but things look OK.</p></li>
 <li><p>11 optim did not converged, and the Hessian is not p.s.d.
-. <!-- % Optim did not converged, but the hessian is not psd. --></p></li>
+. % Optim did not converged, but the hessian is not psd.</p></li>
 <li><p>20 A subset of the parameters estimates was replaced with +/-Inf.
-. <!-- % One or more estimates went to inf, all finite were able to be inverted. --></p></li>
+. % One or more estimates went to inf, all finite were able to be inverted.</p></li>
 <li><p>21 A subset of the parameters estimates was replaced with +/-Inf,  and the Hessian matrix is not p.s.d.
-. <!-- % One or more are inf, hessian is not psd --></p></li>
+. % One or more are inf, hessian is not psd</p></li>
 <li><p>30 All parameters went to +/-Inf suggesting that the MLE may not exists.
-. <!-- % All estimates went to Inf (degenerate distribution). --></p></li>
+. % All estimates went to Inf (degenerate distribution).</p></li>
 </ul>
 
 

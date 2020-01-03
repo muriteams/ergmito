@@ -79,7 +79,7 @@ gradient functions for joint models." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -101,6 +101,9 @@ gradient functions for joint models." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/exact-gradient-and-hessian.html">Exact Gradient and Hessian</a>
+    </li>
     <li>
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
@@ -133,9 +136,15 @@ statistics to be used in the model together with the log-likelihood and
 gradient functions for joint models.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>ergmito_formulae</span>(<span class='no'>model</span>, <span class='kw'>gattr_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>target.stats</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>stats.weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>stats.statmat</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>env</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sys.parent.html'>parent.frame</a></span>(),
-  <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>ergmito_formulae</span>(
+  <span class='no'>model</span>,
+  <span class='kw'>gattr_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>target.stats</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>stats.weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>stats.statmat</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>env</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sys.parent.html'>parent.frame</a></span>(),
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

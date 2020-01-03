@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/exact-gradient-and-hessian.html">Exact Gradient and Hessian</a>
+    </li>
     <li>
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
@@ -129,8 +132,15 @@
     <p>Using</p>
     </div>
 
-    <pre class="usage">new_rergmito(model, theta = NULL, sizes = NULL, mc.cores = 2L,
-  force = FALSE, ...)
+    <pre class="usage">new_rergmito(
+  model,
+  theta = NULL,
+  sizes = NULL,
+  cl = NULL,
+  ncores = 1L,
+  force = FALSE,
+  ...
+)
 
 # S3 method for ergmito_sampler
 [(x, i, j, ...)
@@ -154,8 +164,12 @@ print(x, ...)</pre>
       <td><p>Integer vector. Values between 2 to 5 (6 becomes too intensive).</p></td>
     </tr>
     <tr>
-      <th>mc.cores</th>
-      <td><p>Integer. Passed to <a href='https://rdrr.io/r/parallel/mclapply.html'>parallel::mclapply</a></p></td>
+      <th>cl</th>
+      <td><p>An object of class <a href='https://rdrr.io/r/parallel/makeCluster.html'>cluster</a>.</p></td>
+    </tr>
+    <tr>
+      <th>ncores</th>
+      <td><p>Integer. Number of processors to use.</p></td>
     </tr>
     <tr>
       <th>force</th>

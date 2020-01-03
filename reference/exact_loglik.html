@@ -43,8 +43,8 @@
 
 
 <meta property="og:title" content="Vectorized calculation of ERGM exact loglikelihood — exact_loglik" />
-<meta property="og:description" content="This function can be compared to ergm::ergm.exact with the statistics
-centered at x, the observed statistic." />
+<meta property="og:description" content="This function can be compared to ergm::ergm.exact with the statistics not
+centered at x, the vector of observed statistics." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -78,7 +78,7 @@ centered at x, the observed statistic." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -100,6 +100,9 @@ centered at x, the observed statistic." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/exact-gradient-and-hessian.html">Exact Gradient and Hessian</a>
+    </li>
     <li>
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
@@ -127,13 +130,15 @@ centered at x, the observed statistic." />
     </div>
 
     <div class="ref-description">
-    <p>This function can be compared to <a href='https://rdrr.io/pkg/ergm/man/ergm.exact.html'>ergm::ergm.exact</a> with the statistics
-centered at <code>x</code>, the observed statistic.</p>
+    <p>This function can be compared to <a href='https://rdrr.io/pkg/ergm/man/ergm.exact.html'>ergm::ergm.exact</a> with the statistics not
+centered at <code>x</code>, the vector of observed statistics.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>exact_loglik</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>)
+    <pre class="usage"><span class='fu'>exact_loglik</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>)
 
-<span class='fu'>exact_gradient</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>)</pre>
+<span class='fu'>exact_gradient</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>)
+
+<span class='fu'>exact_hessian</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,14 +155,55 @@ centered at <code>x</code>, the observed statistic.</p>
       <th>stats.weights, stats.statmat</th>
       <td><p>Vector and Matrix as returned by <a href='https://rdrr.io/pkg/ergm/man/ergm.allstats.html'>ergm::ergm.allstats</a>.</p></td>
     </tr>
+    <tr>
+      <th>ncores</th>
+      <td><p>Integer scalar. Number of cores to use with OpenMP (if available).</p></td>
+    </tr>
     </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
+<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))
+
+<span class='co'># This computes the likelihood for all the networks independently</span>
+<span class='fu'><a href='https://rdrr.io/r/base/with.html'>with</a></span>(<span class='no'>ans</span>$<span class='no'>formulae</span>, {
+  <span class='fu'>exact_loglik</span>(
+    <span class='kw'>x</span>      <span class='kw'>=</span> <span class='no'>target.stats</span>,
+    <span class='kw'>params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coef</a></span>(<span class='no'>ans</span>),
+    <span class='kw'>stats.weights</span> <span class='kw'>=</span> <span class='no'>stats.weights</span>,
+    <span class='kw'>stats.statmat</span> <span class='kw'>=</span> <span class='no'>stats.statmat</span>
+  )
+})</div><div class='output co'>#&gt; [1] -5.053823 -8.816668 -5.938485 -8.220780 -6.640788</div><div class='input'>
+<span class='co'># This should be close to zero</span>
+<span class='fu'><a href='https://rdrr.io/r/base/with.html'>with</a></span>(<span class='no'>ans</span>$<span class='no'>formulae</span>, {
+  <span class='fu'>exact_gradient</span>(
+    <span class='kw'>x</span>      <span class='kw'>=</span> <span class='no'>target.stats</span>,
+    <span class='kw'>params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coef</a></span>(<span class='no'>ans</span>),
+    <span class='kw'>stats.weights</span> <span class='kw'>=</span> <span class='no'>stats.weights</span>,
+    <span class='kw'>stats.statmat</span> <span class='kw'>=</span> <span class='no'>stats.statmat</span>
+  )
+})</div><div class='output co'>#&gt;              [,1]
+#&gt; [1,] 4.041216e-10
+#&gt; [2,] 3.826375e-10</div><div class='input'>
+<span class='co'># Finally, the hessian</span>
+<span class='fu'><a href='https://rdrr.io/r/base/with.html'>with</a></span>(<span class='no'>ans</span>$<span class='no'>formulae</span>, {
+  <span class='fu'>exact_hessian</span>(
+    <span class='kw'>x</span>      <span class='kw'>=</span> <span class='no'>target.stats</span>,
+    <span class='kw'>params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coef</a></span>(<span class='no'>ans</span>),
+    <span class='kw'>stats.weights</span> <span class='kw'>=</span> <span class='no'>stats.weights</span>,
+    <span class='kw'>stats.statmat</span> <span class='kw'>=</span> <span class='no'>stats.statmat</span>
+  )
+})</div><div class='output co'>#&gt;            [,1]      [,2]
+#&gt; [1,] -11.855204 -8.470588
+#&gt; [2,]  -8.470588 -8.470588</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

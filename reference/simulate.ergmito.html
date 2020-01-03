@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/exact-gradient-and-hessian.html">Exact Gradient and Hessian</a>
+    </li>
     <li>
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
@@ -130,8 +133,7 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for ergmito</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/simulate.html'>simulate</a></span>(<span class='no'>object</span>, <span class='kw'>nsim</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>which_networks</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/stats/simulate.html'>simulate</a></span>(<span class='no'>object</span>, <span class='kw'>nsim</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>which_networks</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='kw'>theta</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -155,7 +157,7 @@ of networks.</p></td>
 It must be within 1 and <code><a href='nvertex.html'>nnets(object)</a></code>.</p></td>
     </tr>
     <tr>
-      <th>...</th>
+      <th>theta, ...</th>
       <td><p>Further arguments passed to <a href='new_rergmito.html'>new_rergmito</a>.</p></td>
     </tr>
     </table>

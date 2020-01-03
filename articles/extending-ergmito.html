@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -61,6 +61,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/exact-gradient-and-hessian.html">Exact Gradient and Hessian</a>
+    </li>
+    <li>
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
   </ul>
@@ -82,7 +85,7 @@
       <h1>Extending ergmito</h1>
                         <h4 class="author">George G. Vega Yon</h4>
             
-            <h4 class="date">2019-11-26</h4>
+            <h4 class="date">2020-01-03</h4>
       
       
       <div class="hidden name"><code>extending-ergmito.Rmd</code></div>
@@ -102,20 +105,22 @@
 <a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">#&gt; Number of networks:  5 </span></a>
 <a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co">#&gt; Model:  fivenets ~ edges + ttriad </span></a>
 <a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co">#&gt; Available elements by using the $ operator:</span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt; loglik: function (params, stats.weights, stats.statmat, target.stats) grad  : function (params, stats.weights, stats.statmat, target.stats)</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt; loglik: function (params, stats.weights, stats.statmat, target.stats, grad  : function (params, stats.weights, stats.statmat, target.stats,</span></a>
 <a class="sourceLine" id="cb1-12" data-line-number="12"></a>
 <a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># Printing the loglikelihood function</span></a>
 <a class="sourceLine" id="cb1-14" data-line-number="14">model_object<span class="op">$</span>loglik</a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt; function (params, stats.weights, stats.statmat, target.stats) </span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt; {</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co">#&gt;     ans &lt;- sum(exact_loglik(params = params, x = target.stats, </span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co">#&gt;         stats.weights = stats.weights, stats.statmat = stats.statmat))</span></a>
-<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co">#&gt;     if (!is.finite(ans)) </span></a>
-<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="co">#&gt;         return(-.Machine$double.xmax * 1e-100)</span></a>
-<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="co">#&gt;     else return(ans)</span></a>
-<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="co">#&gt; }</span></a>
-<a class="sourceLine" id="cb1-23" data-line-number="23"><span class="co">#&gt; &lt;bytecode: 0xa0984b0&gt;</span></a>
-<a class="sourceLine" id="cb1-24" data-line-number="24"><span class="co">#&gt; &lt;environment: 0xa09a4e8&gt;</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt; function (params, stats.weights, stats.statmat, target.stats, </span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt;     ncores = 1L) </span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co">#&gt; {</span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co">#&gt;     ans &lt;- sum(exact_loglik(params = params, x = target.stats, </span></a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co">#&gt;         stats.weights = stats.weights, stats.statmat = stats.statmat, </span></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="co">#&gt;         ncores = ncores))</span></a>
+<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="co">#&gt;     if (!is.finite(ans)) </span></a>
+<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="co">#&gt;         return(-.Machine$double.xmax * 1e-100)</span></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23"><span class="co">#&gt;     else return(ans)</span></a>
+<a class="sourceLine" id="cb1-24" data-line-number="24"><span class="co">#&gt; }</span></a>
+<a class="sourceLine" id="cb1-25" data-line-number="25"><span class="co">#&gt; &lt;bytecode: 0x8bf2ac0&gt;</span></a>
+<a class="sourceLine" id="cb1-26" data-line-number="26"><span class="co">#&gt; &lt;environment: 0x8bf49a8&gt;</span></a></code></pre></div>
 <p>Notice that, while the function <code>ergmito_formulae</code> returns all the components needed to compute the joint likelihood, the function still needs all the parameters to be passed explicitly. The description of the parameters, which is also available in the package manual, is:</p>
 <ul>
 <li>
@@ -224,14 +229,14 @@
 <a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co">#&gt;    plus standard error of the mean:</span></a>
 <a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co">#&gt;        Mean     SD Naive SE Time-series SE</span></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt; par1 -1.639 0.4642  0.02076        0.04521</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; par2  1.510 0.5576  0.02494        0.05872</span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt; par1 -1.658 0.4696  0.02100        0.04897</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; par2  1.512 0.5797  0.02592        0.06377</span></a>
 <a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; 2. Quantiles for each variable:</span></a>
 <a class="sourceLine" id="cb6-16" data-line-number="16"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-17" data-line-number="17"><span class="co">#&gt;         2.5%    25%    50%    75%   97.5%</span></a>
-<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co">#&gt; par1 -2.5439 -1.945 -1.614 -1.281 -0.8437</span></a>
-<a class="sourceLine" id="cb6-19" data-line-number="19"><span class="co">#&gt; par2  0.5259  1.112  1.495  1.878  2.6377</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co">#&gt; par1 -2.5609 -1.962 -1.659 -1.345 -0.8028</span></a>
+<a class="sourceLine" id="cb6-19" data-line-number="19"><span class="co">#&gt; par2  0.4657  1.112  1.475  1.896  2.6467</span></a></code></pre></div>
 <p>Finally, we can compare this result with what we obtain from the <code>ergmito</code> function</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw"><a href="../reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw">nodematch</span>(<span class="st">"female"</span>)))</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; </span></a>

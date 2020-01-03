@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/exact-gradient-and-hessian.html">Exact Gradient and Hessian</a>
+    </li>
     <li>
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
@@ -129,15 +132,29 @@
     <p>Goodness of Fit diagnostics for ERGMito models</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gof_ergmito</span>(<span class='no'>object</span>, <span class='kw'>GOF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>probs</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.05</span>, <span class='fl'>0.95</span>),
-  <span class='kw'>sim_ci</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>R</span> <span class='kw'>=</span> <span class='fl'>50000L</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>gof_ergmito</span>(
+  <span class='no'>object</span>,
+  <span class='kw'>GOF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>probs</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.05</span>, <span class='fl'>0.95</span>),
+  <span class='kw'>sim_ci</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>R</span> <span class='kw'>=</span> <span class='fl'>50000L</span>,
+  <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
+  <span class='no'>...</span>
+)
 
 <span class='co'># S3 method for ergmito_gof</span>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>2L</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito_gof</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>x</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>main</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sub</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>tnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sort_by_ci</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
+  <span class='no'>x</span>,
+  <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>main</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>sub</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>tnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>sort_by_ci</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,6 +180,10 @@ quantiles analytically, otherwise it samples from the ERGM distribution.</p></td
       <th>R</th>
       <td><p>Integer scalar. Number of simulations to generate (passed to <a href='https://rdrr.io/r/base/sample.html'>sample</a>).
 This is only used if <code>sim_ci = TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>ncores</th>
+      <td><p>Integer scalar. Number of cores to use for parallel computations.</p></td>
     </tr>
     <tr>
       <th>...</th>

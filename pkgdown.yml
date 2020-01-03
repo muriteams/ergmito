@@ -2,5 +2,6 @@ pandoc: '2.2'
 pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
+  exact-gradient-and-hessian: exact-gradient-and-hessian.html
   extending-ergmito: extending-ergmito.html
 

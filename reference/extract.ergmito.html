@@ -78,7 +78,7 @@ of little ERGMS." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -100,6 +100,9 @@ of little ERGMS." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/exact-gradient-and-hessian.html">Exact Gradient and Hessian</a>
+    </li>
     <li>
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
@@ -131,9 +134,15 @@ of little ERGMS." />
 of little ERGMS.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>extract.ergmito</span>(<span class='no'>model</span>, <span class='kw'>include.aic</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>include.bic</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>include.loglik</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>include.nnets</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>include.convergence</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>extract.ergmito</span>(
+  <span class='no'>model</span>,
+  <span class='kw'>include.aic</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>include.bic</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>include.loglik</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>include.nnets</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>include.convergence</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
