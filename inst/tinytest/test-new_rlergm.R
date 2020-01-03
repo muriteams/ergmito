@@ -55,7 +55,7 @@ Sys.unsetenv("ERGMITO_TEST")
 set.seed(554)
 nets <- rbernoulli(4)
 nets <- network::network(nets, directed = FALSE)
-ans <- new_rergmito(nets ~ edges + esp(2), force = TRUE)
+ans  <- suppressWarnings(new_rergmito(nets ~ edges + esp(2), force = TRUE))
 
 expect_length(ans$networks$`4`, 2^(4*3/2))
 expect_equal(
