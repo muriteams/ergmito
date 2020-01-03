@@ -54,12 +54,12 @@ matrix_to_network. <- function(x, directed, hyper, loops, multiple, bipartite) {
     .Call(`_ergmito_matrix_to_network`, x, directed, hyper, loops, multiple, bipartite)
 }
 
-make_sets <- function(n) {
-    .Call(`_ergmito_make_sets`, n)
+make_sets <- function(n, directed = TRUE) {
+    .Call(`_ergmito_make_sets`, n, directed)
 }
 
-.powerset <- function(n, force = FALSE) {
-    .Call(`_ergmito_powerset`, n, force)
+.powerset <- function(n, force = FALSE, directed = TRUE) {
+    .Call(`_ergmito_powerset`, n, force, directed)
 }
 
 wrap_powerset <- function(sets, from, to, n) {

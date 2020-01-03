@@ -4,13 +4,16 @@
 \alias{powerset}
 \title{Power set of Directed Graphs of size \code{n}}
 \usage{
-powerset(n, force = FALSE, chunk_size = 2e+05)
+powerset(n, directed = TRUE, force = FALSE, chunk_size = 2e+05)
 }
 \arguments{
 \item{n}{Integer. Number of edges.}
 
-\item{force}{Logical. When \code{TRUE} it generates the powerset for \code{n>5}, otherwise
-it returns with error.}
+\item{directed}{Logical scalar. Whether to generate the power set of directed
+or undirected graphs,}
+
+\item{force}{Logical scalar. When \code{TRUE} it generates the powerset for \code{n>5},
+otherwise it returns with error.}
 
 \item{chunk_size}{Number of matrices to process at a time. If n = 5, then
 stack memory on the computer may overflow if \code{chunk_size} is relatively large.}
@@ -20,4 +23,5 @@ Power set of Directed Graphs of size \code{n}
 }
 \examples{
 powerset(2)
+powerset(4, directed = FALSE)
 }

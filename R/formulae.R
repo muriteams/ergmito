@@ -124,7 +124,7 @@ ergmito_formulae <- function(
       
       warning(
         "ergmito does not fully support undirected graphs (yet). We will ",
-        "continue with the estimation process, but simulation is not supported ",
+        "continue with the estimation process, but simulation has limited supported ",
         "for now.", call. = FALSE
         )
       
@@ -180,6 +180,15 @@ ergmito_formulae <- function(
     
     # Should we use summary.formula?
     model_analysis <- analyze_formula(model)
+    
+    # Checking gw terms
+    if (any(grepl("^d?gw", model_analysis$names)))
+      stop(
+      "Currently, geometrically weighted terms are not supported in ergmito.",
+      " For more information, see https://github.com/muriteams/ergmito/issues/17.",
+      call. = FALSE
+      )
+    
     if (directed && all(model_analysis$names %in% AVAILABLE_STATS())) {
       
       target.stats <- count_stats(model)

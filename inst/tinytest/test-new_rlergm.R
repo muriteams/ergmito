@@ -49,3 +49,17 @@ expect_equal(ans$get_networks(s = 3), powerset(3))
 expect_equal(ans$get_networks(s = 3), ans[,3]$`3`)
 
 Sys.unsetenv("ERGMITO_TEST")
+
+
+# Undirected networks ----------------------------------------------------------
+set.seed(554)
+nets <- rbernoulli(4)
+nets <- network::network(nets, directed = FALSE)
+ans <- new_rergmito(nets ~ edges + esp(2), force = TRUE)
+
+expect_length(ans$networks$`4`, 2^(4*3/2))
+expect_equal(
+  as_adjmat(ans$get_networks(s = 4)),
+  powerset(4, directed = FALSE)
+  )
+expect_equal(sum(ans$prob$`4`), 1)

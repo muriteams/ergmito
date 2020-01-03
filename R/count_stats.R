@@ -77,13 +77,13 @@ count_stats.formula <- function(X, ...) {
     LHS <- list(LHS)
 
   # Checking which ones are undirected
-  are_undirected <- is_undirected(LHS)
+  are_undirected <- !is_directed(LHS)
   are_undirected <- which(are_undirected)
   
   if (length(are_undirected))
     stop(
-      "Counting statistics in undirected networks is not supported yet. ",
-      "The following networks in the formula are undirected: ",
+      "Counting statistics with count_stats in undirected networks is not ",
+      "supported yet. The following networks in the formula are undirected: ",
       paste(are_undirected, collapse = ", "), ".", call. = FALSE
       )
     
@@ -93,7 +93,11 @@ count_stats.formula <- function(X, ...) {
   # Can we do it?
   available <- which(!(ergm_model$names %in% count_available()))
   if (length(available))
-    stop("The following terms cannot be computed")
+    stop(
+      "The following term(s)s are not available in count_stats: ",
+      paste(ergm_model$names[available], collapse = ", "),
+      ".", call. = FALSE
+      )
   
   # Capturing attributes
   for (a in seq_along(ergm_model$attrnames)) {

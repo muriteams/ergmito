@@ -111,23 +111,25 @@ BEGIN_RCPP
 END_RCPP
 }
 // make_sets
-vecint make_sets(int n);
-RcppExport SEXP _ergmito_make_sets(SEXP nSEXP) {
+vecint make_sets(int n, bool directed);
+RcppExport SEXP _ergmito_make_sets(SEXP nSEXP, SEXP directedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(make_sets(n));
+    Rcpp::traits::input_parameter< bool >::type directed(directedSEXP);
+    rcpp_result_gen = Rcpp::wrap(make_sets(n, directed));
     return rcpp_result_gen;
 END_RCPP
 }
 // powerset
-SEXP powerset(int n, bool force);
-RcppExport SEXP _ergmito_powerset(SEXP nSEXP, SEXP forceSEXP) {
+SEXP powerset(int n, bool force, bool directed);
+RcppExport SEXP _ergmito_powerset(SEXP nSEXP, SEXP forceSEXP, SEXP directedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< bool >::type force(forceSEXP);
-    rcpp_result_gen = Rcpp::wrap(powerset(n, force));
+    Rcpp::traits::input_parameter< bool >::type directed(directedSEXP);
+    rcpp_result_gen = Rcpp::wrap(powerset(n, force, directed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -154,8 +156,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 5},
     {"_ergmito_exact_hessian", (DL_FUNC) &_ergmito_exact_hessian, 5},
     {"_ergmito_matrix_to_network", (DL_FUNC) &_ergmito_matrix_to_network, 6},
-    {"_ergmito_make_sets", (DL_FUNC) &_ergmito_make_sets, 1},
-    {"_ergmito_powerset", (DL_FUNC) &_ergmito_powerset, 2},
+    {"_ergmito_make_sets", (DL_FUNC) &_ergmito_make_sets, 2},
+    {"_ergmito_powerset", (DL_FUNC) &_ergmito_powerset, 3},
     {"_ergmito_wrap_powerset", (DL_FUNC) &_ergmito_wrap_powerset, 4},
     {NULL, NULL, 0}
 };
