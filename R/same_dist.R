@@ -43,7 +43,7 @@ same_dist <- function(net0, net1, ...) UseMethod("same_dist")
 #' @rdname same_dist
 same_dist.matrix <- function(net0, net1, attrnames = NULL, ...) {
   
-  if (!is.matrix(net1))
+  if (!inherits(net1, "matrix"))
     stop(
       "Cannot compare two objects with differnt classes. ",
       "`net0` is of class matrix while `net1` of class '",

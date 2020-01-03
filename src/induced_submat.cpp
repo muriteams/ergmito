@@ -45,19 +45,19 @@ std::vector< IntegerMatrix > induced_submat(
   unsigned int * net_ptr, * vs_ptr, *N,
   i, zero = 0u, nnets = nets.size(), nvs = vs.size();
   
-  if (nnets == 0 | nvs == 0) {
+  if ((nnets == 0) | (nvs == 0)) {
     stop("One of `nets` or `vs` is of length 0.");
-  } else  if ((nnets > 1 & nvs > 1) && (nets.size() != vs.size())) {
+  } else  if (((nnets > 1) & (nvs > 1)) && (nets.size() != vs.size())) {
     stop("The length of `nets` should be the same as `vs`.");
   } else if (nnets == nvs) {
     N       = &nnets;
     net_ptr = &i;
     vs_ptr  = &i;
-  } else if (nnets > 1 & nvs == 1) {
+  } else if ((nnets > 1) & (nvs == 1)) {
     N       = &nnets;
     net_ptr = &i;
     vs_ptr  = &zero;
-  } else if (nnets == 1 & nvs > 1) {
+  } else if ((nnets == 1) & (nvs > 1)) {
     N       = &nvs;
     net_ptr = &zero;
     vs_ptr  = &i;

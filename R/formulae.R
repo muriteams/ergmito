@@ -62,10 +62,16 @@ ergmito_formulae <- function(
   if (inherits(LHS, "list")) {
     
     # Are all either matrices or networks?
-    test <- which(!(sapply(LHS, class) %in% c("matrix", "network")))
+    test <- which(!(
+      sapply(LHS, inherits, what = "matrix") | sapply(LHS, inherits, what = "network")
+      ))
     if (length(test))
-      stop("One of the components is not a matrix `", deparse(model[[2]]),
-         "` is of class ", class(LHS), ".", call. = FALSE)
+      stop(
+        "One of the components is not a matrix `", deparse(model[[2]]),
+        "` is of class ",
+        paste(sapply(LHS, class)[test], collapse = ", "),
+        ".",
+        call. = FALSE)
     
   } else if (inherits(LHS, "matrix") | inherits(LHS, "network")) {
     
@@ -98,18 +104,33 @@ ergmito_formulae <- function(
     target.stats <- lapply(1:nrow(target.stats), function(i) target.stats[i,])
   
   # Checking types
-  test <- sapply(LHS, inherits, what = "network")
+  test     <- sapply(LHS, inherits, what = "network")
+  directed <- TRUE
   if (length(which(test))) {
     test[test] <- test[test] & !sapply(LHS[test], network::is.directed)
     
     test <- which(test)
-    if (length(test))
+    
+    if ((length(test) != 0) & (length(test) < length(LHS))) {
+      
       stop(
-        "One or more networks in the model are undirected. Currently, ",
-        "undirected networks are not supported by ergmito (but will, in the ",
-        "future). The following networks are marked as undirected: ",
-        paste(test, collapse = ", "), ".", call. = FALSE
+        "All networks should be of the same type. Right now, networks ",
+        paste(test, collapse = ", "), " are undirected while networks ",
+        paste(setdiff(1:length(LHS), test), collapse = ", "), " are directed.",
+        call. = FALSE
         )
+      
+    } else if (length(test)) {
+      
+      warning(
+        "ergmito does not fully support undirected graphs (yet). We will ",
+        "continue with the estimation process, but simulation is not supported ",
+        "for now.", call. = FALSE
+        )
+      
+      directed <- FALSE
+      
+    }
     
   }
   
@@ -159,7 +180,7 @@ ergmito_formulae <- function(
     
     # Should we use summary.formula?
     model_analysis <- analyze_formula(model)
-    if (all(model_analysis$names %in% AVAILABLE_STATS())) {
+    if (directed && all(model_analysis$names %in% AVAILABLE_STATS())) {
       
       target.stats <- count_stats(model)
       
@@ -229,15 +250,15 @@ ergmito_formulae <- function(
       
     }
   
-  
   structure(list(
-    loglik = function(params, stats.weights, stats.statmat, target.stats) {
+    loglik = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
       
       ans <- sum(exact_loglik(
         params        = params,
         x             = target.stats,
         stats.weights = stats.weights,
-        stats.statmat = stats.statmat
+        stats.statmat = stats.statmat,
+        ncores        = ncores
       ))
       
       # If awfully undefined
@@ -248,13 +269,14 @@ ergmito_formulae <- function(
       # max(ans, -.Machine$double.xmax/1e100)
       
     },
-    grad  = function(params, stats.weights, stats.statmat, target.stats) {
+    grad  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
 
       ans <- exact_gradient(
         params        = params,
         x             = target.stats,
         stats.weights = stats.weights,
-        stats.statmat = stats.statmat
+        stats.statmat = stats.statmat,
+        ncores        = ncores
       )
 
       test <- which(!is.finite(ans))
@@ -264,6 +286,23 @@ ergmito_formulae <- function(
       ans
       
     },
+    # hess  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
+    #   
+    #   ans <- exact_hessian(
+    #     params        = params,
+    #     x             = target.stats,
+    #     stats.weights = stats.weights,
+    #     stats.statmat = stats.statmat,
+    #     ncores        = ncores
+    #   )
+    #   
+    #   test <- which(!is.finite(ans))
+    #   if (length(test))
+    #     ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
+    #   
+    #   ans
+    #   
+    # },
     target.stats  = target.stats,
     stats.weights = stats.weights,
     stats.statmat = stats.statmat,
@@ -340,14 +379,49 @@ print.ergmito_loglik <- function(x, ...) {
 
 #' Vectorized calculation of ERGM exact loglikelihood
 #' 
-#' This function can be compared to [ergm::ergm.exact] with the statistics
-#' centered at `x`, the observed statistic.
+#' This function can be compared to [ergm::ergm.exact] with the statistics not
+#' centered at `x`, the vector of observed statistics.
 #' 
 #' @param x Matrix. Observed statistics
 #' @param params Numeric vector. Parameter values of the model.
 #' @param stats.weights,stats.statmat Vector and Matrix as returned by [ergm::ergm.allstats].
+#' @param ncores Integer scalar. Number of cores to use with OpenMP (if available).
+#' @examples 
+#' data(fivenets)
+#' ans <- ergmito(fivenets ~ edges + nodematch("female"))
+#' 
+#' # This computes the likelihood for all the networks independently
+#' with(ans$formulae, {
+#'   exact_loglik(
+#'     x      = target.stats,
+#'     params = coef(ans),
+#'     stats.weights = stats.weights,
+#'     stats.statmat = stats.statmat
+#'   )
+#' })
+#' 
+#' # This should be close to zero
+#' with(ans$formulae, {
+#'   exact_gradient(
+#'     x      = target.stats,
+#'     params = coef(ans),
+#'     stats.weights = stats.weights,
+#'     stats.statmat = stats.statmat
+#'   )
+#' })
+#' 
+#' # Finally, the hessian
+#' with(ans$formulae, {
+#'   exact_hessian(
+#'     x      = target.stats,
+#'     params = coef(ans),
+#'     stats.weights = stats.weights,
+#'     stats.statmat = stats.statmat
+#'   )
+#' })
+#' 
 #' @export
-exact_loglik <- function(x, params, stats.weights, stats.statmat) {
+exact_loglik <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -400,7 +474,8 @@ exact_loglik <- function(x, params, stats.weights, stats.statmat) {
         x[i:j, , drop = FALSE],
         params,
         stats_weights = stats.weights[i:j],
-        stats_statmat = stats.statmat[i:j]
+        stats_statmat = stats.statmat[i:j],
+        ncores        = ncores
         )
       
     }
@@ -414,7 +489,8 @@ exact_loglik <- function(x, params, stats.weights, stats.statmat) {
         x[i:j, ,drop=FALSE],
         params,
         stats_weights = stats.weights,
-        stats_statmat = stats.statmat
+        stats_statmat = stats.statmat,
+        ncores        = ncores
         )
       
     }
@@ -433,7 +509,7 @@ exact_loglik2 <- function(params, stat0, stats) {
 
 #' @rdname exact_loglik
 #' @export
-exact_gradient <- function(x, params, stats.weights, stats.statmat) {
+exact_gradient <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -484,8 +560,72 @@ exact_gradient <- function(x, params, stats.weights, stats.statmat) {
       x[i:j, ,drop=FALSE],
       params,
       stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j]
+      stats_statmat = stats.statmat[i:j],
+      ncores        = ncores
       )
+    
+  }
+  
+  ans
+  
+}
+
+#' @rdname exact_loglik
+#' @export
+exact_hessian <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
+  
+  # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
+  chunks <- make_chunks(nrow(x), 4e5)
+  
+  n <- nrow(x)
+  
+  # Checking the weights and stats mat
+  if (n == 1) {
+    # If only one observation
+    
+    if (!is.list(stats.weights))
+      stats.weights <- list(stats.weights)
+    
+    if (!is.list(stats.statmat))
+      stats.statmat <- list(stats.statmat)
+    
+  } else if (n > 1) {
+    # If more than 1, then perhaps we need to recycle the values
+    
+    if (!is.list(stats.weights)) {
+      stats.weights <- list(stats.weights)
+    } else if (length(stats.weights) != n) {
+      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
+    
+    if (!is.list(stats.statmat)) {
+      stats.statmat <- list(stats.statmat)
+    } else if (length(stats.statmat) != n) {
+      stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
+    
+  } else 
+    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
+  
+  
+  # Computing in chunks
+  ans <- matrix(0, nrow = length(params), ncol = length(params))
+  for (s in seq_along(chunks$from)) {
+    
+    i <- chunks$from[s]
+    j <- chunks$to[s]
+    
+    ans <- ans + exact_hessian.(
+      x[i:j, ,drop=FALSE],
+      params,
+      stats_weights = stats.weights[i:j],
+      stats_statmat = stats.statmat[i:j],
+      ncores        = ncores
+    )
     
   }
   

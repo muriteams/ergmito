@@ -6,7 +6,7 @@
 
 using namespace Rcpp;
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 vecint make_sets(int n) {
   
   int m = n*(n-1);
@@ -51,7 +51,7 @@ void powerset(vecvecint * sets, int n) {
   
 }
 
-// [[Rcpp::export(name=".powerset")]]
+// [[Rcpp::export(name=".powerset", rng = false)]]
 SEXP powerset(int n, bool force = false) {
   
   if (n > 5 && !force)
@@ -80,7 +80,7 @@ SEXP powerset(int n, bool force = false) {
 
 // This is another wrapper, this takes care of turning those integer vectors
 // into NumericMatrix of size 2.
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 List wrap_powerset(
     SEXP sets,
     int from,

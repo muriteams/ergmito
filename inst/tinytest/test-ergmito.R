@@ -41,3 +41,5 @@ expect_equal(vcov(ans0), vcov(ans1)*2, tolerance = 1e-4) # Vcov is half of it!
 expect_output(print(ans0), "ERGMito")
 expect_output(print(summary(ans0)), "z value")
 
+net1 <- network::network(net1, directed = FALSE)
+expect_warning(ergmito(net1 ~ edges), "undirected graphs")

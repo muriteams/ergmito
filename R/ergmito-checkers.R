@@ -65,7 +65,8 @@ CONVERGENCE_DICTIONARY <- list(
     "A subset of the parameters estimates was replaced with +/-Inf, ",
     "and the Hessian matrix is not p.s.d."
   ),
-  `30` = "All parameters went to +/-Inf suggesting that the MLE may not exists."
+  `30` = "All parameters went to +/-Inf suggesting that the MLE may not exists.",
+  `31` = "All parameters went to +/-Inf suggesting that the MLE may not exists. Also, the Hessian is not p.s.d."
 )
 
 map_convergence_message <- function(x) {
@@ -169,7 +170,13 @@ check_convergence <- function(
     )
   
   # We will update this later
-  estimates$vcov[] <- optim_output$hessian
+  # estimates$vcov[] <- optim_output$hessian
+  estimates$vcov[] <- exact_hessian(
+    x             = model$target.stats,
+    params        = optim_output$par,
+    stats.weights = model$stats.weights,
+    stats.statmat = model$stats.statmat
+  )
   
   # Step 1: Checking parameter estimates ---------------------------------------
   if (length(to_check)) {
@@ -210,20 +217,20 @@ check_convergence <- function(
         )
       
       estimates$status <- 30L
-      estimates$note   <- map_convergence_message(estimates$status)
-      return(estimates)
+      
     } else if (length(modified)) {
       
       # Updating the hessian matrix. We cannot use infite values for this step
       # since optimHess will return with an error. That's why we just use a
       # very large value instead
       newpars <- estimates$par
-      newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)])*1e5
-      estimates$hessian <- stats::optimHess(
-        par = newpars, fn = model$loglik, gr = model$grad,
+      newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)])*5
+      
+      estimates$vcov <- exact_hessian(
+        params        = newpars,
+        x             = model$target.stats,
         stats.weights = model$stats.weights,
-        stats.statmat = model$stats.statmat,
-        target.stats  = model$target.stats
+        stats.statmat = model$stats.statmat
       )
       
       # The observed likelihood will change as well, it may be the case that it
@@ -249,7 +256,11 @@ check_convergence <- function(
   if (inherits(vcov., "error")) {
     
     # Trying to estimate using the Generalized Inverse
-    estimates$vcov[] <- MASS::ginv(-estimates$vcov)
+    vcov. <- tryCatch(MASS::ginv(-estimates$vcov), error = function(e) e)
+    if (inherits(vcov., "error"))
+      estimates$vcov[] <- NA
+    else
+      estimates$vcov[] <- vcov.
     
     # Wasn't able to fully estimate it...
     estimates$status <- estimates$status + 1L

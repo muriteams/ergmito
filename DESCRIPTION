@@ -1,8 +1,8 @@
 Package: ergmito
-Version: 0.1-0
-Date: 2018-09-24
+Version: 0.1-1
+Date: 2019-12-23
 Title: Exponential Random Graph Models for Small Networks
-Description: The package implements simulation and estimation algorithms for 
+Description: Implementation of simulation and estimation algorithms for 
   Exponential Random Graph Models in the case of small networks using exact
   statistics. As a difference from the 'ergm' package, 'ergmito' skips the
   MCMC part of the estimation process and goes straight to MLE.
@@ -14,14 +14,13 @@ Authors@R: c(
       role = "fnd", comment = "Grant Number W911NF-15-1-0577")
       )
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Encoding: UTF-8
 Imports: 
     ergm,
     network,
     MASS,
     Rcpp,
-    RcppArmadillo,
     texreg,
     stats,
     parallel,
@@ -43,3 +42,4 @@ Collate: 'RcppExports.R' 'boot.R' 'count_stats.R' 'data.R' 'ergm_blockdiagonal.R
             'network.R' 'powerset.R' 'predict.R' 'random.R' 'same_dist.R' 'sim.R' 'simulate.R' 'texreg.R'
             'utils.R'
 VignetteBuilder: knitr
+LazyData: true

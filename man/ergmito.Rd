@@ -12,9 +12,20 @@
 \alias{formula.ergmito}
 \title{Estimation of ERGMs using Exact likelihood functions}
 \usage{
-ergmito(model, gattr_model = NULL, stats.weights = NULL,
-  stats.statmat = NULL, optim.args = list(), init = NULL,
-  use.grad = TRUE, target.stats = NULL, ntries = 1L, ...)
+ergmito(
+  model,
+  gattr_model = NULL,
+  stats.weights = NULL,
+  stats.statmat = NULL,
+  optim.args = list(),
+  init = NULL,
+  use.grad = TRUE,
+  target.stats = NULL,
+  ntries = 1L,
+  ncores = 1L,
+  keep.stats = TRUE,
+  ...
+)
 
 \method{print}{ergmito}(x, ...)
 
@@ -55,6 +66,14 @@ This is intended for testing only (internal use).}
 
 \item{ntries}{Integer scalar. Number of tries to estimate the MLE (see details).}
 
+\item{ncores}{Integer scalar. Number of cores (threads) for parallel
+computation.}
+
+\item{keep.stats}{Logical scalar. When \code{TRUE} (the default), the matrices
+and vectors associated with the sufficient statistics will be returned.
+Otherwise the function discards them. This may be useful for saving memory
+space when estimating multiple models.}
+
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}
 
@@ -73,6 +92,7 @@ An list of class \code{ergmito}:
 (see \link[stats:optim]{stats::optim}).
 \item \code{loglikelihood} Numeric. Final value of the objective function.
 \item \code{covar}         Square matrix of size \code{length(coef)}. Variance-covariance matrix
+computed using the exact hessian as implemented in \link{exact_hessian}.
 \item \code{coef.init}     Named vector of length \code{length(coef)}. Initial set of parameters
 used in the optimization.
 \item \code{formulae}      An object of class \link[=ergmito_formulae]{ergmito_loglik}.
@@ -81,6 +101,8 @@ used in the optimization.
 \item \code{best_try}      Integer scalar. Index of the run with the highest loglike value.
 \item \code{history}       Matrix of size \code{ntries * (k + 1)}. History of the parameter
 estimates and the reached loglike values.
+\item \code{timer}         Vector of times (for benchmarking). Each unit marks the starting
+point of the step.
 }
 }
 \description{

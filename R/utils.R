@@ -110,6 +110,63 @@ nnets.formula <- function(x) {
   
 }
 
+#' @export
+#' @rdname nvertex
+#' @param check_type Logical scalar. When checking for whether the network is
+#' directed or not, we can ask the function to return with an error if what we
+#' are checking is not an object of class network, otherwise it simply returns
+#' false.
+#' @return `is_undirected` checks whether the passed networks are undirected by
+#' negating the function [network::is.directed]. In the case of multiple networks,
+#' the function returns a logical vector. Only objects of class `network` can be
+#' checked, otherwise, if `check_type = FALSE`, the function returns false by default.
+#' @examples 
+#' set.seed(771)
+#' net <- lapply(rbernoulli(c(4, 4)), network::network, directed = FALSE)
+#' is_undirected(net)
+#' is_undirected(net[[1]])
+#' is_undirected(net ~ edges)
+#' # is_undirected(net[[1]][1:4, 1:4], check_type = TRUE) # Error
+#' is_undirected(net[[1]][1:4, 1:4])
+is_undirected <- function(x, check_type = FALSE) UseMethod("is_undirected")
+
+#' @export
+#' @rdname nvertex
+is_undirected.network <- function(x, check_type = FALSE) !network::is.directed(x)
+
+#' @export
+#' @rdname nvertex
+is_undirected.list <- function(x, check_type = FALSE) {
+  sapply(x, is_undirected, check_type = check_type)
+}
+
+#' @export
+#' @rdname nvertex
+is_undirected.default <- function(x, check_type = FALSE) {
+  
+  if (check_type) 
+    stop(
+      "Only objects of class `network` or `ergmito` can be checked for directed.",
+      call. = FALSE
+      )
+  else if (inherits(x, "list"))
+    return(rep(FALSE, length(x)))
+  else
+    return(FALSE)
+}
+
+#' @export
+#' @rdname nvertex
+is_undirected.ergmito <- function(x, check_type = FALSE) {
+  is_undirected(x$network, check_type = check_type)
+}
+
+#' @export
+#' @rdname nvertex
+is_undirected.formula <- function(x, check_type = FALSE) {
+  is_undirected(eval(x[[2]], envir = environment(x)), check_type = check_type)
+}
+
 #' An alternative to `as.matrix` to retrieve adjacency matrix fast
 #' 
 #' This function does not perform significant checks. Furthermore, this function

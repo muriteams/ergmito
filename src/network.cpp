@@ -269,7 +269,7 @@ inline ListOf< List > matrix_to_networki(
   
 }
 
-// [[Rcpp::export(name="matrix_to_network.")]]
+// [[Rcpp::export(name="matrix_to_network.", rng = false)]]
 ListOf< List > matrix_to_network(
     const ListOf< IntegerMatrix > & x,
     const LogicalVector & directed ,

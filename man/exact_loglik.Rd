@@ -3,11 +3,14 @@
 \name{exact_loglik}
 \alias{exact_loglik}
 \alias{exact_gradient}
+\alias{exact_hessian}
 \title{Vectorized calculation of ERGM exact loglikelihood}
 \usage{
-exact_loglik(x, params, stats.weights, stats.statmat)
+exact_loglik(x, params, stats.weights, stats.statmat, ncores = 1L)
 
-exact_gradient(x, params, stats.weights, stats.statmat)
+exact_gradient(x, params, stats.weights, stats.statmat, ncores = 1L)
+
+exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}
@@ -15,8 +18,45 @@ exact_gradient(x, params, stats.weights, stats.statmat)
 \item{params}{Numeric vector. Parameter values of the model.}
 
 \item{stats.weights, stats.statmat}{Vector and Matrix as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
+
+\item{ncores}{Integer scalar. Number of cores to use with OpenMP (if available).}
 }
 \description{
-This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics
-centered at \code{x}, the observed statistic.
+This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not
+centered at \code{x}, the vector of observed statistics.
+}
+\examples{
+data(fivenets)
+ans <- ergmito(fivenets ~ edges + nodematch("female"))
+
+# This computes the likelihood for all the networks independently
+with(ans$formulae, {
+  exact_loglik(
+    x      = target.stats,
+    params = coef(ans),
+    stats.weights = stats.weights,
+    stats.statmat = stats.statmat
+  )
+})
+
+# This should be close to zero
+with(ans$formulae, {
+  exact_gradient(
+    x      = target.stats,
+    params = coef(ans),
+    stats.weights = stats.weights,
+    stats.statmat = stats.statmat
+  )
+})
+
+# Finally, the hessian
+with(ans$formulae, {
+  exact_hessian(
+    x      = target.stats,
+    params = coef(ans),
+    stats.weights = stats.weights,
+    stats.statmat = stats.statmat
+  )
+})
+
 }

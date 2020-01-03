@@ -1,0 +1,44 @@
+---
+title: "Exact Gradient and Hessian"
+author: "George G Vega Yon"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Exact Gradient and Hessian}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## The gradient
+
+$$
+\frac{\delta}{\delta\theta_k}\log{\Pr\left(\cdot\right)} = s_k(g) - \frac{\sum_{g'}s_k(g')\exp{\theta^ts(g')}}{\sum_{g'}\exp{\theta^ts(g')}},\quad\forall k
+$$
+
+Cosidering the iso statistics, we can simplify the summation by grouping, in particular, let $H$ be the set of all unique sets of statistics in $s(\cdot)$ and $w_h$ the size of the $h$-th group, then
+
+$$
+\frac{\delta}{\delta\theta_k}\log{\Pr\left(\cdot\right)} = s_k(g) - \frac{\sum_{h}w_hs_k(g_h)\exp{\theta^ts(g_h)}}{\sum_{h}w_h\exp{\theta^ts(g_h)}},\quad\forall k
+$$
+
+Where $g_h$ is any graph in the group $h$. We can write this in matrix form
+
+$$
+\nabla \log{\Pr\left(\cdot\right)} = s^t(g) - s^t(\cdot)\left[W\circ\exp{s(\cdot)\theta}\right]/\lambda(\theta)
+$$
+
+Where $s(\cdot)$ is a $|H|\times K$ matrix of sufficient statistics, $\lambda(\theta)$  is the normalizing constant, and $\circ$ is the element wise-product.
+
+## The Hessian
+
+In the case of the hessian, we have that $\frac{\delta^2}{\delta\theta_k\delta\theta_u}\log{\Pr\left(\cdot\right)}$ equals:
+
+$$
+-\frac{\left(\sum_{g'}s_k(g')s_u(g')\exp{\theta^ts(g')}\right)\left(\sum_{g'}\exp{\theta^ts(g')}\right) - \left(\sum_{g'}s_k(g')\exp{\theta^ts(g')}\right)\left(\sum_{g'}s_u(g')\exp{\theta^ts(g')}\right)}{\left(\sum_{g'}\exp{\theta^ts(g')}\right)^2}
+$$
+
+For all $k,u$. Once again, we can simplify this using matrix notation and noticing the fact that we can group the sufficient statistics using iso-statistics
+
+$$
+-\frac{W^t\left[s_k(\cdot)\circ s_u(\cdot)\circ \exp{s(\cdot)\theta}\right]\lambda(\theta) -\left( W^t\left[s_k(\cdot)\circ \exp{s(\cdot)\theta}\right]\right)\left(W^t\left[s_u(\cdot)\circ \exp{s(\cdot)\theta}\right]\right) }{\lambda(\theta)^2}
+$$

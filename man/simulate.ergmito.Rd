@@ -4,8 +4,7 @@
 \alias{simulate.ergmito}
 \title{Draw samples from a fitted \code{ergmito} model}
 \usage{
-\method{simulate}{ergmito}(object, nsim = 1, seed = NULL,
-  which_networks = 1L, ...)
+\method{simulate}{ergmito}(object, nsim = 1, seed = NULL, which_networks = 1L, theta = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \link{ergmito}.}
@@ -18,7 +17,7 @@ of networks.}
 \item{which_networks}{Integer vector. Specifies what networks to sample from.
 It must be within 1 and \code{nnets(object)}.}
 
-\item{...}{Further arguments passed to \link{new_rergmito}.}
+\item{theta, ...}{Further arguments passed to \link{new_rergmito}.}
 }
 \description{
 Draw samples from a fitted \code{ergmito} model

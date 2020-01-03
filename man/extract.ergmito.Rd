@@ -4,9 +4,15 @@
 \alias{extract.ergmito}
 \title{Extract function to be used with the \code{texreg} package.}
 \usage{
-extract.ergmito(model, include.aic = TRUE, include.bic = TRUE,
-  include.loglik = TRUE, include.nnets = TRUE,
-  include.convergence = TRUE, ...)
+extract.ergmito(
+  model,
+  include.aic = TRUE,
+  include.bic = TRUE,
+  include.loglik = TRUE,
+  include.nnets = TRUE,
+  include.convergence = TRUE,
+  ...
+)
 }
 \arguments{
 \item{model}{An object of class \code{ergmito}.}

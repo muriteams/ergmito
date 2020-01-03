@@ -7,6 +7,7 @@
 #' @param R Integer scalar. Number of simulations to generate (passed to [sample]).
 #' This is only used if `sim_ci = TRUE`.
 #' @param GOF Formula. Additional set of parameters to perform the GOF.
+#' @param ncores Integer scalar. Number of cores to use for parallel computations.
 #' @param ... Further arguments passed to [stats::quantile].
 #' 
 #' @details 
@@ -110,6 +111,7 @@ gof_ergmito <- function(
   probs  = c(.05, .95),
   sim_ci = FALSE,
   R      = 50000L,
+  ncores = 1L,
   ...
   ) {
   
@@ -167,7 +169,8 @@ gof_ergmito <- function(
       x             = statmat.[, names(stats::coef(object)), drop = FALSE],
       stats.statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
       stats.weights = weights.,
-      params        = stats::coef(object)
+      params        = stats::coef(object),
+      ncores        = ncores
     ))*weights.
     
     # Calculating the quantiles. First, we need to make some room to the data
