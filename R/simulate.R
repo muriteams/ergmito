@@ -39,7 +39,7 @@ simulate.ergmito <- function(
   networks <- eval(model[[2]], environment(model))[which_networks]
 
   # Step 2: Loop through the networks to generate the predictions:
-  samples <- vector("list", length(which_networks))
+  samples <- NULL # vector("list", length(which_networks) * nsim)
   dots <- list(...)
   
   if ("sizes" %in% names(dots))
@@ -55,12 +55,12 @@ simulate.ergmito <- function(
     # Generating sample, and later on, adding up matrices
     sampler <- new_rergmito(
       model = model.,
-      theta = if (is.null(theta)) coef(object) else theta,
+      theta = if (is.null(theta)) stats::coef(object) else theta,
       sizes = nvertex(networks[[i]]),
       ...
     )
     
-    samples[[i]] <- sampler$sample(n = nsim, s = nvertex(networks[[i]]))
+    samples <- c(samples, sampler$sample(n = nsim, s = nvertex(networks[[i]])))
     
   }
   

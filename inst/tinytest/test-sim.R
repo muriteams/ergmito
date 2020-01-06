@@ -63,3 +63,12 @@ expect_equal(
   powerset(4, directed = FALSE)
   )
 expect_equal(sum(ans$prob$`4`), 1)
+
+# Parallel
+ans  <- suppressWarnings(new_rergmito(nets ~ edges + esp(2), force = TRUE, ncores = 2))
+expect_length(ans$networks$`4`, 2^(4*3/2))
+expect_equal(
+  as_adjmat(ans$get_networks(s = 4)),
+  powerset(4, directed = FALSE)
+)
+expect_equal(sum(ans$prob$`4`), 1)

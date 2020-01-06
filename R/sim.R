@@ -326,7 +326,7 @@ new_rergmito <- function(
         ans$counts[[s]] <- parallel::parLapply(
           cl  = cl,
           X   = seq_along(ans$networks[[s]]),
-          FUN = function(i) {
+          fun = function(i) {
           
           # Updating the environment
           environment(model.) <- environment()
