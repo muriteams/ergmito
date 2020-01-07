@@ -44,7 +44,7 @@ inline void exact_logliki(
   
 }
 
-//' Vectorized version of loglikelihood function
+//' Vectorized version of log-likelihood function
 //' 
 //' @param x Matrix of statistic. `nnets * nstats`.
 //' @param params Vector of coefficients.
@@ -139,13 +139,13 @@ arma::colvec exact_gradient(
   
   if (stats_weights.size() > 1u) {
     
-    int n = x.n_rows;
+    unsigned int n = x.n_rows;
     arma::mat ans(x.n_cols, n);
     ans.fill(0.0);
     
 #pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) \
     default(shared) firstprivate(params, n)
-    for (int i = 0; i < n; ++i)
+    for (unsigned int i = 0u; i < n; ++i)
       ans.col(i) = exact_gradienti(
         x.row(i), params, stats_weights.at(i), stats_statmat.at(i)
       );
@@ -180,7 +180,6 @@ inline arma::mat exact_hessiani(
   // stats_weights.print("\nstats_weights");
   
   unsigned int K = params.size();
-  unsigned int n = stats_weights.size();
   arma::mat H(K, K);
   arma::rowvec WZS = WZ * stats_statmat;
 
@@ -226,7 +225,7 @@ arma::mat exact_hessian(
   
   if (stats_weights.size() > 1u) {
     
-    int n = x.n_rows;
+    unsigned int n = x.n_rows;
     unsigned int K = params.size();
     std::vector< arma::mat > ans(n);
     for (unsigned int i = 0u; i < n; ++i)
@@ -234,13 +233,13 @@ arma::mat exact_hessian(
     
 #pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) \
     default(shared) firstprivate(params, n)
-      for (int i = 0; i < n; ++i)
+      for (unsigned int i = 0u; i < n; ++i)
         ans[i] = exact_hessiani(
           x.row(i), params, stats_weights.at(i), stats_statmat.at(i)
         );
     
     arma::mat H(K, K);
-    H = ans[0];
+    H = ans[0u];
     for (unsigned int i = 1u; i < n; ++i)
       H += ans[i];
     
@@ -250,7 +249,7 @@ arma::mat exact_hessian(
     // In the case that all networks are from the same family, then this becomes
     // a trivial operation.
     return exact_hessiani(
-      x.row(0), params, stats_weights.at(0), stats_statmat.at(0)
+      x.row(0u), params, stats_weights.at(0u), stats_statmat.at(0u)
     );
     
   }

@@ -47,7 +47,7 @@ ergmito(
 \item{model}{Model to estimate. See \link[ergm:ergm]{ergm::ergm}. The only difference with
 \code{ergm} is that the LHS can be a list of networks.}
 
-\item{gattr_model}{A formula. Model especification for graph attributes. This
+\item{gattr_model}{A formula. Model specification for graph attributes. This
 is useful when using multiple networks.}
 
 \item{stats.weights, stats.statmat}{Lists as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.
@@ -88,19 +88,22 @@ An list of class \code{ergmito}:
 \itemize{
 \item \code{call}          The program call.
 \item \code{coef}          Named vector. Parameter estimates.
-\item \code{iterations}    Integer. Number of times the loglikelihood was evaluated
+\item \code{iterations}    Integer. Number of times the log-likelihood was evaluated
 (see \link[stats:optim]{stats::optim}).
-\item \code{loglikelihood} Numeric. Final value of the objective function.
+\item \code{mle.lik}       Numeric. Final value of the objective function.
+\item \code{null.lik}      Numeric. Final value of the objective function for the null model.
 \item \code{covar}         Square matrix of size \code{length(coef)}. Variance-covariance matrix
 computed using the exact hessian as implemented in \link{exact_hessian}.
 \item \code{coef.init}     Named vector of length \code{length(coef)}. Initial set of parameters
 used in the optimization.
 \item \code{formulae}      An object of class \link[=ergmito_formulae]{ergmito_loglik}.
+\item \code{nobs}          Integer scalar. Number of networks in the model.
 \item \code{network}       Networks passed via \code{model}.
+\item \code{optim.out},\code{optim.args} Results from the optim call and arguments passed to it.
 \item \code{status},\code{note} Convergence code. See \link{check_convergence}
-\item \code{best_try}      Integer scalar. Index of the run with the highest loglike value.
+\item \code{best_try}      Integer scalar. Index of the run with the highest log-likelihood value.
 \item \code{history}       Matrix of size \code{ntries * (k + 1)}. History of the parameter
-estimates and the reached loglike values.
+estimates and the reached log-likelihood values.
 \item \code{timer}         Vector of times (for benchmarking). Each unit marks the starting
 point of the step.
 }
@@ -116,11 +119,11 @@ to fit, since more than that can become infeasible.
 
 
 Maximum Likelihood Estimates are obtained using the \link[stats:optim]{stats::optim} function.
-The default method for maximization is \code{BFGS} using both the loglikelihood
+The default method for maximization is \code{BFGS} using both the log-likelihood
 function and its corresponding gradient.
 
-Another important factor to consider is the existance of the MLE estiates.
-As shown in Handcock (2003), if the observed statitcs are near the border
+Another important factor to consider is the existence of the MLE estimates
+As shown in Handcock (2003), if the observed statistics are near the border
 if the support function (e.g. too many edges or almost none), then, even if
 the MLE estimates exists, the optimization function may not be able to reach
 the optima. Moreover, if the target (observed) statistics live in the boundary,
@@ -128,7 +131,7 @@ then the MLE estimates do not exists. In general, this should not be an issue
 in the context of the pooled model, as the variability of observed statistics
 should be enough to avoid those situations.
 
-The function \code{ergmito} will try to identify possible cases of non-existance,
+The function \code{ergmito} will try to identify possible cases of non-existence,
 of the MLE, and if identified then try to re estimate the model parameters using
 larger values than the ones obtained, if the log-likelihood is greater, then it is
 assumed that the model is degenerate and the corresponding values will be
@@ -139,7 +142,7 @@ the support (close to zero or to its max).
 
 In the case of \code{ntries}, the optimization is repeated that number of times,
 each time perturbing the \code{init} parameter by adding a Normally distributed
-vector. The result which reaches the highest loglikelihood will be the one
+vector. The result which reaches the highest log-likelihood will be the one
 reported as parameter estimates. This feature is intended for testing only.
 Anecdotally, \code{optim} reaches the max in the first try.
 }

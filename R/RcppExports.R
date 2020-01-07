@@ -17,7 +17,7 @@ induced_submat. <- function(nets, vs) {
     .Call(`_ergmito_induced_submat`, nets, vs)
 }
 
-#' Vectorized version of loglikelihood function
+#' Vectorized version of log-likelihood function
 #' 
 #' @param x Matrix of statistic. `nnets * nstats`.
 #' @param params Vector of coefficients.
@@ -54,12 +54,12 @@ matrix_to_network. <- function(x, directed, hyper, loops, multiple, bipartite) {
     .Call(`_ergmito_matrix_to_network`, x, directed, hyper, loops, multiple, bipartite)
 }
 
-make_sets <- function(n) {
-    .Call(`_ergmito_make_sets`, n)
+make_sets <- function(n, directed = TRUE) {
+    .Call(`_ergmito_make_sets`, n, directed)
 }
 
-.powerset <- function(n, force = FALSE) {
-    .Call(`_ergmito_powerset`, n, force)
+.powerset <- function(n, force = FALSE, directed = TRUE) {
+    .Call(`_ergmito_powerset`, n, force, directed)
 }
 
 wrap_powerset <- function(sets, from, to, n) {

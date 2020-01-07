@@ -7,20 +7,33 @@
 using namespace Rcpp;
 
 // [[Rcpp::export(rng = false)]]
-vecint make_sets(int n) {
+vecint make_sets(int n, bool directed = true) {
   
-  int m = n*(n-1);
-  vecint ans(m);
+  int N = directed ? n * (n - 1): n * (n - 1) / 2;
+  vecint ans(N);
   
-  int pos=-1, k=0;
-  for (int i=0; i<n; i++)
-    for (int j=0; j<n; j++) {
-      if (i!=j)
-        ans[++pos] = k;
+  int i, zero = 0;
+  int *m = directed ? &zero: &i;
+  
+  int pos = -1, k = 0;
+  for (i = 0; i < n; ++i) {
+
+    for (int j = (*m); j < n; ++j) {
+      
+      // At the beginning we have to add some to correct for the diagonal
+      if (!directed && (i == j))
+        k += i;
+      
+      if (i != j)
+        ans[ ++pos ] = k;
+      
       ++k;
+      
     }
     
-    return ans;
+  }
+    
+  return ans;
 }
 
 /*I've detected the following problem: When the numner of IntegerVector to be
@@ -32,9 +45,9 @@ vecint make_sets(int n) {
  */
 
 // This function creates power sets
-void powerset(vecvecint * sets, int n) {
+void powerset(vecvecint * sets, int n, bool directed = true) {
   
-  vecint set = make_sets(n);
+  vecint set = make_sets(n, directed);
   int nsets   = set.size();
 
   int j = 0,k;
@@ -52,15 +65,15 @@ void powerset(vecvecint * sets, int n) {
 }
 
 // [[Rcpp::export(name=".powerset", rng = false)]]
-SEXP powerset(int n, bool force = false) {
+SEXP powerset(int n, bool force = false, bool directed = true) {
   
   if (n > 5 && !force)
     Rcpp::stop("In order to generate power sets for n>5 force must be set to `TRUE`.");
   
-  int m = n*(n-1);
+  int m = directed? n * (n - 1): n * (n - 1) / 2;
   vecvecint * sets = new vecvecint(pow(2.0, m));
 
-  powerset(sets, n);
+  powerset(sets, n, directed);
   
   return Rcpp::XPtr< vecvecint >(sets, true);
   

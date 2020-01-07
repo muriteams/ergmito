@@ -19,12 +19,12 @@
 \alias{nnets.network}
 \alias{nnets.ergmito}
 \alias{nnets.formula}
-\alias{is_undirected}
-\alias{is_undirected.network}
-\alias{is_undirected.list}
-\alias{is_undirected.default}
-\alias{is_undirected.ergmito}
-\alias{is_undirected.formula}
+\alias{is_directed}
+\alias{is_directed.network}
+\alias{is_directed.list}
+\alias{is_directed.default}
+\alias{is_directed.ergmito}
+\alias{is_directed.formula}
 \title{Utility functions to query network dimensions}
 \usage{
 nvertex(x)
@@ -63,17 +63,17 @@ nnets(x)
 
 \method{nnets}{formula}(x)
 
-is_undirected(x, check_type = FALSE)
+is_directed(x, check_type = FALSE)
 
-\method{is_undirected}{network}(x, check_type = FALSE)
+\method{is_directed}{network}(x, check_type = FALSE)
 
-\method{is_undirected}{list}(x, check_type = FALSE)
+\method{is_directed}{list}(x, check_type = FALSE)
 
-\method{is_undirected}{default}(x, check_type = FALSE)
+\method{is_directed}{default}(x, check_type = FALSE)
 
-\method{is_undirected}{ergmito}(x, check_type = FALSE)
+\method{is_directed}{ergmito}(x, check_type = FALSE)
 
-\method{is_undirected}{formula}(x, check_type = FALSE)
+\method{is_directed}{formula}(x, check_type = FALSE)
 }
 \arguments{
 \item{x}{Either an object of class \link{ergmito}, \link{network}, \link{formula}, or \link{matrix}.}
@@ -87,10 +87,10 @@ are checking is not an object of class network, otherwise it simply returns
 false.}
 }
 \value{
-\code{is_undirected} checks whether the passed networks are undirected by
-negating the function \link[network:is.directed]{network::is.directed}. In the case of multiple networks,
+\code{is_directed} checks whether the passed networks are directed using
+the function \link[network:is.directed]{network::is.directed}. In the case of multiple networks,
 the function returns a logical vector. Only objects of class \code{network} can be
-checked, otherwise, if \code{check_type = FALSE}, the function returns false by default.
+checked, otherwise, if \code{check_type = FALSE}, the function returns \code{TRUE} by default.
 }
 \description{
 Utility functions to query network dimensions
@@ -98,9 +98,9 @@ Utility functions to query network dimensions
 \examples{
 set.seed(771)
 net <- lapply(rbernoulli(c(4, 4)), network::network, directed = FALSE)
-is_undirected(net)
-is_undirected(net[[1]])
-is_undirected(net ~ edges)
-# is_undirected(net[[1]][1:4, 1:4], check_type = TRUE) # Error
-is_undirected(net[[1]][1:4, 1:4])
+is_directed(net)
+is_directed(net[[1]])
+is_directed(net ~ edges)
+# is_directed(net[[1]][1:4, 1:4], check_type = TRUE) # Error
+is_directed(net[[1]][1:4, 1:4])
 }

@@ -28,7 +28,7 @@ set.seed(1717171);ans1 <- ergmito(list(net2, net1) ~ edges + mutual)
 
 expect_equal(coef(ans0), coef(ans1), tolerance = 1e-4)
 expect_equal(vcov(ans0), vcov(ans1), tolerance = 1e-4)
-  
+
 
 set.seed(121)
 net1 <- rbernoulli(4)

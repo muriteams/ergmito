@@ -27,7 +27,7 @@ compute_mfrow <- function(k) {
 #' @param par_args Further arguments to be passed to [graphics::par]
 #' @param image_args Further arguments to be passed to [graphics::image]
 #' @param extension Numeric. Range value of the function.
-#' @param breaks Integer scalar. Number of splits per dimmension.
+#' @param breaks Integer scalar. Number of splits per dimension.
 #' @param params_labs Named vector. Alternative labels for the parameters. It 
 #' should be in the form of `c("orignial name" = "new name")`.
 #' @return A list of length `choose(length(object$coef), 2)` (all possible
@@ -142,7 +142,7 @@ plot.ergmito <- function(
         par0[i0] <- domain[[i0]][i]
         par0[j0] <- domain[[j0]][j]
         
-        # Calculating the loglikelihood for that set of observations
+        # Calculating the log-likelihood for that set of observations
         Z[[p]]$z[i, j] <- f(par0)
         
       }

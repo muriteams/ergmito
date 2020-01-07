@@ -19,33 +19,56 @@ replicate_vertex_attr <- function(x, attrname, value) {
 #' @param cl An object of class [cluster][parallel::makeCluster].
 #' @param force Logical. When `FALSE` (default) will try to use `ergmito`'s stat
 #' count functions (see [count_stats]). This means that if one of the requested
-#' statistics in not avialable in `ergmito`, then we will use `ergm` to compute
-#' them, which is significatnly slower (see details).
+#' statistics in not available in `ergmito`, then we will use `ergm` to compute
+#' them, which is significantly slower (see details).
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' 
 #' @details 
 #' While the \CRANpkg{ergm} package is very efficient, it was not built to do some
-#' of the computations requiered in the ergmito package. This translates in having
+#' of the computations required in the ergmito package. This translates in having
 #' some of the functions of the package (ergm) with poor speed performance. This
 #' led us to "reinvent the wheel" in some cases to speed things up, this includes
 #' calculating observed statistics in a list of networks.
 #' 
 #' @return An environment with the following objects:
 #' 
-#' - `calc_prob`
-#' - `call`
-#' - `counts`
-#' - `networks`
-#' - `prob`
+#' - `calc_prob` A function to calculate each graph's probability under the
+#'   specified model.
+#' - `call` A language object with the call.
+#' - `counts` A list with 3 elements: `stats` the sufficient statistics of each network,
+#'   `weights` and `statmat` the overall matrices of sufficient statistics used to
+#'   compute the likelihood.
+#' - `network0` The baseline network used to either fit the model or obtain
+#'   attributes.
+#' - `networks` A list with the actual sample space of networks.
+#' - `prob` A numeric
 #' - `sample` A function to draw samples. `n` specifies the number of samples to
 #'   draw, `s` the size of the networks, and `theta` the parameter to use to
 #'   calculate the likelihoods.
-#' - `theta`
-#' 
-#' 
+#' - `theta` Named numeric vector with the current values of the model parameters.
+#'  
 #' 
 #' @export
 #' @importFrom parallel clusterEvalQ makeCluster makeForkCluster clusterExport
+#' @examples 
+#' 
+#' # We can generate a sampler from a random graph
+#' set.seed(7131)
+#' ans <- new_rergmito(rbernoulli(4) ~ edges)
+#' 
+#' # Five samples
+#' ans$sample(5, s = 4)
+#' 
+#' # or we can use some nodal data:
+#' data(fivenets)
+#' ans <- new_rergmito(
+#'   fivenets[[3]] ~ edges + nodematch("female"),
+#'   theta = c(-1, 1)
+#' )
+#' 
+#' # Five samples
+#' ans$sample(5, s = 4) # All these networks have a "female" vertex attr
+#' 
 new_rergmito <- function(
   model, 
   theta  = NULL,
@@ -57,22 +80,27 @@ new_rergmito <- function(
   ) {
   
   # environment(model) <- parent.frame()
-  
-  # Checking whether we are dealing with undirected networks
-  are_undirected <- which(is_undirected(model))
-  if (length(are_undirected))
-    stop(
-      "Simulation for undirected networks is not supported yet. The following ",
-      "networks in the model are undirected: ",
-      paste(are_undirected, collapse = ", "),
-      call. = FALSE
-      )
-  
   # What are the sizes
   if (!length(sizes)) {
     sizes <- nvertex(model)
     sizes <- sort(unique(sizes))
   }
+  
+  if ((any(sizes) > 7) & !force)
+    stop(
+      "For simulating networks with more than 7 vertices, you need to set ",
+      "force = TRUE.", call. = FALSE
+    )
+  
+  # Checking whether we are dealing with undirected networks
+  are_directed <- is_directed(model)
+  
+  if (!(sum(are_directed) %in% c(nnets(model), 0)))
+    stop(
+      "All networks must be either directed or undirected. We don't support mixed sets",
+      call. = FALSE
+      )
+  undirected <- !are_directed[1]
   
   # Getting the estimates
   if (!length(theta)) {
@@ -90,7 +118,8 @@ new_rergmito <- function(
   
   # Generating powersets
   ans          <- new.env()
-  ans$networks <- lapply(sizes, powerset)
+  ans$networks <- lapply(sizes, powerset, directed = !undirected, force = force)
+  
   ans$theta    <- theta
   names(ans$networks) <- sizes
   
@@ -120,8 +149,9 @@ new_rergmito <- function(
     }
   }
   
-  if (all(ergm_model$names %in% AVAILABLE_STATS()) & Sys.getenv("ERGMITO_TEST") == "") {
+  if (!undirected | (all(ergm_model$names %in% AVAILABLE_STATS()) & (Sys.getenv("ERGMITO_TEST") == ""))) {
     # THE ERGMITO WAY ----------------------------------------------------------
+    
     
     # We will use this updated version
     model. <- stats::update.formula(model, net_i ~ .)
@@ -130,16 +160,11 @@ new_rergmito <- function(
       
       # Generating all statistics (both have to match!)
       if (nnets(net) == 1 && nvertex(net) == as.integer(s)) {
-        
         net_i <- net
-        
       } else {
-        
         net_i <- rbernoulli(as.integer(s))
-        
       } 
-      
-        
+
       # Computing all stats
       S <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
       
@@ -218,10 +243,19 @@ new_rergmito <- function(
   } else {
     # THE ERGM WAY -------------------------------------------------------------
     
-    if (!force)
-      stop("To generate this sampler we need to use statnet's ergm functions since",
-           " not all the requested statistics are available in ergmito. If you",
-           " would like to procede, use the option `force = TRUE`", call. = FALSE)
+    if (force)
+      warning(
+        "To generate this sampler we need to use statnet's ergm functions since",
+        " not all the requested statistics are available in ergmito. This will ",
+        "take longer...",
+        call. = FALSE, immediate. = TRUE
+      )
+    else
+      stop(
+        "To generate this sampler we need to use statnet's ergm functions since",
+        " not all the requested statistics are available in ergmito. If you",
+        " would like to procede, use the option `force = TRUE`", call. = FALSE
+      )
     
     # We have to switch this flag so that the other methods (member functions)
     # don't try to turn things into network objects (these will already be)
@@ -232,7 +266,7 @@ new_rergmito <- function(
     if (nnets(net) == 1 && network::is.network(net)) {
       attrs <- list()
       
-      vattrs <- network::list.vertex.attributes(net)
+      vattrs <- setdiff(network::list.vertex.attributes(net), c("na", "vertex.names"))
       if (length(vattrs)) {
         
         # Getting the attributes
@@ -248,7 +282,7 @@ new_rergmito <- function(
             " in an error if the model includes nodal attributes.", call. = FALSE)
         } else {
           
-          ans$networks[[1L]] <- matrix_to_network(ans$networks[[1L]])
+          ans$networks[[1L]] <- matrix_to_network(ans$networks[[1L]], directed = !undirected)
           ans$networks[[1L]] <- replicate_vertex_attr(
             x        = ans$networks[[1L]],
             attrname = ergm_model$attrnames,
@@ -261,6 +295,9 @@ new_rergmito <- function(
     }
     
     for (s in names(ans$networks)) {
+      
+      # All networks in ans$networks should be of class network
+      ans$networks[[s]] <- lapply(ans$networks[[s]], network::network, directed = !undirected)
       
       # Computing probabilities
       if (nnets(net) == 1) {
@@ -278,8 +315,10 @@ new_rergmito <- function(
         
         net_i <- rbernoulli(as.integer(s))
         
-      } 
+      }
         
+      # Need to make sure we are setting this to be a directed/undirected graph.
+      net_i <- network::network(net_i, directed = !undirected)
       
       model. <- stats::update.formula(model, net_i ~ .)
       environment(model.) <- environment()
@@ -310,7 +349,7 @@ new_rergmito <- function(
         ans$counts[[s]] <- parallel::parLapply(
           cl  = cl,
           X   = seq_along(ans$networks[[s]]),
-          FUN = function(i) {
+          fun = function(i) {
           
           # Updating the environment
           environment(model.) <- environment()
@@ -343,9 +382,13 @@ new_rergmito <- function(
 
   }
   
-  
   # Computing probabilities
-  ans$prob <- lapply(sizes, function(s) vector("double", 2^(s*(s-1))))
+  ans$prob <- lapply(sizes, function(s) {
+    vector(
+      "double",
+      2 ^ ( s*(s-1)/ifelse(undirected, 2, 1) )
+      )
+  })
   names(ans$prob) <- as.character(sizes)
   
   # Function to compute probabilities
@@ -357,7 +400,7 @@ new_rergmito <- function(
     if (!length(theta))
       theta <- ans$theta
     
-    for (i in s)
+    for (i in s) {
       ans$prob[[i]] <- exp(exact_loglik(
         x             = ans$counts[[i]]$stats,
         params        = theta,
@@ -365,6 +408,23 @@ new_rergmito <- function(
         stats.statmat = ans$counts[[i]]$statmat
       ))
       
+      # Should be within epsilon
+      if (abs(sum(ans$prob[[i]]) - 1) > .00001)
+        stop(
+          "The sum of each network's probability does not equal to one.",
+          " This may be due to model parameters that are too far away from 0.",
+          " The current value of theta is: [",
+          paste(sprintf("%.4f", theta), collapse = ", "),
+          "].",
+          " You should try with other parameters.",
+          call. = FALSE
+          )
+      
+      # Normalizing to be 1
+      ans$prob[[i]] <- ans$prob[[i]]/sum(ans$prob[[i]])
+      
+    }
+    
     invisible()
   }
   

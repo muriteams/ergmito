@@ -31,7 +31,7 @@ and plot all possible combination of parameters.}
 
 \item{image_args}{Further arguments to be passed to \link[graphics:image]{graphics::image}}
 
-\item{breaks}{Integer scalar. Number of splits per dimmension.}
+\item{breaks}{Integer scalar. Number of splits per dimension.}
 
 \item{extension}{Numeric. Range value of the function.}
 

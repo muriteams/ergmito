@@ -33,8 +33,8 @@ new_rergmito(
 
 \item{force}{Logical. When \code{FALSE} (default) will try to use \code{ergmito}'s stat
 count functions (see \link{count_stats}). This means that if one of the requested
-statistics in not avialable in \code{ergmito}, then we will use \code{ergm} to compute
-them, which is significatnly slower (see details).}
+statistics in not available in \code{ergmito}, then we will use \code{ergm} to compute
+them, which is significantly slower (see details).}
 
 \item{...}{Further arguments passed to \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
 
@@ -46,15 +46,20 @@ draw, while \code{j} the corresponding sizes. These need not to be of the same s
 \value{
 An environment with the following objects:
 \itemize{
-\item \code{calc_prob}
-\item \code{call}
-\item \code{counts}
-\item \code{networks}
-\item \code{prob}
+\item \code{calc_prob} A function to calculate each graph's probability under the
+specified model.
+\item \code{call} A language object with the call.
+\item \code{counts} A list with 3 elements: \code{stats} the sufficient statistics of each network,
+\code{weights} and \code{statmat} the overall matrices of sufficient statistics used to
+compute the likelihood.
+\item \code{network0} The baseline network used to either fit the model or obtain
+attributes.
+\item \code{networks} A list with the actual sample space of networks.
+\item \code{prob} A numeric
 \item \code{sample} A function to draw samples. \code{n} specifies the number of samples to
 draw, \code{s} the size of the networks, and \code{theta} the parameter to use to
 calculate the likelihoods.
-\item \code{theta}
+\item \code{theta} Named numeric vector with the current values of the model parameters.
 }
 
 The indexing method \verb{[.ergmito_sampler} returns a named list of length
@@ -65,7 +70,7 @@ Using
 }
 \details{
 While the \CRANpkg{ergm} package is very efficient, it was not built to do some
-of the computations requiered in the ergmito package. This translates in having
+of the computations required in the ergmito package. This translates in having
 some of the functions of the package (ergm) with poor speed performance. This
 led us to "reinvent the wheel" in some cases to speed things up, this includes
 calculating observed statistics in a list of networks.
@@ -74,4 +79,24 @@ The indexing method, \verb{[.ergmito_sampler}, allows extracting networks
 directly by passing indexes. \code{i} indicates the index of the networks to draw,
 which go from 1 through \code{2^(n*(n-1))}, and \code{j} indicates the requested
 size.
+}
+\examples{
+
+# We can generate a sampler from a random graph
+set.seed(7131)
+ans <- new_rergmito(rbernoulli(4) ~ edges)
+
+# Five samples
+ans$sample(5, s = 4)
+
+# or we can use some nodal data:
+data(fivenets)
+ans <- new_rergmito(
+  fivenets[[3]] ~ edges + nodematch("female"),
+  theta = c(-1, 1)
+)
+
+# Five samples
+ans$sample(5, s = 4) # All these networks have a "female" vertex attr
+
 }

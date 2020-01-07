@@ -569,7 +569,7 @@ NumericMatrix count_stats(
     if (uses_attributes) {
       for (unsigned int i = 0u; i < n; ++i) {
         
-        // Checking dimmensions
+        // Checking dimensions
         if (X[i].nrow() != X[i].ncol())
           stop("Matrix %i is not a square matrix.", i + 1);
         
@@ -578,7 +578,7 @@ NumericMatrix count_stats(
         
     } else {
       for (unsigned int i = 0u; i < n; ++i) {
-        // Checking dimmensions
+        // Checking dimensions
         if (X[i].nrow() != X[i].ncol())
           stop("Matrix %i is not a square matrix.", i + 1);
         
