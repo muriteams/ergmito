@@ -44,7 +44,7 @@ inline void exact_logliki(
   
 }
 
-//' Vectorized version of loglikelihood function
+//' Vectorized version of log-likelihood function
 //' 
 //' @param x Matrix of statistic. `nnets * nstats`.
 //' @param params Vector of coefficients.
@@ -180,7 +180,6 @@ inline arma::mat exact_hessiani(
   // stats_weights.print("\nstats_weights");
   
   unsigned int K = params.size();
-  unsigned int n = stats_weights.size();
   arma::mat H(K, K);
   arma::rowvec WZS = WZ * stats_statmat;
 

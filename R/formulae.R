@@ -7,7 +7,7 @@
 #' 
 #' @param model A formula. The left-hand-side can be either a small network, or
 #' a list of networks. 
-#' @param gattr_model A formula. Model especification for graph attributes. This
+#' @param gattr_model A formula. Model specification for graph attributes. This
 #' is useful when using multiple networks.
 #' @param stats.weights,stats.statmat Lists of sufficient statistics and their
 #' respective weights.
@@ -23,7 +23,7 @@
 #' [ergm::ergm.allstats].
 #' - `model` A formula. The model passed.
 #' - `npars` Integer. Number of parameters.
-#' - `nnets` Integer. Number of networks to estiamte.
+#' - `nnets` Integer. Number of networks in the model.
 #' - `vertex.attr` Character vector. Vertex attributes used in the model.
 #' - `term.names` Names of the terms used in the model.
 #' 
@@ -386,7 +386,7 @@ print.ergmito_loglik <- function(x, ...) {
   invisible(x)
 }
 
-#' Vectorized calculation of ERGM exact loglikelihood
+#' Vectorized calculation of ERGM exact log-likelihood
 #' 
 #' This function can be compared to [ergm::ergm.exact] with the statistics not
 #' centered at `x`, the vector of observed statistics.

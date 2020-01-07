@@ -57,7 +57,7 @@ The development version from [GitHub](https://github.com/) with:
 devtools::install_github("muriteams/ergmito")
 ```
 
-This requires compilation. Windows users can download the lates compiled version from appveyor [here](https://ci.appveyor.com/project/gvegayon/ergmito/build/artifacts). The file to download is the one named `ergmito_[version number].zip`. Once donwloaded, you can install typing the following:
+This requires compilation. Windows users can download the latest compiled version from appveyor [here](https://ci.appveyor.com/project/gvegayon/ergmito/build/artifacts). The file to download is the one named `ergmito_[version number].zip`. Once downloaded, you can install typing the following:
 
 ```r
 install.packages("[path to the zipfile]/ergmito_[version number].zip", repos = FALSE)
@@ -129,9 +129,9 @@ fivenets_gof
 plot(fivenets_gof)
 ```
 
-## Fitting block-diagnoal models
+## Fitting block-diagonal models
 
-The pooled model can be also compared to a block-diagnoal ERGM. The package includes
+The pooled model can be also compared to a block-diagonal ERGM. The package includes
 three functions to help with this task: `blockdiagonalize`, `splitnetwork`, and
 `ergm_blockdiag`.
 
@@ -195,7 +195,7 @@ elapsed = 0.0479999999999983, user.child = 0, sys.child = 0), class = "proc_time
 
 ## Fitting a large model
 
-Suppose that we have a large sample of small networks (ego from facebook, twitter, etc.), 20,000 which account for 80,000 vertices:
+Suppose that we have a large sample of small networks (ego from Facebook, Twitter, etc.), 20,000 which account for 80,000 vertices:
 
 ```{r large-dgp}
 set.seed(123)

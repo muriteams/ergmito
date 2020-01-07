@@ -9,7 +9,7 @@
 #' @param x,object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
 #' `ergm` is that the LHS can be a list of networks.
-#' @param gattr_model A formula. Model especification for graph attributes. This
+#' @param gattr_model A formula. Model specification for graph attributes. This
 #' is useful when using multiple networks.
 #' @param optim.args List. Passed to [stats::optim].
 #' @param target.stats A matrix of target statistics (see [ergm::ergm]).
@@ -36,30 +36,33 @@
 #' 
 #' - `call`          The program call.
 #' - `coef`          Named vector. Parameter estimates.
-#' - `iterations`    Integer. Number of times the loglikelihood was evaluated
+#' - `iterations`    Integer. Number of times the log-likelihood was evaluated
 #'   (see [stats::optim]).
-#' - `loglikelihood` Numeric. Final value of the objective function.
+#' - `mle.lik`       Numeric. Final value of the objective function.
+#' - `null.lik`      Numeric. Final value of the objective function for the null model.
 #' - `covar`         Square matrix of size `length(coef)`. Variance-covariance matrix
 #'   computed using the exact hessian as implemented in [exact_hessian].
 #' - `coef.init`     Named vector of length `length(coef)`. Initial set of parameters
 #'   used in the optimization.
 #' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
+#' - `nobs`          Integer scalar. Number of networks in the model.
 #' - `network`       Networks passed via `model`.
+#' - `optim.out`,`optim.args` Results from the optim call and arguments passed to it.
 #' - `status`,`note` Convergence code. See [check_convergence]
-#' - `best_try`      Integer scalar. Index of the run with the highest loglike value.
+#' - `best_try`      Integer scalar. Index of the run with the highest log-likelihood value.
 #' - `history`       Matrix of size `ntries * (k + 1)`. History of the parameter
-#'   estimates and the reached loglike values.
+#'   estimates and the reached log-likelihood values.
 #' - `timer`         Vector of times (for benchmarking). Each unit marks the starting
 #'   point of the step.
-#' 
+#'   
 #' @section MLE:
 #' 
 #' Maximum Likelihood Estimates are obtained using the [stats::optim] function.
-#' The default method for maximization is `BFGS` using both the loglikelihood
+#' The default method for maximization is `BFGS` using both the log-likelihood
 #' function and its corresponding gradient.
 #'  
-#' Another important factor to consider is the existance of the MLE estiates.
-#' As shown in Handcock (2003), if the observed statitcs are near the border
+#' Another important factor to consider is the existence of the MLE estimates
+#' As shown in Handcock (2003), if the observed statistics are near the border
 #' if the support function (e.g. too many edges or almost none), then, even if
 #' the MLE estimates exists, the optimization function may not be able to reach
 #' the optima. Moreover, if the target (observed) statistics live in the boundary,
@@ -67,7 +70,7 @@
 #' in the context of the pooled model, as the variability of observed statistics
 #' should be enough to avoid those situations.
 #' 
-#' The function `ergmito` will try to identify possible cases of non-existance,
+#' The function `ergmito` will try to identify possible cases of non-existence,
 #' of the MLE, and if identified then try to re estimate the model parameters using
 #' larger values than the ones obtained, if the log-likelihood is greater, then it is 
 #' assumed that the model is degenerate and the corresponding values will be
@@ -78,7 +81,7 @@
 #' 
 #' In the case of `ntries`, the optimization is repeated that number of times,
 #' each time perturbing the `init` parameter by adding a Normally distributed
-#' vector. The result which reaches the highest loglikelihood will be the one
+#' vector. The result which reaches the highest log-likelihood will be the one
 #' reported as parameter estimates. This feature is intended for testing only.
 #' Anecdotally, `optim` reaches the max in the first try.
 #' 
@@ -170,7 +173,7 @@ ergmito <- function(
     )
   timer <- c(ergmito_formulae = difftime(Sys.time(), timer_start, units = "secs"))
   
-  # Verifying existance of MLE
+  # Verifying existence of MLE
   timer0 <- Sys.time()
   support <- check_support(
     formulae$target.stats,
@@ -283,7 +286,6 @@ ergmito <- function(
       formulae   = formulae,
       nobs       = NA,
       network    = eval(model[[2]], envir = ergmitoenv),
-      init       = init,
       optim.out  = ans,
       optim.args = optim.args0,
       status     = estimates$status,

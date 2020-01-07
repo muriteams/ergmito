@@ -30,7 +30,7 @@ model_object <- ergmito_formulae(fivenets ~ edges + ttriad)
 # Printing the model object
 model_object
 
-# Printing the loglikelihood function
+# Printing the log-likelihood function
 model_object$loglik
 ```
 
@@ -68,7 +68,7 @@ using Metropolis-Hastings MCMC.
 Suppose that we have a prior regarding the distribution of the `fivenets` model:
 The `edges` parameter is normally distributed with mean -1 and variance 2, while
 the `nodematch("female")` term has the same distribution but with mean 1. We can
-implement this model using a metropolis hastings ratio. First, we need to define
+implement this model using a Metropolis-Hastings ratio. First, we need to define
 the log of the posterior distribution:
 
 ```{r}

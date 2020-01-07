@@ -12,7 +12,7 @@ powerset(n, directed = TRUE, force = FALSE, chunk_size = 2e+05)
 \item{directed}{Logical scalar. Whether to generate the power set of directed
 or undirected graphs,}
 
-\item{force}{Logical scalar. When \code{TRUE} it generates the powerset for \code{n>5},
+\item{force}{Logical scalar. When \code{TRUE} it generates the power set for \code{n>5},
 otherwise it returns with error.}
 
 \item{chunk_size}{Number of matrices to process at a time. If n = 5, then

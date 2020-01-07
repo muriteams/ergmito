@@ -17,7 +17,7 @@ induced_submat. <- function(nets, vs) {
     .Call(`_ergmito_induced_submat`, nets, vs)
 }
 
-#' Vectorized version of loglikelihood function
+#' Vectorized version of log-likelihood function
 #' 
 #' @param x Matrix of statistic. `nnets * nstats`.
 #' @param params Vector of coefficients.

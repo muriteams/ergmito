@@ -19,7 +19,7 @@ be used to split the data.}
 
 \item{attrname}{Name of the attribute that holds the block ids.}
 
-\item{formula}{An ergm model which's network wil be wrapped with
+\item{formula}{An ergm model which networks' will be wrapped with
 blockdiagonalize (see details).}
 
 \item{...}{Further arguments passed to the method.}

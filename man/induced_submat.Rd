@@ -33,7 +33,7 @@ the resulting object will always be a list of matrices, and it is vectorized.
 Depending on the lengths of \code{x} and \code{v}, the function can take the
 following strategies:
 \itemize{
-\item If both are of the same size, then it will match the networks annd the vector
+\item If both are of the same size, then it will match the networks and the vector
 of indices.
 \item If \code{length(x) == 1}, then it will use that single network as a baseline
 for generating the subgraphs.

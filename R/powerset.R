@@ -3,7 +3,7 @@
 
 #' Power set of Directed Graphs of size `n`
 #' @param n Integer. Number of edges.
-#' @param force Logical scalar. When `TRUE` it generates the powerset for `n>5`,
+#' @param force Logical scalar. When `TRUE` it generates the power set for `n>5`,
 #' otherwise it returns with error.
 #' @param directed Logical scalar. Whether to generate the power set of directed
 #' or undirected graphs,

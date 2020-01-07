@@ -32,12 +32,12 @@ Computing (hpcc.usc.edu).
 
 ## Citation
 
-Vega Yon G (2018). *ergmito: Exponential Random Graph Models for Small
-Networks*. R package version 0.1-0, \<URL:
+Vega Yon G (2019). *ergmito: Exponential Random Graph Models for Small
+Networks*. R package version 0.1-1, \<URL:
 <https://github.com/muriteams/ergmito>\>.
 
-Vega Yon G, de la Haye K (2019). “Exponential Random Graph models for
-Little Networks.” arXiv:1904.10406.
+Vega Yon G, Slaughter A, de la Haye K (2019). “Exponential Random Graph
+models for Little Networks.” arXiv:1904.10406.
 
 To see these entries in BibTeX format, use ‘print(<citation>,
 bibtex=TRUE)’, ‘toBibtex(.)’, or set ‘options(citation.bibtex.max=999)’.
@@ -51,12 +51,11 @@ The development version from [GitHub](https://github.com/) with:
 devtools::install_github("muriteams/ergmito")
 ```
 
-This requires compilation. Windows users can download the lates compiled
-version from appveyor
+This requires compilation. Windows users can download the latest
+compiled version from appveyor
 [here](https://ci.appveyor.com/project/gvegayon/ergmito/build/artifacts).
 The file to download is the one named `ergmito_[version number].zip`.
-Once donwloaded, you can install typing the
-following:
+Once downloaded, you can install typing the following:
 
 ``` r
 install.packages("[path to the zipfile]/ergmito_[version number].zip", repos = FALSE)
@@ -196,9 +195,9 @@ plot(fivenets_gof)
 
 <img src="man/figures/README-fivenets-gof-1.png" width="80%" />
 
-## Fitting block-diagnoal models
+## Fitting block-diagonal models
 
-The pooled model can be also compared to a block-diagnoal ERGM. The
+The pooled model can be also compared to a block-diagonal ERGM. The
 package includes three functions to help with this task:
 `blockdiagonalize`, `splitnetwork`, and `ergm_blockdiag`.
 
@@ -275,7 +274,7 @@ t_ergmito <- system.time(
 ## Fitting a large model
 
 Suppose that we have a large sample of small networks (ego from
-facebook, twitter, etc.), 20,000 which account for 80,000 vertices:
+Facebook, Twitter, etc.), 20,000 which account for 80,000 vertices:
 
 ``` r
 set.seed(123)
@@ -291,7 +290,7 @@ We can fit this model in a memory efficient way.
 ``` r
 system.time(ans0 <- ergmito(bignet ~ edges + mutual))
 #>    user  system elapsed 
-#>   4.140   0.016   4.155
+#>   8.208   0.037   8.251
 summary(ans0)
 #> 
 #> ERGMito estimates

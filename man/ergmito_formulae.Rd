@@ -19,7 +19,7 @@ ergmito_formulae(
 \item{model}{A formula. The left-hand-side can be either a small network, or
 a list of networks.}
 
-\item{gattr_model}{A formula. Model especification for graph attributes. This
+\item{gattr_model}{A formula. Model specification for graph attributes. This
 is useful when using multiple networks.}
 
 \item{target.stats}{Observed statistics. If multiple networks, then a list, otherwise
@@ -41,7 +41,7 @@ A list of class \code{ergmito_loglik}.
 \link[ergm:ergm.allstats]{ergm::ergm.allstats}.
 \item \code{model} A formula. The model passed.
 \item \code{npars} Integer. Number of parameters.
-\item \code{nnets} Integer. Number of networks to estiamte.
+\item \code{nnets} Integer. Number of networks in the model.
 \item \code{vertex.attr} Character vector. Vertex attributes used in the model.
 \item \code{term.names} Names of the terms used in the model.
 }

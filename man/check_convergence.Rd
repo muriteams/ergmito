@@ -3,7 +3,7 @@
 \name{check_support}
 \alias{check_support}
 \alias{check_convergence}
-\title{Check the convergece of ergmito estimates}
+\title{Check the convergence of ergmito estimates}
 \usage{
 check_support(target.stats, stats.statmat, threshold = 0.8, warn = TRUE)
 
@@ -33,7 +33,7 @@ A list with the following components:
 \item \code{vcov} Updated variance-covariance matrix
 \item \code{valid} Vector of integers with the parameters that are marked as OK.
 \item \code{status} Return code of the analysis. See details.
-\item \code{note} A note accompaining the status.
+\item \code{note} A note describing the status.
 }
 }
 \description{
@@ -48,7 +48,7 @@ adjustments when required. In particular, we check:
 \item Whether the optimization algorithm converged or not
 \item If the obtained estimates maximize the function. If this is not the case,
 the function checks whether the MLE may not exist. This usually happens
-when the loglikelihood function can improve by making increments to parameters
+when the log-likelihood function can improve by making increments to parameters
 that are already tagged as large. If the ll improves, then the value is
 replaced with \code{Inf} (+- depending on the sign of the parameter).
 \item If the Hessian is semi-positive-definite, i.e. if it is invertible. If it
@@ -58,7 +58,7 @@ case we will use \link[MASS:ginv]{MASS::ginv} instead.
 
 The return codes are composed of two numbers, the first number gives information
 regarding of the parameter estimates, while the second number give information
-about the variance covaiance matrix.
+about the variance-covariance matrix.
 
 Column 1:
 \itemize{

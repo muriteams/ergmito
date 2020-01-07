@@ -19,33 +19,56 @@ replicate_vertex_attr <- function(x, attrname, value) {
 #' @param cl An object of class [cluster][parallel::makeCluster].
 #' @param force Logical. When `FALSE` (default) will try to use `ergmito`'s stat
 #' count functions (see [count_stats]). This means that if one of the requested
-#' statistics in not avialable in `ergmito`, then we will use `ergm` to compute
-#' them, which is significatnly slower (see details).
+#' statistics in not available in `ergmito`, then we will use `ergm` to compute
+#' them, which is significantly slower (see details).
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' 
 #' @details 
 #' While the \CRANpkg{ergm} package is very efficient, it was not built to do some
-#' of the computations requiered in the ergmito package. This translates in having
+#' of the computations required in the ergmito package. This translates in having
 #' some of the functions of the package (ergm) with poor speed performance. This
 #' led us to "reinvent the wheel" in some cases to speed things up, this includes
 #' calculating observed statistics in a list of networks.
 #' 
 #' @return An environment with the following objects:
 #' 
-#' - `calc_prob`
-#' - `call`
-#' - `counts`
-#' - `networks`
-#' - `prob`
+#' - `calc_prob` A function to calculate each graph's probability under the
+#'   specified model.
+#' - `call` A language object with the call.
+#' - `counts` A list with 3 elements: `stats` the sufficient statistics of each network,
+#'   `weights` and `statmat` the overall matrices of sufficient statistics used to
+#'   compute the likelihood.
+#' - `network0` The baseline network used to either fit the model or obtain
+#'   attributes.
+#' - `networks` A list with the actual sample space of networks.
+#' - `prob` A numeric
 #' - `sample` A function to draw samples. `n` specifies the number of samples to
 #'   draw, `s` the size of the networks, and `theta` the parameter to use to
 #'   calculate the likelihoods.
-#' - `theta`
-#' 
-#' 
+#' - `theta` Named numeric vector with the current values of the model parameters.
+#'  
 #' 
 #' @export
 #' @importFrom parallel clusterEvalQ makeCluster makeForkCluster clusterExport
+#' @examples 
+#' 
+#' # We can generate a sampler from a random graph
+#' set.seed(7131)
+#' ans <- new_rergmito(rbernoulli(4) ~ edges)
+#' 
+#' # Five samples
+#' ans$sample(5, s = 4)
+#' 
+#' # or we can use some nodal data:
+#' data(fivenets)
+#' ans <- new_rergmito(
+#'   fivenets[[3]] ~ edges + nodematch("female"),
+#'   theta = c(-1, 1)
+#' )
+#' 
+#' # Five samples
+#' ans$sample(5, s = 4) # All these networks have a "female" vertex attr
+#' 
 new_rergmito <- function(
   model, 
   theta  = NULL,

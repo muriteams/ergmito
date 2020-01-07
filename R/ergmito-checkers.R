@@ -73,7 +73,7 @@ map_convergence_message <- function(x) {
   CONVERGENCE_DICTIONARY[[sprintf("%02d", x)]]
 }
 
-#' Check the convergece of ergmito estimates
+#' Check the convergence of ergmito estimates
 #' 
 #' This is an internal function used to check the convergence of the optim function.
 #' 
@@ -88,7 +88,7 @@ map_convergence_message <- function(x) {
 #' - `vcov` Updated variance-covariance matrix
 #' - `valid` Vector of integers with the parameters that are marked as OK.
 #' - `status` Return code of the analysis. See details.
-#' - `note` A note accompaining the status.
+#' - `note` A note describing the status.
 #' 
 #' @section Return codes: 
 #' 
@@ -99,7 +99,7 @@ map_convergence_message <- function(x) {
 #' 
 #' 2. If the obtained estimates maximize the function. If this is not the case,
 #'    the function checks whether the MLE may not exist. This usually happens
-#'    when the loglikelihood function can improve by making increments to parameters
+#'    when the log-likelihood function can improve by making increments to parameters
 #'    that are already tagged as large. If the ll improves, then the value is
 #'    replaced with `Inf` (+- depending on the sign of the parameter).
 #'    
@@ -109,7 +109,7 @@ map_convergence_message <- function(x) {
 #'    
 #' The return codes are composed of two numbers, the first number gives information
 #' regarding of the parameter estimates, while the second number give information
-#' about the variance covaiance matrix.
+#' about the variance-covariance matrix.
 #' 
 #' Column 1:
 #' 

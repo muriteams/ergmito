@@ -10,7 +10,7 @@
 #' @details Depending on the lengths of `x` and `v`, the function can take the
 #' following strategies:
 #' 
-#' - If both are of the same size, then it will match the networks annd the vector
+#' - If both are of the same size, then it will match the networks and the vector
 #' of indices.
 #' 
 #' - If `length(x) == 1`, then it will use that single network as a baseline

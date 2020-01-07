@@ -130,7 +130,7 @@ splitnetwork <- function(x, attrname) {
 
 #' @export
 #' @rdname blockdiagonalize
-#' @param formula An ergm model which's network wil be wrapped with
+#' @param formula An ergm model which networks' will be wrapped with
 #' blockdiagonalize (see details).
 #' @details The function `ergm_blockdiag` is a wrapper function that takes the
 #' model's network, stacks the networks into a single block diagonal net, and
