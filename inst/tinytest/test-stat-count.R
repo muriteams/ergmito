@@ -140,6 +140,14 @@ expect_error(
   "not found"
 )
 
+expect_error(analyze_formula())
+
+# Error when analyzing undirected networks
 expect_error(
-  analyze_formula()
-)
+  count_stats(
+    network::network(rbernoulli(4), directed = FALSE) ~ edges
+    ), "undirected"
+  )
+
+# Not available
+expect_error(count_stats(rbernoulli(4) ~ missing_term), "not available")

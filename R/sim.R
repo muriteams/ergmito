@@ -149,7 +149,7 @@ new_rergmito <- function(
     }
   }
   
-  if (!undirected | (all(ergm_model$names %in% AVAILABLE_STATS()) & (Sys.getenv("ERGMITO_TEST") == ""))) {
+  if ((Sys.getenv("ERGMITO_TEST") == "") && (!undirected | all(ergm_model$names %in% AVAILABLE_STATS()))) {
     # THE ERGMITO WAY ----------------------------------------------------------
     
     

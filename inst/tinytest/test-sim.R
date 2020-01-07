@@ -2,6 +2,13 @@
 # Single network test
 set.seed(4532)
 nets <- rbernoulli(5)
+
+expect_error(new_rergmito(nets ~ edges, sizes = 8, force = FALSE), "force")
+
+expect_error(new_rergmito(
+  list(nets, network::network(nets, directed = FALSE)) ~ edges, "mix"
+))
+
 Sys.unsetenv("ERGMITO_TEST")
 set.seed(1);ans0 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L)
 Sys.setenv(ERGMITO_TEST = 1)
@@ -50,6 +57,15 @@ expect_equal(ans$get_networks(s = 3), ans[,3]$`3`)
 
 Sys.unsetenv("ERGMITO_TEST")
 
+# Parallel
+ans  <- suppressWarnings(new_rergmito(nets ~ edges + mutual, force = TRUE, ncores = 2))
+expect_length(ans$networks$`3`, 2^(2*3))
+expect_equal(
+  as_adjmat(ans$get_networks(s = 3)),
+  powerset(3, directed = TRUE)
+)
+expect_equal(sum(ans$prob$`3`), 1)
+
 
 # Undirected networks ----------------------------------------------------------
 set.seed(554)
@@ -72,3 +88,5 @@ expect_equal(
   powerset(4, directed = FALSE)
 )
 expect_equal(sum(ans$prob$`4`), 1)
+
+# Checking errors

@@ -43,3 +43,7 @@ expect_output(print(summary(ans0)), "z value")
 
 net1 <- network::network(net1, directed = FALSE)
 expect_warning(ergmito(net1 ~ edges), "undirected graphs")
+
+# Errors
+expect_error(ergmito(list(net1, rbernoulli(4)) ~ edges), "same type")
+expect_error(ergmito(net1 ~ gwdsp(1)), "not supported")
