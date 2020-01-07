@@ -100,8 +100,8 @@
 <div id="citation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#citation" class="anchor"></a>Citation</h2>
-<p>Vega Yon G (2018). <em>ergmito: Exponential Random Graph Models for Small Networks</em>. R package version 0.1-0, &lt;URL: <a href="https://github.com/muriteams/ergmito" class="uri">https://github.com/muriteams/ergmito</a>&gt;.</p>
-<p>Vega Yon G, de la Haye K (2019). “Exponential Random Graph models for Little Networks.” arXiv:1904.10406.</p>
+<p>Vega Yon G (2019). <em>ergmito: Exponential Random Graph Models for Small Networks</em>. R package version 0.1-1, &lt;URL: <a href="https://github.com/muriteams/ergmito" class="uri">https://github.com/muriteams/ergmito</a>&gt;.</p>
+<p>Vega Yon G, Slaughter A, de la Haye K (2019). “Exponential Random Graph models for Little Networks.” arXiv:1904.10406.</p>
 <p>To see these entries in BibTeX format, use ‘print(<citation>, bibtex=TRUE)’, ‘toBibtex(.)’, or set ‘options(citation.bibtex.max=999)’.</citation></p>
 </div>
 <div id="installation" class="section level2">
@@ -110,7 +110,7 @@
 <p>The development version from <a href="https://github.com/">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># install.packages("devtools")</span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">"muriteams/ergmito"</span>)</a></code></pre></div>
-<p>This requires compilation. Windows users can download the lates compiled version from appveyor <a href="https://ci.appveyor.com/project/gvegayon/ergmito/build/artifacts">here</a>. The file to download is the one named <code>ergmito_[version number].zip</code>. Once donwloaded, you can install typing the following:</p>
+<p>This requires compilation. Windows users can download the latest compiled version from appveyor <a href="https://ci.appveyor.com/project/gvegayon/ergmito/build/artifacts">here</a>. The file to download is the one named <code>ergmito_[version number].zip</code>. Once downloaded, you can install typing the following:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"[path to the zipfile]/ergmito_[version number].zip"</span>, <span class="dt">repos =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
 <p>In the case of Mac users, and in particular, those with Mojave version, they may need to install the following <a href="https://github.com/fxcoudert/gfortran-for-macOS/releases" class="uri">https://github.com/fxcoudert/gfortran-for-macOS/releases</a></p>
 </div>
@@ -221,10 +221,10 @@
 <a class="sourceLine" id="cb7-24" data-line-number="24"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(fivenets_gof)</a></code></pre></div>
 <p><img src="reference/figures/README-fivenets-gof-1.png" width="80%"></p>
 </div>
-<div id="fitting-block-diagnoal-models" class="section level2">
+<div id="fitting-block-diagonal-models" class="section level2">
 <h2 class="hasAnchor">
-<a href="#fitting-block-diagnoal-models" class="anchor"></a>Fitting block-diagnoal models</h2>
-<p>The pooled model can be also compared to a block-diagnoal ERGM. The package includes three functions to help with this task: <code>blockdiagonalize</code>, <code>splitnetwork</code>, and <code>ergm_blockdiag</code>.</p>
+<a href="#fitting-block-diagonal-models" class="anchor"></a>Fitting block-diagonal models</h2>
+<p>The pooled model can be also compared to a block-diagonal ERGM. The package includes three functions to help with this task: <code>blockdiagonalize</code>, <code>splitnetwork</code>, and <code>ergm_blockdiag</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"></a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"fivenets"</span>)</a>
 <a class="sourceLine" id="cb8-3" data-line-number="3"></a>
@@ -280,7 +280,7 @@
 <div id="fitting-a-large-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-a-large-model" class="anchor"></a>Fitting a large model</h2>
-<p>Suppose that we have a large sample of small networks (ego from facebook, twitter, etc.), 20,000 which account for 80,000 vertices:</p>
+<p>Suppose that we have a large sample of small networks (ego from Facebook, Twitter, etc.), 20,000 which account for 80,000 vertices:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">123</span>)</a>
 <a class="sourceLine" id="cb14-2" data-line-number="2">bignet &lt;-<span class="st"> </span><span class="kw"><a href="reference/rbernoulli.html">rbernoulli</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/sample.html">sample</a></span>(<span class="dv">3</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">20000</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>))</a>
 <a class="sourceLine" id="cb14-3" data-line-number="3"></a>
@@ -290,7 +290,7 @@
 <p>We can fit this model in a memory efficient way.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(ans0 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(bignet <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span>mutual))</a>
 <a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co">#&gt;    user  system elapsed </span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt;   4.140   0.016   4.155</span></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt;   8.208   0.037   8.251</span></a>
 <a class="sourceLine" id="cb15-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(ans0)</a>
 <a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; ERGMito estimates</span></a>

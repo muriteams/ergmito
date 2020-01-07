@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Check the convergece of ergmito estimates — check_support • ergmito</title>
+<title>Check the convergence of ergmito estimates — check_support • ergmito</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,7 +42,7 @@
 
 
 
-<meta property="og:title" content="Check the convergece of ergmito estimates — check_support" />
+<meta property="og:title" content="Check the convergence of ergmito estimates — check_support" />
 <meta property="og:description" content="This is an internal function used to check the convergence of the optim function." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -123,7 +123,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Check the convergece of ergmito estimates</h1>
+    <h1>Check the convergence of ergmito estimates</h1>
     
     <div class="hidden name"><code>check_convergence.Rd</code></div>
     </div>
@@ -178,7 +178,7 @@ will be questioned.</p></td>
 <li><p><code>vcov</code> Updated variance-covariance matrix</p></li>
 <li><p><code>valid</code> Vector of integers with the parameters that are marked as OK.</p></li>
 <li><p><code>status</code> Return code of the analysis. See details.</p></li>
-<li><p><code>note</code> A note accompaining the status.</p></li>
+<li><p><code>note</code> A note describing the status.</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="return-codes"><a class="anchor" href="#return-codes"></a>Return codes</h2>
@@ -191,7 +191,7 @@ adjustments when required. In particular, we check:</p><ol>
 <li><p>Whether the optimization algorithm converged or not</p></li>
 <li><p>If the obtained estimates maximize the function. If this is not the case,
 the function checks whether the MLE may not exist. This usually happens
-when the loglikelihood function can improve by making increments to parameters
+when the log-likelihood function can improve by making increments to parameters
 that are already tagged as large. If the ll improves, then the value is
 replaced with <code>Inf</code> (+- depending on the sign of the parameter).</p></li>
 <li><p>If the Hessian is semi-positive-definite, i.e. if it is invertible. If it
@@ -201,7 +201,7 @@ case we will use <a href='https://rdrr.io/pkg/MASS/man/ginv.html'>MASS::ginv</a>
 
 <p>The return codes are composed of two numbers, the first number gives information
 regarding of the parameter estimates, while the second number give information
-about the variance covaiance matrix.</p>
+about the variance-covariance matrix.</p>
 <p>Column 1:</p><ul>
 <li><p>0: Converged and estimates at the max.</p></li>
 <li><p>1: It did not converged, but I see no issue in the max.</p></li>
