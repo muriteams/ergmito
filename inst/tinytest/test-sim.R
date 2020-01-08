@@ -58,7 +58,9 @@ expect_equal(ans$get_networks(s = 3), ans[,3]$`3`)
 Sys.unsetenv("ERGMITO_TEST")
 
 # Parallel
-ans  <- suppressWarnings(new_rergmito(nets ~ edges + mutual, force = TRUE, ncores = 2))
+ans  <- suppressWarnings({
+  new_rergmito(nets ~ edges + mutual, sizes = 3, force = TRUE, ncores = 2)
+  })
 expect_length(ans$networks$`3`, 2^(2*3))
 expect_equal(
   as_adjmat(ans$get_networks(s = 3)),
