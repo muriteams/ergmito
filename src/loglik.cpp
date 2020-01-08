@@ -10,17 +10,6 @@ using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 
-// Function to compute the normalizing constant
-inline double kappa(
-    const arma::colvec & params,
-    const arma::rowvec & weights,
-    const arma::mat    & statmat
-) {
-  
-  return arma::as_scalar(weights * exp(statmat * params - AVOID_BIG_EXP));
-  
-}
-
 // Calculates the likelihood for a given network individually.
 inline void exact_logliki(
     const arma::rowvec & x,
