@@ -2,13 +2,25 @@
 % Please edit documentation in R/formulae.R
 \name{exact_loglik}
 \alias{exact_loglik}
+\alias{exact_loglik.ergmito_model}
+\alias{exact_loglik.default}
 \alias{exact_gradient}
+\alias{exact_gradient.ergmito_model}
+\alias{exact_gradient.default}
 \alias{exact_hessian}
 \title{Vectorized calculation of ERGM exact log-likelihood}
 \usage{
-exact_loglik(x, params, stats.weights, stats.statmat, ncores = 1L)
+exact_loglik(x, params, ..., ncores = 1L)
 
-exact_gradient(x, params, stats.weights, stats.statmat, ncores = 1L)
+\method{exact_loglik}{ergmito_model}(x, params, ..., ncores = 1L)
+
+\method{exact_loglik}{default}(x, params, stats.weights, stats.statmat, ncores = 1L)
+
+exact_gradient(x, params, ..., ncores = 1L)
+
+\method{exact_gradient}{ergmito_model}(x, params, ..., ncores = 1L)
+
+\method{exact_gradient}{default}(x, params, stats.weights, stats.statmat, ncores = 1L)
 
 exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
 }
@@ -17,9 +29,9 @@ exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
 
 \item{params}{Numeric vector. Parameter values of the model.}
 
-\item{stats.weights, stats.statmat}{Vector and Matrix as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
-
 \item{ncores}{Integer scalar. Number of cores to use with OpenMP (if available).}
+
+\item{stats.weights, stats.statmat}{Vector and Matrix as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
 }
 \description{
 This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not

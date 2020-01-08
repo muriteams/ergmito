@@ -36,6 +36,7 @@ ergmito_formulae <- function(
   stats.weights = NULL,
   stats.statmat = NULL,
   env           = parent.frame(),
+  use_ptr       = FALSE,
   ...
   ) {
   
@@ -259,8 +260,13 @@ ergmito_formulae <- function(
       
     }
   
-  structure(list(
-    loglik = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
+  # Initializing the model
+  if (use_ptr) 
+    ptr <- new_ergmito_model(target.stats, stats.weights, stats.statmat)
+  
+  # Building joint likelihood function
+  loglik <- if (!use_ptr) {
+    function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
       
       ans <- sum(exact_loglik(
         params        = params,
@@ -277,9 +283,25 @@ ergmito_formulae <- function(
         return(ans)
       # max(ans, -.Machine$double.xmax/1e100)
       
-    },
-    grad  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
-
+    }
+  } else {
+    function(params, ncores = 1L) {
+      
+      ans <- sum(exact_loglik(ptr, params = params, ncores = ncores))
+      
+      # If awfully undefined
+      if (!is.finite(ans))
+        return(-.Machine$double.xmax * 1e-100)
+      else
+        return(ans)
+      
+    }
+  }
+  
+  # Building joint gradient
+  grad <- if (!use_ptr) {
+    function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
+      
       ans <- exact_gradient(
         params        = params,
         x             = target.stats,
@@ -287,14 +309,31 @@ ergmito_formulae <- function(
         stats.statmat = stats.statmat,
         ncores        = ncores
       )
-
+      
       test <- which(!is.finite(ans))
       if (length(test))
         ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
       
       ans
       
-    },
+    }
+  } else {
+    function(params, ncores = 1L) {
+      
+      ans <- exact_gradient(ptr, params = params, ncores = ncores)
+      
+      test <- which(!is.finite(ans))
+      if (length(test))
+        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
+      
+      ans
+      
+    }
+  }
+  
+  structure(list(
+    loglik = loglik,
+    grad  = grad,
     # hess  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
     #   
     #   ans <- exact_hessian(
@@ -430,7 +469,17 @@ print.ergmito_loglik <- function(x, ...) {
 #' })
 #' 
 #' @export
-exact_loglik <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
+exact_loglik <- function(x, params, ..., ncores = 1L) UseMethod("exact_loglik")
+
+#' @export
+#' @rdname exact_loglik
+exact_loglik.ergmito_model <- function(x, params, ..., ncores = 1L) {
+  exact_loglik2.(x, params = params, ncores = ncores)
+}
+
+#' @export
+#' @rdname exact_loglik
+exact_loglik.default <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -518,7 +567,17 @@ exact_loglik2 <- function(params, stat0, stats) {
 
 #' @rdname exact_loglik
 #' @export
-exact_gradient <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
+exact_gradient <- function(x, params, ..., ncores = 1L) UseMethod("exact_gradient")
+
+#' @export
+#' @rdname exact_loglik
+exact_gradient.ergmito_model <- function(x, params, ..., ncores = 1L) {
+  exact_gradient2.(x, params = params, ncores = ncores)
+}
+
+#' @export
+#' @rdname exact_loglik
+exact_gradient.default <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)

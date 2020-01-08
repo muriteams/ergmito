@@ -23,16 +23,16 @@ private:
   arma::mat res_gradient;
   
 public:
-  const unsigned int n;
-  const arma::mat                   & target_stats;
-  const std::vector< arma::rowvec > & stats_weights;
-  const std::vector< arma::mat >    & stats_statmat;
+  unsigned int n;
+  arma::mat                   target_stats;
+  std::vector< arma::rowvec > stats_weights;
+  std::vector< arma::mat >    stats_statmat;
   
   // Initializing
   ergmito_model(
-    const arma::mat                   & target_stats_,
-    const std::vector< arma::rowvec > & stats_weights_,
-    const std::vector< arma::mat >    & stats_statmat_
+    arma::mat                   target_stats_,
+    std::vector< arma::rowvec > stats_weights_,
+    std::vector< arma::mat >    stats_statmat_
   ) :
     target_stats(target_stats_),
     stats_weights(stats_weights_),
@@ -78,56 +78,24 @@ inline arma::vec ergmito_model::exact_loglik(
   default(shared) firstprivate(params, as_prob, n)
     for (int i = 0; i < n; ++i) {
       
+      // // Checking that everything is in the right oredr
+      // this->target_stats.row(i).print("this->target_stats.row(i)");
+      // params.print("params");
+      
       if (!as_prob) {
-        this->res_loglik[i] = arma::as_scalar(this->target_stats.row(i) * params) - AVOID_BIG_EXP -
+        this->res_loglik[i] =
+          arma::as_scalar(this->target_stats.row(i) * params) -
+          AVOID_BIG_EXP -
           log(kappa(params, this->stats_weights.at(i), this->stats_statmat.at(i)));
       } else {
-        this->res_loglik[i] = exp(arma::as_scalar(this->target_stats.row(i) * params) - AVOID_BIG_EXP)/ 
+        this->res_loglik[i] =
+          exp(arma::as_scalar(this->target_stats.row(i) * params) - AVOID_BIG_EXP)/ 
           kappa(params, this->stats_weights.at(i), this->stats_statmat.at(i));
       }
       
     }
   
   return this->res_loglik;
-  
-}
-
-//' Vectorized version of log-likelihood function
-//' 
-//' @param x Matrix of statistic. `nnets * nstats`.
-//' @param params Vector of coefficients.
-//' @param weights A list of weights matrices (for `statmat`).
-//' @param statmat A list of matrices with statistics for each row in `x`.
-//' @noRd
-// [[Rcpp::export(name = "exact_loglik2.", rng = false)]]
-arma::vec exact_loglik(
-    SEXP ptr,
-    const arma::colvec & params,
-    bool as_prob = false,
-    int ncores = 1
-) {
-  
-  Rcpp::XPtr< ergmito_model > p(ptr);
-  return p->exact_loglik(params, ncores, as_prob);
-  
-}
-
-// Calculates the gradient for a given network individually.
-inline arma::colvec exact_gradienti(
-    const arma::rowvec & x,
-    const arma::colvec & params,
-    const arma::rowvec & stats_weights,
-    const arma::mat    & stats_statmat
-) {
-  
-  // Speeding up a bit calculations (this is already done)
-  arma::colvec exp_stat_params = exp(stats_statmat * params - AVOID_BIG_EXP);
-  
-  return x.t() - (
-      stats_statmat.t() * (
-          stats_weights.t() % exp_stat_params
-      ))/arma::as_scalar(stats_weights * exp_stat_params);
-  
   
 }
 
@@ -138,8 +106,7 @@ inline arma::colvec exact_gradienti(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-// [[Rcpp::export(name = "exact_gradient2.", rng = false)]]
-arma::colvec ergmito_model::exact_gradient(
+inline arma::colvec ergmito_model::exact_gradient(
     const arma::colvec & params,
     bool as_prob,
     int ncores
@@ -154,12 +121,21 @@ arma::colvec ergmito_model::exact_gradient(
   
 #pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) \
     default(shared) firstprivate(params, n)
-    for (unsigned int i = 0u; i < n; ++i)
-      res_gradient.col(i) = exact_gradienti(
-        x.row(i), params, stats_weights.at(i), stats_statmat.at(i)
+    for (unsigned int i = 0u; i < n; ++i) {
+      
+      // Speeding up a bit calculations (this is already done)
+      arma::colvec exp_stat_params = exp(
+        this->stats_statmat.at(i) * params - AVOID_BIG_EXP
       );
+      
+      res_gradient.col(i) = this->target_stats.row(i).t() - (
+          this->stats_statmat.at(i).t() * (
+              this->stats_weights.at(i).t() % exp_stat_params
+          ))/arma::as_scalar(this->stats_weights.at(i) * exp_stat_params);
+      
+    }
   
-  return sum(ans, 1);
+  return sum(res_gradient, 1);
   
   
 }
@@ -172,13 +148,53 @@ SEXP new_ergmito_model(
     const std::vector< arma::rowvec > & stats_weights,
     const std::vector< arma::mat > & stats_statmat) {
   
-  return wrap(
-    Rcpp::XPtr< ergmito_model >(
-        new ergmito_model(target_stats, stats_weights, stats_statmat),
-        true
-    )
+  Rcpp::XPtr< ergmito_model > ptr(
+      new ergmito_model(target_stats, stats_weights, stats_statmat),
+      true
   );
+  
+  ptr.attr("class") = "ergmito_model";
+  
+  return wrap(ptr);
   
 }
 
+//' Vectorized version of log-likelihood function
+//' 
+//' @param x Matrix of statistic. `nnets * nstats`.
+//' @param params Vector of coefficients.
+//' @param weights A list of weights matrices (for `statmat`).
+//' @param statmat A list of matrices with statistics for each row in `x`.
+//' @noRd
+// [[Rcpp::export(name = "exact_loglik2.", rng = false)]]
+arma::vec exact_loglik2(
+    SEXP ptr,
+    const arma::colvec & params,
+    bool as_prob = false,
+    int ncores = 1
+) {
+  
+  Rcpp::XPtr< ergmito_model > p(ptr);
+  return p->exact_loglik(params, as_prob, ncores);
+  
+}
 
+//' Vectorized version of log-likelihood function
+//' 
+//' @param x Matrix of statistic. `nnets * nstats`.
+//' @param params Vector of coefficients.
+//' @param weights A list of weights matrices (for `statmat`).
+//' @param statmat A list of matrices with statistics for each row in `x`.
+//' @noRd
+// [[Rcpp::export(name = "exact_gradient2.", rng = false)]]
+arma::vec exact_gradient2(
+    SEXP ptr,
+    const arma::colvec & params,
+    bool as_prob = false,
+    int ncores = 1
+) {
+  
+  Rcpp::XPtr< ergmito_model > p(ptr);
+  return p->exact_gradient(params, as_prob, ncores);
+  
+}

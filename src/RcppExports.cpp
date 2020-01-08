@@ -40,6 +40,45 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// new_ergmito_model
+SEXP new_ergmito_model(const arma::mat& target_stats, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat);
+RcppExport SEXP _ergmito_new_ergmito_model(SEXP target_statsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type target_stats(target_statsSEXP);
+    Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
+    Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type stats_statmat(stats_statmatSEXP);
+    rcpp_result_gen = Rcpp::wrap(new_ergmito_model(target_stats, stats_weights, stats_statmat));
+    return rcpp_result_gen;
+END_RCPP
+}
+// exact_loglik2
+arma::vec exact_loglik2(SEXP ptr, const arma::colvec& params, bool as_prob, int ncores);
+RcppExport SEXP _ergmito_exact_loglik2(SEXP ptrSEXP, SEXP paramsSEXP, SEXP as_probSEXP, SEXP ncoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< bool >::type as_prob(as_probSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(exact_loglik2(ptr, params, as_prob, ncores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// exact_gradient2
+arma::vec exact_gradient2(SEXP ptr, const arma::colvec& params, bool as_prob, int ncores);
+RcppExport SEXP _ergmito_exact_gradient2(SEXP ptrSEXP, SEXP paramsSEXP, SEXP as_probSEXP, SEXP ncoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< bool >::type as_prob(as_probSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(exact_gradient2(ptr, params, as_prob, ncores));
+    return rcpp_result_gen;
+END_RCPP
+}
 // induced_submat
 std::vector< IntegerMatrix > induced_submat(const std::vector< IntegerMatrix >& nets, const std::vector< IntegerVector >& vs);
 RcppExport SEXP _ergmito_induced_submat(SEXP netsSEXP, SEXP vsSEXP) {
@@ -151,6 +190,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_count_available", (DL_FUNC) &_ergmito_count_available, 1},
     {"_ergmito_count_stats", (DL_FUNC) &_ergmito_count_stats, 3},
     {"_ergmito_geodesic", (DL_FUNC) &_ergmito_geodesic, 2},
+    {"_ergmito_new_ergmito_model", (DL_FUNC) &_ergmito_new_ergmito_model, 3},
+    {"_ergmito_exact_loglik2", (DL_FUNC) &_ergmito_exact_loglik2, 4},
+    {"_ergmito_exact_gradient2", (DL_FUNC) &_ergmito_exact_gradient2, 4},
     {"_ergmito_induced_submat", (DL_FUNC) &_ergmito_induced_submat, 2},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 6},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 5},

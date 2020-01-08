@@ -13,6 +13,43 @@ geodesic. <- function(X, force = FALSE) {
     .Call(`_ergmito_geodesic`, X, force)
 }
 
+#' Vectorized version of gradient function
+#' 
+#' @param x Matrix of statistic. `nnets * nstats`.
+#' @param params Vector of coefficients.
+#' @param weights A list of weights matrices (for `statmat`).
+#' @param statmat A list of matrices with statistics for each row in `x`.
+#' @noRd
+NULL
+
+#' Creates new pointer
+#' @export
+new_ergmito_model <- function(target_stats, stats_weights, stats_statmat) {
+    .Call(`_ergmito_new_ergmito_model`, target_stats, stats_weights, stats_statmat)
+}
+
+#' Vectorized version of log-likelihood function
+#' 
+#' @param x Matrix of statistic. `nnets * nstats`.
+#' @param params Vector of coefficients.
+#' @param weights A list of weights matrices (for `statmat`).
+#' @param statmat A list of matrices with statistics for each row in `x`.
+#' @noRd
+exact_loglik2. <- function(ptr, params, as_prob = FALSE, ncores = 1L) {
+    .Call(`_ergmito_exact_loglik2`, ptr, params, as_prob, ncores)
+}
+
+#' Vectorized version of log-likelihood function
+#' 
+#' @param x Matrix of statistic. `nnets * nstats`.
+#' @param params Vector of coefficients.
+#' @param weights A list of weights matrices (for `statmat`).
+#' @param statmat A list of matrices with statistics for each row in `x`.
+#' @noRd
+exact_gradient2. <- function(ptr, params, as_prob = FALSE, ncores = 1L) {
+    .Call(`_ergmito_exact_gradient2`, ptr, params, as_prob, ncores)
+}
+
 induced_submat. <- function(nets, vs) {
     .Call(`_ergmito_induced_submat`, nets, vs)
 }

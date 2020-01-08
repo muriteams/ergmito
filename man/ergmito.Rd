@@ -24,6 +24,7 @@ ergmito(
   ntries = 1L,
   ncores = 1L,
   keep.stats = TRUE,
+  use_ptr = FALSE,
   ...
 )
 

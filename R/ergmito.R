@@ -153,6 +153,7 @@ ergmito <- function(
   ntries        = 1L,
   ncores        = 1L,
   keep.stats    = TRUE,
+  use_ptr       = FALSE,
   ...
   ) {
 
@@ -169,6 +170,7 @@ ergmito <- function(
     stats.weights = stats.weights,
     stats.statmat = stats.statmat,
     env           = ergmitoenv,
+    use_ptr       = use_ptr,
     ...
     )
   timer <- c(ergmito_formulae = difftime(Sys.time(), timer_start, units = "secs"))
@@ -208,9 +210,14 @@ ergmito <- function(
   optim.args$fn <- formulae$loglik
   if (use.grad) 
     optim.args$gr <- formulae$grad
-  optim.args$stats.weights <- formulae$stats.weights
-  optim.args$stats.statmat <- formulae$stats.statmat
-  optim.args$target.stats  <- formulae$target.stats
+  if (!use_ptr) {
+    
+    optim.args$stats.weights <- formulae$stats.weights
+    optim.args$stats.statmat <- formulae$stats.statmat
+    optim.args$target.stats  <- formulae$target.stats
+    
+  }
+  
   optim.args$hessian       <- FALSE
   optim.args$par           <- init
   optim.args$ncores        <- ncores
@@ -267,12 +274,16 @@ ergmito <- function(
     model <- eval(model)
   
   # Null loglik
-  ll0 <- formulae$loglik(
-    params        = rep(0, length(estimates$par)),
-    stats.weights = formulae$stats.weights,
-    stats.statmat = formulae$stats.statmat,
-    target.stats  = formulae$target.stats
-    )
+  ll0 <- if (!use_ptr) {
+    formulae$loglik(
+      params        = rep(0, length(estimates$par)),
+      stats.weights = formulae$stats.weights,
+      stats.statmat = formulae$stats.statmat,
+      target.stats  = formulae$target.stats
+      )
+  } else {
+    formulae$loglik(params = rep(0, length(estimates$par)))
+  }
   
   ans <- structure(
     list(
