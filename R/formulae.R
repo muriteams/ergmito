@@ -285,7 +285,7 @@ ergmito_formulae <- function(
       
     }
   } else {
-    function(params, ncores = 1L) {
+    function(params, ..., ncores = 1L) {
       
       ans <- sum(exact_loglik(ptr, params = params, ncores = ncores))
       
@@ -318,7 +318,7 @@ ergmito_formulae <- function(
       
     }
   } else {
-    function(params, ncores = 1L) {
+    function(params, ..., ncores = 1L) {
       
       ans <- exact_gradient(ptr, params = params, ncores = ncores)
       

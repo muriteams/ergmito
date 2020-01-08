@@ -33,20 +33,51 @@ public:
     arma::mat                   target_stats_,
     std::vector< arma::rowvec > stats_weights_,
     std::vector< arma::mat >    stats_statmat_
-  ) :
-    target_stats(target_stats_),
-    stats_weights(stats_weights_),
-    stats_statmat(stats_statmat_),
-    n(target_stats_.n_rows)
+  ) :n(target_stats_.n_rows)
     {
     
     // Checking dimmentions
-    if (stats_weights.size() != stats_statmat.size())
+    if (stats_weights_.size() != stats_statmat_.size())
       stop("Incorrect sizes. stats_weights and stats_statmat should have the same size");
-    if (target_stats.n_rows != stats_weights.size())
+    if (target_stats_.n_rows != stats_weights_.size())
       stop("Incorrect sizes. target_stats and stats_statmat should have the same size");
     
+    // Resizing needed outputs
     res_loglik.resize(n);
+    stats_weights.resize(n);
+    stats_statmat.resize(n);
+    
+    // Initializing 
+    for (unsigned int i = 0; i < n; ++i) {
+      
+      // This is dangerous, but should be more efficient
+      arma::rowvec tmpvec(
+        stats_weights_.at(i).memptr(),
+        stats_weights_.at(i).size(),
+        false,
+        true
+      );
+      
+      stats_weights.at(i) = std::move(tmpvec);
+      
+      // This is dangerous, but should be more efficient
+      arma::mat tmpmat(
+        stats_statmat_.at(i).memptr(),
+        stats_statmat_.at(i).n_rows,
+        stats_statmat_.at(i).n_cols,
+        false,
+        true
+      );
+      stats_statmat.at(i) = std::move(tmpmat);
+      
+    }
+    
+    // Moving data
+    arma::mat tmpmat(
+        target_stats_.memptr(), target_stats_.n_rows, target_stats_.n_cols, false, true
+    );
+    target_stats.resize(tmpmat.n_rows, tmpmat.n_cols);
+    target_stats = std::move(tmpmat);
     res_gradient.resize(target_stats.n_cols, n);
     
     return;
