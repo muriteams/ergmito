@@ -19,11 +19,22 @@ using namespace Rcpp;
  */
 class ergmito_model {
 private:
+  
+  // These two objects contain outputs that will be used over and over again
+  // during calls to the likelihood and gradient functions.
   arma::vec res_loglik;
   arma::mat res_gradient;
   
+  /* Since the log-likelihood and the gradient function use both the normalizing
+   * constant, we don't need to recompute it if the current set of parameters
+   * is the same as the latest used.
+   */
+  arma::colvec current_parameters;
+  arma::vec normalizing_constant;
+  bool first_iter = true;
+  
 public:
-  unsigned int n;
+  unsigned int n, k;
   arma::mat                   target_stats;
   std::vector< arma::rowvec > stats_weights;
   std::vector< arma::mat >    stats_statmat;
@@ -33,65 +44,134 @@ public:
     arma::mat                   target_stats_,
     std::vector< arma::rowvec > stats_weights_,
     std::vector< arma::mat >    stats_statmat_
-  ) :n(target_stats_.n_rows)
-    {
-    
-    // Checking dimmentions
-    if (stats_weights_.size() != stats_statmat_.size())
-      stop("Incorrect sizes. stats_weights and stats_statmat should have the same size");
-    if (target_stats_.n_rows != stats_weights_.size())
-      stop("Incorrect sizes. target_stats and stats_statmat should have the same size");
-    
-    // Resizing needed outputs
-    res_loglik.resize(n);
-    stats_weights.resize(n);
-    stats_statmat.resize(n);
-    
-    // Initializing 
-    for (unsigned int i = 0; i < n; ++i) {
-      
-      // This is dangerous, but should be more efficient
-      arma::rowvec tmpvec(
-        stats_weights_.at(i).memptr(),
-        stats_weights_.at(i).size(),
-        false,
-        true
-      );
-      
-      stats_weights.at(i) = std::move(tmpvec);
-      
-      // This is dangerous, but should be more efficient
-      arma::mat tmpmat(
-        stats_statmat_.at(i).memptr(),
-        stats_statmat_.at(i).n_rows,
-        stats_statmat_.at(i).n_cols,
-        false,
-        true
-      );
-      stats_statmat.at(i) = std::move(tmpmat);
-      
-    }
-    
-    // Moving data
-    arma::mat tmpmat(
-        target_stats_.memptr(), target_stats_.n_rows, target_stats_.n_cols, false, true
-    );
-    target_stats.resize(tmpmat.n_rows, tmpmat.n_cols);
-    target_stats = std::move(tmpmat);
-    res_gradient.resize(target_stats.n_cols, n);
-    
-    return;
-    
-  };
+  );
+  
+  void update_normalizing_constant(const arma::colvec & params);
   
   // Destructor function
   ~ergmito_model() {};
   
   // The loglikes
-  arma::vec exact_loglik(const arma::colvec & params, bool as_prob = false, int ncores = 1);
-  arma::vec exact_gradient(const arma::colvec & params, bool as_prob = false, int ncores = 1);
+  arma::vec exact_loglik(
+      const arma::colvec & params,
+      bool                 as_prob = false,
+      int                  ncores  = 1
+  );
+  
+  arma::vec exact_gradient(
+      const arma::colvec & params,
+      bool                 as_prob = false,
+      int                  ncores  = 1
+  );
+  
   
 };
+
+// Constructor
+inline ergmito_model::ergmito_model(
+    arma::mat                   target_stats_,
+    std::vector< arma::rowvec > stats_weights_,
+    std::vector< arma::mat >    stats_statmat_
+) : n(target_stats_.n_rows), k(target_stats_.n_cols)
+{
+  
+  // Checking dimmentions
+  if (stats_weights_.size() != stats_statmat_.size())
+    stop("Incorrect sizes. stats_weights and stats_statmat should have the same size");
+  if (target_stats_.n_rows != stats_weights_.size())
+    stop("Incorrect sizes. target_stats and stats_statmat should have the same size");
+  
+  // Resizing needed outputs
+  res_loglik.resize(n);
+  stats_weights.resize(n);
+  stats_statmat.resize(n);
+  
+  // Initializing 
+  for (unsigned int i = 0; i < n; ++i) {
+    
+    // Checking the dimension, is it the same as the sufficient statistics?
+    if (stats_weights_[i].size() != stats_statmat_[i].n_rows)
+      stop(
+        "length(stats_weights[[%i]]) != nrow(stats_statmat[[%i]]).",
+        i + 1, i + 1
+      );
+    
+    // Checking that the statistics have the same number of columns
+    if (k != stats_statmat_[i].n_cols)
+      stop("ncol(stats_statmat[[%i]]) != ncol(target_stats).", i + 1);
+    
+    /* Using advanced constructors from armadillo. In this case, I'm building
+     * the objects s.t. it uses the raw memory pointer to the original data in
+     * R. This is actually a bit dangerous but in our case can be very efficient
+     */
+    
+    arma::rowvec tmpvec(
+        stats_weights_.at(i).memptr(),
+        stats_weights_.at(i).size(),
+        false,
+        true
+    );
+    
+    arma::mat tmpmat(
+        stats_statmat_.at(i).memptr(),
+        stats_statmat_.at(i).n_rows,
+        stats_statmat_.at(i).n_cols,
+        false,
+        true
+    );
+    
+    // Moving the data to the desired location. This way we avoid duplicating
+    // memory
+    stats_weights.at(i) = std::move(tmpvec);
+    stats_statmat.at(i) = std::move(tmpmat);
+    
+  }
+  
+  // Moving data
+  arma::mat tmpmat(
+      target_stats_.memptr(),
+      target_stats_.n_rows,
+      target_stats_.n_cols,
+      false,
+      true
+  );
+  target_stats.resize(tmpmat.n_rows, tmpmat.n_cols);
+  target_stats = std::move(tmpmat);
+  
+  // Setting the sizes of commonly used containers
+  res_gradient.resize(target_stats.n_cols, n);
+  normalizing_constant.resize(n);
+  current_parameters.resize(k);
+  
+  return;
+  
+};
+
+inline void ergmito_model::update_normalizing_constant(const arma::colvec & params) {
+  
+  /* If the current set of parameters equals the latest computed, then we 
+   * can skip computing some components of this, in particular, the
+   * normalizing constant. 
+   */
+  if (this->first_iter | !arma::approx_equal(params, this->current_parameters, "absdiff", 1e-15)) {
+    
+    // Storing the current version of the parameters
+    this->first_iter = false;
+    std::copy(params.begin(), params.end(), this->current_parameters.begin());
+    
+    // Recalculating the normalizing constant
+    for (unsigned int i = 0; i < this->n; ++i) {
+      this->normalizing_constant[i] = kappa(
+        params,
+        this->stats_weights.at(i),
+        this->stats_statmat.at(i)
+      );
+    }
+    
+  }
+  
+  return;
+}
 
 // Calculates the likelihood for a given network individually.
 inline arma::vec ergmito_model::exact_loglik(
@@ -105,23 +185,27 @@ inline arma::vec ergmito_model::exact_loglik(
   omp_set_num_threads(ncores);
 #endif
 
+
+  // Checking if we need to update the normalizing constant
+  update_normalizing_constant(params);
+  
+
 #pragma omp parallel for shared(this->target_stats, this->stats_weights, this->stats_statmat, this->res) \
   default(shared) firstprivate(params, as_prob, n)
-    for (int i = 0; i < n; ++i) {
-      
-      // // Checking that everything is in the right oredr
-      // this->target_stats.row(i).print("this->target_stats.row(i)");
-      // params.print("params");
+    for (unsigned int i = 0; i < this->n; ++i) {
       
       if (!as_prob) {
+        
         this->res_loglik[i] =
           arma::as_scalar(this->target_stats.row(i) * params) -
-          AVOID_BIG_EXP -
-          log(kappa(params, this->stats_weights.at(i), this->stats_statmat.at(i)));
+          AVOID_BIG_EXP - log(normalizing_constant[i]);
+        
       } else {
+        
         this->res_loglik[i] =
           exp(arma::as_scalar(this->target_stats.row(i) * params) - AVOID_BIG_EXP)/ 
-          kappa(params, this->stats_weights.at(i), this->stats_statmat.at(i));
+          normalizing_constant[i];
+        
       }
       
     }
@@ -148,9 +232,10 @@ inline arma::colvec ergmito_model::exact_gradient(
   omp_set_num_threads(ncores);
 #endif
   
-  // this->res_gradient.fill(0.0);
+  // Checking if we need to update the normalizing constant
+  update_normalizing_constant(params);
   
-#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) \
+#pragma omp parallel for shared(x, this->stats_weights, this->stats_statmat) \
     default(shared) firstprivate(params, n)
     for (unsigned int i = 0u; i < n; ++i) {
       
@@ -162,7 +247,7 @@ inline arma::colvec ergmito_model::exact_gradient(
       res_gradient.col(i) = this->target_stats.row(i).t() - (
           this->stats_statmat.at(i).t() * (
               this->stats_weights.at(i).t() % exp_stat_params
-          ))/arma::as_scalar(this->stats_weights.at(i) * exp_stat_params);
+          )) / this->normalizing_constant[i];
       
     }
   
