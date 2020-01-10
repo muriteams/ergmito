@@ -31,6 +31,7 @@ private:
    */
   arma::colvec current_parameters;
   arma::vec normalizing_constant;
+  std::vector< arma::mat > exp_statmat_params;
   bool first_iter = true;
   
 public:
@@ -85,6 +86,7 @@ inline ergmito_model::ergmito_model(
   res_loglik.resize(n);
   stats_weights.resize(n);
   stats_statmat.resize(n);
+  exp_statmat_params.resize(n);
   
   // Initializing 
   for (unsigned int i = 0; i < n; ++i) {
@@ -106,24 +108,25 @@ inline ergmito_model::ergmito_model(
      */
     
     arma::rowvec tmpvec(
-        stats_weights_.at(i).memptr(),
-        stats_weights_.at(i).size(),
+        stats_weights_[i].memptr(),
+        stats_weights_[i].size(),
         false,
         true
     );
     
     arma::mat tmpmat(
-        stats_statmat_.at(i).memptr(),
-        stats_statmat_.at(i).n_rows,
-        stats_statmat_.at(i).n_cols,
+        stats_statmat_[i].memptr(),
+        stats_statmat_[i].n_rows,
+        stats_statmat_[i].n_cols,
         false,
         true
     );
     
     // Moving the data to the desired location. This way we avoid duplicating
     // memory
-    stats_weights.at(i) = std::move(tmpvec);
-    stats_statmat.at(i) = std::move(tmpmat);
+    stats_weights[i] = std::move(tmpvec);
+    stats_statmat[i] = std::move(tmpmat);
+    exp_statmat_params[i].resize(stats_weights[i].size());
     
   }
   
@@ -153,18 +156,19 @@ inline void ergmito_model::update_normalizing_constant(const arma::colvec & para
    * can skip computing some components of this, in particular, the
    * normalizing constant. 
    */
-  if (this->first_iter | !arma::approx_equal(params, this->current_parameters, "absdiff", 1e-15)) {
+  if (this->first_iter | !arma::approx_equal(params, this->current_parameters, "absdiff", 1e-30)) {
     
     // Storing the current version of the parameters
     this->first_iter = false;
     std::copy(params.begin(), params.end(), this->current_parameters.begin());
     
-    // Recalculating the normalizing constant
+    // Recalculating the normalizing constant and  exp(s(.) * theta)
     for (unsigned int i = 0; i < this->n; ++i) {
-      this->normalizing_constant[i] = kappa(
-        params,
-        this->stats_weights.at(i),
-        this->stats_statmat.at(i)
+      
+      this->exp_statmat_params[i] = exp(this->stats_statmat[i] * params - AVOID_BIG_EXP);
+      
+      this->normalizing_constant[i] = arma::as_scalar(
+        this->stats_weights[i] * this->exp_statmat_params[i]
       );
     }
     
@@ -240,13 +244,13 @@ inline arma::colvec ergmito_model::exact_gradient(
     for (unsigned int i = 0u; i < n; ++i) {
       
       // Speeding up a bit calculations (this is already done)
-      arma::colvec exp_stat_params = exp(
-        this->stats_statmat.at(i) * params - AVOID_BIG_EXP
-      );
+      // arma::colvec exp_stat_params = exp(
+      //   this->stats_statmat.at(i) * params - AVOID_BIG_EXP
+      // );
       
       res_gradient.col(i) = this->target_stats.row(i).t() - (
-          this->stats_statmat.at(i).t() * (
-              this->stats_weights.at(i).t() % exp_stat_params
+          this->stats_statmat[i].t() * (
+              this->stats_weights[i].t() % this->exp_statmat_params[i]
           )) / this->normalizing_constant[i];
       
     }
