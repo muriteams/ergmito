@@ -33,7 +33,7 @@ private:
   arma::vec normalizing_constant;
   std::vector< arma::mat > exp_statmat_params;
   bool first_iter = true;
-  
+
 public:
   unsigned int n, k;
   arma::mat                   target_stats;
@@ -47,7 +47,7 @@ public:
     std::vector< arma::mat >    stats_statmat_
   );
   
-  void update_normalizing_constant(const arma::colvec & params);
+  void update_normalizing_constant(const arma::colvec & params, int ncores);
   
   // Destructor function
   ~ergmito_model() {};
@@ -150,19 +150,28 @@ inline ergmito_model::ergmito_model(
   
 };
 
-inline void ergmito_model::update_normalizing_constant(const arma::colvec & params) {
+inline void ergmito_model::update_normalizing_constant(const arma::colvec & params, int ncores) {
   
   /* If the current set of parameters equals the latest computed, then we 
    * can skip computing some components of this, in particular, the
    * normalizing constant. 
    */
-  if (this->first_iter | !arma::approx_equal(params, this->current_parameters, "absdiff", 1e-30)) {
+  bool any_changed = arma::any(abs(params - this->current_parameters) > 1e-20);
+  if (this->first_iter | any_changed) {
+    
+    // Setting the cores  
+#ifndef SKIP_OMP
+    omp_set_num_threads(ncores);
+#endif
     
     // Storing the current version of the parameters
     this->first_iter = false;
-    std::copy(params.begin(), params.end(), this->current_parameters.begin());
+    this->current_parameters = params;
     
     // Recalculating the normalizing constant and  exp(s(.) * theta)
+#pragma omp parallel for \
+    shared(this->exp_statmat_params, this->normalizing_constant, this->stats_weights, this->stats_statmat) \
+    firstprivate(AVOID_BIG_EXP, n) default(none)
     for (unsigned int i = 0; i < this->n; ++i) {
       
       this->exp_statmat_params[i] = exp(this->stats_statmat[i] * params - AVOID_BIG_EXP);
@@ -183,15 +192,15 @@ inline arma::vec ergmito_model::exact_loglik(
     bool as_prob,
     int ncores
 ) {
-  
+
+  // Setting the cores  
 #ifndef SKIP_OMP
-  // Setting the cores
   omp_set_num_threads(ncores);
 #endif
 
 
   // Checking if we need to update the normalizing constant
-  update_normalizing_constant(params);
+  update_normalizing_constant(params, ncores);
   
 
 #pragma omp parallel for shared(this->target_stats, this->stats_weights, this->stats_statmat, this->res) \
@@ -237,23 +246,21 @@ inline arma::colvec ergmito_model::exact_gradient(
 #endif
   
   // Checking if we need to update the normalizing constant
-  update_normalizing_constant(params);
+  update_normalizing_constant(params, ncores);
   
-#pragma omp parallel for shared(x, this->stats_weights, this->stats_statmat) \
-    default(shared) firstprivate(params, n)
-    for (unsigned int i = 0u; i < n; ++i) {
-      
-      // Speeding up a bit calculations (this is already done)
-      // arma::colvec exp_stat_params = exp(
-      //   this->stats_statmat.at(i) * params - AVOID_BIG_EXP
-      // );
-      
-      res_gradient.col(i) = this->target_stats.row(i).t() - (
-          this->stats_statmat[i].t() * (
-              this->stats_weights[i].t() % this->exp_statmat_params[i]
-          )) / this->normalizing_constant[i];
-      
-    }
+#pragma omp parallel for \
+  shared( \
+    x, this->stats_weights, this->stats_statmat, this->exp_statmat_params, \
+    this->res_gradient, this->target_stats) default(none) \
+    firstprivate(n)
+  for (unsigned int i = 0u; i < n; ++i) {
+    
+    res_gradient.col(i) = this->target_stats.row(i).t() - (
+        this->stats_statmat[i].t() * ( 
+            this->stats_weights[i].t() % this->exp_statmat_params[i]
+        )) / this->normalizing_constant[i];
+    
+  }
   
   return sum(res_gradient, 1);
   
