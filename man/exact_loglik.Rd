@@ -31,7 +31,8 @@ exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
 
 \item{...}{Arguments passed to the default methods.}
 
-\item{ncores}{Integer scalar. Number of cores to use with OpenMP (if available).}
+\item{ncores}{Integer scalar. Number of cores to use with OpenMP (currently
+ignored).}
 
 \item{stats.weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
 

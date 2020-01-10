@@ -42,7 +42,8 @@ quantiles analytically, otherwise it samples from the ERGM distribution.}
 \item{R}{Integer scalar. Number of simulations to generate (passed to \link{sample}).
 This is only used if \code{sim_ci = TRUE}.}
 
-\item{ncores}{Integer scalar. Number of cores to use for parallel computations.}
+\item{ncores}{Integer scalar. Number of cores to use for parallel computations
+(currently ignored).}
 
 \item{...}{Further arguments passed to \link[stats:quantile]{stats::quantile}.}
 

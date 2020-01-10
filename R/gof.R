@@ -7,7 +7,8 @@
 #' @param R Integer scalar. Number of simulations to generate (passed to [sample]).
 #' This is only used if `sim_ci = TRUE`.
 #' @param GOF Formula. Additional set of parameters to perform the GOF.
-#' @param ncores Integer scalar. Number of cores to use for parallel computations.
+#' @param ncores Integer scalar. Number of cores to use for parallel computations
+#' (currently ignored).
 #' @param ... Further arguments passed to [stats::quantile].
 #' 
 #' @details 

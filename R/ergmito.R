@@ -20,7 +20,7 @@
 #' This is intended for testing only (internal use).
 #' @param ntries Integer scalar. Number of tries to estimate the MLE (see details).
 #' @param ncores Integer scalar. Number of cores (threads) for parallel
-#' computation.
+#' computation (currently ignored).
 #' @param keep.stats Logical scalar. When `TRUE` (the default), the matrices
 #' and vectors associated with the sufficient statistics will be returned.
 #' Otherwise the function discards them. This may be useful for saving memory

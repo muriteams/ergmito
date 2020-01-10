@@ -67,7 +67,7 @@ This is intended for testing only (internal use).}
 \item{ntries}{Integer scalar. Number of tries to estimate the MLE (see details).}
 
 \item{ncores}{Integer scalar. Number of cores (threads) for parallel
-computation.}
+computation (currently ignored).}
 
 \item{keep.stats}{Logical scalar. When \code{TRUE} (the default), the matrices
 and vectors associated with the sufficient statistics will be returned.

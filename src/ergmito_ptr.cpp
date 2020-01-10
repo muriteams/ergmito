@@ -1,9 +1,9 @@
 #include <RcppArmadillo.h>
 #include "ergmito_types.h"
 
-#ifndef SKIP_OMP
-#include <omp.h>
-#endif
+// #ifndef SKIP_OMP
+// #include <omp.h>
+// #endif
 
 
 using namespace Rcpp;
@@ -174,19 +174,19 @@ inline void ergmito_ptr::update_normalizing_constant(const arma::colvec & params
   bool any_changed = arma::any(abs(params - this->current_parameters) > 1e-20);
   if (this->first_iter | any_changed) {
     
-    // Setting the cores  
-#ifndef SKIP_OMP
-    omp_set_num_threads(ncores);
-#endif
+//     // Setting the cores  
+// #ifndef SKIP_OMP
+//     omp_set_num_threads(ncores);
+// #endif
     
     // Storing the current version of the parameters
     this->first_iter = false;
     this->current_parameters = params;
     
-    // Recalculating the normalizing constant and  exp(s(.) * theta)
-#pragma omp parallel for \
-    shared(this->exp_statmat_params, this->normalizing_constant, this->stats_weights, this->stats_statmat) \
-    firstprivate(AVOID_BIG_EXP, n) default(none)
+//     // Recalculating the normalizing constant and  exp(s(.) * theta)
+// #pragma omp parallel for \
+//     shared(this->exp_statmat_params, this->normalizing_constant, this->stats_weights, this->stats_statmat) \
+//     firstprivate(AVOID_BIG_EXP, n) default(none)
     for (unsigned int i = 0; i < this->n; ++i) {
       
       this->exp_statmat_params[i] = exp(this->stats_statmat[i] * params - AVOID_BIG_EXP);
@@ -212,18 +212,18 @@ inline arma::vec ergmito_ptr::exact_loglik(
     int ncores
 ) {
 
-  // Setting the cores  
-#ifndef SKIP_OMP
-  omp_set_num_threads(ncores);
-#endif
+//   // Setting the cores  
+// #ifndef SKIP_OMP
+//   omp_set_num_threads(ncores);
+// #endif
 
 
   // Checking if we need to update the normalizing constant
   update_normalizing_constant(params, ncores);
   
 
-#pragma omp parallel for shared(this->target_stats, this->stats_weights, this->stats_statmat, this->res) \
-  default(shared) firstprivate(params, as_prob, n)
+// #pragma omp parallel for shared(this->target_stats, this->stats_weights, this->stats_statmat, this->res) \
+//   default(shared) firstprivate(params, as_prob, n)
     for (unsigned int i = 0; i < this->n; ++i) {
       
       unsigned int j = this->same_stats ? 0u : i;
@@ -262,19 +262,19 @@ inline arma::colvec ergmito_ptr::exact_gradient(
     int ncores
 ) {
   
-  // Setting the cores (not used right now)
-#ifndef SKIP_OMP
-  omp_set_num_threads(ncores);
-#endif
+//   // Setting the cores (not used right now)
+// #ifndef SKIP_OMP
+//   omp_set_num_threads(ncores);
+// #endif
   
   // Checking if we need to update the normalizing constant
   update_normalizing_constant(params, ncores);
   
-#pragma omp parallel for \
-  shared( \
-    x, this->stats_weights, this->stats_statmat, this->exp_statmat_params, \
-    this->res_gradient, this->target_stats) default(none) \
-    firstprivate(n)
+// #pragma omp parallel for \
+//   shared( \
+//     x, this->stats_weights, this->stats_statmat, this->exp_statmat_params, \
+//     this->res_gradient, this->target_stats) default(none) \
+//     firstprivate(n)
   for (unsigned int i = 0u; i < n; ++i) {
     
     unsigned int j = this->same_stats ? 0u : i;
@@ -418,9 +418,9 @@ arma::mat exact_hessian(
     stop("The weights and statmat lists must have the same length.");
   
   // Setting the cores (not used right now)
-#ifndef SKIP_OMP
-  omp_set_num_threads(ncores);
-#endif
+// #ifndef SKIP_OMP
+//   omp_set_num_threads(ncores);
+// #endif
   
   if (stats_weights.size() > 1u) {
     

@@ -391,7 +391,8 @@ print.ergmito_loglik <- function(x, ...) {
 #' @param params Numeric vector. Parameter values of the model.
 #' @template stats
 #' @param ... Arguments passed to the default methods.
-#' @param ncores Integer scalar. Number of cores to use with OpenMP (if available).
+#' @param ncores Integer scalar. Number of cores to use with OpenMP (currently
+#' ignored).
 #' 
 #' @section Sufficient statistics:
 #' 
