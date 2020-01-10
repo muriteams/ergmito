@@ -187,7 +187,7 @@ check_convergence <- function(
     for (i in to_check) {
       
       tmppar    <- optim_output$par
-      tmppar[i] <- tmppar[i] * 1.5
+      tmppar[i] <- tmppar[i] * 1.1
       
       newll <- model$loglik(params = tmppar)
       

@@ -409,7 +409,8 @@ new_rergmito <- function(
       ))
       
       # Should be within epsilon
-      if (abs(sum(ans$prob[[i]]) - 1) > .00001)
+      test <- which(!is.finite(ans$prob[[i]]))
+      if (any(test) | abs(sum(ans$prob[[i]]) - 1) > .00001)
         stop(
           "The sum of each network's probability does not equal to one.",
           " This may be due to model parameters that are too far away from 0.",
