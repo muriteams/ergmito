@@ -12,7 +12,6 @@ ergmito_formulae(
   stats.weights = NULL,
   stats.statmat = NULL,
   env = parent.frame(),
-  use_ptr = FALSE,
   ...
 )
 }

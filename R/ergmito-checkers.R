@@ -189,12 +189,7 @@ check_convergence <- function(
       tmppar    <- optim_output$par
       tmppar[i] <- tmppar[i] * 1.5
       
-      newll <- model$loglik(
-        params        = tmppar,
-        stats.weights = model$stats.weights,
-        stats.statmat = model$stats.statmat,
-        target.stats  = model$target.stats
-      )
+      newll <- model$loglik(params = tmppar)
       
       # Updating the values to be inf, if needed.
       if (newll >= optim_output$value) {
@@ -235,12 +230,7 @@ check_convergence <- function(
       
       # The observed likelihood will change as well, it may be the case that it
       # becomes undefined b/c of the fact that 0 * Inf = NaN
-      estimates$ll <- model$loglik(
-        estimates$par,
-        stats.weights = model$stats.weights,
-        stats.statmat = model$stats.statmat,
-        target.stats  = model$target.stats
-      )
+      estimates$ll <- model$loglik(estimates$par)
       
       estimates$status <- 20L
     }

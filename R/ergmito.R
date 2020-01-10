@@ -13,9 +13,7 @@
 #' is useful when using multiple networks.
 #' @param optim.args List. Passed to [stats::optim].
 #' @param target.stats A matrix of target statistics (see [ergm::ergm]).
-#' @param stats.weights,stats.statmat Lists as returned by [ergm::ergm.allstats].
-#' When this is provided, the function does not call `ergm.allstats`, which can
-#' be useful in simulations.
+#' @template stats
 #' @param init A numeric vector. Sets the starting parameters for the
 #' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
@@ -153,7 +151,6 @@ ergmito <- function(
   ntries        = 1L,
   ncores        = 1L,
   keep.stats    = TRUE,
-  use_ptr       = FALSE,
   ...
   ) {
 
@@ -170,7 +167,6 @@ ergmito <- function(
     stats.weights = stats.weights,
     stats.statmat = stats.statmat,
     env           = ergmitoenv,
-    use_ptr       = use_ptr,
     ...
     )
   timer <- c(ergmito_formulae = difftime(Sys.time(), timer_start, units = "secs"))
@@ -210,14 +206,6 @@ ergmito <- function(
   optim.args$fn <- formulae$loglik
   if (use.grad) 
     optim.args$gr <- formulae$grad
-  if (!use_ptr) {
-    
-    optim.args$stats.weights <- formulae$stats.weights
-    optim.args$stats.statmat <- formulae$stats.statmat
-    optim.args$target.stats  <- formulae$target.stats
-    
-  }
-  
   optim.args$hessian       <- FALSE
   optim.args$par           <- init
   optim.args$ncores        <- ncores
@@ -274,16 +262,7 @@ ergmito <- function(
     model <- eval(model)
   
   # Null loglik
-  ll0 <- if (!use_ptr) {
-    formulae$loglik(
-      params        = rep(0, length(estimates$par)),
-      stats.weights = formulae$stats.weights,
-      stats.statmat = formulae$stats.statmat,
-      target.stats  = formulae$target.stats
-      )
-  } else {
-    formulae$loglik(params = rep(0, length(estimates$par)))
-  }
+  ll0 <-formulae$loglik(params = rep(0, length(estimates$par)))
   
   ans <- structure(
     list(

@@ -17,7 +17,7 @@ using namespace Rcpp;
  * much memory is allocated and de-allocated. This is an effort to solve this
  * problem.
  */
-class ergmito_model {
+class ergmito_ptr {
 private:
   
   // These two objects contain outputs that will be used over and over again
@@ -33,6 +33,12 @@ private:
   arma::vec normalizing_constant;
   std::vector< arma::mat > exp_statmat_params;
   bool first_iter = true;
+  
+  /* This bool marks the data in case that the networks in the model have
+   * the same set of sufficient statistics. This is important since in such
+   * a case, we don't need to check for matching lenghts. 
+   */
+  bool same_stats = false;
 
 public:
   unsigned int n, k;
@@ -41,7 +47,7 @@ public:
   std::vector< arma::mat >    stats_statmat;
   
   // Initializing
-  ergmito_model(
+  ergmito_ptr(
     arma::mat                   target_stats_,
     std::vector< arma::rowvec > stats_weights_,
     std::vector< arma::mat >    stats_statmat_
@@ -50,7 +56,7 @@ public:
   void update_normalizing_constant(const arma::colvec & params, int ncores);
   
   // Destructor function
-  ~ergmito_model() {};
+  ~ergmito_ptr() {};
   
   // The loglikes
   arma::vec exact_loglik(
@@ -69,24 +75,34 @@ public:
 };
 
 // Constructor
-inline ergmito_model::ergmito_model(
+inline ergmito_ptr::ergmito_ptr(
     arma::mat                   target_stats_,
     std::vector< arma::rowvec > stats_weights_,
     std::vector< arma::mat >    stats_statmat_
 ) : n(target_stats_.n_rows), k(target_stats_.n_cols)
 {
   
-  // Checking dimmentions
+  // Do the networks share the same vector of weights?
+  if (stats_weights_.size() == 1u)
+    same_stats = true;
+  
+  // Checking dimmentions (only check against target_stats if different than 1)
   if (stats_weights_.size() != stats_statmat_.size())
     stop("Incorrect sizes. stats_weights and stats_statmat should have the same size");
-  if (target_stats_.n_rows != stats_weights_.size())
+  if (!same_stats && (target_stats_.n_rows != stats_weights_.size()))
     stop("Incorrect sizes. target_stats and stats_statmat should have the same size");
   
   // Resizing needed outputs
   res_loglik.resize(n);
-  stats_weights.resize(n);
-  stats_statmat.resize(n);
-  exp_statmat_params.resize(n);
+  res_gradient.resize(k, n);
+  current_parameters.resize(k);
+  
+  // The size of these objects is conditional on whether the networks share
+  // statistics.
+  normalizing_constant.resize(same_stats ? 1u: n);
+  stats_weights.resize(same_stats ? 1u: n);
+  stats_statmat.resize(same_stats ? 1u: n);
+  exp_statmat_params.resize(same_stats ? 1u: n);
   
   // Initializing 
   for (unsigned int i = 0; i < n; ++i) {
@@ -128,6 +144,10 @@ inline ergmito_model::ergmito_model(
     stats_statmat[i] = std::move(tmpmat);
     exp_statmat_params[i].resize(stats_weights[i].size());
     
+    // This should only be done once if the same stats
+    if (same_stats)
+      break;
+    
   }
   
   // Moving data
@@ -141,16 +161,11 @@ inline ergmito_model::ergmito_model(
   target_stats.resize(tmpmat.n_rows, tmpmat.n_cols);
   target_stats = std::move(tmpmat);
   
-  // Setting the sizes of commonly used containers
-  res_gradient.resize(target_stats.n_cols, n);
-  normalizing_constant.resize(n);
-  current_parameters.resize(k);
-  
   return;
   
 };
 
-inline void ergmito_model::update_normalizing_constant(const arma::colvec & params, int ncores) {
+inline void ergmito_ptr::update_normalizing_constant(const arma::colvec & params, int ncores) {
   
   /* If the current set of parameters equals the latest computed, then we 
    * can skip computing some components of this, in particular, the
@@ -179,6 +194,10 @@ inline void ergmito_model::update_normalizing_constant(const arma::colvec & para
       this->normalizing_constant[i] = arma::as_scalar(
         this->stats_weights[i] * this->exp_statmat_params[i]
       );
+      
+      // No need to recompute this if all share the same sufficient stats space.
+      if (same_stats)
+        break;
     }
     
   }
@@ -187,7 +206,7 @@ inline void ergmito_model::update_normalizing_constant(const arma::colvec & para
 }
 
 // Calculates the likelihood for a given network individually.
-inline arma::vec ergmito_model::exact_loglik(
+inline arma::vec ergmito_ptr::exact_loglik(
     const arma::colvec & params,
     bool as_prob,
     int ncores
@@ -207,17 +226,20 @@ inline arma::vec ergmito_model::exact_loglik(
   default(shared) firstprivate(params, as_prob, n)
     for (unsigned int i = 0; i < this->n; ++i) {
       
+      unsigned int j = this->same_stats ? 0u : i;
+      
       if (!as_prob) {
         
         this->res_loglik[i] =
           arma::as_scalar(this->target_stats.row(i) * params) -
-          AVOID_BIG_EXP - log(normalizing_constant[i]);
+          AVOID_BIG_EXP -
+          log(normalizing_constant[j]);
         
       } else {
         
         this->res_loglik[i] =
           exp(arma::as_scalar(this->target_stats.row(i) * params) - AVOID_BIG_EXP)/ 
-          normalizing_constant[i];
+          normalizing_constant[j];
         
       }
       
@@ -234,7 +256,7 @@ inline arma::vec ergmito_model::exact_loglik(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-inline arma::colvec ergmito_model::exact_gradient(
+inline arma::colvec ergmito_ptr::exact_gradient(
     const arma::colvec & params,
     bool as_prob,
     int ncores
@@ -255,10 +277,12 @@ inline arma::colvec ergmito_model::exact_gradient(
     firstprivate(n)
   for (unsigned int i = 0u; i < n; ++i) {
     
+    unsigned int j = this->same_stats ? 0u : i;
+    
     res_gradient.col(i) = this->target_stats.row(i).t() - (
-        this->stats_statmat[i].t() * ( 
-            this->stats_weights[i].t() % this->exp_statmat_params[i]
-        )) / this->normalizing_constant[i];
+        this->stats_statmat[j].t() * ( 
+            this->stats_weights[j].t() % this->exp_statmat_params[j]
+        )) / this->normalizing_constant[j];
     
   }
   
@@ -267,20 +291,31 @@ inline arma::colvec ergmito_model::exact_gradient(
   
 }
 
-//' Creates new pointer
+//' Creates a new `ergmito_ptr`
+//' 
+//' After calculating the support of the sufficient statisitcs, the second
+//' most computationally expensive task is computing log-likelihoods, 
+//' gradients, and hessians or ERGMs. This function creates a pointer to an
+//' underlying class that is optimized to improve memory allocation and 
+//' save computation time when possible.
+//' 
+//' @details This function is for internal used only. Non-advanced users
+//' are not encouraged to use it. See [ergmito_formulae] and [exact_loglik]
+//' for user friendly wrappers of this function.
+//' @param target_stats,stats_weights,stats_statmat see [exact_loglik].
 //' @export
 // [[Rcpp::export]]
-SEXP new_ergmito_model(
+SEXP new_ergmito_ptr(
     const arma::mat & target_stats,
     const std::vector< arma::rowvec > & stats_weights,
     const std::vector< arma::mat > & stats_statmat) {
   
-  Rcpp::XPtr< ergmito_model > ptr(
-      new ergmito_model(target_stats, stats_weights, stats_statmat),
+  Rcpp::XPtr< ergmito_ptr > ptr(
+      new ergmito_ptr(target_stats, stats_weights, stats_statmat),
       true
   );
   
-  ptr.attr("class") = "ergmito_model";
+  ptr.attr("class") = "ergmito_ptr";
   
   return wrap(ptr);
   
@@ -293,15 +328,15 @@ SEXP new_ergmito_model(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-// [[Rcpp::export(name = "exact_loglik2.", rng = false)]]
-arma::vec exact_loglik2(
+// [[Rcpp::export(name = "exact_loglik.", rng = false)]]
+arma::vec exact_loglik(
     SEXP ptr,
     const arma::colvec & params,
     bool as_prob = false,
     int ncores = 1
 ) {
   
-  Rcpp::XPtr< ergmito_model > p(ptr);
+  Rcpp::XPtr< ergmito_ptr > p(ptr);
   return p->exact_loglik(params, as_prob, ncores);
   
 }
@@ -313,15 +348,110 @@ arma::vec exact_loglik2(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-// [[Rcpp::export(name = "exact_gradient2.", rng = false)]]
-arma::vec exact_gradient2(
+// [[Rcpp::export(name = "exact_gradient.", rng = false)]]
+arma::vec exact_gradient(
     SEXP ptr,
     const arma::colvec & params,
     bool as_prob = false,
     int ncores = 1
 ) {
   
-  Rcpp::XPtr< ergmito_model > p(ptr);
+  Rcpp::XPtr< ergmito_ptr > p(ptr);
   return p->exact_gradient(params, as_prob, ncores);
   
 }
+
+// Calculates the gradient for a given network individually.
+inline arma::mat exact_hessiani(
+    const arma::rowvec & x,
+    const arma::colvec & params,
+    const arma::rowvec & stats_weights,
+    const arma::mat    & stats_statmat
+) {
+  
+  // Speeding up a bit calculations (this is already done)
+  arma::colvec Z = exp(stats_statmat * params);
+  double weighted_exp = arma::as_scalar(stats_weights * Z);
+  double weighted_exp2 = pow(weighted_exp, 2.0);
+  arma::rowvec WZ = stats_weights % Z.t();
+  // Z.print("\nZ");
+  // stats_weights.print("\nstats_weights");
+  
+  unsigned int K = params.size();
+  arma::mat H(K, K);
+  arma::rowvec WZS = WZ * stats_statmat;
+  
+  for (unsigned int k0 = 0u; k0 < K; ++k0) {
+    for (unsigned int k1 = 0u; k1 <= k0; ++k1) {
+      H(k0, k1) = - (arma::as_scalar(
+        WZ * (stats_statmat.col(k0) % stats_statmat.col(k1)) * weighted_exp
+      ) - WZS[k0] * WZS[k1]) / weighted_exp2;
+      
+      if (k0 != k1)
+        H(k1, k0) = H(k0, k1);
+    }
+  }
+  
+  return H;
+  
+}
+
+
+//' Vectorized version of gradient function
+//' 
+//' @param x Matrix of statistic. `nnets * nstats`.
+//' @param params Vector of coefficients.
+//' @param weights A list of weights matrices (for `statmat`).
+//' @param statmat A list of matrices with statistics for each row in `x`.
+//' @noRd
+// [[Rcpp::export(name = "exact_hessian.", rng = false)]]
+arma::mat exact_hessian(
+    const arma::mat & x,
+    const arma::colvec params,
+    const std::vector< arma::rowvec > & stats_weights,
+    const std::vector< arma::mat > & stats_statmat,
+    int ncores
+) {
+  
+  // Checking the sizes
+  if (stats_weights.size() != stats_statmat.size())
+    stop("The weights and statmat lists must have the same length.");
+  
+  // Setting the cores (not used right now)
+#ifndef SKIP_OMP
+  omp_set_num_threads(ncores);
+#endif
+  
+  if (stats_weights.size() > 1u) {
+    
+    unsigned int n = x.n_rows;
+    unsigned int K = params.size();
+    std::vector< arma::mat > ans(n);
+    for (unsigned int i = 0u; i < n; ++i)
+      ans[i].set_size(K, K);
+    
+#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) \
+    default(shared) firstprivate(params, n)
+      for (unsigned int i = 0u; i < n; ++i)
+        ans[i] = exact_hessiani(
+          x.row(i), params, stats_weights.at(i), stats_statmat.at(i)
+        );
+    
+    arma::mat H(K, K);
+    H = ans[0u];
+    for (unsigned int i = 1u; i < n; ++i)
+      H += ans[i];
+    
+    return H;
+    
+  } else {
+    // In the case that all networks are from the same family, then this becomes
+    // a trivial operation.
+    return exact_hessiani(
+      x.row(0u), params, stats_weights.at(0u), stats_statmat.at(0u)
+    );
+    
+  }
+  
+}
+

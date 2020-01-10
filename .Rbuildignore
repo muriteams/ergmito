@@ -13,4 +13,4 @@
 ^\.Rproj\.user$
 ^makefile$
 _cache
-
+^man-roxygen$

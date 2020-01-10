@@ -77,12 +77,7 @@ model_object <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
 
 # Defining the logposterior
 logposterior <- function(p) {
-  model_object$loglik(
-    params = p,
-    stats.weights = model_object$stats.weights,
-    stats.statmat = model_object$stats.statmat,
-    target.stats = model_object$target.stats
-  ) + 
+  model_object$loglik(params = p) + 
   sum(dnorm(p, mean = c(-1,1), sd = sqrt(2), log = TRUE))
 }
  

@@ -36,7 +36,6 @@ ergmito_formulae <- function(
   stats.weights = NULL,
   stats.statmat = NULL,
   env           = parent.frame(),
-  use_ptr       = FALSE,
   ...
   ) {
   
@@ -261,74 +260,32 @@ ergmito_formulae <- function(
     }
   
   # Initializing the model
-  if (use_ptr) 
-    ptr <- new_ergmito_model(target.stats, stats.weights, stats.statmat)
+  ergmito_ptr <- new_ergmito_ptr(target.stats, stats.weights, stats.statmat)
   
   # Building joint likelihood function
-  loglik <- if (!use_ptr) {
-    function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
-      
-      ans <- sum(exact_loglik(
-        params        = params,
-        x             = target.stats,
-        stats.weights = stats.weights,
-        stats.statmat = stats.statmat,
-        ncores        = ncores
-      ))
-      
-      # If awfully undefined
-      if (!is.finite(ans))
-        return(-.Machine$double.xmax * 1e-100)
-      else
-        return(ans)
-      # max(ans, -.Machine$double.xmax/1e100)
-      
-    }
-  } else {
-    function(params, ..., ncores = 1L) {
-      
-      ans <- sum(exact_loglik(ptr, params = params, ncores = ncores))
-      
-      # If awfully undefined
-      if (!is.finite(ans))
-        return(-.Machine$double.xmax * 1e-100)
-      else
-        return(ans)
-      
-    }
+  loglik <- function(params, ..., ncores = 1L) {
+    
+    ans <- sum(exact_loglik(ergmito_ptr, params = params, ..., ncores = ncores))
+    
+    # If awfully undefined
+    if (!is.finite(ans))
+      return(-.Machine$double.xmax * 1e-100)
+    else
+      return(ans)
+    
   }
   
   # Building joint gradient
-  grad <- if (!use_ptr) {
-    function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
-      
-      ans <- exact_gradient(
-        params        = params,
-        x             = target.stats,
-        stats.weights = stats.weights,
-        stats.statmat = stats.statmat,
-        ncores        = ncores
-      )
-      
-      test <- which(!is.finite(ans))
-      if (length(test))
-        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
-      
-      ans
-      
-    }
-  } else {
-    function(params, ..., ncores = 1L) {
-      
-      ans <- exact_gradient(ptr, params = params, ncores = ncores)
-      
-      test <- which(!is.finite(ans))
-      if (length(test))
-        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
-      
-      ans
-      
-    }
+  grad <- function(params, ..., ncores = 1L) {
+    
+    ans <- exact_gradient(ergmito_ptr, params = params, ..., ncores = ncores)
+    
+    test <- which(!is.finite(ans))
+    if (length(test))
+      ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
+    
+    ans
+    
   }
   
   structure(list(
@@ -432,8 +389,27 @@ print.ergmito_loglik <- function(x, ...) {
 #' 
 #' @param x Matrix. Observed statistics
 #' @param params Numeric vector. Parameter values of the model.
-#' @param stats.weights,stats.statmat Vector and Matrix as returned by [ergm::ergm.allstats].
+#' @template stats
+#' @param ... Arguments passed to the default methods.
 #' @param ncores Integer scalar. Number of cores to use with OpenMP (if available).
+#' 
+#' @section Sufficient statistics:
+#' 
+#' One of the most important components of `ergmito` is calculating the full
+#' support of the model's sufficient statistics. Right now, the package uses
+#' the function [ergm::ergm.allstats] which returns a list of two objects:
+#'
+#' - `weights`: An integer vector of counts.
+#' - `statmat`: A numeric matrix with the rows as unique vectors of sufficient
+#'   statistics.
+#' 
+#' Since `ergmito` can vectorize operations, in order to specify weights and
+#' statistics matrices for each network in the model, the user needs to pass
+#' two lists `stats.weights` and `stats.statmat`. While both lists have to
+#' have the same length (since its elements are matched), this needs not to
+#' be the case with the networks, as the user can specify a single set of
+#' weights and statistics that will be recycled (smartly).
+#' 
 #' @examples 
 #' data(fivenets)
 #' ans <- ergmito(fivenets ~ edges + nodematch("female"))
@@ -473,13 +449,19 @@ exact_loglik <- function(x, params, ..., ncores = 1L) UseMethod("exact_loglik")
 
 #' @export
 #' @rdname exact_loglik
-exact_loglik.ergmito_model <- function(x, params, ..., ncores = 1L) {
-  exact_loglik2.(x, params = params, ncores = ncores)
+exact_loglik.ergmito_ptr <- function(x, params, ..., ncores = 1L) {
+  exact_loglik.(x, params = params, ncores = ncores)
 }
 
 #' @export
 #' @rdname exact_loglik
-exact_loglik.default <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
+exact_loglik.default <- function(
+  x,
+  params,
+  stats.weights,
+  stats.statmat, ...,
+  ncores = 1L
+  ) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -527,14 +509,14 @@ exact_loglik.default <- function(x, params, stats.weights, stats.statmat, ncores
       i <- chunks$from[s]
       j <- chunks$to[s]
       
-      
-      ans[i:j] <- exact_loglik.(
-        x[i:j, , drop = FALSE],
-        params,
+      # Creating the model pointer
+      ergmito_ptr <- new_ergmito_ptr(
+        target_stats  = x[i:j, , drop = FALSE],
         stats_weights = stats.weights[i:j],
-        stats_statmat = stats.statmat[i:j],
-        ncores        = ncores
-        )
+        stats_statmat = stats.statmat[i:j]
+      )
+      
+      ans[i:j] <- exact_loglik.(ergmito_ptr, params, ncores = ncores)
       
     }
   } else {
@@ -543,13 +525,14 @@ exact_loglik.default <- function(x, params, stats.weights, stats.statmat, ncores
       i <- chunks$from[s]
       j <- chunks$to[s]
       
-      ans[i:j] <- exact_loglik.(
-        x[i:j, ,drop=FALSE],
-        params,
+      # Creating the model pointer
+      ergmito_ptr <- new_ergmito_ptr(
+        target_stats  = x[i:j, , drop = FALSE],
         stats_weights = stats.weights,
-        stats_statmat = stats.statmat,
-        ncores        = ncores
-        )
+        stats_statmat = stats.statmat
+      )
+      
+      ans[i:j] <- exact_loglik.(ergmito_ptr, params, ncores = ncores)
       
     }
   }
@@ -571,13 +554,20 @@ exact_gradient <- function(x, params, ..., ncores = 1L) UseMethod("exact_gradien
 
 #' @export
 #' @rdname exact_loglik
-exact_gradient.ergmito_model <- function(x, params, ..., ncores = 1L) {
-  exact_gradient2.(x, params = params, ncores = ncores)
+exact_gradient.ergmito_ptr <- function(x, params, ..., ncores = 1L) {
+  exact_gradient.(x, params = params, ncores = ncores)
 }
 
 #' @export
 #' @rdname exact_loglik
-exact_gradient.default <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
+exact_gradient.default <- function(
+  x,
+  params,
+  stats.weights,
+  stats.statmat,
+  ...,
+  ncores = 1L
+  ) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -624,14 +614,15 @@ exact_gradient.default <- function(x, params, stats.weights, stats.statmat, ncor
     i <- chunks$from[s]
     j <- chunks$to[s]
     
-    ans <- ans + exact_gradient.(
-      x[i:j, ,drop=FALSE],
-      params,
+    # Creating the model pointer
+    ergmito_ptr <- new_ergmito_ptr(
+      target_stats  = x[i:j, , drop = FALSE],
       stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j],
-      ncores        = ncores
+      stats_statmat = stats.statmat[i:j]
       )
     
+    ans <- ans + exact_gradient.(ergmito_ptr, params, ncores = ncores)
+
   }
   
   ans

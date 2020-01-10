@@ -24,7 +24,6 @@ ergmito(
   ntries = 1L,
   ncores = 1L,
   keep.stats = TRUE,
-  use_ptr = FALSE,
   ...
 )
 
@@ -51,9 +50,9 @@ ergmito(
 \item{gattr_model}{A formula. Model specification for graph attributes. This
 is useful when using multiple networks.}
 
-\item{stats.weights, stats.statmat}{Lists as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.
-When this is provided, the function does not call \code{ergm.allstats}, which can
-be useful in simulations.}
+\item{stats.weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
+
+\item{stats.statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
 
 \item{optim.args}{List. Passed to \link[stats:optim]{stats::optim}.}
 
