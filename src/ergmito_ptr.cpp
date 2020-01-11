@@ -183,10 +183,7 @@ inline void ergmito_ptr::update_normalizing_constant(const arma::colvec & params
     this->first_iter = false;
     this->current_parameters = params;
     
-//     // Recalculating the normalizing constant and  exp(s(.) * theta)
-// #pragma omp parallel for \
-//     shared(this->exp_statmat_params, this->normalizing_constant, this->stats_weights, this->stats_statmat) \
-//     firstprivate(AVOID_BIG_EXP, n) default(none)
+    // Recalculating the normalizing constant and  exp(s(.) * theta)
     for (unsigned int i = 0; i < this->n; ++i) {
       
       this->exp_statmat_params[i] = exp(this->stats_statmat[i] * params - AVOID_BIG_EXP);
@@ -221,29 +218,26 @@ inline arma::vec ergmito_ptr::exact_loglik(
   // Checking if we need to update the normalizing constant
   update_normalizing_constant(params, ncores);
   
-
-// #pragma omp parallel for shared(this->target_stats, this->stats_weights, this->stats_statmat, this->res) \
-//   default(shared) firstprivate(params, as_prob, n)
-    for (unsigned int i = 0; i < this->n; ++i) {
+  for (unsigned int i = 0; i < this->n; ++i) {
+    
+    unsigned int j = this->same_stats ? 0u : i;
+    
+    if (!as_prob) {
       
-      unsigned int j = this->same_stats ? 0u : i;
+      this->res_loglik[i] =
+        arma::as_scalar(this->target_stats.row(i) * params) -
+        AVOID_BIG_EXP -
+        log(normalizing_constant[j]);
       
-      if (!as_prob) {
-        
-        this->res_loglik[i] =
-          arma::as_scalar(this->target_stats.row(i) * params) -
-          AVOID_BIG_EXP -
-          log(normalizing_constant[j]);
-        
-      } else {
-        
-        this->res_loglik[i] =
-          exp(arma::as_scalar(this->target_stats.row(i) * params) - AVOID_BIG_EXP)/ 
-          normalizing_constant[j];
-        
-      }
+    } else {
+      
+      this->res_loglik[i] =
+        exp(arma::as_scalar(this->target_stats.row(i) * params) - AVOID_BIG_EXP)/ 
+        normalizing_constant[j];
       
     }
+    
+  }
   
   return this->res_loglik;
   
@@ -430,12 +424,10 @@ arma::mat exact_hessian(
     for (unsigned int i = 0u; i < n; ++i)
       ans[i].set_size(K, K);
     
-#pragma omp parallel for shared(x, stats_weights, stats_statmat, ans) \
-    default(shared) firstprivate(params, n)
-      for (unsigned int i = 0u; i < n; ++i)
-        ans[i] = exact_hessiani(
-          x.row(i), params, stats_weights.at(i), stats_statmat.at(i)
-        );
+    for (unsigned int i = 0u; i < n; ++i)
+      ans[i] = exact_hessiani(
+        x.row(i), params, stats_weights.at(i), stats_statmat.at(i)
+      );
     
     arma::mat H(K, K);
     H = ans[0u];

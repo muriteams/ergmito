@@ -35,7 +35,7 @@ check_support <- function(
   if (length(test)) {
     
     if (warn)
-      warning("The observed statistics (target.statistics) are near or at the ",
+      warning_ergmito("The observed statistics (target.statistics) are near or at the ",
               "boundary of its support, i.e. the Maximum Likelihood Estimates may",
               "not exist or be hard to be estimated. In particular,", 
               " the statistic(s) \"", paste(names(res)[test], collapse="\", \""), 
@@ -206,7 +206,7 @@ check_convergence <- function(
     # Are we in hell?
     if (!length(estimates$valid)) {
       
-      warning(
+      warning_ergmito(
         "All parameters went to +-Inf. This suggests the MLE may not exist.",
         call. = FALSE
         )

@@ -16,7 +16,9 @@ A <- rbinom(5, 1, .3)
 for (i in seq_along(fivenets))
   network::set.network.attribute(fivenets[[i]], "y" ,A[i])
 
+options(ergmito_warning = TRUE)
 expect_warning(ans <- ergmito(fivenets ~ edges + mutual, gattr=~ y), "\"y\"")
+options(ergmito_warning = FALSE)
 expect_output(print(ans$formulae), "elements by using")
 
 set.seed(8871)
@@ -42,7 +44,9 @@ expect_output(print(ans0), "ERGMito")
 expect_output(print(summary(ans0)), "z value")
 
 net1 <- network::network(net1, directed = FALSE)
+options(ergmito_warning = TRUE)
 expect_warning(ergmito(net1 ~ edges), "undirected graphs")
+options(ergmito_warning = FALSE)
 
 # Errors
 expect_error(ergmito(list(net1, rbernoulli(4)) ~ edges), "same type")

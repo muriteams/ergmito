@@ -34,19 +34,8 @@ model_object
 model_object$loglik
 ```
 
-Notice that, while the function `ergmito_formulae` returns all the components 
-needed to compute the joint likelihood, the function still needs all the parameters
-to be passed explicitly. The description of the parameters, which is also available
-in the package manual, is:
-
-- `params` a numeric vector with the parameters for the sufficient statistics
-- `stats.weights` a list of vectors. The weights that go along the sufficient
-statistics on the support.
-- `stats.statmat` a list of matrices with the sufficient statistics on the
-support of the function.
-- `target.stats` a matrix with the observed sufficient statistics.
-
-We can take a look at each component from our previous object:
+Besides of the log-likelihood function and the gradient function,
+`ergmito_formulae` also returns We can take a look at each component from our previous object:
 
 ```{r looking-at-the-components}
 # The vectors of weights

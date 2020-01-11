@@ -122,7 +122,7 @@ ergmito_formulae <- function(
       
     } else if (length(test)) {
       
-      warning(
+      warning_ergmito(
         "ergmito does not fully support undirected graphs (yet). We will ",
         "continue with the estimation process, but simulation has limited supported ",
         "for now.", call. = FALSE

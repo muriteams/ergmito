@@ -71,9 +71,15 @@ expect_equal(sum(ans$prob$`3`), 1)
 
 # Undirected networks ----------------------------------------------------------
 set.seed(554)
-nets <- rbernoulli(4)
+nets <- rbernoulli(4, .1)
 nets <- network::network(nets, directed = FALSE)
-ans  <- suppressWarnings(new_rergmito(nets ~ edges + esp(2), force = TRUE))
+ans <- ergmito(nets ~ edges + triangles)
+coef_ans <- coef(ans)
+ans  <- suppressWarnings(
+  new_rergmito(
+    nets ~ edges + triangles, force = TRUE,
+    theta = coef_ans
+    ))
 
 expect_length(ans$networks$`4`, 2^(4*3/2))
 expect_equal(
@@ -83,7 +89,13 @@ expect_equal(
 expect_equal(sum(ans$prob$`4`), 1)
 
 # Parallel
-ans  <- suppressWarnings(new_rergmito(nets ~ edges + esp(2), force = TRUE, ncores = 2))
+ans  <- suppressWarnings(
+  new_rergmito(
+    nets ~ edges + esp(2), force = TRUE, ncores = 2,
+    theta = coef_ans
+    )
+  )
+
 expect_length(ans$networks$`4`, 2^(4*3/2))
 expect_equal(
   as_adjmat(ans$get_networks(s = 4)),

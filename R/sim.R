@@ -244,7 +244,7 @@ new_rergmito <- function(
     # THE ERGM WAY -------------------------------------------------------------
     
     if (force)
-      warning(
+      warning_ergmito(
         "To generate this sampler we need to use statnet's ergm functions since",
         " not all the requested statistics are available in ergmito. This will ",
         "take longer...",
@@ -275,7 +275,7 @@ new_rergmito <- function(
         
         # Adding attributes to the networks
         if (length(ans$neworks) > 1L) {
-          warning(
+          warning_ergmito(
             "When `length(size) > 1`, attributes from the networks in `x` cannont",
             " be added (don't know what goes with what). We will skip adding the",
             " observed attributes to the family of networks. This could result",
