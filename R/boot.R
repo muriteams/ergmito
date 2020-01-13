@@ -47,7 +47,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
       "I wish I could do bootstrapping with less than 2, but I can't.",
       call. = FALSE)
   else if (n <= 10)
-    warning(
+    warning_ergmito(
       "You are doing bootstrapping with less than 10 networks (and even 10 is too few).",
       call.=FALSE)
   

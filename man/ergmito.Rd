@@ -10,7 +10,7 @@
 \alias{nobs.ergmito}
 \alias{vcov.ergmito}
 \alias{formula.ergmito}
-\title{Estimation of ERGMs using Exact likelihood functions}
+\title{Estimation of ERGMs using Maximum Likelihood Estimation (MLE)}
 \usage{
 ergmito(
   model,
@@ -22,7 +22,6 @@ ergmito(
   use.grad = TRUE,
   target.stats = NULL,
   ntries = 1L,
-  ncores = 1L,
   keep.stats = TRUE,
   ...
 )
@@ -50,9 +49,9 @@ ergmito(
 \item{gattr_model}{A formula. Model specification for graph attributes. This
 is useful when using multiple networks.}
 
-\item{stats.weights, stats.statmat}{Lists as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.
-When this is provided, the function does not call \code{ergm.allstats}, which can
-be useful in simulations.}
+\item{stats.weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
+
+\item{stats.statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
 
 \item{optim.args}{List. Passed to \link[stats:optim]{stats::optim}.}
 
@@ -65,9 +64,6 @@ This is intended for testing only (internal use).}
 \item{target.stats}{A matrix of target statistics (see \link[ergm:ergm]{ergm::ergm}).}
 
 \item{ntries}{Integer scalar. Number of tries to estimate the MLE (see details).}
-
-\item{ncores}{Integer scalar. Number of cores (threads) for parallel
-computation.}
 
 \item{keep.stats}{Logical scalar. When \code{TRUE} (the default), the matrices
 and vectors associated with the sufficient statistics will be returned.
@@ -112,8 +108,10 @@ point of the step.
 As a difference from \link[=ergm]{ergm::ergm}, \code{ergmito} uses the exact log-likelihood
 function for fitting the model. This implies that all the \code{2^(n*(n-1))}
 graphs are generated for computing the normalizing constant of the ERGM
-model. This implies that models with up to 5 nodes are relatively simple
-to fit, since more than that can become infeasible.
+model. As a rule of thumb, directed graphs with more than 5 vertices
+should not be fitted using MLE, but insted MC-MLE as implemented in the
+ergm package. The same applies for un-directed graphs with more than 8
+vertices..
 }
 \section{MLE}{
 

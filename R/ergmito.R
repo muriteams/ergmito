@@ -1,10 +1,12 @@
-#' Estimation of ERGMs using Exact likelihood functions
+#' Estimation of ERGMs using Maximum Likelihood Estimation (MLE)
 #' 
 #' As a difference from [ergm::ergm][ergm], `ergmito` uses the exact log-likelihood
 #' function for fitting the model. This implies that all the `2^(n*(n-1))` 
 #' graphs are generated for computing the normalizing constant of the ERGM
-#' model. This implies that models with up to 5 nodes are relatively simple
-#' to fit, since more than that can become infeasible.
+#' model. As a rule of thumb, directed graphs with more than 5 vertices
+#' should not be fitted using MLE, but insted MC-MLE as implemented in the
+#' ergm package. The same applies for un-directed graphs with more than 8
+#' vertices..
 #' 
 #' @param x,object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
@@ -13,16 +15,12 @@
 #' is useful when using multiple networks.
 #' @param optim.args List. Passed to [stats::optim].
 #' @param target.stats A matrix of target statistics (see [ergm::ergm]).
-#' @param stats.weights,stats.statmat Lists as returned by [ergm::ergm.allstats].
-#' When this is provided, the function does not call `ergm.allstats`, which can
-#' be useful in simulations.
+#' @template stats
 #' @param init A numeric vector. Sets the starting parameters for the
 #' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
 #' This is intended for testing only (internal use).
 #' @param ntries Integer scalar. Number of tries to estimate the MLE (see details).
-#' @param ncores Integer scalar. Number of cores (threads) for parallel
-#' computation.
 #' @param keep.stats Logical scalar. When `TRUE` (the default), the matrices
 #' and vectors associated with the sufficient statistics will be returned.
 #' Otherwise the function discards them. This may be useful for saving memory
@@ -136,7 +134,7 @@
 NULL
 
 ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
-  reltol = .Machine$double.eps^1.5 # Higher accuracy for solving the model
+  reltol = .Machine$double.eps # Higher accuracy for solving the model
 )
 
 #' @export
@@ -151,7 +149,6 @@ ergmito <- function(
   use.grad      = TRUE,
   target.stats  = NULL,
   ntries        = 1L,
-  ncores        = 1L,
   keep.stats    = TRUE,
   ...
   ) {
@@ -208,12 +205,8 @@ ergmito <- function(
   optim.args$fn <- formulae$loglik
   if (use.grad) 
     optim.args$gr <- formulae$grad
-  optim.args$stats.weights <- formulae$stats.weights
-  optim.args$stats.statmat <- formulae$stats.statmat
-  optim.args$target.stats  <- formulae$target.stats
   optim.args$hessian       <- FALSE
   optim.args$par           <- init
-  optim.args$ncores        <- ncores
   
   # Will try to solve the problem more than once... if needed
   ntry <- 1L
@@ -267,12 +260,7 @@ ergmito <- function(
     model <- eval(model)
   
   # Null loglik
-  ll0 <- formulae$loglik(
-    params        = rep(0, length(estimates$par)),
-    stats.weights = formulae$stats.weights,
-    stats.statmat = formulae$stats.statmat,
-    target.stats  = formulae$target.stats
-    )
+  ll0 <-formulae$loglik(params = rep(0, length(estimates$par)))
   
   ans <- structure(
     list(

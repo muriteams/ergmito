@@ -550,9 +550,9 @@ NumericMatrix count_stats(
   unsigned int k = terms.size();
   
   bool uses_attributes = false;
-  NumericVector A_empty(0);
-  if (A[0].size() != 0) {
-    if (A.size() != n)
+  NumericVector A_empty(0u);
+  if (((unsigned int) A[0].size()) != 0u) {
+    if (((unsigned int) A.size()) != n)
       stop("The number of attributes in `A` differs from the number of adjacency matrices.");
     
     uses_attributes = true;

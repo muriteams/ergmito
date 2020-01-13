@@ -33,6 +33,8 @@ if ( requireNamespace("tinytest", quietly=TRUE) ){
     
   }
   
+  options(ergmito_warning = FALSE)
   tinytest::test_package("ergmito")
+  options(ergmito_warning = NULL)
 }
 

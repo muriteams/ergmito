@@ -34,12 +34,18 @@ expect_error(exact_loglik(
 )
 
 
-ans0 <- ans$formulae$grad(
-  target.stats  = ans$formulae$target.stats,
-  params        = ans$coef,
-  stats.weights = ans$formulae$stats.weights,
-  stats.statmat = ans$formulae$stats.statmat   
-)
-
+ans0 <- ans$formulae$grad(params = ans$coef)
 expect_equal(ans0[1], 0.0, tol=1e-5)
 
+data(fivenets)
+ans <- ergmito(fivenets ~ edges + mutual + ttriad)
+
+ans0 <- ans$formulae$grad(params = rep(0, length(coef(ans))))
+ans1 <- exact_gradient(
+  x = ans$formulae$target.stats,
+  params        = rep(0, length(coef(ans))),
+  stats.weights = ans$formulae$stats.weights,
+  stats.statmat = ans$formulae$stats.statmat
+)
+
+expect_equal(ans0, ans1)

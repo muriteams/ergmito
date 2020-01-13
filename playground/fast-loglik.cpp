@@ -27,12 +27,8 @@ arma::vec exact_loglik(
     arma::mat stat0,
     const arma::rowvec params,
     const arma::rowvec weights,
-    const arma::mat statmat,
-    int ncores = 1
+    const arma::mat statmat
 ) {
-  
-  // // Setting number of threads
-  // omp_set_num_threads(ncores);
   
   arma::vec ans(stat0.n_rows);
   int n = stat0.n_rows;

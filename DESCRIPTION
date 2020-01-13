@@ -1,15 +1,21 @@
 Package: ergmito
-Version: 0.1-1
-Date: 2019-12-23
+Version: 0.2-999
+Date: 2020-01-13
 Title: Exponential Random Graph Models for Small Networks
-Description: Implementation of simulation and estimation algorithms for 
-  Exponential Random Graph Models in the case of small networks using exact
-  statistics. As a difference from the 'ergm' package, 'ergmito' skips the
-  MCMC part of the estimation process and goes straight to MLE.
+Description: Simulation and estimation of Exponential Random Graph Models (ERGMs)
+  for small networks using exact statistics. As a difference from the 'ergm'
+  package, 'ergmito' circumvents using Markov-Chain Maximum Likelihood Estimator
+  (MC-MLE) and instead uses Maximum Likelihood Estimator (MLE) to fit 'ERGMs'
+  for small networks. As exahustive enumeration is computationally feasible for
+  small networks, this R package takes advantage of this and provides tools for
+  calculating likelihood functions directly, meaning that in many cases both
+  estimation and simulation of 'ERGMs' for small networks can be faster and 
+  more accurate than simulation-based estimation methods.
 Depends: R (>= 3.3.0)
 Authors@R: c(
       person(given = "George", family = "Vega Yon", role = c("cre","aut"),
       email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")),
+      person(given = "Kayla", family = "de la Haye", role = c("ths")),
       person("Army Research Laboratory and the U.S. Army Research Office",
       role = "fnd", comment = "Grant Number W911NF-15-1-0577")
       )
@@ -43,3 +49,5 @@ Collate: 'RcppExports.R' 'boot.R' 'count_stats.R' 'data.R' 'ergm_blockdiagonal.R
             'utils.R'
 VignetteBuilder: knitr
 LazyData: true
+URL: https://github.com/muriteams/ergmito
+BugReports: https://github.com/muriteams/ergmito/issues

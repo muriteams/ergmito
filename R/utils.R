@@ -236,3 +236,13 @@ make_chunks <- function(N, chunk_size) {
   chunks
   
 }
+
+#' We don't need to warn during the 
+#' @noRd
+warning_ergmito <- function(...) {
+  
+  if (getOption("ergmito_warning", TRUE) == FALSE)
+    return()
+  
+  warning(...)
+}

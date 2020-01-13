@@ -9,7 +9,31 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## The gradient
+## ERGM log likelihood
+
+Th likelihood is given by
+
+\renewcommand{\exp}[1]{\text{exp}\left\{#1\right\}}
+
+$$
+\Pr\left(G = g|X=x, \theta\right) = \frac{\exp{\theta^ts(g)}}{\sum_{g'}\exp{\theta^ts(g')}}
+$$
+
+This can be written in iso-statistic form as follows:
+
+$$
+\Pr\left(G = g|X=x, \theta\right) = \frac{\exp{\theta^ts(g)}}{\sum_{h}w_h\exp{\theta^ts(g_h)}}
+$$
+
+Finally, the log-likelihood in matrix for equals:
+
+$$
+\log \Pr\left(G = g|X=x, \theta\right) = \theta^ts(g) - \log\left[W\times\exp{s(\cdot)\theta}\right]
+$$
+
+Where $s(\cdot)$ is a matrix of sufficient statistics of size $H\times K$ and $W$ is a row-vector of length $H$.
+
+## ERGM gradient
 
 $$
 \frac{\delta}{\delta\theta_k}\log{\Pr\left(\cdot\right)} = s_k(g) - \frac{\sum_{g'}s_k(g')\exp{\theta^ts(g')}}{\sum_{g'}\exp{\theta^ts(g')}},\quad\forall k

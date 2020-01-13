@@ -35,7 +35,7 @@ check_support <- function(
   if (length(test)) {
     
     if (warn)
-      warning("The observed statistics (target.statistics) are near or at the ",
+      warning_ergmito("The observed statistics (target.statistics) are near or at the ",
               "boundary of its support, i.e. the Maximum Likelihood Estimates may",
               "not exist or be hard to be estimated. In particular,", 
               " the statistic(s) \"", paste(names(res)[test], collapse="\", \""), 
@@ -187,14 +187,9 @@ check_convergence <- function(
     for (i in to_check) {
       
       tmppar    <- optim_output$par
-      tmppar[i] <- tmppar[i] * 1.5
+      tmppar[i] <- tmppar[i] * 1.1
       
-      newll <- model$loglik(
-        params        = tmppar,
-        stats.weights = model$stats.weights,
-        stats.statmat = model$stats.statmat,
-        target.stats  = model$target.stats
-      )
+      newll <- model$loglik(params = tmppar)
       
       # Updating the values to be inf, if needed.
       if (newll >= optim_output$value) {
@@ -211,7 +206,7 @@ check_convergence <- function(
     # Are we in hell?
     if (!length(estimates$valid)) {
       
-      warning(
+      warning_ergmito(
         "All parameters went to +-Inf. This suggests the MLE may not exist.",
         call. = FALSE
         )
@@ -235,12 +230,7 @@ check_convergence <- function(
       
       # The observed likelihood will change as well, it may be the case that it
       # becomes undefined b/c of the fact that 0 * Inf = NaN
-      estimates$ll <- model$loglik(
-        estimates$par,
-        stats.weights = model$stats.weights,
-        stats.statmat = model$stats.statmat,
-        target.stats  = model$target.stats
-      )
+      estimates$ll <- model$loglik(estimates$par)
       
       estimates$status <- 20L
     }

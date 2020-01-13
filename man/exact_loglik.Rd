@@ -2,29 +2,63 @@
 % Please edit documentation in R/formulae.R
 \name{exact_loglik}
 \alias{exact_loglik}
+\alias{exact_loglik.ergmito_ptr}
+\alias{exact_loglik.default}
 \alias{exact_gradient}
+\alias{exact_gradient.ergmito_ptr}
+\alias{exact_gradient.default}
 \alias{exact_hessian}
 \title{Vectorized calculation of ERGM exact log-likelihood}
 \usage{
-exact_loglik(x, params, stats.weights, stats.statmat, ncores = 1L)
+exact_loglik(x, params, ...)
 
-exact_gradient(x, params, stats.weights, stats.statmat, ncores = 1L)
+\method{exact_loglik}{ergmito_ptr}(x, params, ...)
 
-exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
+\method{exact_loglik}{default}(x, params, stats.weights, stats.statmat, ...)
+
+exact_gradient(x, params, ...)
+
+\method{exact_gradient}{ergmito_ptr}(x, params, ...)
+
+\method{exact_gradient}{default}(x, params, stats.weights, stats.statmat, ...)
+
+exact_hessian(x, params, stats.weights, stats.statmat)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}
 
 \item{params}{Numeric vector. Parameter values of the model.}
 
-\item{stats.weights, stats.statmat}{Vector and Matrix as returned by \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
+\item{...}{Arguments passed to the default methods.}
 
-\item{ncores}{Integer scalar. Number of cores to use with OpenMP (if available).}
+\item{stats.weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
+
+\item{stats.statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
 }
 \description{
 This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not
 centered at \code{x}, the vector of observed statistics.
 }
+\section{Sufficient statistics}{
+
+
+One of the most important components of \code{ergmito} is calculating the full
+support of the model's sufficient statistics. Right now, the package uses
+the function \link[ergm:ergm.allstats]{ergm::ergm.allstats} which returns a list of two objects:
+\itemize{
+\item \code{weights}: An integer vector of counts.
+\item \code{statmat}: A numeric matrix with the rows as unique vectors of sufficient
+statistics.
+}
+
+Since \code{ergmito} can vectorize operations, in order to specify weights and
+statistics matrices for each network in the model, the user needs to pass
+two lists \code{stats.weights} and \code{stats.statmat}. While both lists have to
+have the same length (since its elements are matched), this needs not to
+be the case with the networks, as the user can specify a single set of
+weights and statistics that will be recycled (smartly).
+}
+
 \examples{
 data(fivenets)
 ans <- ergmito(fivenets ~ edges + nodematch("female"))
