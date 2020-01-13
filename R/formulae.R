@@ -263,9 +263,9 @@ ergmito_formulae <- function(
   ergmito_ptr <- new_ergmito_ptr(target.stats, stats.weights, stats.statmat)
   
   # Building joint likelihood function
-  loglik <- function(params, ..., ncores = 1L) {
+  loglik <- function(params, ...) {
     
-    ans <- sum(exact_loglik(ergmito_ptr, params = params, ..., ncores = ncores))
+    ans <- sum(exact_loglik(ergmito_ptr, params = params, ...))
     
     # If awfully undefined
     if (!is.finite(ans))
@@ -276,9 +276,9 @@ ergmito_formulae <- function(
   }
   
   # Building joint gradient
-  grad <- function(params, ..., ncores = 1L) {
+  grad <- function(params, ...) {
     
-    ans <- exact_gradient(ergmito_ptr, params = params, ..., ncores = ncores)
+    ans <- exact_gradient(ergmito_ptr, params = params, ...)
     
     test <- which(!is.finite(ans))
     if (length(test))
@@ -391,8 +391,6 @@ print.ergmito_loglik <- function(x, ...) {
 #' @param params Numeric vector. Parameter values of the model.
 #' @template stats
 #' @param ... Arguments passed to the default methods.
-#' @param ncores Integer scalar. Number of cores to use with OpenMP (currently
-#' ignored).
 #' 
 #' @section Sufficient statistics:
 #' 
@@ -446,12 +444,12 @@ print.ergmito_loglik <- function(x, ...) {
 #' })
 #' 
 #' @export
-exact_loglik <- function(x, params, ..., ncores = 1L) UseMethod("exact_loglik")
+exact_loglik <- function(x, params, ...) UseMethod("exact_loglik")
 
 #' @export
 #' @rdname exact_loglik
-exact_loglik.ergmito_ptr <- function(x, params, ..., ncores = 1L) {
-  exact_loglik.(x, params = params, ncores = ncores)
+exact_loglik.ergmito_ptr <- function(x, params, ...) {
+  exact_loglik.(x, params = params)
 }
 
 #' @export
@@ -460,8 +458,8 @@ exact_loglik.default <- function(
   x,
   params,
   stats.weights,
-  stats.statmat, ...,
-  ncores = 1L
+  stats.statmat,
+  ...
   ) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
@@ -517,7 +515,7 @@ exact_loglik.default <- function(
         stats_statmat = stats.statmat[i:j]
       )
       
-      ans[i:j] <- exact_loglik.(ergmito_ptr, params, ncores = ncores)
+      ans[i:j] <- exact_loglik.(ergmito_ptr, params)
       
     }
   } else {
@@ -533,7 +531,7 @@ exact_loglik.default <- function(
         stats_statmat = stats.statmat
       )
       
-      ans[i:j] <- exact_loglik.(ergmito_ptr, params, ncores = ncores)
+      ans[i:j] <- exact_loglik.(ergmito_ptr, params)
       
     }
   }
@@ -551,12 +549,12 @@ exact_loglik2 <- function(params, stat0, stats) {
 
 #' @rdname exact_loglik
 #' @export
-exact_gradient <- function(x, params, ..., ncores = 1L) UseMethod("exact_gradient")
+exact_gradient <- function(x, params, ...) UseMethod("exact_gradient")
 
 #' @export
 #' @rdname exact_loglik
-exact_gradient.ergmito_ptr <- function(x, params, ..., ncores = 1L) {
-  exact_gradient.(x, params = params, ncores = ncores)
+exact_gradient.ergmito_ptr <- function(x, params, ...) {
+  exact_gradient.(x, params = params)
 }
 
 #' @export
@@ -566,8 +564,7 @@ exact_gradient.default <- function(
   params,
   stats.weights,
   stats.statmat,
-  ...,
-  ncores = 1L
+  ...
   ) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
@@ -622,7 +619,7 @@ exact_gradient.default <- function(
       stats_statmat = stats.statmat[i:j]
       )
     
-    ans <- ans + exact_gradient.(ergmito_ptr, params, ncores = ncores)
+    ans <- ans + exact_gradient.(ergmito_ptr, params)
 
   }
   
@@ -632,7 +629,7 @@ exact_gradient.default <- function(
 
 #' @rdname exact_loglik
 #' @export
-exact_hessian <- function(x, params, stats.weights, stats.statmat, ncores = 1L) {
+exact_hessian <- function(x, params, stats.weights, stats.statmat) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
   chunks <- make_chunks(nrow(x), 4e5)
@@ -683,8 +680,7 @@ exact_hessian <- function(x, params, stats.weights, stats.statmat, ncores = 1L) 
       x[i:j, ,drop=FALSE],
       params,
       stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j],
-      ncores        = ncores
+      stats_statmat = stats.statmat[i:j]
     )
     
   }

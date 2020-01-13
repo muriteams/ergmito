@@ -33,6 +33,24 @@ NULL
 #' @details This function is for internal used only. Non-advanced users
 #' are not encouraged to use it. See [ergmito_formulae] and [exact_loglik]
 #' for user friendly wrappers of this function.
+#' @section Recycling computations:
+#' 
+#' Some components of the likelihood, its gradient, and hessian can be 
+#' pre-computed and recycled when needed. For example, it is usually the
+#' case that in optimization gradients are computed using a current state
+#' of the model's parameter, which implies that the normalizing constant
+#' and some other matrix products will be the same between the log-likelihood
+#' and the gradient. Because of this, the underlying class `ergmito_ptr`
+#' will only re-calculate these shared components if the parameter used
+#' changes as well. This saves a significant amount of computation time.
+#' 
+#' @section Scope of the class methods:
+#' 
+#' To save space, the class creates pointers to the matrices of sufficient
+#' statistics that the model uses. This means that once these objects are
+#' deleted the log-likelihood and the gradient functions become invalid
+#' from the computational point of view. 
+#' 
 #' @param target_stats,stats_weights,stats_statmat see [exact_loglik].
 #' @export
 new_ergmito_ptr <- function(target_stats, stats_weights, stats_statmat) {
@@ -46,8 +64,8 @@ new_ergmito_ptr <- function(target_stats, stats_weights, stats_statmat) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_loglik. <- function(ptr, params, as_prob = FALSE, ncores = 1L) {
-    .Call(`_ergmito_exact_loglik`, ptr, params, as_prob, ncores)
+exact_loglik. <- function(ptr, params, as_prob = FALSE) {
+    .Call(`_ergmito_exact_loglik`, ptr, params, as_prob)
 }
 
 #' Vectorized version of log-likelihood function
@@ -57,8 +75,8 @@ exact_loglik. <- function(ptr, params, as_prob = FALSE, ncores = 1L) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_gradient. <- function(ptr, params, as_prob = FALSE, ncores = 1L) {
-    .Call(`_ergmito_exact_gradient`, ptr, params, as_prob, ncores)
+exact_gradient. <- function(ptr, params, as_prob = FALSE) {
+    .Call(`_ergmito_exact_gradient`, ptr, params, as_prob)
 }
 
 #' Vectorized version of gradient function
@@ -68,8 +86,8 @@ exact_gradient. <- function(ptr, params, as_prob = FALSE, ncores = 1L) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_hessian. <- function(x, params, stats_weights, stats_statmat, ncores) {
-    .Call(`_ergmito_exact_hessian`, x, params, stats_weights, stats_statmat, ncores)
+exact_hessian. <- function(x, params, stats_weights, stats_statmat) {
+    .Call(`_ergmito_exact_hessian`, x, params, stats_weights, stats_statmat)
 }
 
 induced_submat. <- function(nets, vs) {

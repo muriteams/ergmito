@@ -24,7 +24,7 @@ AC_LANG(C++)
 AC_REQUIRE_CPP
 
 ## Internal def to avoid crash when omp is not found
-no_omp="-DSKIP_OMP"
+no_omp="-DARMA_DONT_USE_OPENMP"
 
 dnl this the meat of R's m4/openmp.m4
   OPENMP_[]_AC_LANG_PREFIX[]FLAGS=
@@ -46,7 +46,7 @@ dnl this the meat of R's m4/openmp.m4
 	      [ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp=$ac_option])
 	    _AC_LANG_PREFIX[]FLAGS=$ac_save_[]_AC_LANG_PREFIX[]FLAGS
 	    if test "$ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp" != unsupported; then
-	      no_omp=""
+	      no_omp="-DARMA_USE_OPENMP"
 	      break
 	    fi
 	  done])])
@@ -59,7 +59,7 @@ dnl this the meat of R's m4/openmp.m4
   fi
 
 AC_SUBST([OPENMP_CXXFLAGS], ["${OPENMP_CXXFLAGS}"])
-AC_SUBST([SKIP_OMP], ["${no_omp}"])
+AC_SUBST([ARMA_OMP_CXXFLAGS], ["${no_omp}"])
 AC_CONFIG_FILES([src/Makevars])
 AC_OUTPUT
 

@@ -1,11 +1,6 @@
 #include <RcppArmadillo.h>
 #include "ergmito_types.h"
 
-// #ifndef SKIP_OMP
-// #include <omp.h>
-// #endif
-
-
 using namespace Rcpp;
 
 /**
@@ -53,7 +48,7 @@ public:
     std::vector< arma::mat >    stats_statmat_
   );
   
-  void update_normalizing_constant(const arma::colvec & params, int ncores);
+  void update_normalizing_constant(const arma::colvec & params);
   
   // Destructor function
   ~ergmito_ptr() {};
@@ -61,14 +56,12 @@ public:
   // The loglikes
   arma::vec exact_loglik(
       const arma::colvec & params,
-      bool                 as_prob = false,
-      int                  ncores  = 1
+      bool                 as_prob = false
   );
   
   arma::vec exact_gradient(
       const arma::colvec & params,
-      bool                 as_prob = false,
-      int                  ncores  = 1
+      bool                 as_prob = false
   );
   
   
@@ -105,7 +98,7 @@ inline ergmito_ptr::ergmito_ptr(
   exp_statmat_params.resize(same_stats ? 1u: n);
   
   // Initializing 
-  for (unsigned int i = 0; i < n; ++i) {
+  for (unsigned int i = 0u; i < n; ++i) {
     
     // Checking the dimension, is it the same as the sufficient statistics?
     if (stats_weights_[i].size() != stats_statmat_[i].n_rows)
@@ -163,30 +156,31 @@ inline ergmito_ptr::ergmito_ptr(
   
   return;
   
-};
+}
 
-inline void ergmito_ptr::update_normalizing_constant(const arma::colvec & params, int ncores) {
+inline void ergmito_ptr::update_normalizing_constant(
+    const arma::colvec & params
+  ) {
   
   /* If the current set of parameters equals the latest computed, then we 
    * can skip computing some components of this, in particular, the
    * normalizing constant. 
    */
-  bool any_changed = arma::any(abs(params - this->current_parameters) > 1e-20);
-  if (this->first_iter | any_changed) {
-    
-//     // Setting the cores  
-// #ifndef SKIP_OMP
-//     omp_set_num_threads(ncores);
-// #endif
+  bool needs_update =
+    this->first_iter ? true :
+    arma::any(abs(params - this->current_parameters) > 1e-20);
+  if (needs_update) {
     
     // Storing the current version of the parameters
     this->first_iter = false;
-    this->current_parameters = params;
+    std::copy(params.begin(), params.end(), this->current_parameters.begin());
     
     // Recalculating the normalizing constant and  exp(s(.) * theta)
     for (unsigned int i = 0; i < this->n; ++i) {
       
-      this->exp_statmat_params[i] = exp(this->stats_statmat[i] * params - AVOID_BIG_EXP);
+      this->exp_statmat_params[i] = exp(
+        this->stats_statmat[i] * params - AVOID_BIG_EXP
+      );
       
       this->normalizing_constant[i] = arma::as_scalar(
         this->stats_weights[i] * this->exp_statmat_params[i]
@@ -205,18 +199,11 @@ inline void ergmito_ptr::update_normalizing_constant(const arma::colvec & params
 // Calculates the likelihood for a given network individually.
 inline arma::vec ergmito_ptr::exact_loglik(
     const arma::colvec & params,
-    bool as_prob,
-    int ncores
+    bool as_prob
 ) {
 
-//   // Setting the cores  
-// #ifndef SKIP_OMP
-//   omp_set_num_threads(ncores);
-// #endif
-
-
   // Checking if we need to update the normalizing constant
-  update_normalizing_constant(params, ncores);
+  update_normalizing_constant(params);
   
   for (unsigned int i = 0; i < this->n; ++i) {
     
@@ -232,8 +219,9 @@ inline arma::vec ergmito_ptr::exact_loglik(
     } else {
       
       this->res_loglik[i] =
-        exp(arma::as_scalar(this->target_stats.row(i) * params) - AVOID_BIG_EXP)/ 
-        normalizing_constant[j];
+        exp(
+          arma::as_scalar(this->target_stats.row(i) * params) -
+            AVOID_BIG_EXP)/normalizing_constant[j];
       
     }
     
@@ -252,23 +240,12 @@ inline arma::vec ergmito_ptr::exact_loglik(
 //' @noRd
 inline arma::colvec ergmito_ptr::exact_gradient(
     const arma::colvec & params,
-    bool as_prob,
-    int ncores
+    bool as_prob
 ) {
   
-//   // Setting the cores (not used right now)
-// #ifndef SKIP_OMP
-//   omp_set_num_threads(ncores);
-// #endif
-  
   // Checking if we need to update the normalizing constant
-  update_normalizing_constant(params, ncores);
+  update_normalizing_constant(params);
   
-// #pragma omp parallel for \
-//   shared( \
-//     x, this->stats_weights, this->stats_statmat, this->exp_statmat_params, \
-//     this->res_gradient, this->target_stats) default(none) \
-//     firstprivate(n)
   for (unsigned int i = 0u; i < n; ++i) {
     
     unsigned int j = this->same_stats ? 0u : i;
@@ -296,9 +273,27 @@ inline arma::colvec ergmito_ptr::exact_gradient(
 //' @details This function is for internal used only. Non-advanced users
 //' are not encouraged to use it. See [ergmito_formulae] and [exact_loglik]
 //' for user friendly wrappers of this function.
+//' @section Recycling computations:
+//' 
+//' Some components of the likelihood, its gradient, and hessian can be 
+//' pre-computed and recycled when needed. For example, it is usually the
+//' case that in optimization gradients are computed using a current state
+//' of the model's parameter, which implies that the normalizing constant
+//' and some other matrix products will be the same between the log-likelihood
+//' and the gradient. Because of this, the underlying class `ergmito_ptr`
+//' will only re-calculate these shared components if the parameter used
+//' changes as well. This saves a significant amount of computation time.
+//' 
+//' @section Scope of the class methods:
+//' 
+//' To save space, the class creates pointers to the matrices of sufficient
+//' statistics that the model uses. This means that once these objects are
+//' deleted the log-likelihood and the gradient functions become invalid
+//' from the computational point of view. 
+//' 
 //' @param target_stats,stats_weights,stats_statmat see [exact_loglik].
 //' @export
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 SEXP new_ergmito_ptr(
     const arma::mat & target_stats,
     const std::vector< arma::rowvec > & stats_weights,
@@ -326,12 +321,11 @@ SEXP new_ergmito_ptr(
 arma::vec exact_loglik(
     SEXP ptr,
     const arma::colvec & params,
-    bool as_prob = false,
-    int ncores = 1
+    bool as_prob = false
 ) {
   
   Rcpp::XPtr< ergmito_ptr > p(ptr);
-  return p->exact_loglik(params, as_prob, ncores);
+  return p->exact_loglik(params, as_prob);
   
 }
 
@@ -346,12 +340,11 @@ arma::vec exact_loglik(
 arma::vec exact_gradient(
     SEXP ptr,
     const arma::colvec & params,
-    bool as_prob = false,
-    int ncores = 1
+    bool as_prob = false
 ) {
   
   Rcpp::XPtr< ergmito_ptr > p(ptr);
-  return p->exact_gradient(params, as_prob, ncores);
+  return p->exact_gradient(params, as_prob);
   
 }
 
@@ -403,18 +396,12 @@ arma::mat exact_hessian(
     const arma::mat & x,
     const arma::colvec params,
     const std::vector< arma::rowvec > & stats_weights,
-    const std::vector< arma::mat > & stats_statmat,
-    int ncores
+    const std::vector< arma::mat > & stats_statmat
 ) {
   
   // Checking the sizes
   if (stats_weights.size() != stats_statmat.size())
     stop("The weights and statmat lists must have the same length.");
-  
-  // Setting the cores (not used right now)
-// #ifndef SKIP_OMP
-//   omp_set_num_threads(ncores);
-// #endif
   
   if (stats_weights.size() > 1u) {
     

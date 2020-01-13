@@ -21,3 +21,25 @@ This function is for internal used only. Non-advanced users
 are not encouraged to use it. See \link{ergmito_formulae} and \link{exact_loglik}
 for user friendly wrappers of this function.
 }
+\section{Recycling computations}{
+
+
+Some components of the likelihood, its gradient, and hessian can be
+pre-computed and recycled when needed. For example, it is usually the
+case that in optimization gradients are computed using a current state
+of the model's parameter, which implies that the normalizing constant
+and some other matrix products will be the same between the log-likelihood
+and the gradient. Because of this, the underlying class \code{ergmito_ptr}
+will only re-calculate these shared components if the parameter used
+changes as well. This saves a significant amount of computation time.
+}
+
+\section{Scope of the class methods}{
+
+
+To save space, the class creates pointers to the matrices of sufficient
+statistics that the model uses. This means that once these objects are
+deleted the log-likelihood and the gradient functions become invalid
+from the computational point of view.
+}
+

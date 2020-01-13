@@ -10,19 +10,19 @@
 \alias{exact_hessian}
 \title{Vectorized calculation of ERGM exact log-likelihood}
 \usage{
-exact_loglik(x, params, ..., ncores = 1L)
+exact_loglik(x, params, ...)
 
-\method{exact_loglik}{ergmito_ptr}(x, params, ..., ncores = 1L)
+\method{exact_loglik}{ergmito_ptr}(x, params, ...)
 
-\method{exact_loglik}{default}(x, params, stats.weights, stats.statmat, ..., ncores = 1L)
+\method{exact_loglik}{default}(x, params, stats.weights, stats.statmat, ...)
 
-exact_gradient(x, params, ..., ncores = 1L)
+exact_gradient(x, params, ...)
 
-\method{exact_gradient}{ergmito_ptr}(x, params, ..., ncores = 1L)
+\method{exact_gradient}{ergmito_ptr}(x, params, ...)
 
-\method{exact_gradient}{default}(x, params, stats.weights, stats.statmat, ..., ncores = 1L)
+\method{exact_gradient}{default}(x, params, stats.weights, stats.statmat, ...)
 
-exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
+exact_hessian(x, params, stats.weights, stats.statmat)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}
@@ -30,9 +30,6 @@ exact_hessian(x, params, stats.weights, stats.statmat, ncores = 1L)
 \item{params}{Numeric vector. Parameter values of the model.}
 
 \item{...}{Arguments passed to the default methods.}
-
-\item{ncores}{Integer scalar. Number of cores to use with OpenMP (currently
-ignored).}
 
 \item{stats.weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
 

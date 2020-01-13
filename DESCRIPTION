@@ -10,6 +10,7 @@ Depends: R (>= 3.3.0)
 Authors@R: c(
       person(given = "George", family = "Vega Yon", role = c("cre","aut"),
       email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")),
+      person(given = "Kayla", family = "de la Haye", role = c("ths")),
       person("Army Research Laboratory and the U.S. Army Research Office",
       role = "fnd", comment = "Grant Number W911NF-15-1-0577")
       )
