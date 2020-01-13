@@ -24,13 +24,10 @@ matrix:
       r: release
       env:
         - R_CODECOV=true
-        - BUILD_WWW_HERE = true
+        - BUILD_WWW_HERE=true
     - os: linux
       r: devel
     - os: osx
-      osx_image: xcode10.2
-    - os: osx
-      r: devel
       osx_image: xcode10.2
 
 # For automatic deploy of the website

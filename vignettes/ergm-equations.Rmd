@@ -1,0 +1,167 @@
+---
+title: "ERGM equations"
+author: "George G Vega Yon"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ERGM equations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+references:
+  - id: ergmitoarxiv
+    title: Exponential Random Graph models for Little Networks
+    author:
+      - family: Vega Yon
+        given: George
+      - family: de la Haye
+        given: Kayla
+      - family: Slaughter
+        given: Andrew
+    URL: https://arxiv.org/pdf/1904.10406.pdf
+    issued:
+      year: 2019
+      month: 4
+    publisher: arXiv preprint arXiv:1904.10406
+nocite: |
+  @ergmitoarxiv
+---
+\newcommand{\Graph}{\mathbf{Y}}
+\newcommand{\GRAPH}{\mathcal{Y}}
+\newcommand{\graph}{\mathbf{y}}
+\newcommand{\Pr}[1]{\text{P}\left(#1\right)}
+\newcommand{\Prcond}[2]{\Pr{\left.#1\vphantom{#2}\right|\vphantom{#1}#2}}
+\renewcommand{\exp}[1]{\text{exp}\left\{#1\right\}}
+\renewcommand{\log}[1]{\text{log}\left(#1\right)}
+\newcommand{\s}[1]{g\left(#1\right)}
+\newcommand{\SUFF}{\mathcal{S}}
+\newcommand{\Suff}{\mathbf{S}}
+\newcommand{\suff}{\mathbf{s}}
+\newcommand{\t}[1]{{#1}^{\text{t}}}
+\newcommand{\beta}{\theta}
+\newcommand{\weight}{\mathbf{w}}
+\newcommand{\Weight}{\mathbf{W}}
+
+The likelihood of an Exponential Random Graph Model (ERGM) is defined as follows:
+
+$$
+\Prcond{\Graph = \graph}{X = x} = \frac{%
+  \exp{\t{\beta}\s{\graph, x}} %
+  }{%
+  \sum_{\graph'\in\GRAPH} \exp{\t{\beta}\s{\graph', x}} %
+  },\quad \forall \graph\in\GRAPH
+$$
+
+Where $\graph\in\GRAPH$ is a random graph, $X$ is a vector of attributes,
+$\beta$ is a column-vector of length $k$ (model parameters), and $\s{\cdot}$ is a
+function that returns a column-vector of sufficient statistics, also of length $k$.
+
+In the case of `ergmito`, we usually look at a pooled model with $n$ networks, i.e.
+
+$$
+\prod_{i \in N}\Prcond{\Graph = \graph_i}{X = x_i} = \prod_{i \in N}\frac{%
+  \exp{\t{\beta}\s{\graph_i, x_i}} %
+  }{%
+  \sum_{\graph_i'\in\GRAPH} \exp{\t{\beta}\s{\graph_i', x_i}} %
+  },\quad \forall \graph_i\in\GRAPH
+$$
+
+Where $N\equiv\{1,\dots, n\}$ is a vector of indices. 
+
+## log-likelihood
+
+In the case of a single network, the model's log-likelihood is given by
+
+$$
+\log{\Pr{\cdot}} = \t{\beta}\s{\graph, x} - %
+  \log{ % 
+    \sum_{\graph'\in\Graph}\exp{\t{\beta}\s{\graph', x}} %
+    }
+$$
+In general, we can reduce the computational complexity of this calculations by
+looking at the isomorphic sufficient statistics, this is, group up elements
+based on the set of unique vectors of sufficient statistics:
+
+$$
+\t{\beta}\s{\graph, x} - %
+  \log{ % 
+    \sum_{\suff\in\SUFF}\weight_\suff \exp{\t{\beta}\suff} %
+    }
+$$
+
+Where $\SUFF$ is the support of the sufficient statistics under $\GRAPH$,
+$\suff\in\SUFF$ is one of its realizations, and
+$\weight_\suff\equiv|\left\{\graph\in\GRAPH: \s{\graph,x} = \suff\right\}|$ is
+the number of networks in $\GRAPH$ which sufficient statistics equal $\suff$.
+Furthermore, we can write this in matrix form:
+
+$$
+\t{\beta}\s{\graph, x} - %
+  \log{ % 
+    \Weight \times \exp{\Suff\times \beta}  %
+    }
+$$
+
+Where $\Weight\equiv\{\weight_\suff\}_{\suff\in\Suff}$ is a row vector of,
+length $w$ and $\Suff$ is a matrix of size $w\times k$. The log-likelihood
+of a pooled model is simply the sum of the individual ones.
+
+## Gradient
+
+The partial derivative of the log-likelihood with respect to $j$-th parameter
+equals:
+
+$$
+\frac{\delta}{\delta\beta_j}\log{\Pr{\cdot}} = % 
+  \s{\graph}_j - %
+  \frac{ %
+    \sum_{\suff\in\SUFF}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
+    }{ %
+    \sum_{\suff\in\SUFF}\weight_\suff\exp{\t{\beta}\suff} %
+    }, \quad\forall j
+$$
+
+We can also write this using matrix notation as follows:
+
+$$
+\nabla\log{\Pr{\cdot}} = %
+  \s{\graph, x} - %
+  \t{\Suff}\times \left[ \Weight \circ \exp{\Suff \times \beta} \right]/ %
+  \lambda({\beta})
+$$
+
+Where $\circ$ is the element-wise product and $\lambda({\beta}) = \Weight \times \exp{\Suff\times \beta}$.
+
+## Hessian
+
+In the case of the hessian, each $(j, l)$ element of,
+$\frac{\delta^2}{\delta\theta_k\delta\theta_u}\log{\Pr{\cdot}}$, can be computed
+as:
+
+$$
+- \frac{%
+  \left(\sum_{\suff'\in\SUFF}\suff_j'\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
+  \lambda(\beta) - %
+  \left(\sum_{\suff'\in\SUFF}\suff_j'\weight_\suff \exp{\t{\beta} \suff}\right)
+  \left(\sum_{\suff'\in\SUFF}\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
+}{%
+  \lambda(\beta)^2%
+}
+$$
+Where $\suff_j$ as the $j$-th element of the vector $\suff$. Once again, we can
+simplify this using matrix notation:
+
+$$
+-\frac{%
+  \Weight\times\left[\Suff_j\circ\Suff_l \circ \exp{\Suff\times\beta}\right]
+  \lambda(\beta) - %
+  \left(\Weight\times\left[\Suff_j \circ \exp{\Suff\times\beta}\right]\right)
+  \left(\Weight\times\left[\Suff_l \circ \exp{\Suff\times\beta}\right]\right)
+}{%
+  \lambda(\beta)^2%
+}
+$$
+
+Where $\Suff_j$ is the $j$-th column of the matrix $\Suff$.
+
+# References
+
