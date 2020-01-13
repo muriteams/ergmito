@@ -17,10 +17,15 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Exponential Random Graph Models for Small Networks">
-<meta property="og:description" content="Implementation of simulation and estimation algorithms for 
-  Exponential Random Graph Models in the case of small networks using exact
-  statistics. As a difference from the ergm package, ergmito skips the
-  MCMC part of the estimation process and goes straight to MLE.">
+<meta property="og:description" content="Simulation and estimation of Exponential Random Graph Models (ERGMs)
+  for small networks using exact statistics. As a difference from the ergm
+  package, ergmito circumvents using Markov-Chain Maximum Likelihood Estimator
+  (MC-MLE) and instead uses Maximum Likelihood Estimator (MLE) to fit ERGMs
+  for small networks. As exahustive enumeration is computationally feasible for
+  small networks, this R package takes advantage of this and provides tools for
+  calculating likelihood functions directly, meaning that in many cases both
+  estimation and simulation of ERGMs for small networks can be faster and 
+  more accurate than simulation-based estimation methods.">
 <meta property="og:image" content="/logo.png">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -41,7 +46,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.999</span>
       </span>
     </div>
 
@@ -72,7 +77,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/muriteams/ergmito">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -100,7 +112,7 @@
 <div id="citation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#citation" class="anchor"></a>Citation</h2>
-<p>Vega Yon G (2019). <em>ergmito: Exponential Random Graph Models for Small Networks</em>. R package version 0.1-1, &lt;URL: <a href="https://github.com/muriteams/ergmito" class="uri">https://github.com/muriteams/ergmito</a>&gt;.</p>
+<p>Vega Yon G (2020). <em>ergmito: Exponential Random Graph Models for Small Networks</em>. R package version 0.2-999, &lt;URL: <a href="https://github.com/muriteams/ergmito" class="uri">https://github.com/muriteams/ergmito</a>&gt;.</p>
 <p>Vega Yon G, Slaughter A, de la Haye K (2019). “Exponential Random Graph models for Little Networks.” arXiv:1904.10406.</p>
 <p>To see these entries in BibTeX format, use ‘print(<citation>, bibtex=TRUE)’, ‘toBibtex(.)’, or set ‘options(citation.bibtex.max=999)’.</citation></p>
 </div>
@@ -312,7 +324,16 @@
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div class="license">
+    <div class="links">
+<h2>Links</h2>
+<ul class="list-unstyled">
+<li>Browse source code at <br><a href="https://github.com/muriteams/ergmito">https://​github.com/​muriteams/​ergmito</a>
+</li>
+<li>Report a bug at <br><a href="https://github.com/muriteams/ergmito/issues">https://​github.com/​muriteams/​ergmito/​issues</a>
+</li>
+</ul>
+</div>
+<div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
@@ -337,6 +358,7 @@
 <li>George Vega Yon <br><small class="roles"> Maintainer, author </small> <a href="https://orcid.org/0000-0002-3171-0844" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID"></a> </li>
 <li>Army Research Laboratory and the U.S. Army Research Office <br><small class="roles"> Funder </small>  <br><small>(Grant Number W911NF-15-1-0577)</small>
 </li>
+<li><a href="authors.html">All authors...</a></li>
 </ul>
 </div>
 

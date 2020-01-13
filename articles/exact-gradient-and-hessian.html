@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.999</span>
       </span>
     </div>
 
@@ -69,7 +69,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/muriteams/ergmito">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -85,28 +92,46 @@
       <h1>Exact Gradient and Hessian</h1>
                         <h4 class="author">George G Vega Yon</h4>
             
-            <h4 class="date">2020-01-08</h4>
+            <h4 class="date">2020-01-13</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/muriteams/ergmito/blob/master/vignettes/exact-gradient-and-hessian.Rmd"><code>vignettes/exact-gradient-and-hessian.Rmd</code></a></small>
       <div class="hidden name"><code>exact-gradient-and-hessian.Rmd</code></div>
 
     </div>
 
     
     
-<div id="the-gradient" class="section level2">
+<div id="ergm-log-likelihood" class="section level2">
 <h2 class="hasAnchor">
-<a href="#the-gradient" class="anchor"></a>The gradient</h2>
+<a href="#ergm-log-likelihood" class="anchor"></a>ERGM log likelihood</h2>
+<p>Th likelihood is given by</p>
+
 <p><span class="math display">\[
-\frac{\delta}{\delta\theta_k}\log{\Pr\left(\cdot\right)} = s_k(g) - \frac{\sum_{g'}s_k(g')\exp{\theta^ts(g')}}{\sum_{g'}\exp{\theta^ts(g')}},\quad\forall k
+\Pr\left(G = g|X=x, \theta\right) = \frac{\text{exp}\left\{\theta^ts(g)\right\}}{\sum_{g'}\text{exp}\left\{\theta^ts(g')\right\}}
+\]</span></p>
+<p>This can be written in iso-statistic form as follows:</p>
+<p><span class="math display">\[
+\Pr\left(G = g|X=x, \theta\right) = \frac{\text{exp}\left\{\theta^ts(g)\right\}}{\sum_{h}w_h\text{exp}\left\{\theta^ts(g_h)\right\}}
+\]</span></p>
+<p>Finally, the log-likelihood in matrix for equals:</p>
+<p><span class="math display">\[
+\log \Pr\left(G = g|X=x, \theta\right) = \theta^ts(g) - \log\left[W\times\text{exp}\left\{s(\cdot)\theta\right\}\right]
+\]</span></p>
+<p>Where <span class="math inline">\(s(\cdot)\)</span> is a matrix of sufficient statistics of size <span class="math inline">\(H\times K\)</span> and <span class="math inline">\(W\)</span> is a row-vector of length <span class="math inline">\(H\)</span>.</p>
+</div>
+<div id="ergm-gradient" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ergm-gradient" class="anchor"></a>ERGM gradient</h2>
+<p><span class="math display">\[
+\frac{\delta}{\delta\theta_k}\log{\Pr\left(\cdot\right)} = s_k(g) - \frac{\sum_{g'}s_k(g')\text{exp}\left\{\theta^ts(g')\right\}}{\sum_{g'}\text{exp}\left\{\theta^ts(g')\right\}},\quad\forall k
 \]</span></p>
 <p>Considering the iso statistics, we can simplify the summation by grouping, in particular, let <span class="math inline">\(H\)</span> be the set of all unique sets of statistics in <span class="math inline">\(s(\cdot)\)</span> and <span class="math inline">\(w_h\)</span> the size of the <span class="math inline">\(h\)</span>-th group, then</p>
 <p><span class="math display">\[
-\frac{\delta}{\delta\theta_k}\log{\Pr\left(\cdot\right)} = s_k(g) - \frac{\sum_{h}w_hs_k(g_h)\exp{\theta^ts(g_h)}}{\sum_{h}w_h\exp{\theta^ts(g_h)}},\quad\forall k
+\frac{\delta}{\delta\theta_k}\log{\Pr\left(\cdot\right)} = s_k(g) - \frac{\sum_{h}w_hs_k(g_h)\text{exp}\left\{\theta^ts(g_h)\right\}}{\sum_{h}w_h\text{exp}\left\{\theta^ts(g_h)\right\}},\quad\forall k
 \]</span></p>
 <p>Where <span class="math inline">\(g_h\)</span> is any graph in the group <span class="math inline">\(h\)</span>. We can write this in matrix form</p>
 <p><span class="math display">\[
-\nabla \log{\Pr\left(\cdot\right)} = s^t(g) - s^t(\cdot)\left[W\circ\exp{s(\cdot)\theta}\right]/\lambda(\theta)
+\nabla \log{\Pr\left(\cdot\right)} = s^t(g) - s^t(\cdot)\left[W\circ\text{exp}\left\{s(\cdot)\theta\right\}\right]/\lambda(\theta)
 \]</span></p>
 <p>Where <span class="math inline">\(s(\cdot)\)</span> is a <span class="math inline">\(|H|\times K\)</span> matrix of sufficient statistics, <span class="math inline">\(\lambda(\theta)\)</span> is the normalizing constant, and <span class="math inline">\(\circ\)</span> is the element wise-product.</p>
 </div>
@@ -115,11 +140,11 @@
 <a href="#the-hessian" class="anchor"></a>The Hessian</h2>
 <p>In the case of the hessian, we have that <span class="math inline">\(\frac{\delta^2}{\delta\theta_k\delta\theta_u}\log{\Pr\left(\cdot\right)}\)</span> equals:</p>
 <p><span class="math display">\[
--\frac{\left(\sum_{g'}s_k(g')s_u(g')\exp{\theta^ts(g')}\right)\left(\sum_{g'}\exp{\theta^ts(g')}\right) - \left(\sum_{g'}s_k(g')\exp{\theta^ts(g')}\right)\left(\sum_{g'}s_u(g')\exp{\theta^ts(g')}\right)}{\left(\sum_{g'}\exp{\theta^ts(g')}\right)^2}
+-\frac{\left(\sum_{g'}s_k(g')s_u(g')\text{exp}\left\{\theta^ts(g')\right\}\right)\left(\sum_{g'}\text{exp}\left\{\theta^ts(g')\right\}\right) - \left(\sum_{g'}s_k(g')\text{exp}\left\{\theta^ts(g')\right\}\right)\left(\sum_{g'}s_u(g')\text{exp}\left\{\theta^ts(g')\right\}\right)}{\left(\sum_{g'}\text{exp}\left\{\theta^ts(g')\right\}\right)^2}
 \]</span></p>
 <p>For all <span class="math inline">\(k,u\)</span>. Once again, we can simplify this using matrix notation and noticing the fact that we can group the sufficient statistics using iso-statistics</p>
 <p><span class="math display">\[
--\frac{W^t\left[s_k(\cdot)\circ s_u(\cdot)\circ \exp{s(\cdot)\theta}\right]\lambda(\theta) -\left( W^t\left[s_k(\cdot)\circ \exp{s(\cdot)\theta}\right]\right)\left(W^t\left[s_u(\cdot)\circ \exp{s(\cdot)\theta}\right]\right) }{\lambda(\theta)^2}
+-\frac{W^t\left[s_k(\cdot)\circ s_u(\cdot)\circ \text{exp}\left\{s(\cdot)\theta\right\}\right]\lambda(\theta) -\left( W^t\left[s_k(\cdot)\circ \text{exp}\left\{s(\cdot)\theta\right\}\right]\right)\left(W^t\left[s_u(\cdot)\circ \text{exp}\left\{s(\cdot)\theta\right\}\right]\right) }{\lambda(\theta)^2}
 \]</span></p>
 </div>
   </div>
@@ -130,7 +155,8 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#the-gradient">The gradient</a></li>
+<li><a href="#ergm-log-likelihood">ERGM log likelihood</a></li>
+      <li><a href="#ergm-gradient">ERGM gradient</a></li>
       <li><a href="#the-hessian">The Hessian</a></li>
       </ul>
 </div>

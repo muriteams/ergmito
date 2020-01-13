@@ -78,7 +78,7 @@ centered at x, the vector of observed statistics." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.999</span>
       </span>
     </div>
 
@@ -110,7 +110,12 @@ centered at x, the vector of observed statistics." />
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/muriteams/ergmito">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -125,7 +130,7 @@ centered at x, the vector of observed statistics." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Vectorized calculation of ERGM exact log-likelihood</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/formulae.R'><code>R/formulae.R</code></a></small>
     <div class="hidden name"><code>exact_loglik.Rd</code></div>
     </div>
 
@@ -134,11 +139,23 @@ centered at x, the vector of observed statistics." />
 centered at <code>x</code>, the vector of observed statistics.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>exact_loglik</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>)
+    <pre class="usage"><span class='fu'>exact_loglik</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>...</span>)
 
-<span class='fu'>exact_gradient</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>)
+<span class='co'># S3 method for ergmito_ptr</span>
+<span class='fu'>exact_loglik</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>...</span>)
 
-<span class='fu'>exact_hessian</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>)</pre>
+<span class='co'># S3 method for default</span>
+<span class='fu'>exact_loglik</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>, <span class='no'>...</span>)
+
+<span class='fu'>exact_gradient</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for ergmito_ptr</span>
+<span class='fu'>exact_gradient</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for default</span>
+<span class='fu'>exact_gradient</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>, <span class='no'>...</span>)
+
+<span class='fu'>exact_hessian</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>stats.weights</span>, <span class='no'>stats.statmat</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -152,15 +169,38 @@ centered at <code>x</code>, the vector of observed statistics.</p>
       <td><p>Numeric vector. Parameter values of the model.</p></td>
     </tr>
     <tr>
-      <th>stats.weights, stats.statmat</th>
-      <td><p>Vector and Matrix as returned by <a href='https://rdrr.io/pkg/ergm/man/ergm.allstats.html'>ergm::ergm.allstats</a>.</p></td>
+      <th>...</th>
+      <td><p>Arguments passed to the default methods.</p></td>
     </tr>
     <tr>
-      <th>ncores</th>
-      <td><p>Integer scalar. Number of cores to use with OpenMP (if available).</p></td>
+      <th>stats.weights</th>
+      <td><p>Either an integer vector or a list of integer vectors (see exact_loglik).</p></td>
+    </tr>
+    <tr>
+      <th>stats.statmat</th>
+      <td><p>Either a matrix or a list of matrices (see exact_loglik).</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="sufficient-statistics"><a class="anchor" href="#sufficient-statistics"></a>Sufficient statistics</h2>
+
+    
+
+
+<p>One of the most important components of <code>ergmito</code> is calculating the full
+support of the model's sufficient statistics. Right now, the package uses
+the function <a href='https://rdrr.io/pkg/ergm/man/ergm.allstats.html'>ergm::ergm.allstats</a> which returns a list of two objects:</p><ul>
+<li><p><code>weights</code>: An integer vector of counts.</p></li>
+<li><p><code>statmat</code>: A numeric matrix with the rows as unique vectors of sufficient
+statistics.</p></li>
+</ul>
+
+<p>Since <code>ergmito</code> can vectorize operations, in order to specify weights and
+statistics matrices for each network in the model, the user needs to pass
+two lists <code>stats.weights</code> and <code>stats.statmat</code>. While both lists have to
+have the same length (since its elements are matched), this needs not to
+be the case with the networks, as the user can specify a single set of
+weights and statistics that will be recycled (smartly).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
@@ -203,6 +243,7 @@ centered at <code>x</code>, the vector of observed statistics.</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#sufficient-statistics">Sufficient statistics</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 

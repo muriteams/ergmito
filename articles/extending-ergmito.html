@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.999</span>
       </span>
     </div>
 
@@ -69,7 +69,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/muriteams/ergmito">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -85,9 +92,9 @@
       <h1>Extending ergmito</h1>
                         <h4 class="author">George G. Vega Yon</h4>
             
-            <h4 class="date">2020-01-08</h4>
+            <h4 class="date">2020-01-13</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/muriteams/ergmito/blob/master/vignettes/extending-ergmito.Rmd"><code>vignettes/extending-ergmito.Rmd</code></a></small>
       <div class="hidden name"><code>extending-ergmito.Rmd</code></div>
 
     </div>
@@ -105,34 +112,20 @@
 <a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">#&gt; Number of networks:  5 </span></a>
 <a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co">#&gt; Model:  fivenets ~ edges + ttriad </span></a>
 <a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co">#&gt; Available elements by using the $ operator:</span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt; loglik: function (params, stats.weights, stats.statmat, target.stats, grad  : function (params, stats.weights, stats.statmat, target.stats,</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt; loglik: function (params, ...) grad  : function (params, ...)</span></a>
 <a class="sourceLine" id="cb1-12" data-line-number="12"></a>
 <a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># Printing the log-likelihood function</span></a>
 <a class="sourceLine" id="cb1-14" data-line-number="14">model_object<span class="op">$</span>loglik</a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt; function (params, stats.weights, stats.statmat, target.stats, </span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt;     ncores = 1L) </span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co">#&gt; {</span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co">#&gt;     ans &lt;- sum(exact_loglik(params = params, x = target.stats, </span></a>
-<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co">#&gt;         stats.weights = stats.weights, stats.statmat = stats.statmat, </span></a>
-<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="co">#&gt;         ncores = ncores))</span></a>
-<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="co">#&gt;     if (!is.finite(ans)) </span></a>
-<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="co">#&gt;         return(-.Machine$double.xmax * 1e-100)</span></a>
-<a class="sourceLine" id="cb1-23" data-line-number="23"><span class="co">#&gt;     else return(ans)</span></a>
-<a class="sourceLine" id="cb1-24" data-line-number="24"><span class="co">#&gt; }</span></a>
-<a class="sourceLine" id="cb1-25" data-line-number="25"><span class="co">#&gt; &lt;bytecode: 0x7922fe0&gt;</span></a>
-<a class="sourceLine" id="cb1-26" data-line-number="26"><span class="co">#&gt; &lt;environment: 0x7924ec8&gt;</span></a></code></pre></div>
-<p>Notice that, while the function <code>ergmito_formulae</code> returns all the components needed to compute the joint likelihood, the function still needs all the parameters to be passed explicitly. The description of the parameters, which is also available in the package manual, is:</p>
-<ul>
-<li>
-<code>params</code> a numeric vector with the parameters for the sufficient statistics</li>
-<li>
-<code>stats.weights</code> a list of vectors. The weights that go along the sufficient statistics on the support.</li>
-<li>
-<code>stats.statmat</code> a list of matrices with the sufficient statistics on the support of the function.</li>
-<li>
-<code>target.stats</code> a matrix with the observed sufficient statistics.</li>
-</ul>
-<p>We can take a look at each component from our previous object:</p>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt; function (params, ...) </span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt; {</span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co">#&gt;     ans &lt;- sum(exact_loglik(ergmito_ptr, params = params, ...))</span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co">#&gt;     if (!is.finite(ans)) </span></a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co">#&gt;         return(-.Machine$double.xmax * 1e-100)</span></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="co">#&gt;     else return(ans)</span></a>
+<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="co">#&gt; }</span></a>
+<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="co">#&gt; &lt;bytecode: 0x7e9ea70&gt;</span></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23"><span class="co">#&gt; &lt;environment: 0x7ea0d48&gt;</span></a></code></pre></div>
+<p>Besides of the log-likelihood function and the gradient function, <code>ergmito_formulae</code> also returns We can take a look at each component from our previous object:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># The vectors of weights</span></a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(model_object<span class="op">$</span>stats.weights)</a>
 <a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; List of 5</span></a>
@@ -186,15 +179,10 @@
 <a class="sourceLine" id="cb3-5" data-line-number="5"></a>
 <a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># Defining the logposterior</span></a>
 <a class="sourceLine" id="cb3-7" data-line-number="7">logposterior &lt;-<span class="st"> </span><span class="cf">function</span>(p) {</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">  model_object<span class="op">$</span><span class="kw">loglik</span>(</a>
-<a class="sourceLine" id="cb3-9" data-line-number="9">    <span class="dt">params =</span> p,</a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">    <span class="dt">stats.weights =</span> model_object<span class="op">$</span>stats.weights,</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11">    <span class="dt">stats.statmat =</span> model_object<span class="op">$</span>stats.statmat,</a>
-<a class="sourceLine" id="cb3-12" data-line-number="12">    <span class="dt">target.stats =</span> model_object<span class="op">$</span>target.stats</a>
-<a class="sourceLine" id="cb3-13" data-line-number="13">  ) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">dnorm</a></span>(p, <span class="dt">mean =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">sd =</span> <span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span>(<span class="dv">2</span>), <span class="dt">log =</span> <span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb3-15" data-line-number="15">}</a>
-<a class="sourceLine" id="cb3-16" data-line-number="16"> </a></code></pre></div>
+<a class="sourceLine" id="cb3-8" data-line-number="8">  model_object<span class="op">$</span><span class="kw">loglik</span>(<span class="dt">params =</span> p) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">dnorm</a></span>(p, <span class="dt">mean =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">sd =</span> <span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span>(<span class="dv">2</span>), <span class="dt">log =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">}</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"> </a></code></pre></div>
 <p>For this example, we are using the fmcmc R package. Here is how we put everything together:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># Loading the required R packages</span></a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(fmcmc)</a>
@@ -229,14 +217,14 @@
 <a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co">#&gt;    plus standard error of the mean:</span></a>
 <a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co">#&gt;        Mean     SD Naive SE Time-series SE</span></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt; par1 -1.535 0.4807  0.02150        0.04725</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; par2  1.382 0.5588  0.02499        0.05272</span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt; par1 -1.712 0.4947  0.02212        0.05209</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; par2  1.564 0.6002  0.02684        0.06014</span></a>
 <a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; 2. Quantiles for each variable:</span></a>
 <a class="sourceLine" id="cb6-16" data-line-number="16"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-17" data-line-number="17"><span class="co">#&gt;         2.5%    25%    50%    75%   97.5%</span></a>
-<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co">#&gt; par1 -2.4558 -1.878 -1.489 -1.187 -0.7161</span></a>
-<a class="sourceLine" id="cb6-19" data-line-number="19"><span class="co">#&gt; par2  0.3524  1.000  1.362  1.753  2.4434</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-17" data-line-number="17"><span class="co">#&gt;        2.5%    25%    50%    75%   97.5%</span></a>
+<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co">#&gt; par1 -2.728 -2.047 -1.701 -1.370 -0.7684</span></a>
+<a class="sourceLine" id="cb6-19" data-line-number="19"><span class="co">#&gt; par2  0.438  1.156  1.534  1.956  2.7862</span></a></code></pre></div>
 <p>Finally, we can compare this result with what we obtain from the <code>ergmito</code> function</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw"><a href="../reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw">nodematch</span>(<span class="st">"female"</span>)))</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; </span></a>

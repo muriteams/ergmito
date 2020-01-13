@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Bootstrap of ergmito — ergmito_boot • ergmito</title>
+<title>Creates a new <code>ergmito_ptr</code> — new_ergmito_ptr • ergmito</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,12 @@
 
 
 
-<meta property="og:title" content="Bootstrap of ergmito — ergmito_boot" />
-<meta property="og:description" content="Bootstrap of ergmito" />
+<meta property="og:title" content="Creates a new <code>ergmito_ptr</code> — new_ergmito_ptr" />
+<meta property="og:description" content="After calculating the support of the sufficient statisitcs, the second
+most computationally expensive task is computing log-likelihoods,
+gradients, and hessians or ERGMs. This function creates a pointer to an
+underlying class that is optimized to improve memory allocation and
+save computation time when possible." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -128,72 +132,66 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Bootstrap of ergmito</h1>
-    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/boot.R'><code>R/boot.R</code></a></small>
-    <div class="hidden name"><code>ergmito_boot.Rd</code></div>
+    <h1>Creates a new <code>ergmito_ptr</code></h1>
+    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a></small>
+    <div class="hidden name"><code>new_ergmito_ptr.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Bootstrap of ergmito</p>
+    <p>After calculating the support of the sufficient statisitcs, the second
+most computationally expensive task is computing log-likelihoods,
+gradients, and hessians or ERGMs. This function creates a pointer to an
+underlying class that is optimized to improve memory allocation and
+save computation time when possible.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>ergmito_boot</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='no'>R</span>, <span class='kw'>ncpus</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='kw'>cl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
-
-<span class='co'># S3 method for formula</span>
-<span class='fu'>ergmito_boot</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='no'>R</span>, <span class='kw'>ncpus</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='kw'>cl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
-
-<span class='co'># S3 method for ergmito</span>
-<span class='fu'>ergmito_boot</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='no'>R</span>, <span class='kw'>ncpus</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='kw'>cl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
-
-<span class='co'># S3 method for ergmito_boot</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>new_ergmito_ptr</span>(<span class='no'>target_stats</span>, <span class='no'>stats_weights</span>, <span class='no'>stats_statmat</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>Either a formula or an object of class <a href='ergmito.html'>ergmito</a>.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Additional arguments passed to the method.</p></td>
-    </tr>
-    <tr>
-      <th>R</th>
-      <td><p>Integer. Number of replicates</p></td>
-    </tr>
-    <tr>
-      <th>ncpus</th>
-      <td><p>Integer Number of CPUs to use.</p></td>
-    </tr>
-    <tr>
-      <th>cl</th>
-      <td><p>An object of class <code>cluster</code> (see <a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makePSOCKcluster</a>)</p></td>
+      <th>target_stats, stats_weights, stats_statmat</th>
+      <td><p>see <a href='exact_loglik.html'>exact_loglik</a>.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>An object of class <code>ergmito_boot</code> and <a href='ergmito.html'>ergmito</a></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The resulting sample of parameters estimates is then used to compute
-the variance-covariance matrix of the model. Cases in which <code>Inf</code>/<code>NaN</code>/<code>NA</code>
-values were returned are excluded from the calculation.</p>
+    <p>This function is for internal used only. Non-advanced users
+are not encouraged to use it. See <a href='ergmito_formulae.html'>ergmito_formulae</a> and <a href='exact_loglik.html'>exact_loglik</a>
+for user friendly wrappers of this function.</p>
+    <h2 class="hasAnchor" id="recycling-computations"><a class="anchor" href="#recycling-computations"></a>Recycling computations</h2>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='co'># Simulating 20 bernoulli networks of size 4</span>
-<span class='no'>nets</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>replicate</a></span>(<span class='fl'>20</span>, <span class='fu'><a href='rbernoulli.html'>rbernoulli</a></span>(<span class='fl'>4</span>), <span class='kw'>simplify</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div></pre>
+    
+
+
+<p>Some components of the likelihood, its gradient, and hessian can be
+pre-computed and recycled when needed. For example, it is usually the
+case that in optimization gradients are computed using a current state
+of the model's parameter, which implies that the normalizing constant
+and some other matrix products will be the same between the log-likelihood
+and the gradient. Because of this, the underlying class <code>ergmito_ptr</code>
+will only re-calculate these shared components if the parameter used
+changes as well. This saves a significant amount of computation time.</p>
+    <h2 class="hasAnchor" id="scope-of-the-class-methods"><a class="anchor" href="#scope-of-the-class-methods"></a>Scope of the class methods</h2>
+
+    
+
+
+<p>To save space, the class creates pointers to the matrices of sufficient
+statistics that the model uses. This means that once these objects are
+deleted the log-likelihood and the gradient functions become invalid
+from the computational point of view.</p>
+
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#recycling-computations">Recycling computations</a></li>
+      <li><a href="#scope-of-the-class-methods">Scope of the class methods</a></li>
     </ul>
 
   </div>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Estimation of ERGMs using Exact likelihood functions — ergmito • ergmito</title>
+<title>Estimation of ERGMs using Maximum Likelihood Estimation (MLE) — ergmito • ergmito</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,12 +42,14 @@
 
 
 
-<meta property="og:title" content="Estimation of ERGMs using Exact likelihood functions — ergmito" />
+<meta property="og:title" content="Estimation of ERGMs using Maximum Likelihood Estimation (MLE) — ergmito" />
 <meta property="og:description" content="As a difference from ergm::ergm, ergmito uses the exact log-likelihood
 function for fitting the model. This implies that all the 2^(n*(n-1))
 graphs are generated for computing the normalizing constant of the ERGM
-model. This implies that models with up to 5 nodes are relatively simple
-to fit, since more than that can become infeasible." />
+model. As a rule of thumb, directed graphs with more than 5 vertices
+should not be fitted using MLE, but insted MC-MLE as implemented in the
+ergm package. The same applies for un-directed graphs with more than 8
+vertices.." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -81,7 +83,7 @@ to fit, since more than that can become infeasible." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.999</span>
       </span>
     </div>
 
@@ -113,7 +115,12 @@ to fit, since more than that can become infeasible." />
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/muriteams/ergmito">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -127,8 +134,8 @@ to fit, since more than that can become infeasible." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Estimation of ERGMs using Exact likelihood functions</h1>
-    
+    <h1>Estimation of ERGMs using Maximum Likelihood Estimation (MLE)</h1>
+    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/ergmito.R'><code>R/ergmito.R</code></a></small>
     <div class="hidden name"><code>ergmito.Rd</code></div>
     </div>
 
@@ -136,8 +143,10 @@ to fit, since more than that can become infeasible." />
     <p>As a difference from ergm::ergm, <code>ergmito</code> uses the exact log-likelihood
 function for fitting the model. This implies that all the <code>2^(n*(n-1))</code>
 graphs are generated for computing the normalizing constant of the ERGM
-model. This implies that models with up to 5 nodes are relatively simple
-to fit, since more than that can become infeasible.</p>
+model. As a rule of thumb, directed graphs with more than 5 vertices
+should not be fitted using MLE, but insted MC-MLE as implemented in the
+ergm package. The same applies for un-directed graphs with more than 8
+vertices..</p>
     </div>
 
     <pre class="usage"><span class='fu'>ergmito</span>(
@@ -150,7 +159,6 @@ to fit, since more than that can become infeasible.</p>
   <span class='kw'>use.grad</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>target.stats</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ntries</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
-  <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
   <span class='kw'>keep.stats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>
 )
@@ -193,10 +201,12 @@ to fit, since more than that can become infeasible.</p>
 is useful when using multiple networks.</p></td>
     </tr>
     <tr>
-      <th>stats.weights, stats.statmat</th>
-      <td><p>Lists as returned by <a href='https://rdrr.io/pkg/ergm/man/ergm.allstats.html'>ergm::ergm.allstats</a>.
-When this is provided, the function does not call <code>ergm.allstats</code>, which can
-be useful in simulations.</p></td>
+      <th>stats.weights</th>
+      <td><p>Either an integer vector or a list of integer vectors (see <a href='exact_loglik.html'>exact_loglik</a>).</p></td>
+    </tr>
+    <tr>
+      <th>stats.statmat</th>
+      <td><p>Either a matrix or a list of matrices (see <a href='exact_loglik.html'>exact_loglik</a>).</p></td>
     </tr>
     <tr>
       <th>optim.args</th>
@@ -219,11 +229,6 @@ This is intended for testing only (internal use).</p></td>
     <tr>
       <th>ntries</th>
       <td><p>Integer scalar. Number of tries to estimate the MLE (see details).</p></td>
-    </tr>
-    <tr>
-      <th>ncores</th>
-      <td><p>Integer scalar. Number of cores (threads) for parallel
-computation.</p></td>
     </tr>
     <tr>
       <th>keep.stats</th>
@@ -368,7 +373,7 @@ Anecdotally, <code>optim</code> reaches the max in the first try.</p>
 #&gt; ==========================
 #&gt; 
 #&gt; Formula:   net ~ edges + mutual
-#&gt; &lt;environment: 0x266a8100&gt;
+#&gt; &lt;environment: 0x26643670&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
