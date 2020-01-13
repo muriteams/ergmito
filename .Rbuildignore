@@ -14,3 +14,4 @@
 ^makefile$
 _cache
 ^man-roxygen$
+^cran-comments\.md$
