@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -92,7 +92,7 @@
       <h1>Extending ergmito</h1>
                         <h4 class="author">George G. Vega Yon</h4>
             
-            <h4 class="date">2020-01-13</h4>
+            <h4 class="date">2020-01-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/muriteams/ergmito/blob/master/vignettes/extending-ergmito.Rmd"><code>vignettes/extending-ergmito.Rmd</code></a></small>
       <div class="hidden name"><code>extending-ergmito.Rmd</code></div>
@@ -123,8 +123,8 @@
 <a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co">#&gt;         return(-.Machine$double.xmax * 1e-100)</span></a>
 <a class="sourceLine" id="cb1-20" data-line-number="20"><span class="co">#&gt;     else return(ans)</span></a>
 <a class="sourceLine" id="cb1-21" data-line-number="21"><span class="co">#&gt; }</span></a>
-<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="co">#&gt; &lt;bytecode: 0x95a0e58&gt;</span></a>
-<a class="sourceLine" id="cb1-23" data-line-number="23"><span class="co">#&gt; &lt;environment: 0x95a3130&gt;</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="co">#&gt; &lt;bytecode: 0x9383148&gt;</span></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23"><span class="co">#&gt; &lt;environment: 0x93815f0&gt;</span></a></code></pre></div>
 <p>Besides of the log-likelihood function and the gradient function, <code>ergmito_formulae</code> also returns We can take a look at each component from our previous object:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># The vectors of weights</span></a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(model_object<span class="op">$</span>stats.weights)</a>
@@ -217,14 +217,14 @@
 <a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co">#&gt;    plus standard error of the mean:</span></a>
 <a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co">#&gt;        Mean     SD Naive SE Time-series SE</span></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt; par1 -1.617 0.4547  0.02033        0.04373</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; par2  1.444 0.5403  0.02416        0.05468</span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt; par1 -1.592 0.4610  0.02062        0.04480</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; par2  1.446 0.5621  0.02514        0.05892</span></a>
 <a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; 2. Quantiles for each variable:</span></a>
 <a class="sourceLine" id="cb6-16" data-line-number="16"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-17" data-line-number="17"><span class="co">#&gt;         2.5%    25%    50%    75%   97.5%</span></a>
-<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co">#&gt; par1 -2.5198 -1.905 -1.618 -1.300 -0.7284</span></a>
-<a class="sourceLine" id="cb6-19" data-line-number="19"><span class="co">#&gt; par2  0.3863  1.064  1.457  1.805  2.4680</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co">#&gt; par1 -2.5930 -1.866 -1.568 -1.301 -0.7737</span></a>
+<a class="sourceLine" id="cb6-19" data-line-number="19"><span class="co">#&gt; par2  0.3466  1.098  1.422  1.797  2.6357</span></a></code></pre></div>
 <p>Finally, we can compare this result with what we obtain from the <code>ergmito</code> function</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw"><a href="../reference/ergmito.html">ergmito</a></span>(fivenets <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span><span class="kw">nodematch</span>(<span class="st">"female"</span>)))</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; </span></a>

@@ -79,7 +79,7 @@ small networks." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -179,11 +179,49 @@ a list of length <code><a href='nvertex.html'>nnets(x)</a></code>.</p></td>
     </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
+<span class='fu'>geodesic</span>(<span class='no'>fivenets</span>)</div><div class='output co'>#&gt; [[1]]
+#&gt;      [,1] [,2] [,3] [,4]
+#&gt; [1,]    0   NA   NA   NA
+#&gt; [2,]    1    0   NA    1
+#&gt; [3,]   NA   NA    0   NA
+#&gt; [4,]   NA   NA   NA    0
+#&gt; 
+#&gt; [[2]]
+#&gt;      [,1] [,2] [,3] [,4]
+#&gt; [1,]    0    2    1    1
+#&gt; [2,]    1    0    2    2
+#&gt; [3,]    1    1    0    1
+#&gt; [4,]    2    2    1    0
+#&gt; 
+#&gt; [[3]]
+#&gt;      [,1] [,2] [,3] [,4]
+#&gt; [1,]    0    2    1    3
+#&gt; [2,]   NA    0   NA    1
+#&gt; [3,]    1    1    0    2
+#&gt; [4,]   NA   NA   NA    0
+#&gt; 
+#&gt; [[4]]
+#&gt;      [,1] [,2] [,3] [,4]
+#&gt; [1,]    0    1    1    1
+#&gt; [2,]   NA    0    1    1
+#&gt; [3,]   NA   NA    0   NA
+#&gt; [4,]   NA   NA   NA    0
+#&gt; 
+#&gt; [[5]]
+#&gt;      [,1] [,2] [,3] [,4]
+#&gt; [1,]    0   NA   NA   NA
+#&gt; [2,]   NA    0   NA   NA
+#&gt; [3,]    1   NA    0    1
+#&gt; [4,]   NA   NA   NA    0
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

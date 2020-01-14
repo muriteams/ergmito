@@ -43,8 +43,8 @@
 
 
 <meta property="og:title" content="Extract function to be used with the <code>texreg</code> package. — extract.ergmito" />
-<meta property="og:description" content="If available, this function can be used to generate nice looking tables
-of little ERGMS." />
+<meta property="og:description" content="To be used with the texreg package. This function can be used to
+generate nice looking tables of ERGMitos estimates." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -78,7 +78,7 @@ of little ERGMS." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -135,8 +135,8 @@ of little ERGMS." />
     </div>
 
     <div class="ref-description">
-    <p>If available, this function can be used to generate nice looking tables
-of little ERGMS.</p>
+    <p>To be used with the <a href='https://CRAN.R-project.org/package=texreg'><span class="pkg">texreg</span></a> package. This function can be used to
+generate nice looking tables of ERGMitos estimates.</p>
     </div>
 
     <pre class="usage"><span class='fu'>extract.ergmito</span>(
@@ -177,11 +177,37 @@ of the <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a> function (0
     </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>texreg</span>)</div><div class='output co'>#&gt; <span class='message'>Version:  1.36.23</span>
+#&gt; <span class='message'>Date:     2017-03-03</span>
+#&gt; <span class='message'>Author:   Philip Leifeld (University of Glasgow)</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>Please cite the JSS article in your publications -- see citation("texreg").</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
+<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))
+<span class='fu'><a href='https://rdrr.io/pkg/texreg/man/texreg.html'>screenreg</a></span>(<span class='no'>ans</span>)</div><div class='output co'>#&gt; 
+#&gt; ===========================
+#&gt;                   Model 1  
+#&gt; ---------------------------
+#&gt; edges              -1.70 **
+#&gt;                    (0.54)  
+#&gt; nodematch.female    1.59 * 
+#&gt;                    (0.64)  
+#&gt; ---------------------------
+#&gt; AIC                73.34   
+#&gt; BIC                77.53   
+#&gt; Log Likelihood    -34.67   
+#&gt; Num. networks       5      
+#&gt; Convergence         0      
+#&gt; ===========================
+#&gt; *** p &lt; 0.001, ** p &lt; 0.01, * p &lt; 0.05</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
