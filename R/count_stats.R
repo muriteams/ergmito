@@ -194,7 +194,9 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
 #' a list of length `nnets(x)`.
 #' 
 #' @export
-#' 
+#' @examples 
+#' data(fivenets)
+#' geodesic(fivenets)
 geodesic <- function(x, force = FALSE, ...) UseMethod("geodesic")
 
 #' @export

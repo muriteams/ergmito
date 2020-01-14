@@ -35,3 +35,7 @@ Calculates the shortest path between all pairs of vertices in a network.
 This uses the power matrices to do so, which makes it efficient only for
 small networks.
 }
+\examples{
+data(fivenets)
+geodesic(fivenets)
+}

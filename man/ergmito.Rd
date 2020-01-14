@@ -109,7 +109,7 @@ As a difference from \link[=ergm]{ergm::ergm}, \code{ergmito} uses the exact log
 function for fitting the model. This implies that all the \code{2^(n*(n-1))}
 graphs are generated for computing the normalizing constant of the ERGM
 model. As a rule of thumb, directed graphs with more than 5 vertices
-should not be fitted using MLE, but insted MC-MLE as implemented in the
+should not be fitted using MLE, but instead MC-MLE as implemented in the
 ergm package. The same applies for un-directed graphs with more than 8
 vertices..
 }

@@ -51,3 +51,4 @@ options(ergmito_warning = FALSE)
 # Errors
 expect_error(ergmito(list(net1, rbernoulli(4)) ~ edges), "same type")
 expect_error(ergmito(net1 ~ gwdsp(1)), "not supported")
+

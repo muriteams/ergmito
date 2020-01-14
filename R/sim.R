@@ -9,7 +9,8 @@ replicate_vertex_attr <- function(x, attrname, value) {
 
 #' ERGMito sampler
 #' 
-#' Using 
+#' Create a sampler object that allows you simulating streams of small networks
+#' fast.
 #' 
 #' @param model A formula.
 #' @param theta Named vector. Model parameters.
@@ -174,19 +175,10 @@ new_rergmito <- function(
       if (!is.null(cl) | ncores > 1L) {
         
         # Creating cluster object, if needed
-        if (.Platform$OS.type == "unix" && is.null(cl)) {
-          
-          on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
-          cl <- parallel::makeForkCluster(ncores)
-          
-        } else if (is.null(cl)) {
-          
-          on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
-          cl <- parallel::makeCluster(ncores)
-          parallel::clusterEvalQ(cl, library(ergmito))
-          parallel::clusterExport(cl, c("ergm_model", "ans"), envir = environment())
-          
-        }
+        cl <- parallel::makeCluster(ncores)
+        on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+        parallel::clusterEvalQ(cl, library(ergmito))
+        parallel::clusterExport(cl, c("ergm_model", "ans"), envir = environment())
         
         ans$counts[[s]] <- parallel::parLapply(
           cl  = cl,
@@ -329,19 +321,11 @@ new_rergmito <- function(
       model. <- stats::update.formula(model, ans$networks[[s]][[i]] ~ .)
       
       # Creating cluster object, if needed
-      if (ncores > 1L && .Platform$OS.type == "unix" && is.null(cl)) {
-        
-        on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
-        cl <- parallel::makeForkCluster(ncores)
-        
-      } else if (ncores > 1L && is.null(cl)) {
-        
-        on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
-        cl <- parallel::makeCluster(ncores)
-        parallel::clusterEvalQ(cl, library(ergmito))
-        parallel::clusterExport(cl, c("ans", "model.", "terms"), envir = environment())
-        
-      }
+      on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+      cl <- parallel::makeCluster(ncores)
+      parallel::clusterEvalQ(cl, library(ergmito))
+      parallel::clusterExport(cl, c("ans", "model.", "terms"), envir = environment())
+      
       ncores <- length(cl)
       
       if (ncores > 1L) {

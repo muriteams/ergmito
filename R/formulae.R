@@ -28,6 +28,11 @@
 #' - `term.names` Names of the terms used in the model.
 #' 
 #' @aliases ergmito_loglik
+#' @examples 
+#' data(fivenets)
+#' model <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
+#' print(model)
+#' model$loglik(c(-2, 2))
 #' @export
 ergmito_formulae <- function(
   model,

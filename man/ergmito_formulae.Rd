@@ -51,3 +51,9 @@ Analyze formula objects returning the matrices of weights and sufficient
 statistics to be used in the model together with the log-likelihood and
 gradient functions for joint models.
 }
+\examples{
+data(fivenets)
+model <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
+print(model)
+model$loglik(c(-2, 2))
+}

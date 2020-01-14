@@ -66,7 +66,8 @@ The indexing method \verb{[.ergmito_sampler} returns a named list of length
 \code{length(j)}.
 }
 \description{
-Using
+Create a sampler object that allows you simulating streams of small networks
+fast.
 }
 \details{
 While the \CRANpkg{ergm} package is very efficient, it was not built to do some

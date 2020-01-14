@@ -1,16 +1,20 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ergmito: Estimation of Little ‘ERGMs’ using exact likelihood <img src="man/figures/logo.png" align="right" width="180px"/>
+# ergmito: Exponential Random Graph Models for Small Networks <img src="man/figures/logo.png" align="right" width="180px"/>
 
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![CRAN
-status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
+<!-- [![CRAN status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito) -->
+
+<!-- [![status](https://tinyverse.netlify.com/badge/ergmito)](https://CRAN.R-project.org/package=ergmito) -->
+
+[![Lifecycle:
+maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Travis build
 status](https://travis-ci.org/muriteams/ergmito.svg?branch=master)](https://travis-ci.org/muriteams/ergmito)
 [![AppVeyor Build
 status](https://ci.appveyor.com/api/projects/status/nl1irakr2g6y6w03?svg=true)](https://ci.appveyor.com/project/gvegayon/ergmito)
 [![codecov](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/gh/muriteams/ergmito)
+![](http://cranlogs.r-pkg.org/badges/grand-total/ergmito)
 
 This R package, which has been developed on top of the amazing work that
 the [Statnet](https://github.com/statnet) team has done, implements

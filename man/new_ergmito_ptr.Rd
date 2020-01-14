@@ -10,9 +10,9 @@ new_ergmito_ptr(target_stats, stats_weights, stats_statmat)
 \item{target_stats, stats_weights, stats_statmat}{see \link{exact_loglik}.}
 }
 \description{
-After calculating the support of the sufficient statisitcs, the second
+After calculating the support of the sufficient statistics, the second
 most computationally expensive task is computing log-likelihoods,
-gradients, and hessians or ERGMs. This function creates a pointer to an
+Gradients, and Hessian matrices of ERGMs. This function creates a pointer to an
 underlying class that is optimized to improve memory allocation and
 save computation time when possible.
 }

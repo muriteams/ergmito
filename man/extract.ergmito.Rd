@@ -28,6 +28,14 @@ of the \link[stats:optim]{stats::optim} function (0 means convergence).}
 \item{...}{Further arguments passed to \link{summary.ergmito}.}
 }
 \description{
-If available, this function can be used to generate nice looking tables
-of little ERGMS.
+To be used with the \CRANpkg{texreg} package. This function can be used to
+generate nice looking tables of ERGMitos estimates.
+}
+\examples{
+
+library(texreg)
+data(fivenets)
+ans <- ergmito(fivenets ~ edges + nodematch("female"))
+screenreg(ans)
+
 }

@@ -1,7 +1,8 @@
 #' Extract function to be used with the `texreg` package.
 #'
-#' If available, this function can be used to generate nice looking tables
-#' of little ERGMS.
+#' To be used with the \CRANpkg{texreg} package. This function can be used to
+#' generate nice looking tables of ERGMitos estimates.
+#' 
 #' @param model An object of class `ergmito`.
 #' @param include.aic,include.bic,include.loglik See [texreg::extract].
 #' @param include.nnets Logical. When true, it adds the Number of networks used
@@ -10,6 +11,13 @@
 #' of the [stats::optim] function (0 means convergence).
 #' @param ... Further arguments passed to [summary.ergmito].
 #' @export
+#' @examples 
+#' 
+#' library(texreg)
+#' data(fivenets)
+#' ans <- ergmito(fivenets ~ edges + nodematch("female"))
+#' screenreg(ans)
+#' 
 #' @importFrom texreg extract
 extract.ergmito <- function(
   model, include.aic = TRUE, include.bic = TRUE, include.loglik = TRUE,
