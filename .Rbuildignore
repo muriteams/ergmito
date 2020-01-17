@@ -15,3 +15,4 @@
 _cache
 ^man-roxygen$
 ^cran-comments\.md$
+^CRAN-RELEASE$
