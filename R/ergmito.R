@@ -109,24 +109,23 @@
 #' model1 <- ergmito(fivenets ~ edges + nodematch("female"))
 #' summary(model1) # This data has know parameters equal to -2.0 and 2.0
 #' 
-#' \dontrun{
 #' # Example 3: Likelihood ratio test using the lmtest R package
 #' 
-#' library(lmtest)
-#' data(fivenets)
-#' model1 <- ergmito(fivenets ~ edges + nodematch("female"))
-#' model2 <- ergmito(fivenets ~ edges + nodematch("female") + mutual)
-#' 
-#' lrtest(model1, model2)
-#' # Likelihood ratio test
-#' # 
-#' # Model 1: fivenets ~ edges + nodematch("female") 
-#' # Model 2: fivenets ~ edges + nodematch("female") + mutual
-#' #   #Df  LogLik Df  Chisq Pr(>Chisq)
-#' # 1   2 -34.671                     
-#' # 2   3 -34.205 1 0.9312     0.3346
-#' 
+#' if (require(lmtest)) {
+#'   data(fivenets)
+#'   model1 <- ergmito(fivenets ~ edges + nodematch("female"))
+#'   model2 <- ergmito(fivenets ~ edges + nodematch("female") + mutual)
+#'   
+#'   lrtest(model1, model2)
+#'   # Likelihood ratio test
+#'   # 
+#'   # Model 1: fivenets ~ edges + nodematch("female") 
+#'   # Model 2: fivenets ~ edges + nodematch("female") + mutual
+#'   #   #Df  LogLik Df  Chisq Pr(>Chisq)
+#'   # 1   2 -34.671                     
+#'   # 2   3 -34.205 1 0.9312     0.3346
 #' }
+#' 
 #' 
 #' @importFrom stats optim terms rnorm
 #' @importFrom MASS ginv

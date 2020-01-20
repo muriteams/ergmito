@@ -101,6 +101,8 @@ net <- lapply(rbernoulli(c(4, 4)), network::network, directed = FALSE)
 is_directed(net)
 is_directed(net[[1]])
 is_directed(net ~ edges)
-# is_directed(net[[1]][1:4, 1:4], check_type = TRUE) # Error
+\dontrun{
+  is_directed(net[[1]][1:4, 1:4], check_type = TRUE) # Error
+}
 is_directed(net[[1]][1:4, 1:4])
 }

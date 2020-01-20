@@ -41,7 +41,6 @@ One side effect of this function is that it loads the \code{ergm} package via
 be loaded.
 }
 \examples{
-\dontrun{
 library(ergm)
 data(fivenets)
 
@@ -55,5 +54,4 @@ ans1 <- ergmito(fivenets ~ edges + nodematch("female"))
 # This is equivalent
 ans2 <- ergm_blockdiag(fivenets ~ edges + nodematch("female"))
 
-}
 }

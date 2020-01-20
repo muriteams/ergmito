@@ -9,7 +9,6 @@
 #' @param attrname Name of the attribute that holds the block ids.
 #' @param ... Further arguments passed to the method.
 #' @examples 
-#' \dontrun{
 #' library(ergm)
 #' data(fivenets)
 #' 
@@ -23,7 +22,6 @@
 #' # This is equivalent
 #' ans2 <- ergm_blockdiag(fivenets ~ edges + nodematch("female"))
 #' 
-#' }
 #' @export
 blockdiagonalize <- function(x, attrname = "block") {
   
