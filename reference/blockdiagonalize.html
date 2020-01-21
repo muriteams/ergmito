@@ -78,7 +78,7 @@ blockdiagonal model, the latter to be fitted using ergm::ergm." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
       </span>
     </div>
 
@@ -182,21 +182,47 @@ calls <a href='https://rdrr.io/pkg/ergm/man/ergm.html'>ergm::ergm</a> with the o
 be loaded.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ergm</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ergm</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: network</span></div><div class='output co'>#&gt; <span class='message'>network: Classes for Relational Data</span>
+#&gt; <span class='message'>Version 1.16.0 created on 2019-11-30.</span>
+#&gt; <span class='message'>copyright (c) 2005, Carter T. Butts, University of California-Irvine</span>
+#&gt; <span class='message'>                    Mark S. Handcock, University of California -- Los Angeles</span>
+#&gt; <span class='message'>                    David R. Hunter, Penn State University</span>
+#&gt; <span class='message'>                    Martina Morris, University of Washington</span>
+#&gt; <span class='message'>                    Skye Bender-deMoll, University of Washington</span>
+#&gt; <span class='message'> For citation information, type citation("network").</span>
+#&gt; <span class='message'> Type help("network-package") to get started.</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>ergm: version 3.10.4, created on 2019-06-10</span>
+#&gt; <span class='message'>Copyright (c) 2019, Mark S. Handcock, University of California -- Los Angeles</span>
+#&gt; <span class='message'>                    David R. Hunter, Penn State University</span>
+#&gt; <span class='message'>                    Carter T. Butts, University of California -- Irvine</span>
+#&gt; <span class='message'>                    Steven M. Goodreau, University of Washington</span>
+#&gt; <span class='message'>                    Pavel N. Krivitsky, University of Wollongong</span>
+#&gt; <span class='message'>                    Martina Morris, University of Washington</span>
+#&gt; <span class='message'>                    with contributions from</span>
+#&gt; <span class='message'>                    Li Wang</span>
+#&gt; <span class='message'>                    Kirk Li, University of Washington</span>
+#&gt; <span class='message'>                    Skye Bender-deMoll, University of Washington</span>
+#&gt; <span class='message'>                    Chad Klumb</span>
+#&gt; <span class='message'>Based on "statnet" project software (statnet.org).</span>
+#&gt; <span class='message'>For license and citation information see statnet.org/attribution</span>
+#&gt; <span class='message'>or type citation("ergm").</span></div><div class='output co'>#&gt; <span class='message'>NOTE: Versions before 3.6.1 had a bug in the implementation of the bd()</span>
+#&gt; <span class='message'>constriant which distorted the sampled distribution somewhat. In</span>
+#&gt; <span class='message'>addition, Sampson's Monks datasets had mislabeled vertices. See the</span>
+#&gt; <span class='message'>NEWS and the documentation for more details.</span></div><div class='output co'>#&gt; <span class='message'>NOTE: Some common term arguments pertaining to vertex attribute and</span>
+#&gt; <span class='message'>level selection have changed in 3.10.0. See terms help for more</span>
+#&gt; <span class='message'>details. Use ‘options(ergm.term=list(version="3.9.4"))’ to use old</span>
+#&gt; <span class='message'>behavior.</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
 
 <span class='no'>fivenets2</span> <span class='kw'>&lt;-</span> <span class='fu'>blockdiagonalize</span>(<span class='no'>fivenets</span>, <span class='kw'>attrname</span> <span class='kw'>=</span> <span class='st'>"block"</span>) <span class='co'># A network with</span>
 <span class='no'>ans0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm.html'>ergm</a></span>(
   <span class='no'>fivenets2</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>),
   <span class='kw'>constraints</span> <span class='kw'>=</span> ~<span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-constraints.html'>blockdiag</a></span>(<span class='st'>"block"</span>)
-  )
-<span class='no'>ans1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))
+  )</div><div class='output co'>#&gt; <span class='warning'>Warning: `set_attrs()` is deprecated as of rlang 0.3.0</span>
+#&gt; <span class='warning'>This warning is displayed once per session.</span></div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Stopping at the initial estimate.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; </div><div class='input'><span class='no'>ans1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))
 
 <span class='co'># This is equivalent</span>
-<span class='no'>ans2</span> <span class='kw'>&lt;-</span> <span class='fu'>ergm_blockdiag</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))
-
-}</div></pre>
+<span class='no'>ans2</span> <span class='kw'>&lt;-</span> <span class='fu'>ergm_blockdiag</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Stopping at the initial estimate.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

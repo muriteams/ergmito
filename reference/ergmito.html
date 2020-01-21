@@ -83,7 +83,7 @@ vertices.." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
       </span>
     </div>
 
@@ -321,36 +321,8 @@ Anecdotally, <code>optim</code> reaches the max in the first try.</p>
 
 <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='no'>net</span> ~ <span class='no'>edges</span> + <span class='no'>mutual</span>
 
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ergm</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: network</span></div><div class='output co'>#&gt; <span class='message'>network: Classes for Relational Data</span>
-#&gt; <span class='message'>Version 1.16.0 created on 2019-11-30.</span>
-#&gt; <span class='message'>copyright (c) 2005, Carter T. Butts, University of California-Irvine</span>
-#&gt; <span class='message'>                    Mark S. Handcock, University of California -- Los Angeles</span>
-#&gt; <span class='message'>                    David R. Hunter, Penn State University</span>
-#&gt; <span class='message'>                    Martina Morris, University of Washington</span>
-#&gt; <span class='message'>                    Skye Bender-deMoll, University of Washington</span>
-#&gt; <span class='message'> For citation information, type citation("network").</span>
-#&gt; <span class='message'> Type help("network-package") to get started.</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>ergm: version 3.10.4, created on 2019-06-10</span>
-#&gt; <span class='message'>Copyright (c) 2019, Mark S. Handcock, University of California -- Los Angeles</span>
-#&gt; <span class='message'>                    David R. Hunter, Penn State University</span>
-#&gt; <span class='message'>                    Carter T. Butts, University of California -- Irvine</span>
-#&gt; <span class='message'>                    Steven M. Goodreau, University of Washington</span>
-#&gt; <span class='message'>                    Pavel N. Krivitsky, University of Wollongong</span>
-#&gt; <span class='message'>                    Martina Morris, University of Washington</span>
-#&gt; <span class='message'>                    with contributions from</span>
-#&gt; <span class='message'>                    Li Wang</span>
-#&gt; <span class='message'>                    Kirk Li, University of Washington</span>
-#&gt; <span class='message'>                    Skye Bender-deMoll, University of Washington</span>
-#&gt; <span class='message'>                    Chad Klumb</span>
-#&gt; <span class='message'>Based on "statnet" project software (statnet.org).</span>
-#&gt; <span class='message'>For license and citation information see statnet.org/attribution</span>
-#&gt; <span class='message'>or type citation("ergm").</span></div><div class='output co'>#&gt; <span class='message'>NOTE: Versions before 3.6.1 had a bug in the implementation of the bd()</span>
-#&gt; <span class='message'>constriant which distorted the sampled distribution somewhat. In</span>
-#&gt; <span class='message'>addition, Sampson's Monks datasets had mislabeled vertices. See the</span>
-#&gt; <span class='message'>NEWS and the documentation for more details.</span></div><div class='output co'>#&gt; <span class='message'>NOTE: Some common term arguments pertaining to vertex attribute and</span>
-#&gt; <span class='message'>level selection have changed in 3.10.0. See terms help for more</span>
-#&gt; <span class='message'>details. Use ‘options(ergm.term=list(version="3.9.4"))’ to use old</span>
-#&gt; <span class='message'>behavior.</span></div><div class='input'><span class='no'>ans_ergmito</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>model</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ergm</span>)
+<span class='no'>ans_ergmito</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>model</span>)
 <span class='no'>ans_ergm</span>  <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm.html'>ergm</a></span>(<span class='no'>model</span>)</div><div class='output co'>#&gt; <span class='message'>Starting maximum pseudolikelihood estimation (MPLE):</span></div><div class='output co'>#&gt; <span class='message'>Evaluating the predictor and response matrix.</span></div><div class='output co'>#&gt; <span class='message'>Maximizing the pseudolikelihood.</span></div><div class='output co'>#&gt; <span class='message'>Finished MPLE.</span></div><div class='output co'>#&gt; <span class='message'>Starting Monte Carlo maximum likelihood estimation (MCMLE):</span></div><div class='output co'>#&gt; <span class='message'>Iteration 1 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.001321.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged once. Increasing MCMC sample size.</span></div><div class='output co'>#&gt; <span class='message'>Iteration 2 of at most 20:</span></div><div class='output co'>#&gt; <span class='message'>Optimizing with step length 1.</span></div><div class='output co'>#&gt; Error in solve.default(H, tol = 1e-20) : 
 #&gt;   Lapack routine dgesv: system is exactly singular: U[2,2] = 0</div><div class='output co'>#&gt; <span class='warning'>Warning: Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.</span></div><div class='output co'>#&gt; <span class='message'>The log-likelihood improved by 0.005171.</span></div><div class='output co'>#&gt; <span class='message'>Step length converged twice. Stopping.</span></div><div class='output co'>#&gt; <span class='message'>Finished MCMLE.</span></div><div class='output co'>#&gt; <span class='message'>Evaluating log-likelihood at the estimate. </span></div><div class='output co'>#&gt; <span class='message'>Using 20 bridges: </span></div><div class='output co'>#&gt; <span class='message'>1 </span></div><div class='output co'>#&gt; <span class='message'>2 </span></div><div class='output co'>#&gt; <span class='message'>3 </span></div><div class='output co'>#&gt; <span class='message'>4 </span></div><div class='output co'>#&gt; <span class='message'>5 </span></div><div class='output co'>#&gt; <span class='message'>6 </span></div><div class='output co'>#&gt; <span class='message'>7 </span></div><div class='output co'>#&gt; <span class='message'>8 </span></div><div class='output co'>#&gt; <span class='message'>9 </span></div><div class='output co'>#&gt; <span class='message'>10 </span></div><div class='output co'>#&gt; <span class='message'>11 </span></div><div class='output co'>#&gt; <span class='message'>12 </span></div><div class='output co'>#&gt; <span class='message'>13 </span></div><div class='output co'>#&gt; <span class='message'>14 </span></div><div class='output co'>#&gt; <span class='message'>15 </span></div><div class='output co'>#&gt; <span class='message'>16 </span></div><div class='output co'>#&gt; <span class='message'>17 </span></div><div class='output co'>#&gt; <span class='message'>18 </span></div><div class='output co'>#&gt; <span class='message'>19 </span></div><div class='output co'>#&gt; <span class='message'>20 </span></div><div class='output co'>#&gt; <span class='message'>.</span></div><div class='output co'>#&gt; <span class='message'>This model was fit using MCMC.  To examine model diagnostics and check</span>
 #&gt; <span class='message'>for degeneracy, use the mcmc.diagnostics() function.</span></div><div class='input'>
@@ -373,7 +345,7 @@ Anecdotally, <code>optim</code> reaches the max in the first try.</p>
 #&gt; ==========================
 #&gt; 
 #&gt; Formula:   net ~ edges + mutual
-#&gt; &lt;environment: 0x264245a0&gt;
+#&gt; &lt;environment: 0x27a3d4f8&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
@@ -389,8 +361,8 @@ Anecdotally, <code>optim</code> reaches the max in the first try.</p>
 <span class='co'># Example 2: Estimating an ERGMito using data with know DGP parameters -----</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
 
-<span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: `set_attrs()` is deprecated as of rlang 0.3.0</span>
-#&gt; <span class='warning'>This warning is displayed once per session.</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>model1</span>) <span class='co'># This data has know parameters equal to -2.0 and 2.0</span></div><div class='output co'>#&gt; 
+<span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))
+<span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>model1</span>) <span class='co'># This data has know parameters equal to -2.0 and 2.0</span></div><div class='output co'>#&gt; 
 #&gt; ERGMito estimates
 #&gt; 
 #&gt; formula:  fivenets ~ edges + nodematch("female") 
@@ -401,24 +373,33 @@ Anecdotally, <code>optim</code> reaches the max in the first try.</p>
 #&gt; ---
 #&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #&gt; AIC: 73.34109    BIC: 77.52978    (Smaller is better.) </div><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'># Example 3: Likelihood ratio test using the lmtest R package</span>
 
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>lmtest</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
-<span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))
-<span class='no'>model2</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>) + <span class='no'>mutual</span>)
+<span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='no'>lmtest</span>)) {
+  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
+  <span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))
+  <span class='no'>model2</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>) + <span class='no'>mutual</span>)
 
-<span class='fu'><a href='https://rdrr.io/pkg/lmtest/man/lrtest.html'>lrtest</a></span>(<span class='no'>model1</span>, <span class='no'>model2</span>)
-<span class='co'># Likelihood ratio test</span>
-<span class='co'># </span>
-<span class='co'># Model 1: fivenets ~ edges + nodematch("female") </span>
-<span class='co'># Model 2: fivenets ~ edges + nodematch("female") + mutual</span>
-<span class='co'>#   #Df  LogLik Df  Chisq Pr(&gt;Chisq)</span>
-<span class='co'># 1   2 -34.671                     </span>
-<span class='co'># 2   3 -34.205 1 0.9312     0.3346</span>
+  <span class='fu'><a href='https://rdrr.io/pkg/lmtest/man/lrtest.html'>lrtest</a></span>(<span class='no'>model1</span>, <span class='no'>model2</span>)
+  <span class='co'># Likelihood ratio test</span>
+  <span class='co'># </span>
+  <span class='co'># Model 1: fivenets ~ edges + nodematch("female") </span>
+  <span class='co'># Model 2: fivenets ~ edges + nodematch("female") + mutual</span>
+  <span class='co'>#   #Df  LogLik Df  Chisq Pr(&gt;Chisq)</span>
+  <span class='co'># 1   2 -34.671                     </span>
+  <span class='co'># 2   3 -34.205 1 0.9312     0.3346</span>
+}</div><div class='output co'>#&gt; <span class='message'>Loading required package: lmtest</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: zoo</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘zoo’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    as.Date, as.Date.numeric</span></div><div class='output co'>#&gt; Likelihood ratio test
+#&gt; 
+#&gt; Model 1: fivenets ~ edges + nodematch("female")
+#&gt; Model 2: fivenets ~ edges + nodematch("female") + mutual
+#&gt;   #Df  LogLik Df  Chisq Pr(&gt;Chisq)
+#&gt; 1   2 -34.671                     
+#&gt; 2   3 -34.205  1 0.9312     0.3346</div><div class='input'>
 
-}</div></pre>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
