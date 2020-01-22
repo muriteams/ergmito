@@ -1,9 +1,11 @@
+## Resubmission
+
 ## Test environments
 
 * Ubuntu 18.04 LTS, R 3.6.2 (locally).
 * Ubuntu 18.04 LTS, R 3.6.2 with valgrind (locally).
 * Ubuntu 16.04.6 LTS, R 3.6.2 (on travis-ci)
-* Ubuntu 16.04.6 LTS, R Under development (unstable) (2020-01-13 r77662) (on travis-ci)
+* Ubuntu 16.04.6 LTS, R Under development (unstable) (2020-01-20 r77680) (on travis-ci)
 * macOS Mojave 10.14.4, R 3.6.2 (on travis-ci)
 * Windows release R 3.6.2 (64 and 32 on AppVeyor)
 * Windows, R version 3.6.2 (2019-12-12) (win-builder)
@@ -13,7 +15,7 @@
 
 0 errors | 0 warnings | 1 note (different depending on the OS)
 
-* This is a new release.
+* This is a resubmission.
 
 * 1 note on windows: Possible mispelling unknown word ERGMs: It is the right
   spelling. In the literature, ERGM is used for single models while ERGMs for
@@ -23,3 +25,9 @@
   using RcppArmadillo I don't have much control on the size of it. Yet, I'm
   constantly working on reducing it's size.
   
+## Responses to CRAN comments:
+
+* Regarding usage of "dontrun": I've corrected as suggested, now the only dontrun
+  we have is in a test that is expected to produce an error.
+  
+* On the year of the LICENCE file, I've update it to 2020.
