@@ -18,8 +18,8 @@ brew_packages:
 # We don't want the devel version on OSX
 matrix:
   include:
-    # - os: linux
-    #  r: oldrel
+    - os: linux
+      r: oldrel
     - os: linux
       r: release
       env:

@@ -14,7 +14,4 @@ set of 5 baseline networks with a random vector of \code{female}. The sufficient
 statistics that generate this data are \code{edges} and  \code{nodematch("female")} with parameters
 -2.0 and 2.0 respectively.
 }
-\details{
-The original sampler can be found in \link{fivesamplers}.
-}
 \keyword{datasets}

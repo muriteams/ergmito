@@ -30,7 +30,7 @@ nedges(ans)
 usethis::use_data(fivenets, overwrite = TRUE)
 
 fivesamplers <- examplers
-usethis::use_data(fivesamplers, overwrite = TRUE)
+# usethis::use_data(fivesamplers, overwrite = TRUE)
 
 
 # \frac{\exp{\transpose{\theta}\stats{y,x}}}{\transpose{\Mat{W}}\left[\exp{\transpose{\theta}\Mat{W}}\right]}

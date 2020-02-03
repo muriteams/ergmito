@@ -5,17 +5,16 @@
 #' statistics that generate this data are `edges` and  `nodematch("female")` with parameters
 #' -2.0 and 2.0 respectively.
 #' 
-#' @details The original sampler can be found in [fivesamplers].
 #' @docType data
 "fivenets"
 
-#' Five ERGMito samplers
-#' 
-#' This list contains five ERGMito samplers. Each one of these was built using
-#' a random Bernoulli graph with an attribute `female`. The parameters used for
-#' creating the sampler are `(edges = -2.0, nodematch("female") = 2.0)`. A example
-#' of a dataset generated with this is [fivenets].
-#' 
-#' 
-#' @docType data
-"fivesamplers"
+# Five ERGMito samplers
+# 
+# This list contains five ERGMito samplers. Each one of these was built using
+# a random Bernoulli graph with an attribute `female`. The parameters used for
+# creating the sampler are `(edges = -2.0, nodematch("female") = 2.0)`. A example
+# of a dataset generated with this is [fivenets].
+# 
+# 
+# @docType data
+# "fivesamplers"
