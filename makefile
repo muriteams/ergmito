@@ -1,3 +1,6 @@
+build:
+	$(MAKE) ergmito.tar.gz
+
 check: ergmito.tar.gz
 	R CMD check ergmito.tar.gz
 
