@@ -1,16 +1,14 @@
-check:
-	$(MAKE) build && R CMD check ../ergmito_*.tar.gz && $(MAKE) clean
+check: ergmito.tar.gz
+	R CMD check ergmito.tar.gz
 
-checkv:
-	$(MAKE) build && R CMD check --use-valgrind ../ergmito_*.tar.gz && $(MAKE) clean
+checkv: ergmito.tar.gz
+	R CMD check --use-valgrind ergmito.tar.gz
 
-build:
-	cd ../ && R CMD build ergmito/ && cd ergmito
-
-clean:
-	rm  ../ergmito_*.tar.gz
-
-install:
-	Rscript -e "Rcpp::compileAttributes();devtools::document()" && R CMD INSTALL --preclean .
+ergmito.tar.gz: R/*.R
+	rm ergmito.tar.gz;\
+		R CMD build . && \
+		mv ergmito*.tar.gz ergmito.tar.gz
+clean: ergmito.tar.gz
+	rm ergmito.tar.gz
 
 .PHONY: check checkv build clean 

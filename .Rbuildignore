@@ -5,7 +5,7 @@
 ^codecov\.yml$
 ^appveyor\.yml$
 ^\.travis\.yml$
-^README\.md$
+README\.md
 ^README\.Rmd$
 ^LICENSE\.md$
 ^CODE_OF_CONDUCT\.md$
@@ -17,4 +17,4 @@ _cache
 ^cran-comments\.md$
 ^CRAN-RELEASE$
 ^_pkgdown\.yml$
-^configure\.ac$
+
