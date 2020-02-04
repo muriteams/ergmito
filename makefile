@@ -11,7 +11,7 @@ ergmito.tar.gz: R/*.R
 	rm ergmito.tar.gz;\
 		R CMD build . && \
 		mv ergmito*.tar.gz ergmito.tar.gz
-clean: ergmito.tar.gz
-	rm ergmito.tar.gz
+clean: 
+	rm ergmito.tar.gz; rm -rf ergmito.Rcheck
 
 .PHONY: check checkv build clean 
