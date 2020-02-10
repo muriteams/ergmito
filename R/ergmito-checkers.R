@@ -7,13 +7,17 @@ check_support <- function(
   target.stats,
   stats.statmat,
   threshold = .8,
-  warn = TRUE
+  warn      = TRUE
   ) {
   
   res <- structure(
-    vector("logical", ncol(target.stats)),
+    logical(ncol(target.stats)),
     names = colnames(target.stats)
   )
+  
+  # In the case of failing to converge, this tells what should be
+  # the best guess for the sign of Inf.
+  possible_sign <- double(ncol(target.stats))
   
   for (k in 1L:ncol(target.stats)) {
     
@@ -25,8 +29,19 @@ check_support <- function(
     stat_range <- lapply(stat_range, range)
     stat_range <- do.call(rbind, stat_range)
     
-    res[k] <- mean((target.stats[, k] == stat_range[, 1L]) | 
-                     (target.stats[, k] == stat_range[, 2L]))
+    res[k] <- mean(
+      (target.stats[, k] == stat_range[, 1L]) | 
+        (target.stats[, k] == stat_range[, 2L])
+      )
+    
+    # If on average is less than .5, then is negative, otherwise
+    # is positive.
+    possible_sign[k] <- mean(
+      (target.stats[, k] - stat_range[, 1L])/ 
+        (stat_range[, 2L] - stat_range[, 1L])
+    )
+    
+    possible_sign[k] <- ifelse(possible_sign[k] < .5, -1, 1)
     
   }
   
@@ -43,9 +58,12 @@ check_support <- function(
     
     attr(res, "degenerate") <- TRUE
     attr(res, "which")      <- test
+    attr(res, "sign")       <- possible_sign
+    
   } else {
     attr(res, "degenerate") <- FALSE
     attr(res, "which")      <- NULL
+    attr(res, "sign")       <- possible_sign
   }
   
   res
@@ -150,11 +168,8 @@ check_convergence <- function(
       )
   
   # Checking values of the convergence
-  to_check <- unique(c(
-    which(abs(optim_output$par) > crit),
-    attr(support, "which")
-  ))
-  
+  to_check <- c(which(abs(optim_output$par) > crit), attr(support, "which"))
+  to_check <- sort(unique(to_check))
   
   k <- length(optim_output$par)
   estimates <- list(
@@ -186,17 +201,26 @@ check_convergence <- function(
     modified <- NULL 
     for (i in to_check) {
       
-      tmppar    <- optim_output$par
-      tmppar[i] <- tmppar[i] + sign(tmppar[i])*.001
-      
-      newll <- model$loglik(params = tmppar)
-      
-      # Updating the values to be inf, if needed.
-      if (newll >= optim_output$value) {
-        newpars[i] <- sign(newpars[i])*Inf
-        modified   <- c(modified, i)
-      }
+      # Near to 0/1 should always be set as infinite
+      if ((support[i] <= 1e-10) | (support[i] >= (1 - 1e-10))) {
         
+        newpars[i] <- attr(support, "sign")[i] *Inf
+        modified   <- c(modified, i)
+        
+      } else {
+        
+        tmppar    <- optim_output$par
+        tmppar[i] <- tmppar[i] + sign(tmppar[i])*.001
+        newll <- model$loglik(params = tmppar)
+        
+        # Updating the values to be inf, if needed.
+        if (newll >= optim_output$value) {
+          newpars[i] <- sign(newpars[i])*Inf
+          modified   <- c(modified, i)
+        }
+        
+      }
+      
     }
     
     # Updating parameters, if needed
