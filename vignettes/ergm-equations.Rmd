@@ -13,10 +13,10 @@ references:
     author:
       - family: Vega Yon
         given: George
-      - family: de la Haye
-        given: Kayla
       - family: Slaughter
         given: Andrew
+      - family: de la Haye
+        given: Kayla
     URL: https://arxiv.org/pdf/1904.10406.pdf
     issued:
       year: 2019
