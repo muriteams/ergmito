@@ -51,6 +51,6 @@ Collate: 'RcppExports.R' 'boot.R' 'count_stats.R' 'data.R' 'ergm_blockdiagonal.R
             'utils.R'
 VignetteBuilder: knitr
 LazyData: true
-URL: https://muriteams/github.io/ergmito
+URL: https://muriteams.github.io/ergmito
 BugReports: https://github.com/muriteams/ergmito/issues
 Language: en-US

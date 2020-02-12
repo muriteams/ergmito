@@ -17,4 +17,4 @@ _cache
 ^cran-comments\.md$
 ^CRAN-RELEASE$
 ^_pkgdown\.yml$
-
+.*\.tar\.gz$

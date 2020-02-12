@@ -10,12 +10,18 @@
 * Windows release R 3.6.2 (64 and 32 on AppVeyor)
 * Windows, R version 3.6.2 (2019-12-12) (win-builder)
 * Windows, R Under development (unstable) (2020-01-07 r77633) (win-builder)
+* Oracle Solaris 10, x86, 32 bit, R-patched (experimental) (r-hub)
+* Windows Server 2008 R2 SP1, R-oldrel, 32/64 bit (r-hub)
 
 ## R CMD check results
 
 0 errors | 0 warnings | 1 note (different depending on the OS)
 
-* This is a resubmission.
+* This is a resubmission requested by CRAN. The first version was submitted less
+  than a month ago, but, because of precission differenes, some tests failed,
+  in particular, in r-patched solaris and (it used to be the case) on windows
+  old rel. The problem has been fixed and has been checked using r-hub and several
+  other tests environments.
 
 * 1 note on windows: Possible mispelling unknown word ERGMs: It is the right
   spelling. In the literature, ERGM is used for single models while ERGMs for
@@ -25,9 +31,4 @@
   using RcppArmadillo I don't have much control on the size of it. Yet, I'm
   constantly working on reducing it's size.
   
-## Responses to CRAN comments:
 
-* Regarding usage of "dontrun": I've corrected as suggested, now the only dontrun
-  we have is in a test that is expected to produce an error.
-  
-* On the year of the LICENCE file, I've update it to 2020.
