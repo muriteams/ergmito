@@ -49,7 +49,9 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   else if (n <= 10)
     warning_ergmito(
       "You are doing bootstrapping with less than 10 networks (and even 10 is too few).",
-      call.=FALSE)
+      call.      = FALSE,
+      immediate. = TRUE
+      )
   
   # Getting the sample, and baseline model
   IDX           <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
@@ -121,7 +123,8 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   coefs <- do.call(rbind, boot_estimates)
   
   # Tagging finite results
-  are_finate <- which(is.finite(coefs), arr.ind = TRUE)[, 1L]
+  are_finate <- unique(which(!is.finite(coefs), arr.ind = TRUE)[, 1L])
+  are_finate <- setdiff(seq_along(IDX), are_finate)
 
   if (length(are_finate) < 2) {
     stop("At most one of the replicates had finite estimates (not Inf/NA/NaN).",
