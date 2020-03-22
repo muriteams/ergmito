@@ -37,15 +37,19 @@ private:
 
 public:
   unsigned int n, k;
-  arma::mat                   target_stats;
-  std::vector< arma::rowvec > stats_weights;
-  std::vector< arma::mat >    stats_statmat;
+  arma::mat                     target_stats;
+  arma::vec                     target_stats_offset;
+  std::vector< arma::rowvec * > stats_weights;
+  std::vector< arma::mat * >    stats_statmat;
+  std::vector< arma::colvec * > stats_offset;
   
   // Initializing
   ergmito_ptr(
-    arma::mat                   target_stats_,
-    std::vector< arma::rowvec > stats_weights_,
-    std::vector< arma::mat >    stats_statmat_
+    const NumericMatrix           & target_stats_,
+    const ListOf< NumericVector > & stats_weights_,
+    const ListOf< NumericMatrix > & stats_statmat_,
+    const NumericVector           & target_stats_offset_,
+    const ListOf< NumericVector > & stats_offset_
   );
   
   void update_normalizing_constant(const arma::colvec & params);
@@ -69,10 +73,16 @@ public:
 
 // Constructor
 inline ergmito_ptr::ergmito_ptr(
-    arma::mat                   target_stats_,
-    std::vector< arma::rowvec > stats_weights_,
-    std::vector< arma::mat >    stats_statmat_
-) : n(target_stats_.n_rows), k(target_stats_.n_cols)
+    const NumericMatrix & target_stats_,
+    const ListOf< NumericVector > & stats_weights_,
+    const ListOf< NumericMatrix > & stats_statmat_,
+    const NumericVector           & target_stats_offset_,
+    const ListOf< NumericVector > & stats_offset_
+) :
+  n(target_stats_.nrow()),
+  k(target_stats_.ncol()),
+  target_stats((double *) &target_stats_[0], target_stats_.nrow(), target_stats_.ncol(), false, true),
+  target_stats_offset((double *) &target_stats_offset_[0], target_stats_offset_.size(), false, true)
 {
   
   // Do the networks share the same vector of weights?
@@ -82,33 +92,43 @@ inline ergmito_ptr::ergmito_ptr(
   // Checking dimmentions (only check against target_stats if different than 1)
   if (stats_weights_.size() != stats_statmat_.size())
     stop("Incorrect sizes. stats_weights and stats_statmat should have the same size");
-  if (!same_stats && (target_stats_.n_rows != stats_weights_.size()))
+  if (!same_stats && (target_stats_.nrow() != stats_weights_.size()))
     stop("Incorrect sizes. target_stats and stats_statmat should have the same size");
   
+  if (target_stats_offset_.size() > 0u) {
+    
+    if (target_stats_offset_.size() != target_stats_.nrow())
+      stop("The offset term has the wrong length.");
+    
+  }
+  
   // Resizing needed outputs
-  res_loglik.resize(n);
-  res_gradient.resize(k, n);
-  current_parameters.resize(k);
+  res_loglik.set_size(n);
+  res_gradient.set_size(k, n);
+  current_parameters.set_size(k);
   
   // The size of these objects is conditional on whether the networks share
   // statistics.
-  normalizing_constant.resize(same_stats ? 1u: n);
-  stats_weights.resize(same_stats ? 1u: n);
-  stats_statmat.resize(same_stats ? 1u: n);
+  normalizing_constant.set_size(same_stats ? 1u: n);
+  stats_weights.reserve(same_stats ? 1u: n);
+  stats_statmat.reserve(same_stats ? 1u: n);
   exp_statmat_params.resize(same_stats ? 1u: n);
+  
+  // Offset statistics
+  stats_offset.reserve(n);
   
   // Initializing 
   for (unsigned int i = 0u; i < n; ++i) {
     
     // Checking the dimension, is it the same as the sufficient statistics?
-    if (stats_weights_[i].size() != stats_statmat_[i].n_rows)
+    if (stats_weights_[i].size() != stats_statmat_[i].nrow())
       stop(
         "length(stats_weights[[%i]]) != nrow(stats_statmat[[%i]]).",
         i + 1, i + 1
       );
     
     // Checking that the statistics have the same number of columns
-    if (k != stats_statmat_[i].n_cols)
+    if (k != (unsigned int) stats_statmat_[i].ncol())
       stop("ncol(stats_statmat[[%i]]) != ncol(target_stats).", i + 1);
     
     /* Using advanced constructors from armadillo. In this case, I'm building
@@ -116,26 +136,23 @@ inline ergmito_ptr::ergmito_ptr(
      * R. This is actually a bit dangerous but in our case can be very efficient
      */
     
-    arma::rowvec tmpvec(
-        stats_weights_[i].memptr(),
+    stats_weights.push_back(new arma::rowvec(
+        (double *) &stats_weights_[i][0],
         stats_weights_[i].size(),
         false,
         true
-    );
+    ));
     
-    arma::mat tmpmat(
-        stats_statmat_[i].memptr(),
-        stats_statmat_[i].n_rows,
-        stats_statmat_[i].n_cols,
+    stats_statmat.push_back(new arma::mat(
+        (double *) &stats_statmat_[i][0],
+        stats_statmat_[i].nrow(),
+        stats_statmat_[i].ncol(),
         false,
         true
-    );
+    ));
     
-    // Moving the data to the desired location. This way we avoid duplicating
-    // memory
-    stats_weights[i] = std::move(tmpvec);
-    stats_statmat[i] = std::move(tmpmat);
-    exp_statmat_params[i].resize(stats_weights[i].size());
+    // Preparing the exp statmat
+    exp_statmat_params[i].set_size(stats_weights[i]->size());
     
     // This should only be done once if the same stats
     if (same_stats)
@@ -143,17 +160,21 @@ inline ergmito_ptr::ergmito_ptr(
     
   }
   
-  // Moving data
-  arma::mat tmpmat(
-      target_stats_.memptr(),
-      target_stats_.n_rows,
-      target_stats_.n_cols,
-      false,
-      true
-  );
-  target_stats.resize(tmpmat.n_rows, tmpmat.n_cols);
-  target_stats = std::move(tmpmat);
-  
+  // Offset terms
+  for (unsigned int i = 0u; i < n; ++i) {
+    
+    if (stats_offset_[i].size() != stats_statmat_[i].nrow())
+      stop("The size of stats_offset[%i] does not match the number of rows in stats_statmat.", i + 1);
+    
+    stats_offset.push_back(new arma::colvec(
+        (double *) &stats_offset_[i][0],
+        stats_offset_[i].size(),
+        false,
+        true
+    ));
+    
+  }
+
   return;
   
 }
@@ -179,11 +200,11 @@ inline void ergmito_ptr::update_normalizing_constant(
     for (unsigned int i = 0; i < this->n; ++i) {
       
       this->exp_statmat_params[i] = exp(
-        this->stats_statmat[i] * params - AVOID_BIG_EXP
+        (*this->stats_statmat[i]) * params - AVOID_BIG_EXP
       );
       
       this->normalizing_constant[i] = arma::as_scalar(
-        this->stats_weights[i] * this->exp_statmat_params[i]
+        (*this->stats_weights[i]) * this->exp_statmat_params[i]
       );
       
       // No need to recompute this if all share the same sufficient stats space.
@@ -251,8 +272,8 @@ inline arma::colvec ergmito_ptr::exact_gradient(
     unsigned int j = this->same_stats ? 0u : i;
     
     res_gradient.col(i) = this->target_stats.row(i).t() - (
-        this->stats_statmat[j].t() * ( 
-            this->stats_weights[j].t() % this->exp_statmat_params[j]
+        this->stats_statmat[j]->t() * ( 
+            this->stats_weights[j]->t() % this->exp_statmat_params[j]
         )) / this->normalizing_constant[j];
     
   }
@@ -295,12 +316,15 @@ inline arma::colvec ergmito_ptr::exact_gradient(
 //' @export
 // [[Rcpp::export(rng = false)]]
 SEXP new_ergmito_ptr(
-    const arma::mat & target_stats,
-    const std::vector< arma::rowvec > & stats_weights,
-    const std::vector< arma::mat > & stats_statmat) {
+    const NumericMatrix & target_stats,
+    const ListOf< NumericVector > & stats_weights,
+    const ListOf< NumericMatrix > & stats_statmat,
+    const NumericVector & target_offset,
+    const ListOf< NumericVector > & stats_offset
+    ) {
   
   Rcpp::XPtr< ergmito_ptr > ptr(
-      new ergmito_ptr(target_stats, stats_weights, stats_statmat),
+      new ergmito_ptr(target_stats, stats_weights, stats_statmat, target_offset, stats_offset),
       true
   );
   

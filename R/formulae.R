@@ -265,7 +265,9 @@ ergmito_formulae <- function(
     }
   
   # Initializing the model
-  ergmito_ptr <- new_ergmito_ptr(target.stats, stats.weights, stats.statmat)
+  target_offset <- double(nrow(target.stats))
+  stats_offset  <- lapply(stats.statmat, function(s) double(nrow(s)))
+  ergmito_ptr <- new_ergmito_ptr(target.stats, stats.weights, stats.statmat, target_offset, stats_offset)
   
   # Building joint likelihood function
   loglik <- function(params, ...) {
@@ -362,7 +364,7 @@ gmodel <- function(model, net) {
   netattrs <- network::list.network.attributes(net)
   ans <- lapply(netattrs, network::get.network.attribute, x = net)
   names(ans) <- netattrs
-    
+  
   ans <- stats::model.matrix(
     stats::update.formula(model, ~ 0 + .),
     as.data.frame(ans)
@@ -514,26 +516,37 @@ exact_loglik.default <- function(
       j <- chunks$to[s]
       
       # Creating the model pointer
+      target_offset <- double(length(i:j))
+      stats_offset  <- lapply(stats.statmat[i:j], function(s) double(nrow(s)))
+      
       ergmito_ptr <- new_ergmito_ptr(
         target_stats  = x[i:j, , drop = FALSE],
         stats_weights = stats.weights[i:j],
-        stats_statmat = stats.statmat[i:j]
+        stats_statmat = stats.statmat[i:j],
+        target_offset = target_offset, stats_offset = stats_offset
       )
       
       ans[i:j] <- exact_loglik.(ergmito_ptr, params)
       
     }
   } else {
+    
+    # In this case, this doesn't change
+    stats_offset  <- lapply(stats.statmat[i:j], function(s) double(nrow(s)))
+    
     for (s in seq_along(chunks$from)) {
       
       i <- chunks$from[s]
       j <- chunks$to[s]
       
+      target_offset <- double(length(i:j))
+      
       # Creating the model pointer
       ergmito_ptr <- new_ergmito_ptr(
         target_stats  = x[i:j, , drop = FALSE],
         stats_weights = stats.weights,
-        stats_statmat = stats.statmat
+        stats_statmat = stats.statmat,
+        target_offset, stats_offset
       )
       
       ans[i:j] <- exact_loglik.(ergmito_ptr, params)
@@ -617,11 +630,16 @@ exact_gradient.default <- function(
     i <- chunks$from[s]
     j <- chunks$to[s]
     
+    target_offset <- double(length(i:j))
+    stats_offset  <- lapply(stats.statmat[i:j], function(s) double(nrow(s)))
+    
     # Creating the model pointer
     ergmito_ptr <- new_ergmito_ptr(
       target_stats  = x[i:j, , drop = FALSE],
       stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j]
+      stats_statmat = stats.statmat[i:j],
+      target_offset,
+      stats_offset
       )
     
     ans <- ans + exact_gradient.(ergmito_ptr, params)
@@ -693,29 +711,4 @@ exact_hessian <- function(x, params, stats.weights, stats.statmat) {
   ans
   
 }
-
-# inline arma::colvec exact_gradienti(
-#   const arma::rowvec & x,
-#   const arma::colvec & params,
-#   const arma::rowvec & stats_weights,
-#   const arma::mat    & stats_statmat
-# ) {
-#   
-#   return x.t() - (stats_statmat.t() * (stats_weights.t() % exp(stats_statmat * params)))/
-#     kappa(params, stats_weights, stats_statmat);
-#   
-# }
-
-# 
-# exact_loglik_gr <- function(params, stat0, stats) {
-#   
-#   exp_sum  <- exp(stats$statmat %*% params)
-#   
-#   RHS <- 1/log(stats$weights %*% exp_sum) *
-#     (t(stats$statmat) %*% (exp_sum*as.vector(stats$weights)))
-#   RHS <- matrix(RHS, nrow=nrow(stat0), ncol=ncol(stat0), byrow = TRUE)
-#   
-#   stat0 - RHS
-#   
-# }
 

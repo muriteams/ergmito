@@ -41,14 +41,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // new_ergmito_ptr
-SEXP new_ergmito_ptr(const arma::mat& target_stats, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat);
-RcppExport SEXP _ergmito_new_ergmito_ptr(SEXP target_statsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP) {
+SEXP new_ergmito_ptr(const NumericMatrix& target_stats, const ListOf< NumericVector >& stats_weights, const ListOf< NumericMatrix >& stats_statmat, const NumericVector& target_offset, const ListOf< NumericVector >& stats_offset);
+RcppExport SEXP _ergmito_new_ergmito_ptr(SEXP target_statsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP, SEXP target_offsetSEXP, SEXP stats_offsetSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type target_stats(target_statsSEXP);
-    Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
-    Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type stats_statmat(stats_statmatSEXP);
-    rcpp_result_gen = Rcpp::wrap(new_ergmito_ptr(target_stats, stats_weights, stats_statmat));
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type target_stats(target_statsSEXP);
+    Rcpp::traits::input_parameter< const ListOf< NumericVector >& >::type stats_weights(stats_weightsSEXP);
+    Rcpp::traits::input_parameter< const ListOf< NumericMatrix >& >::type stats_statmat(stats_statmatSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type target_offset(target_offsetSEXP);
+    Rcpp::traits::input_parameter< const ListOf< NumericVector >& >::type stats_offset(stats_offsetSEXP);
+    rcpp_result_gen = Rcpp::wrap(new_ergmito_ptr(target_stats, stats_weights, stats_statmat, target_offset, stats_offset));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -157,7 +159,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_count_available", (DL_FUNC) &_ergmito_count_available, 1},
     {"_ergmito_count_stats", (DL_FUNC) &_ergmito_count_stats, 3},
     {"_ergmito_geodesic", (DL_FUNC) &_ergmito_geodesic, 2},
-    {"_ergmito_new_ergmito_ptr", (DL_FUNC) &_ergmito_new_ergmito_ptr, 3},
+    {"_ergmito_new_ergmito_ptr", (DL_FUNC) &_ergmito_new_ergmito_ptr, 5},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 3},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 3},
     {"_ergmito_exact_hessian", (DL_FUNC) &_ergmito_exact_hessian, 4},

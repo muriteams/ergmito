@@ -53,8 +53,8 @@ NULL
 #' 
 #' @param target_stats,stats_weights,stats_statmat see [exact_loglik].
 #' @export
-new_ergmito_ptr <- function(target_stats, stats_weights, stats_statmat) {
-    .Call(`_ergmito_new_ergmito_ptr`, target_stats, stats_weights, stats_statmat)
+new_ergmito_ptr <- function(target_stats, stats_weights, stats_statmat, target_offset, stats_offset) {
+    .Call(`_ergmito_new_ergmito_ptr`, target_stats, stats_weights, stats_statmat, target_offset, stats_offset)
 }
 
 #' Vectorized version of log-likelihood function

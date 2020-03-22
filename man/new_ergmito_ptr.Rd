@@ -4,7 +4,13 @@
 \alias{new_ergmito_ptr}
 \title{Creates a new \code{ergmito_ptr}}
 \usage{
-new_ergmito_ptr(target_stats, stats_weights, stats_statmat)
+new_ergmito_ptr(
+  target_stats,
+  stats_weights,
+  stats_statmat,
+  target_offset,
+  stats_offset
+)
 }
 \arguments{
 \item{target_stats, stats_weights, stats_statmat}{see \link{exact_loglik}.}
