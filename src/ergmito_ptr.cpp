@@ -115,7 +115,7 @@ inline ergmito_ptr::ergmito_ptr(
   exp_statmat_params.resize(same_stats ? 1u: n);
   
   // Offset statistics
-  stats_offset.reserve(n);
+  stats_offset.reserve(same_stats ? 1u: n);
   
   // Initializing 
   for (unsigned int i = 0u; i < n; ++i) {
@@ -130,6 +130,10 @@ inline ergmito_ptr::ergmito_ptr(
     // Checking that the statistics have the same number of columns
     if (k != (unsigned int) stats_statmat_[i].ncol())
       stop("ncol(stats_statmat[[%i]]) != ncol(target_stats).", i + 1);
+    
+    // Same check with the offset term
+    if (stats_offset_[i].size() != stats_statmat_[i].nrow())
+      stop("The size of stats_offset[%i] does not match the number of rows in stats_statmat.", i + 1);
     
     /* Using advanced constructors from armadillo. In this case, I'm building
      * the objects s.t. it uses the raw memory pointer to the original data in
@@ -151,6 +155,15 @@ inline ergmito_ptr::ergmito_ptr(
         true
     ));
     
+    stats_offset.push_back(
+      new arma::colvec(
+          (double *) &stats_offset_[i][0],
+          stats_offset_[i].size(),
+          false,
+          true
+      )
+      );
+    
     // Preparing the exp statmat
     exp_statmat_params[i].set_size(stats_weights[i]->size());
     
@@ -160,21 +173,6 @@ inline ergmito_ptr::ergmito_ptr(
     
   }
   
-  // Offset terms
-  for (unsigned int i = 0u; i < n; ++i) {
-    
-    if (stats_offset_[i].size() != stats_statmat_[i].nrow())
-      stop("The size of stats_offset[%i] does not match the number of rows in stats_statmat.", i + 1);
-    
-    stats_offset.push_back(new arma::colvec(
-        (double *) &stats_offset_[i][0],
-        stats_offset_[i].size(),
-        false,
-        true
-    ));
-    
-  }
-
   return;
   
 }

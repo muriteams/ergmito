@@ -267,7 +267,14 @@ ergmito_formulae <- function(
   # Initializing the model
   target_offset <- double(nrow(target.stats))
   stats_offset  <- lapply(stats.statmat, function(s) double(nrow(s)))
-  ergmito_ptr <- new_ergmito_ptr(target.stats, stats.weights, stats.statmat, target_offset, stats_offset)
+  
+  ergmito_ptr   <- new_ergmito_ptr(
+    target_stats  = target.stats,
+    stats_weights = stats.weights,
+    stats_statmat = stats.statmat,
+    target_offset = target_offset,
+    stats_offset  = stats_offset
+    )
   
   # Building joint likelihood function
   loglik <- function(params, ...) {
@@ -523,7 +530,8 @@ exact_loglik.default <- function(
         target_stats  = x[i:j, , drop = FALSE],
         stats_weights = stats.weights[i:j],
         stats_statmat = stats.statmat[i:j],
-        target_offset = target_offset, stats_offset = stats_offset
+        target_offset = target_offset,
+        stats_offset  = stats_offset
       )
       
       ans[i:j] <- exact_loglik.(ergmito_ptr, params)
@@ -532,7 +540,7 @@ exact_loglik.default <- function(
   } else {
     
     # In this case, this doesn't change
-    stats_offset  <- lapply(stats.statmat[i:j], function(s) double(nrow(s)))
+    stats_offset <- list(double(nrow(stats.statmat[[1L]])))
     
     for (s in seq_along(chunks$from)) {
       
