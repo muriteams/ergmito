@@ -38,7 +38,7 @@ private:
 public:
   unsigned int n, k;
   arma::mat                     target_stats;
-  arma::vec                     target_stats_offset;
+  arma::vec                     target_offset;
   std::vector< arma::rowvec * > stats_weights;
   std::vector< arma::mat * >    stats_statmat;
   std::vector< arma::colvec * > stats_offset;
@@ -48,7 +48,7 @@ public:
     const NumericMatrix           & target_stats_,
     const ListOf< NumericVector > & stats_weights_,
     const ListOf< NumericMatrix > & stats_statmat_,
-    const NumericVector           & target_stats_offset_,
+    const NumericVector           & target_offset_,
     const ListOf< NumericVector > & stats_offset_
   );
   
@@ -76,13 +76,13 @@ inline ergmito_ptr::ergmito_ptr(
     const NumericMatrix & target_stats_,
     const ListOf< NumericVector > & stats_weights_,
     const ListOf< NumericMatrix > & stats_statmat_,
-    const NumericVector           & target_stats_offset_,
+    const NumericVector           & target_offset_,
     const ListOf< NumericVector > & stats_offset_
 ) :
   n(target_stats_.nrow()),
   k(target_stats_.ncol()),
   target_stats((double *) &target_stats_[0], target_stats_.nrow(), target_stats_.ncol(), false, true),
-  target_stats_offset((double *) &target_stats_offset_[0], target_stats_offset_.size(), false, true)
+  target_offset((double *) &target_offset_[0], target_offset_.size(), false, true)
 {
   
   // Do the networks share the same vector of weights?
@@ -95,9 +95,9 @@ inline ergmito_ptr::ergmito_ptr(
   if (!same_stats && (target_stats_.nrow() != stats_weights_.size()))
     stop("Incorrect sizes. target_stats and stats_statmat should have the same size");
   
-  if (target_stats_offset_.size() > 0u) {
+  if (target_offset_.size() > 0u) {
     
-    if (target_stats_offset_.size() != target_stats_.nrow())
+    if (target_offset_.size() != target_stats_.nrow())
       stop("The offset term has the wrong length.");
     
   }
@@ -198,7 +198,8 @@ inline void ergmito_ptr::update_normalizing_constant(
     for (unsigned int i = 0; i < this->n; ++i) {
       
       this->exp_statmat_params[i] = exp(
-        (*this->stats_statmat[i]) * params - AVOID_BIG_EXP
+        (*this->stats_statmat[i]) * params - AVOID_BIG_EXP +
+          (*this->stats_offset[i])
       );
       
       this->normalizing_constant[i] = arma::as_scalar(
@@ -232,7 +233,8 @@ inline arma::vec ergmito_ptr::exact_loglik(
       
       this->res_loglik[i] =
         arma::as_scalar(this->target_stats.row(i) * params) -
-        AVOID_BIG_EXP -
+        AVOID_BIG_EXP +
+        this->target_offset[i] -
         log(normalizing_constant[j]);
       
     } else {
@@ -240,7 +242,9 @@ inline arma::vec ergmito_ptr::exact_loglik(
       this->res_loglik[i] =
         exp(
           arma::as_scalar(this->target_stats.row(i) * params) -
-            AVOID_BIG_EXP)/normalizing_constant[j];
+            AVOID_BIG_EXP + 
+            this->target_offset[i]
+      )/normalizing_constant[j];
       
     }
     
@@ -311,13 +315,14 @@ inline arma::colvec ergmito_ptr::exact_gradient(
 //' from the computational point of view. 
 //' 
 //' @param target_stats,stats_weights,stats_statmat see [exact_loglik].
+//' @param target_offset,stats_offset Offset values (see [exact_loglik]).
 //' @export
 // [[Rcpp::export(rng = false)]]
 SEXP new_ergmito_ptr(
     const NumericMatrix & target_stats,
     const ListOf< NumericVector > & stats_weights,
     const ListOf< NumericMatrix > & stats_statmat,
-    const NumericVector & target_offset,
+    const NumericVector           & target_offset,
     const ListOf< NumericVector > & stats_offset
     ) {
   
@@ -375,11 +380,13 @@ inline arma::mat exact_hessiani(
     const arma::rowvec & x,
     const arma::colvec & params,
     const arma::rowvec & stats_weights,
-    const arma::mat    & stats_statmat
+    const arma::mat    & stats_statmat,
+    const double       & target_offset,
+    const arma::colvec & stats_offset
 ) {
   
   // Speeding up a bit calculations (this is already done)
-  arma::colvec Z = exp(stats_statmat * params);
+  arma::colvec Z = exp(stats_statmat * params + stats_offset);
   double weighted_exp = arma::as_scalar(stats_weights * Z);
   double weighted_exp2 = pow(weighted_exp, 2.0);
   arma::rowvec WZ = stats_weights % Z.t();
@@ -393,7 +400,7 @@ inline arma::mat exact_hessiani(
   for (unsigned int k0 = 0u; k0 < K; ++k0) {
     for (unsigned int k1 = 0u; k1 <= k0; ++k1) {
       H(k0, k1) = - (arma::as_scalar(
-        WZ * (stats_statmat.col(k0) % stats_statmat.col(k1)) * weighted_exp
+        WZ * (stats_statmat.col(k0) % stats_statmat.col(k1) + stats_offset) * weighted_exp
       ) - WZS[k0] * WZS[k1]) / weighted_exp2;
       
       if (k0 != k1)
@@ -415,10 +422,12 @@ inline arma::mat exact_hessiani(
 //' @noRd
 // [[Rcpp::export(name = "exact_hessian.", rng = false)]]
 arma::mat exact_hessian(
-    const arma::mat & x,
-    const arma::colvec params,
+    const arma::mat                   & x,
+    const arma::colvec                & params,
     const std::vector< arma::rowvec > & stats_weights,
-    const std::vector< arma::mat > & stats_statmat
+    const std::vector< arma::mat >    & stats_statmat,
+    const arma::colvec                & target_offset,
+    const std::vector< arma::colvec > & stats_offset
 ) {
   
   // Checking the sizes
@@ -435,7 +444,8 @@ arma::mat exact_hessian(
     
     for (unsigned int i = 0u; i < n; ++i)
       ans[i] = exact_hessiani(
-        x.row(i), params, stats_weights.at(i), stats_statmat.at(i)
+        x.row(i), params, stats_weights.at(i), stats_statmat.at(i),
+        target_offset[i], stats_offset.at(i)
       );
     
     arma::mat H(K, K);
@@ -449,7 +459,8 @@ arma::mat exact_hessian(
     // In the case that all networks are from the same family, then this becomes
     // a trivial operation.
     return exact_hessiani(
-      x.row(0u), params, stats_weights.at(0u), stats_statmat.at(0u)
+      x.row(0u), params, stats_weights.at(0u), stats_statmat.at(0u),
+      target_offset[0u], stats_offset.at(0u)
     );
     
   }

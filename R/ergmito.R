@@ -16,6 +16,7 @@
 #' @param optim.args List. Passed to [stats::optim].
 #' @param target.stats A matrix of target statistics (see [ergm::ergm]).
 #' @template stats
+#' @template offset
 #' @param init A numeric vector. Sets the starting parameters for the
 #' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
@@ -133,7 +134,7 @@
 NULL
 
 ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
-  reltol = .Machine$double.eps ^ 3/4
+  reltol = sqrt(.Machine$double.eps)
 )
 
 #' @export
@@ -149,6 +150,8 @@ ergmito <- function(
   target.stats  = NULL,
   ntries        = 1L,
   keep.stats    = TRUE,
+  target.offset = NULL,
+  stats.offset  = NULL,
   ...
   ) {
 
@@ -164,6 +167,8 @@ ergmito <- function(
     target.stats  = target.stats,
     stats.weights = stats.weights,
     stats.statmat = stats.statmat,
+    target.offset = target.offset,
+    stats.offset  = stats.offset,
     env           = ergmitoenv,
     ...
     )

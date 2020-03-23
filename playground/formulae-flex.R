@@ -2,8 +2,28 @@
 
 formulae2 <- function(x) {
   
-  # Catch complex conditionals
-  strsplit(deparse(x), split = "[|]\\s*[~]")
+  # First step, capture all ergm terms, these should be one of the following:
+  # - name
+  # - name.w.dot
+  # - name_w_bar
+  # - name_w_num
+  # Names can also include an argument (or multiple arguments), so a function call
+  
+  x <- net ~ edges + nodematch('asda') + ndoe1match('1', 1231) - I(1/nnodes(net)) + offset(edges)
+  trsm <- terms(x)
+  as.formula(trsm)
+  
+  # But before that, we need to identify special characters, like 
+  # 'offset' and 'I'.
+  x_special_removed <- gsub("\\s*(+|-)?\\s*(offset|I)[(].+[)]\\s*(+|-)?\\s*", "", x)
+  
+  
+  gsub(
+    "[a-zA-Z_\\.][a-zA-Z0-9_\\.]*([(][^()]*[)])?",
+    "yes",
+    "edges + nodematch('asda') + ndoe1match('1', 1231) - I(1/nnodes(net))",
+    perl = TRUE
+    )
   
 }
 
