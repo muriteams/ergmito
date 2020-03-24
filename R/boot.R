@@ -25,7 +25,7 @@ ergmito_boot <- function(x, ..., R, ncpus = 1L, cl = NULL) UseMethod("ergmito_bo
 
 
 #' @export
-#' @rdname ergmito_boot
+# @rdname ergmito_boot
 ergmito_boot.formula <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   # First run of the model
@@ -37,7 +37,7 @@ ergmito_boot.formula <- function(x, ..., R, ncpus = 1L, cl = NULL) {
 }
 
 #' @export
-#' @rdname ergmito_boot
+# @rdname ergmito_boot
 ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   n <- nnets(x)
@@ -60,7 +60,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   nets0         <- x$network
   stats.weights <- x$formulae$stats.weights
   stats.statmat <- x$formulae$stats.statmat
-  offset.       <- x$formulae$offset
+  offset.       <- x$offset
   
   # Creating the cluster and setting the seed
   if (ncpus > 1L && !length(cl)) {
@@ -147,7 +147,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
 }
 
 #' @export
-#' @rdname ergmito_boot
+# @rdname ergmito_boot
 print.ergmito_boot <- function(x, ...) {
   
   cat(sprintf("Bootstrapped %i replicates:\n", x$R))

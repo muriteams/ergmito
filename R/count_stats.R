@@ -200,11 +200,11 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
 geodesic <- function(x, force = FALSE, ...) UseMethod("geodesic")
 
 #' @export
-#' @rdname geodesic
+# @rdname geodesic
 geodesita <- geodesic
 
 #' @export
-#' @rdname geodesic
+# @rdname geodesic
 geodesic.list <- function(x, force = FALSE, ...) {
   
   geodesic.(as_adjmat(x), force = force)
@@ -212,7 +212,7 @@ geodesic.list <- function(x, force = FALSE, ...) {
 }
 
 #' @export
-#' @rdname geodesic
+# @rdname geodesic
 geodesic.matrix <- function(x, force = FALSE, simplify = FALSE, ...) {
   
   ans <- geodesic.(list(x), force = force)
@@ -222,7 +222,7 @@ geodesic.matrix <- function(x, force = FALSE, simplify = FALSE, ...) {
 }
 
 #' @export
-#' @rdname geodesic
+# @rdname geodesic
 geodesic.network <- function(x, force = FALSE, simplify = FALSE, ...) {
   
   ans <- geodesic.(list(as_adjmat(x)), force = force)

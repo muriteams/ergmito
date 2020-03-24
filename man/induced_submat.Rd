@@ -2,18 +2,9 @@
 % Please edit documentation in R/induced_submat.R
 \name{induced_submat}
 \alias{induced_submat}
-\alias{induced_submat.list}
-\alias{induced_submat.network}
-\alias{induced_submat.matrix}
 \title{Extract a submatrix from a network}
 \usage{
 induced_submat(x, v, ...)
-
-\method{induced_submat}{list}(x, v, ...)
-
-\method{induced_submat}{network}(x, v, ...)
-
-\method{induced_submat}{matrix}(x, v, ...)
 }
 \arguments{
 \item{x}{Either a list or single matrices or network objects.}

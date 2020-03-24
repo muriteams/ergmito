@@ -1,4 +1,3 @@
-#' @param offset Named numeric vector. When specified, [ergmito_formulae()]
-#' will consider the specified variables as offset, and thus, the log-likelihood,
-#' gradient, and hessian functions will be adjusted accordignly.
+#' @param offset Named numeric vector. Terms to be treated as offset and their values
+#' (see details in [ergmito()]). 
 NULL

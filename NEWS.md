@@ -9,6 +9,6 @@
   when it was not supposed to. A new implementation avoids copying memory and
   thus makes it faster when trying to fit a larger object.
 
-* (ON DEV) users can define offset terms as function of the vector of sufficient
+* Users can define offset terms as function of the vector of sufficient
   statistics.
   

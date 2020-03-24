@@ -2,23 +2,17 @@
 % Please edit documentation in R/exact_calculations.R
 \name{exact_loglik}
 \alias{exact_loglik}
-\alias{exact_loglik.ergmito_ptr}
 \alias{exact_loglik.default}
 \alias{exact_gradient}
-\alias{exact_gradient.ergmito_ptr}
 \alias{exact_gradient.default}
 \alias{exact_hessian}
 \title{Vectorized calculation of ERGM exact log-likelihood}
 \usage{
 exact_loglik(x, params, ...)
 
-\method{exact_loglik}{ergmito_ptr}(x, params, ...)
-
 \method{exact_loglik}{default}(x, params, stats.weights, stats.statmat, ...)
 
 exact_gradient(x, params, ...)
-
-\method{exact_gradient}{ergmito_ptr}(x, params, ...)
 
 \method{exact_gradient}{default}(x, params, stats.weights, stats.statmat, ...)
 

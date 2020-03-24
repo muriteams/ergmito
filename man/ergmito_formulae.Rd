@@ -11,7 +11,6 @@ ergmito_formulae(
   target.stats = NULL,
   stats.weights = NULL,
   stats.statmat = NULL,
-  offset = NULL,
   env = parent.frame(),
   ...
 )
@@ -28,10 +27,6 @@ a named vector (see \link[ergm:summary_formula]{ergm::summary_formula}).}
 
 \item{stats.weights, stats.statmat}{Lists of sufficient statistics and their
 respective weights.}
-
-\item{offset}{Named numeric vector. When specified, \code{\link[=ergmito_formulae]{ergmito_formulae()}}
-will consider the specified variables as offset, and thus, the log-likelihood,
-gradient, and hessian functions will be adjusted accordignly.}
 
 \item{env}{Environment in which \code{model} should be evaluated.}
 

@@ -106,6 +106,9 @@ get_feasible_ci_bounds <- function(x, probs, lower, upper) {
 
 #' @export
 #' @rdname ergmito_gof
+#' @details 
+#' The print method tries to copy (explicitly) the print method of the
+#' `gof` function from the `ergm` R package.
 gof_ergmito <- function(
   object,
   GOF    = NULL,
@@ -268,11 +271,8 @@ gof_ergmito <- function(
 }
 
 #' @export
-#' @param digits Number of digits to used when printing
-#' @rdname ergmito_gof
-#' @details The print method tries to copy (explicitly) the print method of the
-#' `gof` function from the `ergm` R package.
-print.ergmito_gof <- function(x, digits = 2L, ...) {
+# @rdname ergmito_gof
+print.ergmito_gof <- function(x, ...) {
   
   K <- length(x$term.names)
   for (k in seq_len(K)) {
@@ -294,7 +294,7 @@ print.ergmito_gof <- function(x, digits = 2L, ...) {
       c("obs", "min", "mean", "max", "lower", "upper", "lower prob.", "upper prob.")
       )
       
-    print(tab, digits = digits)
+    print(tab, ...)
     cat("\n")
     
   }

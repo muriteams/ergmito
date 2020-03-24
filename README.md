@@ -37,7 +37,7 @@ Computing (hpcc.usc.edu).
 ## Citation
 
 Vega Yon G (2020). *ergmito: Exponential Random Graph Models for Small
-Networks*. R package version 0.2-999, \<URL:
+Networks*. R package version 0.2-1-9999, \<URL:
 <https://github.com/muriteams/ergmito>\>.
 
 Vega Yon G, Slaughter A, de la Haye K (2019). “Exponential Random Graph
@@ -176,22 +176,22 @@ fivenets_gof
 #> 
 #> Goodness-of-fit for edges 
 #> 
-#>       obs min mean max lower upper lower prob. upper prob.
-#> net 1   2   0  3.7  12     0     6      0.0081        0.96
-#> net 2   7   0  3.7  12     0     6      0.0081        0.96
-#> net 3   4   0  3.1  12     0     6      0.0206        0.99
-#> net 4   5   0  5.6  12     2     8      0.0309        0.95
-#> net 5   2   0  3.7  12     0     6      0.0081        0.96
+#>       obs min     mean max lower upper lower prob. upper prob.
+#> net 1   2   0 3.746607  12     0     6 0.008080856   0.9635261
+#> net 2   7   0 3.746607  12     0     6 0.008080856   0.9635261
+#> net 3   4   0 3.113122  12     0     6 0.020642814   0.9881036
+#> net 4   5   0 5.647059  12     2     8 0.030934588   0.9514908
+#> net 5   2   0 3.746607  12     0     6 0.008080856   0.9635261
 #> 
 #> 
 #> Goodness-of-fit for nodematch.female 
 #> 
-#>       obs min mean max lower upper lower prob. upper prob.
-#> net 1   2   0  2.8   6     0     5       0.022        0.99
-#> net 2   5   0  2.8   6     0     5       0.022        0.99
-#> net 3   3   0  1.9   4     0     3       0.079        0.95
-#> net 4   5   0  5.6  12     2     8       0.031        0.95
-#> net 5   1   0  2.8   6     0     5       0.022        0.99
+#>       obs min     mean max lower upper lower prob. upper prob.
+#> net 1   2   0 2.823530   6     0     5  0.02201716   0.9891396
+#> net 2   5   0 2.823530   6     0     5  0.02201716   0.9891396
+#> net 3   3   0 1.882353   4     0     3  0.07855507   0.9509584
+#> net 4   5   0 5.647059  12     2     8  0.03093459   0.9514908
+#> net 5   1   0 2.823530   6     0     5  0.02201716   0.9891396
 #> 
 #> Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof_ergmito).
 plot(fivenets_gof)
@@ -294,7 +294,7 @@ We can fit this model in a memory efficient way.
 ``` r
 system.time(ans0 <- ergmito(bignet ~ edges + mutual))
 #>    user  system elapsed 
-#>   8.208   0.037   8.251
+#>   2.971   0.021   2.991
 summary(ans0)
 #> 
 #> ERGMito estimates
@@ -302,8 +302,8 @@ summary(ans0)
 #> formula:  bignet ~ edges + mutual 
 #> 
 #>          Estimate Std. Error z value Pr(>|z|)
-#> edges  -0.0021702  0.0068674 -0.3160    0.752
-#> mutual -0.0015521  0.0112247 -0.1383    0.890
+#> edges  -0.0020193  0.0068675 -0.2940   0.7687
+#> mutual -0.0018160  0.0112247 -0.1618   0.8715
 #> AIC: 352097.2    BIC: 352118.1    (Smaller is better.)
 ```
 

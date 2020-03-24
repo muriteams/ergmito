@@ -2,29 +2,9 @@
 % Please edit documentation in R/network.R
 \name{matrix_to_network}
 \alias{matrix_to_network}
-\alias{matrix_to_network.matrix}
-\alias{matrix_to_network.list}
 \title{Manipulation of network objects}
 \usage{
 matrix_to_network(
-  x,
-  directed = rep(TRUE, length(x)),
-  hyper = rep(FALSE, length(x)),
-  loops = rep(FALSE, length(x)),
-  multiple = rep(FALSE, length(x)),
-  bipartite = rep(FALSE, length(x))
-)
-
-\method{matrix_to_network}{matrix}(
-  x,
-  directed = rep(TRUE, length(x)),
-  hyper = rep(FALSE, length(x)),
-  loops = rep(FALSE, length(x)),
-  multiple = rep(FALSE, length(x)),
-  bipartite = rep(FALSE, length(x))
-)
-
-\method{matrix_to_network}{list}(
   x,
   directed = rep(TRUE, length(x)),
   hyper = rep(FALSE, length(x)),

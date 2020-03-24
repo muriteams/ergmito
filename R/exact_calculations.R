@@ -64,7 +64,7 @@
 exact_loglik <- function(x, params, ...) UseMethod("exact_loglik")
 
 #' @export
-#' @rdname exact_loglik
+# @rdname exact_loglik
 exact_loglik.ergmito_ptr <- function(x, params, ...) {
   exact_loglik.(x, params = params)
 }
@@ -170,7 +170,7 @@ exact_loglik2 <- function(params, stat0, stats) {
 exact_gradient <- function(x, params, ...) UseMethod("exact_gradient")
 
 #' @export
-#' @rdname exact_loglik
+# @rdname exact_loglik
 exact_gradient.ergmito_ptr <- function(x, params, ...) {
   exact_gradient.(x, params = params)
 }

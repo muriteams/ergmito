@@ -2,14 +2,7 @@
 % Please edit documentation in R/ergmito.R
 \name{ergmito}
 \alias{ergmito}
-\alias{print.ergmito}
-\alias{summary.ergmito}
-\alias{print.ergmito_summary}
-\alias{coef.ergmito}
-\alias{logLik.ergmito}
-\alias{nobs.ergmito}
 \alias{vcov.ergmito}
-\alias{formula.ergmito}
 \title{Estimation of ERGMs using Maximum Likelihood Estimation (MLE)}
 \usage{
 ergmito(
@@ -27,21 +20,7 @@ ergmito(
   ...
 )
 
-\method{print}{ergmito}(x, ...)
-
-\method{summary}{ergmito}(object, ...)
-
-\method{print}{ergmito_summary}(x, ...)
-
-\method{coef}{ergmito}(object, ...)
-
-\method{logLik}{ergmito}(object, ...)
-
-\method{nobs}{ergmito}(object, ...)
-
 \method{vcov}{ergmito}(object, solver = NULL, ...)
-
-\method{formula}{ergmito}(x, ...)
 }
 \arguments{
 \item{model}{Model to estimate. See \link[ergm:ergm]{ergm::ergm}. The only difference with
@@ -71,18 +50,17 @@ and vectors associated with the sufficient statistics will be returned.
 Otherwise the function discards them. This may be useful for saving memory
 space when estimating multiple models.}
 
-\item{offset}{Named numeric vector. When specified, \code{\link[=ergmito_formulae]{ergmito_formulae()}}
-will consider the specified variables as offset, and thus, the log-likelihood,
-gradient, and hessian functions will be adjusted accordignly.}
+\item{offset}{Named numeric vector. Terms to be treated as offset and their values
+(see details in \code{\link[=ergmito]{ergmito()}}).}
 
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}
 
-\item{x, object}{An object of class \code{ergmito}}
-
 \item{solver}{Function. Used to compute the inverse of the hessian matrix. When
 not null, the variance-covariance matrix is recomputed using that function.
 By default, \code{ergmito} uses \link[MASS:ginv]{MASS::ginv}.}
+
+\item{x, object}{An object of class \code{ergmito}}
 }
 \value{
 An list of class \code{ergmito}:
@@ -98,6 +76,7 @@ computed using the exact hessian as implemented in \link{exact_hessian}.
 \item \code{coef.init}     Named vector of length \code{length(coef)}. Initial set of parameters
 used in the optimization.
 \item \code{formulae}      An object of class \link[=ergmito_formulae]{ergmito_loglik}.
+\item \code{offset}        The offset argument passed to \code{ergmito}.
 \item \code{nobs}          Integer scalar. Number of networks in the model.
 \item \code{network}       Networks passed via \code{model}.
 \item \code{optim.out},\code{optim.args} Results from the optim call and arguments passed to it.
@@ -108,6 +87,10 @@ estimates and the reached log-likelihood values.
 \item \code{timer}         Vector of times (for benchmarking). Each unit marks the starting
 point of the step.
 }
+
+Methods \code{\link[base:print]{base::print()}}, \code{\link[base:summary]{base::summary()}}, \code{\link[stats:coef]{stats::coef()}}, \code{\link[stats:logLik]{stats::logLik()}},
+\code{\link[stats:nobs]{stats::nobs()}}, \code{\link[stats:vcov]{stats::vcov()}}, \code{\link[stats:AIC]{stats::AIC()}}, \code{\link[stats:BIC]{stats::BIC()}},
+\code{\link[stats:confint]{stats::confint()}}, and  \code{\link[stats:formula]{stats::formula()}} are available.
 }
 \description{
 As a difference from \link[=ergm]{ergm::ergm}, \code{ergmito} uses the exact log-likelihood
@@ -150,12 +133,27 @@ reported as parameter estimates. This feature is intended for testing only.
 Anecdotally, \code{optim} reaches the max in the first try.
 }
 
+\section{Offset}{
+
+
+The fitting can be done using offset terms. Offset terms can be specified
+by passing a named vector via the \code{offset} argument. For example, if you
+want to fit an ERGM with coefficient associated with edgecount fixed to -1,
+you can do so by defining \code{offset = c(edges = -1)}. Offsetting terms only
+affects the optimization stage.
+
+One important caveat is that the offset is check after the sufficient
+statistics have been calculated, meaning that the variable names may change,
+for example, while the user can specify \code{ttriad} in the formula, after
+calculating the sufficient statistics it will turn to \code{ttriples}.
+}
+
 \examples{
 
 # Generating a small graph
 set.seed(12)
 n <- 4
-net <- rbernoulli(n, p = .7)
+net <- rbernoulli(n, p = .3)
 
 model <- net ~ edges + mutual
 

@@ -219,8 +219,8 @@ check_convergence <- function(
     }
     
     # Updating parameters, if needed
-    estimates$par[]    <- newpars
-    estimates$valid  <- setdiff(estimates$valid, modified)
+    estimates$par[] <- newpars
+    estimates$valid <- setdiff(estimates$valid, modified)
     
     # Are we in hell?
     if (!length(estimates$valid)) {

@@ -14,7 +14,6 @@
 #' a named vector (see [ergm::summary_formula]). 
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
-#' @template offset
 #' @return A list of class `ergmito_loglik`.
 #' 
 #' - `loglik` A function. The log-likelihood function.
@@ -40,7 +39,6 @@ ergmito_formulae <- function(
   target.stats  = NULL,
   stats.weights = NULL,
   stats.statmat = NULL,
-  offset        = NULL,
   env           = parent.frame(),
   ...
   ) {
@@ -272,115 +270,43 @@ ergmito_formulae <- function(
     stats_statmat = stats.statmat
     )
   
-  # Checking offset ------------------------------------------------------------
   
-  if (length(offset)) {
+  # Building joint likelihood function
+  loglik <- function(params, ...) {
     
-    # Checking if correctly specified
-    are_not_in_model <- which(!(names(offset) %in% colnames(target.stats)))
-    if (length(are_not_in_model))
-      stop(
-        "Some values specified in -offset- are not in the model: '",
-        paste(names(offset)[are_not_in_model], collapse = "', '"),"'. ",
-        "The model has the following terms: ",
-        paste(colnames(target.stats), collapse = "', '"),"'.",
-        call. = FALSE
-      )
+    ans <- sum(exact_loglik(ergmito_ptr, params = params, ...))
     
-    # Matching position, so we can make it faster
-    params_offset_pos    <- match(names(offset), colnames(target.stats))
-    params_no_offset_pos <- setdiff(1:ncol(target.stats), params_offset_pos)
+    # If awfully undefined
+    if (!is.finite(ans))
+      return(-.Machine$double.xmax * 1e-100)
+    else
+      return(ans)
     
-    # Baseline parameter
-    params0 <- structure(double(ncol(target.stats)), names = names(colnames(target.stats)))
-    params_offset <- offset
-    
-    # Building joint likelihood function
-    loglik <- function(params, ...) {
-      
-      params0[params_offset_pos] <- params_offset
-      params0[params_no_offset_pos] <- params
-      
-      ans <- sum(exact_loglik(ergmito_ptr, params = params0, ...))
-      
-      # If awfully undefined
-      if (!is.finite(ans))
-        return(-.Machine$double.xmax * 1e-100)
-      else
-        return(ans)
-      
-    }
-    
-    # Building joint gradient
-    grad <- function(params, ...) {
-      
-      params0[params_offset_pos] <- params_offset
-      params0[params_no_offset_pos] <- params
-      
-      ans <- exact_gradient(ergmito_ptr, params = params0, ...)
-      ans <- ans[params_no_offset_pos]
-      
-      test <- which(!is.finite(ans))
-      if (length(test))
-        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
-      
-      ans
-      
-    }
-    
-    hess <- function(params, ...) {
-      
-      params0[params_offset_pos] <- params_offset
-      params0[params_no_offset_pos] <- params
-      
-      exact_hessian(
-        x = target.stats,
-        params = params0,
-        stats.weights = stats.weights,
-        stats.statmat = stats.statmat
-      )[params_no_offset_pos,,drop=FALSE][,params_no_offset_pos,drop=FALSE]
-      
-    }
-    
-  } else {
-    # Building joint likelihood function
-    loglik <- function(params, ...) {
-      
-      ans <- sum(exact_loglik(ergmito_ptr, params = params, ...))
-      
-      # If awfully undefined
-      if (!is.finite(ans))
-        return(-.Machine$double.xmax * 1e-100)
-      else
-        return(ans)
-      
-    }
-    
-    # Building joint gradient
-    grad <- function(params, ...) {
-      
-      ans <- exact_gradient(ergmito_ptr, params = params, ...)
-      
-      test <- which(!is.finite(ans))
-      if (length(test))
-        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
-      
-      ans
-      
-    }
-    
-    hess <- function(params, ...) {
-      
-      exact_hessian(
-        x = target.stats,
-        params = params,
-        stats.weights = stats.weights,
-        stats.statmat = stats.statmat
-        )
-      
-    }
   }
   
+  # Building joint gradient
+  grad <- function(params, ...) {
+    
+    ans <- exact_gradient(ergmito_ptr, params = params, ...)
+    
+    test <- which(!is.finite(ans))
+    if (length(test))
+      ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
+    
+    ans
+    
+  }
+  
+  hess <- function(params, ...) {
+    
+    exact_hessian(
+      x = target.stats,
+      params = params,
+      stats.weights = stats.weights,
+      stats.statmat = stats.statmat
+      )
+    
+  }
   
   
   structure(
@@ -392,12 +318,10 @@ ergmito_formulae <- function(
       stats.weights = stats.weights,
       stats.statmat = stats.statmat,
       model         = stats::as.formula(model, env = env),
-      npars         = ncol(target.stats) - length(offset),
-      offset        = offset,
-      noffset       = length(offset),
+      npars         = ncol(target.stats),
       nnets         = nnets(LHS),
       vertex.attrs  = vattrs,
-      term.names    = setdiff(colnames(target.stats), names(offset))
+      term.names    = colnames(target.stats)
     ),
     class="ergmito_loglik"
   )
