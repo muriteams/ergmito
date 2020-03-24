@@ -28,17 +28,17 @@ net2 <- rbernoulli(5)
 set.seed(1717171);ans0 <- ergmito(list(net1, net2) ~ edges + mutual)
 set.seed(1717171);ans1 <- ergmito(list(net2, net1) ~ edges + mutual)
 
-expect_equal(coef(ans0), coef(ans1), tolerance = 1e-4)
-expect_equal(vcov(ans0), vcov(ans1), tolerance = 1e-4)
+expect_equal(coef(ans0), coef(ans1), tol = 1e-4, scale = 1)
+expect_equal(vcov(ans0), vcov(ans1), tol = 1e-4, scale = 1)
 
 
 set.seed(121)
 net1 <- rbernoulli(4)
-set.seed(1000); ans0 <- ergmito(net1 ~ edges + mutual, zeroobs = TRUE)
+set.seed(1000); ans0 <- ergmito(net1 ~ edges + mutual)
 set.seed(1000); ans1 <- ergmito(list(net1, net1) ~ edges + mutual)
 
-expect_equal(coef(ans0), coef(ans1), tolerance = 1e-4)
-expect_equal(vcov(ans0), vcov(ans1)*2, tolerance = 1e-4) # Vcov is half of it!
+expect_equal(coef(ans0), coef(ans1), tol = 1e-4, scale = 1)
+expect_equal(vcov(ans0), vcov(ans1)*2, tol = 1e-4, scale = 1) # Vcov is half of it!
 
 expect_output(print(ans0), "ERGMito")
 expect_output(print(summary(ans0)), "z value")

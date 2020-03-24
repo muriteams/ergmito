@@ -52,10 +52,9 @@ NULL
 #' from the computational point of view. 
 #' 
 #' @param target_stats,stats_weights,stats_statmat see [exact_loglik].
-#' @param target_offset,stats_offset Offset values (see [exact_loglik]).
 #' @export
-new_ergmito_ptr <- function(target_stats, stats_weights, stats_statmat, target_offset, stats_offset) {
-    .Call(`_ergmito_new_ergmito_ptr`, target_stats, stats_weights, stats_statmat, target_offset, stats_offset)
+new_ergmito_ptr <- function(target_stats, stats_weights, stats_statmat) {
+    .Call(`_ergmito_new_ergmito_ptr`, target_stats, stats_weights, stats_statmat)
 }
 
 #' Vectorized version of log-likelihood function
@@ -87,8 +86,8 @@ exact_gradient. <- function(ptr, params, as_prob = FALSE) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_hessian. <- function(x, params, stats_weights, stats_statmat, target_offset, stats_offset) {
-    .Call(`_ergmito_exact_hessian`, x, params, stats_weights, stats_statmat, target_offset, stats_offset)
+exact_hessian. <- function(x, params, stats_weights, stats_statmat) {
+    .Call(`_ergmito_exact_hessian`, x, params, stats_weights, stats_statmat)
 }
 
 induced_submat. <- function(nets, vs) {

@@ -186,12 +186,7 @@ check_convergence <- function(
   
   # We will update this later
   # estimates$vcov[] <- optim_output$hessian
-  estimates$vcov[] <- exact_hessian(
-    x             = model$target.stats,
-    params        = optim_output$par,
-    stats.weights = model$stats.weights,
-    stats.statmat = model$stats.statmat
-  )
+  estimates$vcov[] <- model$hess(optim_output$par)
   
   # Step 1: Checking parameter estimates ---------------------------------------
   if (length(to_check)) {
@@ -233,7 +228,7 @@ check_convergence <- function(
       warning_ergmito(
         "All parameters went to +-Inf. This suggests the MLE may not exist.",
         call. = FALSE
-        )
+      )
       
       estimates$status <- 30L
       
@@ -245,12 +240,7 @@ check_convergence <- function(
       newpars <- estimates$par
       newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)])*5
       
-      estimates$vcov <- exact_hessian(
-        params        = newpars,
-        x             = model$target.stats,
-        stats.weights = model$stats.weights,
-        stats.statmat = model$stats.statmat
-      )
+      estimates$vcov <- model$hess(newpars)
       
       # The observed likelihood will change as well, it may be the case that it
       # becomes undefined b/c of the fact that 0 * Inf = NaN

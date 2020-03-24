@@ -60,6 +60,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   nets0         <- x$network
   stats.weights <- x$formulae$stats.weights
   stats.statmat <- x$formulae$stats.statmat
+  offset.       <- x$formulae$offset
   
   # Creating the cluster and setting the seed
   if (ncpus > 1L && !length(cl)) {
@@ -68,7 +69,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     cl <- parallel::makePSOCKcluster(ncpus)
     parallel::clusterEvalQ(cl, library(ergmito))
     parallel::clusterExport(
-      cl, c("model0", "target.stats", "nets0", "stats.weights", "stats.statmat"),
+      cl, c("model0", "target.stats", "nets0", "stats.weights", "stats.statmat", "offset."),
       envir = environment())
     
     parallel::clusterSetRNGStream(cl)
@@ -88,7 +89,8 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
-        target.stats = target.stats[idx,,drop=FALSE]
+        target.stats = target.stats[idx,,drop=FALSE],
+        offset       = offset.
         ), error = function(e) e
         )
       
@@ -108,7 +110,8 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
-        target.stats = target.stats[idx,,drop=FALSE]
+        target.stats  = target.stats[idx,,drop=FALSE],
+        offset        = offset.
         )), error = function(e) e)
       
       if (inherits(ans, "error"))

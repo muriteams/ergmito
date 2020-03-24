@@ -116,10 +116,21 @@ gof_ergmito <- function(
   ...
   ) {
   
+  if (!inherits(object, "ergmito"))
+    stop(
+      "-object- should be of class 'ergmito'. It is of class '",
+      paste(class(object), collapse = "', '"), "'.", 
+      call. = FALSE
+      )
+
+  if (any(!is.finite(coef(object))))
+    stop("GOF can only be computed in models that are well defined. This model ",
+         "has some undefined coefficients (Inf).", call. = FALSE)
+    
   res <- vector(mode = "list", length = nnets(object))
   pr  <- res
   ran <- res
-  
+
   if (!is.null(GOF)) {
     # Deparsing formula
     if (!inherits(GOF, "formula"))
@@ -162,7 +173,8 @@ gof_ergmito <- function(
       statmat. <- object$formulae$stats.statmat[[i]]
       weights. <- object$formulae$stats.weights[[i]]
       
-      target.stats <- rbind(target.stats, object$formulae$target.stats[i, ])
+      target.stats  <- rbind(target.stats, object$formulae$target.stats[i, ])
+      
     }
     
     # Computing the probability of observing each class of networks
@@ -171,8 +183,6 @@ gof_ergmito <- function(
         x             = statmat.[, names(stats::coef(object)), drop = FALSE],
         stats.statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
         stats.weights = weights.,
-        target.offset = object$formulae$target.offset,
-        stats.offset  = object$formulae$stats.offset,
         params        = stats::coef(object),
         ncores        = ncores
       )

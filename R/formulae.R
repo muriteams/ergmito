@@ -1,11 +1,3 @@
-#' Offset functions included in ergmito
-#' @param stats.statmat See [exact_loglik].
-#' @param net A network. The network in which the `stats.statmat` was based on.
-#' @export
-default_offset <- function(stats.statmat, network) {
-  double(nrow(mat))
-}
-
 #' Processing formulas in `ergmito`
 #' 
 #' Analyze formula objects returning the matrices of weights and sufficient 
@@ -47,9 +39,7 @@ ergmito_formulae <- function(
   target.stats  = NULL,
   stats.weights = NULL,
   stats.statmat = NULL,
-  target.offset = NULL,
-  stats.offset  = NULL,
-  offset_fun    = default_offset,
+  offset        = NULL,
   env           = parent.frame(),
   ...
   ) {
@@ -274,81 +264,139 @@ ergmito_formulae <- function(
       
     }
   
-  # Checking the offset parameter ----------------------------------------------
-  if (is.null(target.offset))
-    target.offset <- offset_fun(target.stats)
-  
-  if (is.null(stats.offset)) stats.offset <- default_offset
-  
-  if (is.function(stats.offset))
-    stats.offset <- lapply(stats.statmat, stats.offset)
-  
   # Initializing the pointer
   ergmito_ptr   <- new_ergmito_ptr(
     target_stats  = target.stats,
     stats_weights = stats.weights,
-    stats_statmat = stats.statmat,
-    target_offset = target.offset,
-    stats_offset  = stats.offset
+    stats_statmat = stats.statmat
     )
   
-  # Building joint likelihood function
-  loglik <- function(params, ...) {
+  # Checking offset ------------------------------------------------------------
+  
+  if (length(offset)) {
     
-    ans <- sum(exact_loglik(ergmito_ptr, params = params, ...))
+    # Checking if correctly specified
+    are_not_in_model <- which(!(names(offset) %in% colnames(target.stats)))
+    if (length(are_not_in_model))
+      stop(
+        "Some values specified in -offset- are not in the model: '",
+        paste(names(offset)[are_not_in_model], collapse = "', '"),"'. ",
+        "The model has the following terms: ",
+        paste(colnames(target.stats), collapse = "', '"),"'.",
+        call. = FALSE
+      )
     
-    # If awfully undefined
-    if (!is.finite(ans))
-      return(-.Machine$double.xmax * 1e-100)
-    else
-      return(ans)
+    # Matching position, so we can make it faster
+    params_offset_pos    <- match(names(offset), colnames(target.stats))
+    params_no_offset_pos <- setdiff(1:ncol(target.stats), params_offset_pos)
     
+    # Baseline parameter
+    params0 <- structure(double(ncol(target.stats)), names = names(colnames(target.stats)))
+    params_offset <- offset
+    
+    # Building joint likelihood function
+    loglik <- function(params, ...) {
+      
+      params0[params_offset_pos] <- params_offset
+      params0[params_no_offset_pos] <- params
+      
+      ans <- sum(exact_loglik(ergmito_ptr, params = params0, ...))
+      
+      # If awfully undefined
+      if (!is.finite(ans))
+        return(-.Machine$double.xmax * 1e-100)
+      else
+        return(ans)
+      
+    }
+    
+    # Building joint gradient
+    grad <- function(params, ...) {
+      
+      params0[params_offset_pos] <- params_offset
+      params0[params_no_offset_pos] <- params
+      
+      ans <- exact_gradient(ergmito_ptr, params = params0, ...)
+      ans <- ans[params_no_offset_pos]
+      
+      test <- which(!is.finite(ans))
+      if (length(test))
+        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
+      
+      ans
+      
+    }
+    
+    hess <- function(params, ...) {
+      
+      params0[params_offset_pos] <- params_offset
+      params0[params_no_offset_pos] <- params
+      
+      exact_hessian(
+        x = target.stats,
+        params = params0,
+        stats.weights = stats.weights,
+        stats.statmat = stats.statmat
+      )[params_no_offset_pos,,drop=FALSE][,params_no_offset_pos,drop=FALSE]
+      
+    }
+    
+  } else {
+    # Building joint likelihood function
+    loglik <- function(params, ...) {
+      
+      ans <- sum(exact_loglik(ergmito_ptr, params = params, ...))
+      
+      # If awfully undefined
+      if (!is.finite(ans))
+        return(-.Machine$double.xmax * 1e-100)
+      else
+        return(ans)
+      
+    }
+    
+    # Building joint gradient
+    grad <- function(params, ...) {
+      
+      ans <- exact_gradient(ergmito_ptr, params = params, ...)
+      
+      test <- which(!is.finite(ans))
+      if (length(test))
+        ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
+      
+      ans
+      
+    }
+    
+    hess <- function(params, ...) {
+      
+      exact_hessian(
+        x = target.stats,
+        params = params,
+        stats.weights = stats.weights,
+        stats.statmat = stats.statmat
+        )
+      
+    }
   }
   
-  # Building joint gradient
-  grad <- function(params, ...) {
-    
-    ans <- exact_gradient(ergmito_ptr, params = params, ...)
-    
-    test <- which(!is.finite(ans))
-    if (length(test))
-      ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
-    
-    ans
-    
-  }
+  
   
   structure(
     list(
       loglik = loglik,
       grad  = grad,
-      # hess  = function(params, stats.weights, stats.statmat, target.stats, ncores = 1L) {
-      #   
-      #   ans <- exact_hessian(
-      #     params        = params,
-      #     x             = target.stats,
-      #     stats.weights = stats.weights,
-      #     stats.statmat = stats.statmat,
-      #     ncores        = ncores
-      #   )
-      #   
-      #   test <- which(!is.finite(ans))
-      #   if (length(test))
-      #     ans[test] <- sign(ans[test]) * .Machine$double.xmax / 1e200
-      #   
-      #   ans
-      #   
-      # },
+      hess  = hess,
       target.stats  = target.stats,
       stats.weights = stats.weights,
       stats.statmat = stats.statmat,
-      target.offset = target.offset,
-      stats.offset  = stats.offset,
       model         = stats::as.formula(model, env = env),
-      npars         = ncol(target.stats),
+      npars         = ncol(target.stats) - length(offset),
+      offset        = offset,
+      noffset       = length(offset),
       nnets         = nnets(LHS),
       vertex.attrs  = vattrs,
-      term.names    = colnames(target.stats)
+      term.names    = setdiff(colnames(target.stats), names(offset))
     ),
     class="ergmito_loglik"
   )
@@ -389,8 +437,8 @@ model_has_attrs <- function(x) {
 
 gmodel <- function(model, net) {
   
-  netattrs <- network::list.network.attributes(net)
-  ans <- lapply(netattrs, network::get.network.attribute, x = net)
+  netattrs   <- network::list.network.attributes(net)
+  ans        <- lapply(netattrs, network::get.network.attribute, x = net)
   names(ans) <- netattrs
   
   ans <- stats::model.matrix(
@@ -415,378 +463,5 @@ print.ergmito_loglik <- function(x, ...) {
   cat(sprintf("grad  : %s", deparse(x$grad)[1]))
   
   invisible(x)
-}
-
-#' Vectorized calculation of ERGM exact log-likelihood
-#' 
-#' This function can be compared to [ergm::ergm.exact] with the statistics not
-#' centered at `x`, the vector of observed statistics.
-#' 
-#' @param x Matrix. Observed statistics
-#' @param params Numeric vector. Parameter values of the model.
-#' @template stats
-#' @template offset
-#' @param ... Arguments passed to the default methods.
-#' 
-#' @section Sufficient statistics:
-#' 
-#' One of the most important components of `ergmito` is calculating the full
-#' support of the model's sufficient statistics. Right now, the package uses
-#' the function [ergm::ergm.allstats] which returns a list of two objects:
-#'
-#' - `weights`: An integer vector of counts.
-#' - `statmat`: A numeric matrix with the rows as unique vectors of sufficient
-#'   statistics.
-#' 
-#' Since `ergmito` can vectorize operations, in order to specify weights and
-#' statistics matrices for each network in the model, the user needs to pass
-#' two lists `stats.weights` and `stats.statmat`. While both lists have to
-#' have the same length (since its elements are matched), this needs not to
-#' be the case with the networks, as the user can specify a single set of
-#' weights and statistics that will be recycled (smartly).
-#' 
-#' @section Offset:
-#' 
-#' An offset to the model can be specified via the `target.offset` and
-#' `stats.offset` arguments. When a function, it is called right after the
-#' sufficient statistics have been defined and is passed later on to the
-#' calls of the log-likelihood and gradient.
-#' 
-#' An example of an offset can be that applied to replace the edges parameter.
-#' 
-#' 
-#' 
-#' @examples 
-#' data(fivenets)
-#' ans <- ergmito(fivenets ~ edges + nodematch("female"))
-#' 
-#' # This computes the likelihood for all the networks independently
-#' with(ans$formulae, {
-#'   exact_loglik(
-#'     x      = target.stats,
-#'     params = coef(ans),
-#'     stats.weights = stats.weights,
-#'     stats.statmat = stats.statmat
-#'   )
-#' })
-#' 
-#' # This should be close to zero
-#' with(ans$formulae, {
-#'   exact_gradient(
-#'     x      = target.stats,
-#'     params = coef(ans),
-#'     stats.weights = stats.weights,
-#'     stats.statmat = stats.statmat
-#'   )
-#' })
-#' 
-#' # Finally, the hessian
-#' with(ans$formulae, {
-#'   exact_hessian(
-#'     x      = target.stats,
-#'     params = coef(ans),
-#'     stats.weights = stats.weights,
-#'     stats.statmat = stats.statmat
-#'   )
-#' })
-#' 
-#' @export
-exact_loglik <- function(x, params, ...) UseMethod("exact_loglik")
-
-#' @export
-#' @rdname exact_loglik
-exact_loglik.ergmito_ptr <- function(x, params, ...) {
-  exact_loglik.(x, params = params)
-}
-
-#' @export
-#' @rdname exact_loglik
-exact_loglik.default <- function(
-  x,
-  params,
-  stats.weights,
-  stats.statmat,
-  target.offset = NULL,
-  stats.offset  = NULL,
-  ...
-  ) {
-  
-  # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
-  chunks <- make_chunks(nrow(x), 4e5)
-  
-  n <- nrow(x)
-  
-  # Checking the weights and stats mat
-  if (n == 1) {
-    # If only one observation
-    
-    if (!is.list(stats.weights))
-      stats.weights <- list(stats.weights)
-    
-    if (!is.list(stats.statmat))
-      stats.statmat <- list(stats.statmat)
-    
-  } else if (n > 1) {
-    # If more than 1, then perhaps we need to recycle the values
-    
-    if (!is.list(stats.weights)) {
-      stats.weights <- list(stats.weights)
-    } else if (length(stats.weights) != n) {
-      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-    if (!is.list(stats.statmat)) {
-      stats.statmat <- list(stats.statmat)
-    } else if (length(stats.statmat) != n) {
-      stop("length(stats.statmat) != nrow(x). When class(stats.statmat) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-  } else 
-    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
-  
-  # Checking the offset parameters
-  if (is.null(target.offset)) target.offset <- default_offset
-  
-  if (is.function(target.offset))
-    target.offset <- target.offset(x)
-  
-  if (is.null(stats.offset)) stats.offset <- default_offset
-  
-  if (is.function(stats.offset))
-    stats.offset <- lapply(stats.statmat, stats.offset)
-  
-  # Computing in chunks
-  ans <- vector("double", n)
-  if (length(stats.weights) > 1L) {
-    
-    for (s in seq_along(chunks$from)) {
-      
-      i <- chunks$from[s]
-      j <- chunks$to[s]
-      
-      ergmito_ptr <- new_ergmito_ptr(
-        target_stats  = x[i:j, , drop = FALSE],
-        stats_weights = stats.weights[i:j],
-        stats_statmat = stats.statmat[i:j],
-        target_offset = target.offset[i:j],
-        stats_offset  = stats.offset[i:j]
-      )
-      
-      ans[i:j] <- exact_loglik.(ergmito_ptr, params)
-      
-    }
-  } else {
-    
-    # In this case, this doesn't change
-    for (s in seq_along(chunks$from)) {
-      
-      i <- chunks$from[s]
-      j <- chunks$to[s]
-      
-      target_offset <- double(length(i:j))
-      
-      # Creating the model pointer
-      ergmito_ptr <- new_ergmito_ptr(
-        target_stats  = x[i:j, , drop = FALSE],
-        stats_weights = stats.weights,
-        stats_statmat = stats.statmat,
-        target_offset = target.offset[i:j],
-        stats_offset  = stats.offset
-      )
-      
-      ans[i:j] <- exact_loglik.(ergmito_ptr, params)
-      
-    }
-  }
-  
-  ans
-  
-}
-
-# This function uis just used for testing
-exact_loglik2 <- function(params, stat0, stats) {
-  
-  sum(params * stat0) - log(stats$weights %*% exp(stats$statmat %*% params))
-  
-}
-
-#' @rdname exact_loglik
-#' @export
-exact_gradient <- function(x, params, ...) UseMethod("exact_gradient")
-
-#' @export
-#' @rdname exact_loglik
-exact_gradient.ergmito_ptr <- function(x, params, ...) {
-  exact_gradient.(x, params = params)
-}
-
-#' @export
-#' @rdname exact_loglik
-exact_gradient.default <- function(
-  x,
-  params,
-  stats.weights,
-  stats.statmat,
-  target.offset = NULL,
-  stats.offset  = NULL,
-  ...
-  ) {
-  
-  # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
-  chunks <- make_chunks(nrow(x), 4e5)
-  
-  n <- nrow(x)
-  
-  # Checking the weights and stats mat
-  if (n == 1) {
-    # If only one observation
-    
-    if (!is.list(stats.weights))
-      stats.weights <- list(stats.weights)
-    
-    if (!is.list(stats.statmat))
-      stats.statmat <- list(stats.statmat)
-    
-  } else if (n > 1) {
-    # If more than 1, then perhaps we need to recycle the values
-    
-    if (!is.list(stats.weights)) {
-     stats.weights <- list(stats.weights)
-    } else if (length(stats.weights) != n) {
-      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-    if (!is.list(stats.statmat)) {
-      stats.statmat <- list(stats.statmat)
-    } else if (length(stats.statmat) != n) {
-      stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-  } else 
-    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
-  
-  # Checking the offset parameters
-  if (is.null(target.offset)) target.offset <- default_offset
-  
-  if (is.function(target.offset))
-    target.offset <- target.offset(x)
-  
-  if (is.null(stats.offset)) stats.offset <- default_offset
-  
-  if (is.function(stats.offset))
-    stats.offset <- lapply(stats.statmat, stats.offset)
-  
-  # Computing in chunks
-  ans <- matrix(0, nrow = length(params), ncol=1L)
-  for (s in seq_along(chunks$from)) {
-    
-    i <- chunks$from[s]
-    j <- chunks$to[s]
-    
-    # Creating the model pointer
-    ergmito_ptr <- new_ergmito_ptr(
-      target_stats  = x[i:j, , drop = FALSE],
-      stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j],
-      target_offset = target.offset[i:j],
-      stats_offset  = stats.offset[i:j]
-      )
-    
-    ans <- ans + exact_gradient.(ergmito_ptr, params)
-
-  }
-  
-  ans
-  
-}
-
-#' @rdname exact_loglik
-#' @export
-exact_hessian <- function(
-  x,
-  params,
-  stats.weights,
-  stats.statmat,
-  target.offset = NULL,
-  stats.offset  = NULL
-  ) {
-  
-  # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
-  chunks <- make_chunks(nrow(x), 4e5)
-  
-  n <- nrow(x)
-  
-  # Checking the weights and stats mat
-  if (n == 1) {
-    # If only one observation
-    
-    if (!is.list(stats.weights))
-      stats.weights <- list(stats.weights)
-    
-    if (!is.list(stats.statmat))
-      stats.statmat <- list(stats.statmat)
-    
-  } else if (n > 1) {
-    # If more than 1, then perhaps we need to recycle the values
-    
-    if (!is.list(stats.weights)) {
-      stats.weights <- list(stats.weights)
-    } else if (length(stats.weights) != n) {
-      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-    if (!is.list(stats.statmat)) {
-      stats.statmat <- list(stats.statmat)
-    } else if (length(stats.statmat) != n) {
-      stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-  } else 
-    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
-  
-  
-  # Checking the offset parameters
-  if (is.null(target.offset)) target.offset <- default_offset
-  
-  if (is.function(target.offset))
-    target.offset <- target.offset(x)
-  
-  if (is.null(stats.offset)) stats.offset <- default_offset
-  
-  if (is.function(stats.offset))
-    stats.offset <- lapply(stats.statmat, stats.offset)
-  
-  # Computing in chunks
-  ans <- matrix(0, nrow = length(params), ncol = length(params))
-  for (s in seq_along(chunks$from)) {
-    
-    i <- chunks$from[s]
-    j <- chunks$to[s]
-    
-    ans <- ans + exact_hessian.(
-      x[i:j, ,drop=FALSE],
-      params,
-      stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j],
-      target_offset = target.offset[i:j],
-      stats_offset  = stats.offset[i:j]
-    )
-    
-  }
-  
-  ans
-  
 }
 

@@ -4,18 +4,10 @@
 \alias{new_ergmito_ptr}
 \title{Creates a new \code{ergmito_ptr}}
 \usage{
-new_ergmito_ptr(
-  target_stats,
-  stats_weights,
-  stats_statmat,
-  target_offset,
-  stats_offset
-)
+new_ergmito_ptr(target_stats, stats_weights, stats_statmat)
 }
 \arguments{
 \item{target_stats, stats_weights, stats_statmat}{see \link{exact_loglik}.}
-
-\item{target_offset, stats_offset}{Offset values (see \link{exact_loglik}).}
 }
 \description{
 After calculating the support of the sufficient statistics, the second

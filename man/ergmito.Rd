@@ -23,8 +23,7 @@ ergmito(
   target.stats = NULL,
   ntries = 1L,
   keep.stats = TRUE,
-  target.offset = NULL,
-  stats.offset = NULL,
+  offset = NULL,
   ...
 )
 
@@ -71,11 +70,6 @@ This is intended for testing only (internal use).}
 and vectors associated with the sufficient statistics will be returned.
 Otherwise the function discards them. This may be useful for saving memory
 space when estimating multiple models.}
-
-\item{target.offset}{Either a function or a numeric vector of length equal to the number
-of networks in the model (see \link{exact_loglik}).}
-
-\item{stats.offset}{Either a function or a list of numeric vectors (see \link{exact_loglik}).}
 
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}

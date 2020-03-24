@@ -16,7 +16,6 @@
 #' @param optim.args List. Passed to [stats::optim].
 #' @param target.stats A matrix of target statistics (see [ergm::ergm]).
 #' @template stats
-#' @template offset
 #' @param init A numeric vector. Sets the starting parameters for the
 #' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.
@@ -150,8 +149,7 @@ ergmito <- function(
   target.stats  = NULL,
   ntries        = 1L,
   keep.stats    = TRUE,
-  target.offset = NULL,
-  stats.offset  = NULL,
+  offset        = NULL,
   ...
   ) {
 
@@ -160,18 +158,18 @@ ergmito <- function(
 
   # Generating the objective function
   ergmitoenv <- environment(model)
-
+  
   formulae   <- ergmito_formulae(
     model,
     gattr_model   = gattr_model, 
     target.stats  = target.stats,
     stats.weights = stats.weights,
     stats.statmat = stats.statmat,
-    target.offset = target.offset,
-    stats.offset  = stats.offset,
+    offset        = offset,
     env           = ergmitoenv,
     ...
-    )
+  )
+  
   timer <- c(ergmito_formulae = difftime(Sys.time(), timer_start, units = "secs"))
   
   # Verifying existence of MLE
@@ -179,7 +177,7 @@ ergmito <- function(
   support <- check_support(
     formulae$target.stats,
     formulae$stats.statmat
-    )
+  )
   timer <- c(timer, check_support = difftime(Sys.time(), timer0, units = "secs"))
   
   npars  <- formulae$npars
@@ -188,7 +186,7 @@ ergmito <- function(
   # then replace it with a very large but tend to infinite value
   if (!length(init)) 
     init <- rep(0, npars)
-
+  
   # Checking optim parameters --------------------------------------------------
   if (!length(optim.args$control))
     optim.args$control <- list()
@@ -201,7 +199,7 @@ ergmito <- function(
   # For BFGS 
   if (!length(optim.args$method)) 
     optim.args$method <- "BFGS"
-    
+  
   # Passed (and default) other than the functions
   optim.args0 <- optim.args
   
@@ -215,9 +213,9 @@ ergmito <- function(
   # Will try to solve the problem more than once... if needed
   ntry <- 1L
   history <- matrix(
-    NA, nrow = ntries, ncol = formulae$npars + 1,
+    NA, nrow = ntries, ncol = npars + 1,
     dimnames = list(1L:ntries, c(formulae$term.names, "value"))
-    )
+  )
   
   timer0 <- Sys.time()
   while (ntry <= ntries) {
@@ -229,7 +227,7 @@ ergmito <- function(
       ans      <- cur_ans
       best_try <- ntry
     }
-     
+    
     
     # Storing the current value
     history[ntry, ] <- c(cur_ans$par, cur_ans$value)
@@ -240,7 +238,7 @@ ergmito <- function(
     
     # Resetting the parameters for the optimization, now this time we start
     # from the init parameters + some random value
-    optim.args$par <- stats::rnorm(formulae$npars, -2, 2)
+    optim.args$par <- stats::rnorm(npars, -2, 2)
     
     ntry <- ntry + 1
     
@@ -253,11 +251,11 @@ ergmito <- function(
     optim_output = ans,
     model        = formulae,
     support      = support
-    )
+  )
   timer <- c(
     timer,
     chec_covergence = difftime(Sys.time(), timer0, units = "secs")
-    )
+  )
   
   # Capturing model
   if (!inherits(model, "formula"))
@@ -286,7 +284,7 @@ ergmito <- function(
       history    = history
     ),
     class = c("ergmito")
-    )
+  )
   
   if (!keep.stats) {
     ans$formulae$stats.weights <- NULL
@@ -309,8 +307,13 @@ print.ergmito <- function(x, ...) {
   cat("\nERGMito estimates\n")
   if (length(x$note))
     cat(sprintf("note: %s\n", x$note))
+  if (length(x$formulae$offset)) {
+    cat("\nnote: This is a model with offset terms:\n")
+    cat(sprintf(" %10s: %.4f\n", names(x$formulae$offset), x$formulae$offset))
+  }
     
   print(structure(unclass(x), class="ergm"))
+  
   invisible(x)
   
 }
@@ -340,6 +343,7 @@ summary.ergmito <- function(object, ...) {
     bic         = stats::BIC(object),
     model       = deparse(object$formulae$model),
     note        = object$note,
+    offset      = object$formulae$offset,
     R           = ifelse(is_boot, object$R, 1L)
     ),
     class = c("ergmito_summary", if (is_boot) "ergmito_summary_boot" else  NULL)
@@ -362,6 +366,12 @@ print.ergmito_summary <- function(
   
   if (length(x$note))
     cat(sprintf("note: %s\n", x$note))
+  
+  if (length(x$offset)) {
+    cat("\nnote: This is a model with offset terms:\n")
+    cat(sprintf(" %10s: %.4f\n", names(x$offset), x$offset))
+  }
+  
   cat("\nformula: ", x$model, "\n\n")
   stats::printCoefmat(
     x$coefs,
