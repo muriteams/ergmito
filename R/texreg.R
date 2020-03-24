@@ -9,7 +9,7 @@
 #' to the list of gof statistics. This can be useful when running pooled models.
 #' @param include.convergence Logical. When true it, adds the convergence value
 #' of the [stats::optim] function (0 means convergence).
-#' @param ... Further arguments passed to [summary.ergmito].
+#' @param ... Further arguments passed to the [base::summary()] of [ergmito].
 #' @export
 #' @examples 
 #' 

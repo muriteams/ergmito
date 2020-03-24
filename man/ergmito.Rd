@@ -56,11 +56,11 @@ space when estimating multiple models.}
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}
 
+\item{object}{An object of class \code{ergmito}}
+
 \item{solver}{Function. Used to compute the inverse of the hessian matrix. When
 not null, the variance-covariance matrix is recomputed using that function.
 By default, \code{ergmito} uses \link[MASS:ginv]{MASS::ginv}.}
-
-\item{x, object}{An object of class \code{ergmito}}
 }
 \value{
 An list of class \code{ergmito}:
@@ -93,13 +93,18 @@ Methods \code{\link[base:print]{base::print()}}, \code{\link[base:summary]{base:
 \code{\link[stats:confint]{stats::confint()}}, and  \code{\link[stats:formula]{stats::formula()}} are available.
 }
 \description{
-As a difference from \link[=ergm]{ergm::ergm}, \code{ergmito} uses the exact log-likelihood
+As a difference from \link[ergm:ergm]{ergm}, \code{ergmito} uses the exact log-likelihood
 function for fitting the model. This implies that all the \code{2^(n*(n-1))}
-graphs are generated for computing the normalizing constant of the ERGM
+graphs are enumerated for computing the normalizing constant of the ERGM
 model. As a rule of thumb, directed graphs with more than 5 vertices
 should not be fitted using MLE, but instead MC-MLE as implemented in the
 ergm package. The same applies for un-directed graphs with more than 8
-vertices..
+vertices. The workhorse function of \code{ergmito} is ERGM's
+\code{\link[ergm:ergm.allstats]{ergm::ergm.allstats()}}.
+}
+\details{
+The support of the sufficient statistics is calculated using ERGM's
+\code{\link[ergm:ergm.allstats]{ergm::ergm.allstats()}} function.
 }
 \section{MLE}{
 

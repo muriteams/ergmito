@@ -2,7 +2,7 @@
 % Please edit documentation in R/powerset.R
 \name{powerset}
 \alias{powerset}
-\title{Power set of Directed Graphs of size \code{n}}
+\title{Power set of Graphs of size \code{n}}
 \usage{
 powerset(n, directed = TRUE, force = FALSE, chunk_size = 2e+05)
 }
@@ -19,7 +19,7 @@ otherwise it returns with error.}
 stack memory on the computer may overflow if \code{chunk_size} is relatively large.}
 }
 \description{
-Power set of Directed Graphs of size \code{n}
+Generates the set of all possible binary networks of size \code{n}.
 }
 \examples{
 powerset(2)

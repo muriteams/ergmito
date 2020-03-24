@@ -1,14 +1,15 @@
 #' Estimation of ERGMs using Maximum Likelihood Estimation (MLE)
 #' 
-#' As a difference from [ergm::ergm][ergm], `ergmito` uses the exact log-likelihood
+#' As a difference from [ergm][ergm::ergm], `ergmito` uses the exact log-likelihood
 #' function for fitting the model. This implies that all the `2^(n*(n-1))` 
-#' graphs are generated for computing the normalizing constant of the ERGM
+#' graphs are enumerated for computing the normalizing constant of the ERGM
 #' model. As a rule of thumb, directed graphs with more than 5 vertices
 #' should not be fitted using MLE, but instead MC-MLE as implemented in the
 #' ergm package. The same applies for un-directed graphs with more than 8
-#' vertices..
+#' vertices. The workhorse function of `ergmito` is ERGM's
+#' [ergm::ergm.allstats()].
 #' 
-#' @param x,object An object of class `ergmito`
+#' @param object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
 #' `ergm` is that the LHS can be a list of networks.
 #' @param gattr_model A formula. Model specification for graph attributes. This
@@ -28,6 +29,10 @@
 #' space when estimating multiple models.
 #' @param ... Further arguments passed to the method. In the case of `ergmito`,
 #' `...` are passed to [ergmito_formulae].
+#' 
+#' @details 
+#' The support of the sufficient statistics is calculated using ERGM's
+#' [ergm::ergm.allstats()] function.
 #' 
 #' @seealso The function [plot.ergmito] for post-estimation diagnostics.
 #' 

@@ -25,7 +25,7 @@ to the list of gof statistics. This can be useful when running pooled models.}
 \item{include.convergence}{Logical. When true it, adds the convergence value
 of the \link[stats:optim]{stats::optim} function (0 means convergence).}
 
-\item{...}{Further arguments passed to \link{summary.ergmito}.}
+\item{...}{Further arguments passed to the \code{\link[base:summary]{base::summary()}} of \link{ergmito}.}
 }
 \description{
 To be used with the \CRANpkg{texreg} package. This function can be used to
