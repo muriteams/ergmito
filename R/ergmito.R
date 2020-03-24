@@ -16,6 +16,7 @@
 #' @param optim.args List. Passed to [stats::optim].
 #' @param target.stats A matrix of target statistics (see [ergm::ergm]).
 #' @template stats
+#' @template offset
 #' @param init A numeric vector. Sets the starting parameters for the
 #' optimization routine. Default is a vector of zeros.
 #' @param use.grad Logical. When `TRUE` passes the gradient function to `optim`.

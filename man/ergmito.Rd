@@ -71,6 +71,10 @@ and vectors associated with the sufficient statistics will be returned.
 Otherwise the function discards them. This may be useful for saving memory
 space when estimating multiple models.}
 
+\item{offset}{Named numeric vector. When specified, \code{\link[=ergmito_formulae]{ergmito_formulae()}}
+will consider the specified variables as offset, and thus, the log-likelihood,
+gradient, and hessian functions will be adjusted accordignly.}
+
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}
 

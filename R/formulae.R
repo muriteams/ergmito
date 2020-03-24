@@ -14,6 +14,7 @@
 #' a named vector (see [ergm::summary_formula]). 
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
+#' @template offset
 #' @return A list of class `ergmito_loglik`.
 #' 
 #' - `loglik` A function. The log-likelihood function.
