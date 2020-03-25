@@ -3,7 +3,6 @@
 \name{ergmito_gof}
 \alias{ergmito_gof}
 \alias{gof_ergmito}
-\alias{print.ergmito_gof}
 \alias{plot.ergmito_gof}
 \title{Goodness of Fit diagnostics for ERGMito models}
 \usage{
@@ -16,8 +15,6 @@ gof_ergmito(
   ncores = 1L,
   ...
 )
-
-\method{print}{ergmito_gof}(x, digits = 2L, ...)
 
 \method{plot}{ergmito_gof}(
   x,
@@ -48,8 +45,6 @@ This is only used if \code{sim_ci = TRUE}.}
 \item{...}{Further arguments passed to \link[stats:quantile]{stats::quantile}.}
 
 \item{x}{An object of class \code{ergmito_gof}.}
-
-\item{digits}{Number of digits to used when printing}
 
 \item{y}{Ignored.}
 

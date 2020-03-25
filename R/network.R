@@ -51,7 +51,7 @@ matrix_to_network <- function(
   ) UseMethod("matrix_to_network")
 
 #' @export
-#' @rdname matrix_to_network
+# @rdname matrix_to_network
 matrix_to_network.matrix <- function(
   x,
   directed  = rep(TRUE, length(x)),
@@ -73,7 +73,7 @@ matrix_to_network.matrix <- function(
 }
 
 #' @export
-#' @rdname matrix_to_network
+# @rdname matrix_to_network
 matrix_to_network.list <- function(
   x,
   directed  = rep(TRUE, length(x)),

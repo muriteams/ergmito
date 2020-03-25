@@ -34,7 +34,7 @@
 #' @export
 induced_submat <- function(x, v, ...) UseMethod("induced_submat")
 
-#' @rdname induced_submat
+# @rdname induced_submat
 #' @export
 induced_submat.list <- function(x, v, ...) {
   
@@ -47,7 +47,7 @@ induced_submat.list <- function(x, v, ...) {
   
 }
 
-#' @rdname induced_submat
+# @rdname induced_submat
 #' @export
 induced_submat.network <- function(x, v, ...) {
   
@@ -58,7 +58,7 @@ induced_submat.network <- function(x, v, ...) {
   
 }
 
-#' @rdname induced_submat
+# @rdname induced_submat
 #' @export
 induced_submat.matrix <- function(x, v, ...) {
   

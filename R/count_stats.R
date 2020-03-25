@@ -204,7 +204,7 @@ geodesic <- function(x, force = FALSE, ...) UseMethod("geodesic")
 geodesita <- geodesic
 
 #' @export
-#' @rdname geodesic
+# @rdname geodesic
 geodesic.list <- function(x, force = FALSE, ...) {
   
   geodesic.(as_adjmat(x), force = force)

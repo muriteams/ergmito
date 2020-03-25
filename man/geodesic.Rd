@@ -3,7 +3,6 @@
 \name{geodesic}
 \alias{geodesic}
 \alias{geodesita}
-\alias{geodesic.list}
 \alias{geodesic.matrix}
 \alias{geodesic.network}
 \title{Geodesic distance matrix (all pairs)}
@@ -11,8 +10,6 @@
 geodesic(x, force = FALSE, ...)
 
 geodesita(x, force = FALSE, ...)
-
-\method{geodesic}{list}(x, force = FALSE, ...)
 
 \method{geodesic}{matrix}(x, force = FALSE, simplify = FALSE, ...)
 

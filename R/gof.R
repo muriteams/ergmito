@@ -106,6 +106,9 @@ get_feasible_ci_bounds <- function(x, probs, lower, upper) {
 
 #' @export
 #' @rdname ergmito_gof
+#' @details 
+#' The print method tries to copy (explicitly) the print method of the
+#' `gof` function from the `ergm` R package.
 gof_ergmito <- function(
   object,
   GOF    = NULL,
@@ -116,10 +119,21 @@ gof_ergmito <- function(
   ...
   ) {
   
+  if (!inherits(object, "ergmito"))
+    stop(
+      "-object- should be of class 'ergmito'. It is of class '",
+      paste(class(object), collapse = "', '"), "'.", 
+      call. = FALSE
+      )
+
+  if (any(!is.finite(coef(object))))
+    stop("GOF can only be computed in models that are well defined. This model ",
+         "has some undefined coefficients (Inf).", call. = FALSE)
+    
   res <- vector(mode = "list", length = nnets(object))
   pr  <- res
   ran <- res
-  
+
   if (!is.null(GOF)) {
     # Deparsing formula
     if (!inherits(GOF, "formula"))
@@ -162,17 +176,20 @@ gof_ergmito <- function(
       statmat. <- object$formulae$stats.statmat[[i]]
       weights. <- object$formulae$stats.weights[[i]]
       
-      target.stats <- rbind(target.stats, object$formulae$target.stats[i, ])
+      target.stats  <- rbind(target.stats, object$formulae$target.stats[i, ])
+      
     }
     
     # Computing the probability of observing each class of networks
-    pr[[i]] <- exp(exact_loglik(
-      x             = statmat.[, names(stats::coef(object)), drop = FALSE],
-      stats.statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
-      stats.weights = weights.,
-      params        = stats::coef(object),
-      ncores        = ncores
-    ))*weights.
+    pr[[i]] <- exp(
+      exact_loglik(
+        x             = statmat.[, names(stats::coef(object)), drop = FALSE],
+        stats.statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
+        stats.weights = weights.,
+        params        = stats::coef(object),
+        ncores        = ncores
+      )
+    )*weights.
     
     # Calculating the quantiles. First, we need to make some room to the data
     # to be stored
@@ -254,11 +271,8 @@ gof_ergmito <- function(
 }
 
 #' @export
-#' @param digits Number of digits to used when printing
-#' @rdname ergmito_gof
-#' @details The print method tries to copy (explicitly) the print method of the
-#' `gof` function from the `ergm` R package.
-print.ergmito_gof <- function(x, digits = 2L, ...) {
+# @rdname ergmito_gof
+print.ergmito_gof <- function(x, ...) {
   
   K <- length(x$term.names)
   for (k in seq_len(K)) {
@@ -280,7 +294,7 @@ print.ergmito_gof <- function(x, digits = 2L, ...) {
       c("obs", "min", "mean", "max", "lower", "upper", "lower prob.", "upper prob.")
       )
       
-    print(tab, digits = digits)
+    print(tab, ...)
     cat("\n")
     
   }

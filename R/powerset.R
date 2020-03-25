@@ -1,7 +1,8 @@
 
-
-
-#' Power set of Directed Graphs of size `n`
+#' Power set of Graphs of size `n`
+#' 
+#' Generates the set of all possible binary networks of size `n`.
+#' 
 #' @param n Integer. Number of edges.
 #' @param force Logical scalar. When `TRUE` it generates the power set for `n>5`,
 #' otherwise it returns with error.

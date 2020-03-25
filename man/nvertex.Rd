@@ -3,77 +3,17 @@
 \name{nvertex}
 \alias{nvertex}
 \alias{nedges}
-\alias{nedges.network}
-\alias{nedges.list}
-\alias{nedges.matrix}
-\alias{nedges.ergmito}
-\alias{nedges.formula}
-\alias{nvertex.network}
-\alias{nvertex.matrix}
-\alias{nvertex.list}
-\alias{nvertex.ergmito}
-\alias{nvertex.formula}
 \alias{nnets}
-\alias{nnets.list}
-\alias{nnets.matrix}
-\alias{nnets.network}
-\alias{nnets.ergmito}
-\alias{nnets.formula}
 \alias{is_directed}
-\alias{is_directed.network}
-\alias{is_directed.list}
-\alias{is_directed.default}
-\alias{is_directed.ergmito}
-\alias{is_directed.formula}
 \title{Utility functions to query network dimensions}
 \usage{
 nvertex(x)
 
 nedges(x, ...)
 
-\method{nedges}{network}(x, ...)
-
-\method{nedges}{list}(x, ...)
-
-\method{nedges}{matrix}(x, ...)
-
-\method{nedges}{ergmito}(x, ...)
-
-\method{nedges}{formula}(x, ...)
-
-\method{nvertex}{network}(x)
-
-\method{nvertex}{matrix}(x)
-
-\method{nvertex}{list}(x)
-
-\method{nvertex}{ergmito}(x)
-
-\method{nvertex}{formula}(x)
-
 nnets(x)
 
-\method{nnets}{list}(x)
-
-\method{nnets}{matrix}(x)
-
-\method{nnets}{network}(x)
-
-\method{nnets}{ergmito}(x)
-
-\method{nnets}{formula}(x)
-
 is_directed(x, check_type = FALSE)
-
-\method{is_directed}{network}(x, check_type = FALSE)
-
-\method{is_directed}{list}(x, check_type = FALSE)
-
-\method{is_directed}{default}(x, check_type = FALSE)
-
-\method{is_directed}{ergmito}(x, check_type = FALSE)
-
-\method{is_directed}{formula}(x, check_type = FALSE)
 }
 \arguments{
 \item{x}{Either an object of class \link{ergmito}, \link{network}, \link{formula}, or \link{matrix}.}

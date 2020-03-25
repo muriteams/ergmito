@@ -41,13 +41,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // new_ergmito_ptr
-SEXP new_ergmito_ptr(const arma::mat& target_stats, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat);
+SEXP new_ergmito_ptr(const NumericMatrix& target_stats, const ListOf< NumericVector >& stats_weights, const ListOf< NumericMatrix >& stats_statmat);
 RcppExport SEXP _ergmito_new_ergmito_ptr(SEXP target_statsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type target_stats(target_statsSEXP);
-    Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
-    Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type stats_statmat(stats_statmatSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type target_stats(target_statsSEXP);
+    Rcpp::traits::input_parameter< const ListOf< NumericVector >& >::type stats_weights(stats_weightsSEXP);
+    Rcpp::traits::input_parameter< const ListOf< NumericMatrix >& >::type stats_statmat(stats_statmatSEXP);
     rcpp_result_gen = Rcpp::wrap(new_ergmito_ptr(target_stats, stats_weights, stats_statmat));
     return rcpp_result_gen;
 END_RCPP
@@ -77,12 +77,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // exact_hessian
-arma::mat exact_hessian(const arma::mat& x, const arma::colvec params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat);
+arma::mat exact_hessian(const arma::mat& x, const arma::colvec& params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat);
 RcppExport SEXP _ergmito_exact_hessian(SEXP xSEXP, SEXP paramsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::rowvec >& >::type stats_weights(stats_weightsSEXP);
     Rcpp::traits::input_parameter< const std::vector< arma::mat >& >::type stats_statmat(stats_statmatSEXP);
     rcpp_result_gen = Rcpp::wrap(exact_hessian(x, params, stats_weights, stats_statmat));

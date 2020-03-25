@@ -25,7 +25,7 @@ ergmito_boot <- function(x, ..., R, ncpus = 1L, cl = NULL) UseMethod("ergmito_bo
 
 
 #' @export
-#' @rdname ergmito_boot
+# @rdname ergmito_boot
 ergmito_boot.formula <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   # First run of the model
@@ -37,7 +37,7 @@ ergmito_boot.formula <- function(x, ..., R, ncpus = 1L, cl = NULL) {
 }
 
 #' @export
-#' @rdname ergmito_boot
+# @rdname ergmito_boot
 ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   n <- nnets(x)
@@ -49,7 +49,9 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   else if (n <= 10)
     warning_ergmito(
       "You are doing bootstrapping with less than 10 networks (and even 10 is too few).",
-      call.=FALSE)
+      call.      = FALSE,
+      immediate. = TRUE
+      )
   
   # Getting the sample, and baseline model
   IDX           <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
@@ -58,6 +60,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   nets0         <- x$network
   stats.weights <- x$formulae$stats.weights
   stats.statmat <- x$formulae$stats.statmat
+  offset.       <- x$offset
   
   # Creating the cluster and setting the seed
   if (ncpus > 1L && !length(cl)) {
@@ -66,7 +69,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     cl <- parallel::makePSOCKcluster(ncpus)
     parallel::clusterEvalQ(cl, library(ergmito))
     parallel::clusterExport(
-      cl, c("model0", "target.stats", "nets0", "stats.weights", "stats.statmat"),
+      cl, c("model0", "target.stats", "nets0", "stats.weights", "stats.statmat", "offset."),
       envir = environment())
     
     parallel::clusterSetRNGStream(cl)
@@ -86,7 +89,8 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
-        target.stats = target.stats[idx,,drop=FALSE]
+        target.stats = target.stats[idx,,drop=FALSE],
+        offset       = offset.
         ), error = function(e) e
         )
       
@@ -106,7 +110,8 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
         model0,
         stats.weights = stats.weights[idx],
         stats.statmat = stats.statmat[idx],
-        target.stats = target.stats[idx,,drop=FALSE]
+        target.stats  = target.stats[idx,,drop=FALSE],
+        offset        = offset.
         )), error = function(e) e)
       
       if (inherits(ans, "error"))
@@ -121,7 +126,8 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   coefs <- do.call(rbind, boot_estimates)
   
   # Tagging finite results
-  are_finate <- which(is.finite(coefs), arr.ind = TRUE)[, 1L]
+  are_finate <- unique(which(!is.finite(coefs), arr.ind = TRUE)[, 1L])
+  are_finate <- setdiff(seq_along(IDX), are_finate)
 
   if (length(are_finate) < 2) {
     stop("At most one of the replicates had finite estimates (not Inf/NA/NaN).",
@@ -141,7 +147,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
 }
 
 #' @export
-#' @rdname ergmito_boot
+# @rdname ergmito_boot
 print.ergmito_boot <- function(x, ...) {
   
   cat(sprintf("Bootstrapped %i replicates:\n", x$R))

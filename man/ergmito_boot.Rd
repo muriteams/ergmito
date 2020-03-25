@@ -2,18 +2,9 @@
 % Please edit documentation in R/boot.R
 \name{ergmito_boot}
 \alias{ergmito_boot}
-\alias{ergmito_boot.formula}
-\alias{ergmito_boot.ergmito}
-\alias{print.ergmito_boot}
 \title{Bootstrap of ergmito}
 \usage{
 ergmito_boot(x, ..., R, ncpus = 1L, cl = NULL)
-
-\method{ergmito_boot}{formula}(x, ..., R, ncpus = 1L, cl = NULL)
-
-\method{ergmito_boot}{ergmito}(x, ..., R, ncpus = 1L, cl = NULL)
-
-\method{print}{ergmito_boot}(x, ...)
 }
 \arguments{
 \item{x}{Either a formula or an object of class \link{ergmito}.}

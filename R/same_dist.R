@@ -37,10 +37,10 @@ same_dist_wrap <- function(x, what, map01 = NULL, map10 = NULL) {
 #' same_dist(fivenets[[1]], fivenets[[2]]) # Yes, same size
 #' same_dist(fivenets[[1]], fivenets[[2]], "female") # No, different attr dist
 #' @export
-same_dist <- function(net0, net1, ...) UseMethod("same_dist")
+same_dist <- function(net0, net1, attrnames = NULL, ...) UseMethod("same_dist")
 
 #' @export
-#' @rdname same_dist
+# @rdname same_dist
 same_dist.matrix <- function(net0, net1, attrnames = NULL, ...) {
   
   if (!inherits(net1, "matrix"))
@@ -59,7 +59,7 @@ same_dist.matrix <- function(net0, net1, attrnames = NULL, ...) {
 }
 
 #' @export
-#' @rdname same_dist
+# @rdname same_dist
 same_dist.network <- function(net0, net1, attrnames = NULL, ...) {
   
   if (!network::is.network(net1))

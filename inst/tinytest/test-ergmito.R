@@ -28,17 +28,17 @@ net2 <- rbernoulli(5)
 set.seed(1717171);ans0 <- ergmito(list(net1, net2) ~ edges + mutual)
 set.seed(1717171);ans1 <- ergmito(list(net2, net1) ~ edges + mutual)
 
-expect_equal(coef(ans0), coef(ans1), tolerance = 1e-4)
-expect_equal(vcov(ans0), vcov(ans1), tolerance = 1e-4)
+expect_equal(coef(ans0), coef(ans1), tol = 1e-4, scale = 1)
+expect_equal(vcov(ans0), vcov(ans1), tol = 1e-4, scale = 1)
 
 
 set.seed(121)
 net1 <- rbernoulli(4)
-set.seed(1000); ans0 <- ergmito(net1 ~ edges + mutual, zeroobs = TRUE)
+set.seed(1000); ans0 <- ergmito(net1 ~ edges + mutual)
 set.seed(1000); ans1 <- ergmito(list(net1, net1) ~ edges + mutual)
 
-expect_equal(coef(ans0), coef(ans1), tolerance = 1e-4)
-expect_equal(vcov(ans0), vcov(ans1)*2, tolerance = 1e-4) # Vcov is half of it!
+expect_equal(coef(ans0), coef(ans1), tol = 1e-4, scale = 1)
+expect_equal(vcov(ans0), vcov(ans1)*2, tol = 1e-4, scale = 1) # Vcov is half of it!
 
 expect_output(print(ans0), "ERGMito")
 expect_output(print(summary(ans0)), "z value")
@@ -52,3 +52,22 @@ options(ergmito_warning = FALSE)
 expect_error(ergmito(list(net1, rbernoulli(4)) ~ edges), "same type")
 expect_error(ergmito(net1 ~ gwdsp(1)), "not supported")
 
+# Offset parameters ------------------------------------------------------------
+data(fivenets)
+
+ans <- ergmito(
+  fivenets ~ edges + nodematch("female") + ttriad,
+  offset = c(ttriple = -.5)
+  )
+
+expect_output(print(ans), "offset:")
+expect_output(print(summary(ans)), "offset:")
+expect_equivalent(coef(ans)[3], -.5)
+
+ans <- suppressWarnings(ergmito_boot(ans, R = 10))
+expect_equivalent(vcov(ans)[,3], rep(0, 3))
+expect_equivalent(vcov(ans)[3,], rep(0, 3))
+
+expect_output(print(ans), "offset:")
+expect_output(print(summary(ans)), "offset:")
+plot(ans)
