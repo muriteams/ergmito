@@ -87,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.9999</span>
       </span>
     </div>
 
@@ -116,6 +116,9 @@
       <a href="../articles/extending-ergmito.html">Extending ergmito</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -151,9 +154,6 @@
   <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
   <span class='no'>...</span>
 )
-
-<span class='co'># S3 method for ergmito_gof</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>2L</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for ergmito_gof</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
@@ -203,10 +203,6 @@ This is only used if <code>sim_ci = TRUE</code>.</p></td>
     <tr>
       <th>x</th>
       <td><p>An object of class <code>ergmito_gof</code>.</p></td>
-    </tr>
-    <tr>
-      <th>digits</th>
-      <td><p>Number of digits to used when printing</p></td>
     </tr>
     <tr>
       <th>y</th>
@@ -276,22 +272,22 @@ simulated range.</p>
 <span class='no'>ans</span></div><div class='output co'>#&gt; 
 #&gt; Goodness-of-fit for edges 
 #&gt; 
-#&gt;       obs min mean max lower upper lower prob. upper prob.
-#&gt; net 1   2   0  3.7  12     0     6      0.0081        0.96
-#&gt; net 2   7   0  3.7  12     0     6      0.0081        0.96
-#&gt; net 3   4   0  3.1  12     0     6      0.0206        0.99
-#&gt; net 4   5   0  5.6  12     2     8      0.0309        0.95
-#&gt; net 5   2   0  3.7  12     0     6      0.0081        0.96
+#&gt;       obs min     mean max lower upper lower prob. upper prob.
+#&gt; net 1   2   0 3.746607  12     0     6 0.008080856   0.9635261
+#&gt; net 2   7   0 3.746607  12     0     6 0.008080856   0.9635261
+#&gt; net 3   4   0 3.113122  12     0     6 0.020642814   0.9881036
+#&gt; net 4   5   0 5.647059  12     2     8 0.030934588   0.9514908
+#&gt; net 5   2   0 3.746607  12     0     6 0.008080856   0.9635261
 #&gt; 
 #&gt; 
 #&gt; Goodness-of-fit for nodematch.female 
 #&gt; 
-#&gt;       obs min mean max lower upper lower prob. upper prob.
-#&gt; net 1   2   0  2.8   6     0     5       0.022        0.99
-#&gt; net 2   5   0  2.8   6     0     5       0.022        0.99
-#&gt; net 3   3   0  1.9   4     0     3       0.079        0.95
-#&gt; net 4   5   0  5.6  12     2     8       0.031        0.95
-#&gt; net 5   1   0  2.8   6     0     5       0.022        0.99
+#&gt;       obs min     mean max lower upper lower prob. upper prob.
+#&gt; net 1   2   0 2.823530   6     0     5  0.02201716   0.9891396
+#&gt; net 2   5   0 2.823530   6     0     5  0.02201716   0.9891396
+#&gt; net 3   3   0 1.882353   4     0     3  0.07855507   0.9509584
+#&gt; net 4   5   0 5.647059  12     2     8  0.03093459   0.9514908
+#&gt; net 5   1   0 2.823530   6     0     5  0.02201716   0.9891396
 #&gt; 
 #&gt; Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof_ergmito).
 #&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>ans</span>)</div><div class='img'><img src='ergmito_gof-1.png' alt='' width='700' height='433' /></div></pre>

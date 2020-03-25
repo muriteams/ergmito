@@ -53,7 +53,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.9999</span>
       </span>
     </div>
 
@@ -82,6 +82,9 @@
       <a href="articles/extending-ergmito.html">Extending ergmito</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right"></ul>
@@ -114,7 +117,7 @@
 <div id="citation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#citation" class="anchor"></a>Citation</h2>
-<p>Vega Yon G (2020). <em>ergmito: Exponential Random Graph Models for Small Networks</em>. R package version 0.2-999, &lt;URL: <a href="https://github.com/muriteams/ergmito" class="uri">https://github.com/muriteams/ergmito</a>&gt;.</p>
+<p>Vega Yon G (2020). <em>ergmito: Exponential Random Graph Models for Small Networks</em>. R package version 0.2-1-9999, &lt;URL: <a href="https://github.com/muriteams/ergmito" class="uri">https://github.com/muriteams/ergmito</a>&gt;.</p>
 <p>Vega Yon G, Slaughter A, de la Haye K (2019). “Exponential Random Graph models for Little Networks.” arXiv:1904.10406.</p>
 <p>To see these entries in BibTeX format, use ‘print(<citation>, bibtex=TRUE)’, ‘toBibtex(.)’, or set ‘options(citation.bibtex.max=999)’.</citation></p>
 </div>
@@ -214,22 +217,22 @@
 <a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt; Goodness-of-fit for edges </span></a>
 <a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt;       obs min mean max lower upper lower prob. upper prob.</span></a>
-<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co">#&gt; net 1   2   0  3.7  12     0     6      0.0081        0.96</span></a>
-<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co">#&gt; net 2   7   0  3.7  12     0     6      0.0081        0.96</span></a>
-<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co">#&gt; net 3   4   0  3.1  12     0     6      0.0206        0.99</span></a>
-<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co">#&gt; net 4   5   0  5.6  12     2     8      0.0309        0.95</span></a>
-<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co">#&gt; net 5   2   0  3.7  12     0     6      0.0081        0.96</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt;       obs min     mean max lower upper lower prob. upper prob.</span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co">#&gt; net 1   2   0 3.746607  12     0     6 0.008080856   0.9635261</span></a>
+<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co">#&gt; net 2   7   0 3.746607  12     0     6 0.008080856   0.9635261</span></a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co">#&gt; net 3   4   0 3.113122  12     0     6 0.020642814   0.9881036</span></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co">#&gt; net 4   5   0 5.647059  12     2     8 0.030934588   0.9514908</span></a>
+<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co">#&gt; net 5   2   0 3.746607  12     0     6 0.008080856   0.9635261</span></a>
 <a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co">#&gt; Goodness-of-fit for nodematch.female </span></a>
 <a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co">#&gt;       obs min mean max lower upper lower prob. upper prob.</span></a>
-<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="co">#&gt; net 1   2   0  2.8   6     0     5       0.022        0.99</span></a>
-<a class="sourceLine" id="cb7-18" data-line-number="18"><span class="co">#&gt; net 2   5   0  2.8   6     0     5       0.022        0.99</span></a>
-<a class="sourceLine" id="cb7-19" data-line-number="19"><span class="co">#&gt; net 3   3   0  1.9   4     0     3       0.079        0.95</span></a>
-<a class="sourceLine" id="cb7-20" data-line-number="20"><span class="co">#&gt; net 4   5   0  5.6  12     2     8       0.031        0.95</span></a>
-<a class="sourceLine" id="cb7-21" data-line-number="21"><span class="co">#&gt; net 5   1   0  2.8   6     0     5       0.022        0.99</span></a>
+<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co">#&gt;       obs min     mean max lower upper lower prob. upper prob.</span></a>
+<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="co">#&gt; net 1   2   0 2.823530   6     0     5  0.02201716   0.9891396</span></a>
+<a class="sourceLine" id="cb7-18" data-line-number="18"><span class="co">#&gt; net 2   5   0 2.823530   6     0     5  0.02201716   0.9891396</span></a>
+<a class="sourceLine" id="cb7-19" data-line-number="19"><span class="co">#&gt; net 3   3   0 1.882353   4     0     3  0.07855507   0.9509584</span></a>
+<a class="sourceLine" id="cb7-20" data-line-number="20"><span class="co">#&gt; net 4   5   0 5.647059  12     2     8  0.03093459   0.9514908</span></a>
+<a class="sourceLine" id="cb7-21" data-line-number="21"><span class="co">#&gt; net 5   1   0 2.823530   6     0     5  0.02201716   0.9891396</span></a>
 <a class="sourceLine" id="cb7-22" data-line-number="22"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb7-23" data-line-number="23"><span class="co">#&gt; Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof_ergmito).</span></a>
 <a class="sourceLine" id="cb7-24" data-line-number="24"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(fivenets_gof)</a></code></pre></div>
@@ -304,7 +307,7 @@
 <p>We can fit this model in a memory efficient way.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(ans0 &lt;-<span class="st"> </span><span class="kw"><a href="reference/ergmito.html">ergmito</a></span>(bignet <span class="op">~</span><span class="st"> </span>edges <span class="op">+</span><span class="st"> </span>mutual))</a>
 <a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co">#&gt;    user  system elapsed </span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt;   8.208   0.037   8.251</span></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt;   2.971   0.021   2.991</span></a>
 <a class="sourceLine" id="cb15-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(ans0)</a>
 <a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; ERGMito estimates</span></a>
@@ -312,8 +315,8 @@
 <a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt; formula:  bignet ~ edges + mutual </span></a>
 <a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb15-10" data-line-number="10"><span class="co">#&gt;          Estimate Std. Error z value Pr(&gt;|z|)</span></a>
-<a class="sourceLine" id="cb15-11" data-line-number="11"><span class="co">#&gt; edges  -0.0021702  0.0068674 -0.3160    0.752</span></a>
-<a class="sourceLine" id="cb15-12" data-line-number="12"><span class="co">#&gt; mutual -0.0015521  0.0112247 -0.1383    0.890</span></a>
+<a class="sourceLine" id="cb15-11" data-line-number="11"><span class="co">#&gt; edges  -0.0020193  0.0068675 -0.2940   0.7687</span></a>
+<a class="sourceLine" id="cb15-12" data-line-number="12"><span class="co">#&gt; mutual -0.0018160  0.0112247 -0.1618   0.8715</span></a>
 <a class="sourceLine" id="cb15-13" data-line-number="13"><span class="co">#&gt; AIC: 352097.2    BIC: 352118.1    (Smaller is better.)</span></a></code></pre></div>
 </div>
 </div>

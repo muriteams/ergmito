@@ -89,7 +89,7 @@ distribution" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.9999</span>
       </span>
     </div>
 
@@ -119,6 +119,9 @@ distribution" />
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -146,13 +149,7 @@ equal in terms of set comparison, then we say those came from the same
 distribution</p>
     </div>
 
-    <pre class="usage"><span class='fu'>same_dist</span>(<span class='no'>net0</span>, <span class='no'>net1</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for matrix</span>
-<span class='fu'>same_dist</span>(<span class='no'>net0</span>, <span class='no'>net1</span>, <span class='kw'>attrnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for network</span>
-<span class='fu'>same_dist</span>(<span class='no'>net0</span>, <span class='no'>net1</span>, <span class='kw'>attrnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>same_dist</span>(<span class='no'>net0</span>, <span class='no'>net1</span>, <span class='kw'>attrnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,13 +159,13 @@ distribution</p>
       <td><p>Networks to be compared.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Ignored.</p></td>
-    </tr>
-    <tr>
       <th>attrnames</th>
       <td><p>Character vector. (optional) Names of the vertex attributes
 to be be compared on. This is ignored in the matrix case.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Ignored.</p></td>
     </tr>
     </table>
 
