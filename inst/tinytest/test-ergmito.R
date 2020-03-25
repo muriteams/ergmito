@@ -52,3 +52,22 @@ options(ergmito_warning = FALSE)
 expect_error(ergmito(list(net1, rbernoulli(4)) ~ edges), "same type")
 expect_error(ergmito(net1 ~ gwdsp(1)), "not supported")
 
+# Offset parameters ------------------------------------------------------------
+data(fivenets)
+
+ans <- ergmito(
+  fivenets ~ edges + nodematch("female") + ttriad,
+  offset = c(ttriple = -.5)
+  )
+
+expect_output(print(ans), "offset:")
+expect_output(print(summary(ans)), "offset:")
+expect_equivalent(coef(ans)[3], -.5)
+
+ans <- suppressWarnings(ergmito_boot(ans, R = 10))
+expect_equivalent(vcov(ans)[,3], rep(0, 3))
+expect_equivalent(vcov(ans)[3,], rep(0, 3))
+
+expect_output(print(ans), "offset:")
+expect_output(print(summary(ans)), "offset:")
+plot(ans)
