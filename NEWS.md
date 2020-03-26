@@ -12,3 +12,7 @@
 * Users can define offset terms as function of the vector of sufficient
   statistics.
   
+* The dots in the function parameter `target.stats`, `stats.statmat`, and
+  `stats.weights` have been replaces with underscores (better naming practices).
+  
+  

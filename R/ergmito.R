@@ -12,10 +12,10 @@
 #' @param object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
 #' `ergm` is that the LHS can be a list of networks.
-#' @param gattr_model A formula. Model specification for graph attributes. This
+#' @param model_update A formula. Model specification for graph attributes. This
 #' is useful when using multiple networks.
 #' @param optim.args List. Passed to [stats::optim].
-#' @param target.stats A matrix of target statistics (see [ergm::ergm]).
+#' @param target_stats A matrix of target statistics (see [ergm::ergm]).
 #' @template stats
 #' @template offset
 #' @param init A numeric vector. Sets the starting parameters for the
@@ -165,13 +165,13 @@ ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
 #' @rdname ergmito
 ergmito <- function(
   model,
-  gattr_model   = NULL,
-  stats.weights = NULL,
-  stats.statmat = NULL,
+  model_update   = NULL,
+  stats_weights = NULL,
+  stats_statmat = NULL,
   optim.args    = list(),
   init          = NULL,
   use.grad      = TRUE,
-  target.stats  = NULL,
+  target_stats  = NULL,
   ntries        = 1L,
   keep.stats    = TRUE,
   offset        = NULL,
@@ -186,10 +186,10 @@ ergmito <- function(
   
   formulae   <- ergmito_formulae(
     model,
-    gattr_model   = gattr_model, 
-    target.stats  = target.stats,
-    stats.weights = stats.weights,
-    stats.statmat = stats.statmat,
+    model_update   = model_update, 
+    target_stats  = target_stats,
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat,
     env           = ergmitoenv,
     ...
   )
@@ -199,8 +199,8 @@ ergmito <- function(
   # Verifying existence of MLE
   timer0 <- Sys.time()
   support <- check_support(
-    formulae$target.stats,
-    formulae$stats.statmat
+    formulae$target_stats,
+    formulae$stats_statmat
   )
   timer <- c(timer, check_support = difftime(Sys.time(), timer0, units = "secs"))
   
@@ -247,8 +247,8 @@ ergmito <- function(
     
     # Baseline parameter
     params0 <- structure(
-      double(ncol(formulae$target.stats)),
-      names = names(colnames(formulae$target.stats))
+      double(ncol(formulae$target_stats)),
+      names = names(colnames(formulae$target_stats))
       )
     
     params_offset <- offset
@@ -353,7 +353,8 @@ ergmito <- function(
   estimates <- check_convergence(
     optim_output = ans,
     model        = formulae,
-    support      = support
+    support      = support,
+    offset       = offset
   )
   timer <- c(
     timer,
@@ -392,8 +393,8 @@ ergmito <- function(
   
   if (!keep.stats) {
     
-    ans$formulae$stats.weights <- NULL
-    ans$formulae$stats.statmat <- NULL
+    ans$formulae$stats_weights <- NULL
+    ans$formulae$stats_statmat <- NULL
     
   }
   
@@ -449,7 +450,7 @@ summary.ergmito <- function(object, ...) {
     ),
     aic         = stats::AIC(object),
     bic         = stats::BIC(object),
-    model       = deparse(object$formulae$model),
+    model       = deparse(object$formulae$model_final),
     note        = object$note,
     offset      = object$offset,
     R           = ifelse(is_boot, object$R, 1L)
@@ -545,6 +546,6 @@ vcov.ergmito <- function(object, solver = NULL, ...) {
 #' @export
 formula.ergmito <- function(x, ...) {
   
-  x$formulae$model
+  x$formulae$model_final
   
 }

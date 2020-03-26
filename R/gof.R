@@ -38,7 +38,7 @@
 #' components:
 #' - `ci` A list of matrices of length `nnets(object)` with the corresponding
 #' confidence intervals for the statistics of the model.
-#' - `target.stats` A matrix of the target statistics.
+#' - `target_stats` A matrix of the target statistics.
 #' - `ergmito.probs` A list of numeric vectors of length `nnets(object)` with the
 #' probabilities associated to each possible structure of network.
 #' - `probs` The value passed via `probs`.
@@ -141,7 +141,7 @@ gof_ergmito <- function(
     
     # Analyzing terms
     test <- any(attr(stats::terms(GOF), "term.labels") %in% 
-                  attr(stats::terms(object$formulae$model), "term.labels"))
+                  attr(stats::terms(object$formulae$model_final), "term.labels"))
     if (test)
       stop(
         "The `GOF` argument must specify terms others than those included in the model.",
@@ -150,10 +150,10 @@ gof_ergmito <- function(
     
     # This formula includes everything
     GOF <- stats::as.formula(gsub(".*[~]", "~ . + ", deparse(GOF)))
-    GOF <- stats::update.formula(object$formulae$model, GOF)
+    GOF <- stats::update.formula(object$formulae$model_final, GOF)
   }
   
-  target.stats <- NULL
+  target_stats <- NULL
   
   for (i in seq_len(length(res))) {
     
@@ -169,14 +169,14 @@ gof_ergmito <- function(
       weights. <- statmat.$weights
       statmat. <- statmat.$statmat
       
-      target.stats <- rbind(target.stats, summary(GOF))
+      target_stats <- rbind(target_stats, summary(GOF))
       
     } else {
       
-      statmat. <- object$formulae$stats.statmat[[i]]
-      weights. <- object$formulae$stats.weights[[i]]
+      statmat. <- object$formulae$stats_statmat[[i]]
+      weights. <- object$formulae$stats_weights[[i]]
       
-      target.stats  <- rbind(target.stats, object$formulae$target.stats[i, ])
+      target_stats  <- rbind(target_stats, object$formulae$target_stats[i, ])
       
     }
     
@@ -184,8 +184,8 @@ gof_ergmito <- function(
     pr[[i]] <- exp(
       exact_loglik(
         x             = statmat.[, names(stats::coef(object)), drop = FALSE],
-        stats.statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
-        stats.weights = weights.,
+        stats_statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
+        stats_weights = weights.,
         params        = stats::coef(object),
         ncores        = ncores
       )
@@ -252,11 +252,11 @@ gof_ergmito <- function(
   structure(
     list(
       ci            = res,
-      target.stats  = target.stats,
+      target_stats  = target_stats,
       ergmito.probs = pr,
       probs         = probs,
       model         = if (is.null(GOF))
-        object$formulae$model
+        object$formulae$model_final
       else {
         as.formula(gsub(".*[~]", " ~ ", deparse(GOF)))
         },
@@ -286,7 +286,7 @@ print.ergmito_gof <- function(x, ...) {
     minx   <- sapply(x$ranges, "[", i = k, j = "min", drop = TRUE)
     mean   <- sapply(x$ranges, "[", i = k, j = "mean", drop = TRUE)
     maxx   <- sapply(x$ranges, "[", i = k, j = "max", drop = TRUE)
-    obs    <- x$target.stats[, k]
+    obs    <- x$target_stats[, k]
     
     tab <- data.frame(cbind(obs, minx, mean, maxx, lower, upper, lowerp, upperp))
     dimnames(tab) <- list(
@@ -360,7 +360,7 @@ plot.ergmito_gof <- function(
     
     lower <- sapply(x$ci, "[", i = k, j = "lower-q", drop = TRUE)
     upper <- sapply(x$ci, "[", i = k, j = "upper-q", drop = TRUE)
-    obs   <- x$target.stats[, k]
+    obs   <- x$target_stats[, k]
     
     if (is.null(xorder)) {
       if (sort_by_ci)

@@ -20,7 +20,7 @@
 #' 
 #' Since `ergmito` can vectorize operations, in order to specify weights and
 #' statistics matrices for each network in the model, the user needs to pass
-#' two lists `stats.weights` and `stats.statmat`. While both lists have to
+#' two lists `stats_weights` and `stats_statmat`. While both lists have to
 #' have the same length (since its elements are matched), this needs not to
 #' be the case with the networks, as the user can specify a single set of
 #' weights and statistics that will be recycled (smartly).
@@ -33,30 +33,30 @@
 #' # This computes the likelihood for all the networks independently
 #' with(ans$formulae, {
 #'   exact_loglik(
-#'     x      = target.stats,
+#'     x      = target_stats,
 #'     params = coef(ans),
-#'     stats.weights = stats.weights,
-#'     stats.statmat = stats.statmat
+#'     stats_weights = stats_weights,
+#'     stats_statmat = stats_statmat
 #'   )
 #' })
 #' 
 #' # This should be close to zero
 #' with(ans$formulae, {
 #'   exact_gradient(
-#'     x      = target.stats,
+#'     x      = target_stats,
 #'     params = coef(ans),
-#'     stats.weights = stats.weights,
-#'     stats.statmat = stats.statmat
+#'     stats_weights = stats_weights,
+#'     stats_statmat = stats_statmat
 #'   )
 #' })
 #' 
 #' # Finally, the hessian
 #' with(ans$formulae, {
 #'   exact_hessian(
-#'     x      = target.stats,
+#'     x      = target_stats,
 #'     params = coef(ans),
-#'     stats.weights = stats.weights,
-#'     stats.statmat = stats.statmat
+#'     stats_weights = stats_weights,
+#'     stats_statmat = stats_statmat
 #'   )
 #' })
 #' 
@@ -74,8 +74,8 @@ exact_loglik.ergmito_ptr <- function(x, params, ...) {
 exact_loglik.default <- function(
   x,
   params,
-  stats.weights,
-  stats.statmat,
+  stats_weights,
+  stats_statmat,
   ...
 ) {
   
@@ -88,27 +88,27 @@ exact_loglik.default <- function(
   if (n == 1) {
     # If only one observation
     
-    if (!is.list(stats.weights))
-      stats.weights <- list(stats.weights)
+    if (!is.list(stats_weights))
+      stats_weights <- list(stats_weights)
     
-    if (!is.list(stats.statmat))
-      stats.statmat <- list(stats.statmat)
+    if (!is.list(stats_statmat))
+      stats_statmat <- list(stats_statmat)
     
   } else if (n > 1) {
     # If more than 1, then perhaps we need to recycle the values
     
-    if (!is.list(stats.weights)) {
-      stats.weights <- list(stats.weights)
-    } else if (length(stats.weights) != n) {
-      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
+    if (!is.list(stats_weights)) {
+      stats_weights <- list(stats_weights)
+    } else if (length(stats_weights) != n) {
+      stop("length(stats_weights) != nrow(x). When class(stats_weights) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
     }
     
-    if (!is.list(stats.statmat)) {
-      stats.statmat <- list(stats.statmat)
-    } else if (length(stats.statmat) != n) {
-      stop("length(stats.statmat) != nrow(x). When class(stats.statmat) == 'list', the number",
+    if (!is.list(stats_statmat)) {
+      stats_statmat <- list(stats_statmat)
+    } else if (length(stats_statmat) != n) {
+      stop("length(stats_statmat) != nrow(x). When class(stats_statmat) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
     }
@@ -118,7 +118,7 @@ exact_loglik.default <- function(
   
   # Computing in chunks
   ans <- vector("double", n)
-  if (length(stats.weights) > 1L) {
+  if (length(stats_weights) > 1L) {
     
     for (s in seq_along(chunks$from)) {
       
@@ -127,8 +127,8 @@ exact_loglik.default <- function(
       
       ergmito_ptr <- new_ergmito_ptr(
         target_stats  = x[i:j, , drop = FALSE],
-        stats_weights = stats.weights[i:j],
-        stats_statmat = stats.statmat[i:j]
+        stats_weights = stats_weights[i:j],
+        stats_statmat = stats_statmat[i:j]
       )
       
       ans[i:j] <- exact_loglik.(ergmito_ptr, params)
@@ -145,8 +145,8 @@ exact_loglik.default <- function(
       # Creating the model pointer
       ergmito_ptr <- new_ergmito_ptr(
         target_stats  = x[i:j, , drop = FALSE],
-        stats_weights = stats.weights,
-        stats_statmat = stats.statmat
+        stats_weights = stats_weights,
+        stats_statmat = stats_statmat
       )
       
       ans[i:j] <- exact_loglik.(ergmito_ptr, params)
@@ -180,8 +180,8 @@ exact_gradient.ergmito_ptr <- function(x, params, ...) {
 exact_gradient.default <- function(
   x,
   params,
-  stats.weights,
-  stats.statmat,
+  stats_weights,
+  stats_statmat,
   ...
 ) {
   
@@ -194,26 +194,26 @@ exact_gradient.default <- function(
   if (n == 1) {
     # If only one observation
     
-    if (!is.list(stats.weights))
-      stats.weights <- list(stats.weights)
+    if (!is.list(stats_weights))
+      stats_weights <- list(stats_weights)
     
-    if (!is.list(stats.statmat))
-      stats.statmat <- list(stats.statmat)
+    if (!is.list(stats_statmat))
+      stats_statmat <- list(stats_statmat)
     
   } else if (n > 1) {
     # If more than 1, then perhaps we need to recycle the values
     
-    if (!is.list(stats.weights)) {
-      stats.weights <- list(stats.weights)
-    } else if (length(stats.weights) != n) {
-      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
+    if (!is.list(stats_weights)) {
+      stats_weights <- list(stats_weights)
+    } else if (length(stats_weights) != n) {
+      stop("length(stats_weights) != nrow(x). When class(stats_weights) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
     }
     
-    if (!is.list(stats.statmat)) {
-      stats.statmat <- list(stats.statmat)
-    } else if (length(stats.statmat) != n) {
+    if (!is.list(stats_statmat)) {
+      stats_statmat <- list(stats_statmat)
+    } else if (length(stats_statmat) != n) {
       stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
@@ -232,8 +232,8 @@ exact_gradient.default <- function(
     # Creating the model pointer
     ergmito_ptr <- new_ergmito_ptr(
       target_stats  = x[i:j, , drop = FALSE],
-      stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j]
+      stats_weights = stats_weights[i:j],
+      stats_statmat = stats_statmat[i:j]
     )
     
     ans <- ans + exact_gradient.(ergmito_ptr, params)
@@ -249,8 +249,8 @@ exact_gradient.default <- function(
 exact_hessian <- function(
   x,
   params,
-  stats.weights,
-  stats.statmat
+  stats_weights,
+  stats_statmat
 ) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
@@ -262,26 +262,26 @@ exact_hessian <- function(
   if (n == 1) {
     # If only one observation
     
-    if (!is.list(stats.weights))
-      stats.weights <- list(stats.weights)
+    if (!is.list(stats_weights))
+      stats_weights <- list(stats_weights)
     
-    if (!is.list(stats.statmat))
-      stats.statmat <- list(stats.statmat)
+    if (!is.list(stats_statmat))
+      stats_statmat <- list(stats_statmat)
     
   } else if (n > 1) {
     # If more than 1, then perhaps we need to recycle the values
     
-    if (!is.list(stats.weights)) {
-      stats.weights <- list(stats.weights)
-    } else if (length(stats.weights) != n) {
-      stop("length(stats.weights) != nrow(x). When class(stats.weights) == 'list', the number",
+    if (!is.list(stats_weights)) {
+      stats_weights <- list(stats_weights)
+    } else if (length(stats_weights) != n) {
+      stop("length(stats_weights) != nrow(x). When class(stats_weights) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
     }
     
-    if (!is.list(stats.statmat)) {
-      stats.statmat <- list(stats.statmat)
-    } else if (length(stats.statmat) != n) {
+    if (!is.list(stats_statmat)) {
+      stats_statmat <- list(stats_statmat)
+    } else if (length(stats_statmat) != n) {
       stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
@@ -300,8 +300,8 @@ exact_hessian <- function(
     ans <- ans + exact_hessian.(
       x[i:j, ,drop=FALSE],
       params,
-      stats_weights = stats.weights[i:j],
-      stats_statmat = stats.statmat[i:j]
+      stats_weights = stats_weights[i:j],
+      stats_statmat = stats_statmat[i:j]
     )
     
   }

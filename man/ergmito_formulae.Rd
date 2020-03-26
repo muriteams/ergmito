@@ -7,10 +7,10 @@
 \usage{
 ergmito_formulae(
   model,
-  gattr_model = NULL,
-  target.stats = NULL,
-  stats.weights = NULL,
-  stats.statmat = NULL,
+  model_update = NULL,
+  target_stats = NULL,
+  stats_weights = NULL,
+  stats_statmat = NULL,
   env = parent.frame(),
   ...
 )
@@ -19,25 +19,25 @@ ergmito_formulae(
 \item{model}{A formula. The left-hand-side can be either a small network, or
 a list of networks.}
 
-\item{gattr_model}{A formula. Model specification for graph attributes. This
-is useful when using multiple networks.}
-
-\item{target.stats}{Observed statistics. If multiple networks, then a list, otherwise
+\item{target_stats}{Observed statistics. If multiple networks, then a list, otherwise
 a named vector (see \link[ergm:summary_formula]{ergm::summary_formula}).}
 
-\item{stats.weights, stats.statmat}{Lists of sufficient statistics and their
+\item{stats_weights, stats_statmat}{Lists of sufficient statistics and their
 respective weights.}
 
 \item{env}{Environment in which \code{model} should be evaluated.}
 
 \item{...}{Further arguments passed to \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
+
+\item{gattr_model}{A formula. Model specification for graph attributes. This
+is useful when using multiple networks.}
 }
 \value{
 A list of class \code{ergmito_loglik}.
 \itemize{
 \item \code{loglik} A function. The log-likelihood function.
 \item \code{grad} A function. The gradient of the model.
-\item \code{stats.weights},\code{stats.statmat} two list of objects as returned by
+\item \code{stats_weights},\code{stats_statmat} two list of objects as returned by
 \link[ergm:ergm.allstats]{ergm::ergm.allstats}.
 \item \code{model} A formula. The model passed.
 \item \code{npars} Integer. Number of parameters.

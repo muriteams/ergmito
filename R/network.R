@@ -42,16 +42,11 @@
 #' 
 #' @export
 matrix_to_network <- function(
-  x,
-  directed  = rep(TRUE, length(x)),
-  hyper     = rep(FALSE, length(x)),
-  loops     = rep(FALSE, length(x)),
-  multiple  = rep(FALSE, length(x)),
-  bipartite = rep(FALSE, length(x))
+  x, ...
   ) UseMethod("matrix_to_network")
 
 #' @export
-# @rdname matrix_to_network
+#' @rdname matrix_to_network
 matrix_to_network.matrix <- function(
   x,
   directed  = rep(TRUE, length(x)),
@@ -83,12 +78,21 @@ matrix_to_network.list <- function(
   bipartite = rep(FALSE, length(x))
   ) {
   
+  # Checking all are any of the types
+  if (inherits(x, "network"))
+    return(x)
+  
+  # Is this a list of networks?
+  if (all(sapply(x, inherits, what = "network")))
+    return(x)
+  
   # To save memory, we do this by chunks
   chunks <- make_chunks(length(x), 50000)
   
   res <- vector("list", length(x))
   for (i in seq_along(chunks$from)) {
-    res[chunks$from[i]:chunks$to[i]] <- matrix_to_network.(
+    
+    res[chunks$from[i]:chunks$to[i]] <- matrix_to_network(
       x         = x[chunks$from[i]:chunks$to[i]],
       directed  = directed[chunks$from[i]:chunks$to[i]],
       hyper     = hyper[chunks$from[i]:chunks$to[i]],
@@ -96,6 +100,7 @@ matrix_to_network.list <- function(
       multiple  = multiple[chunks$from[i]:chunks$to[i]],
       bipartite = bipartite[chunks$from[i]:chunks$to[i]]
     )
+    
   }
   
   res

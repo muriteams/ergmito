@@ -61,7 +61,7 @@ components:
 \itemize{
 \item \code{ci} A list of matrices of length \code{nnets(object)} with the corresponding
 confidence intervals for the statistics of the model.
-\item \code{target.stats} A matrix of the target statistics.
+\item \code{target_stats} A matrix of the target statistics.
 \item \code{ergmito.probs} A list of numeric vectors of length \code{nnets(object)} with the
 probabilities associated to each possible structure of network.
 \item \code{probs} The value passed via \code{probs}.

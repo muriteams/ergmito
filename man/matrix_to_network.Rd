@@ -2,9 +2,12 @@
 % Please edit documentation in R/network.R
 \name{matrix_to_network}
 \alias{matrix_to_network}
+\alias{matrix_to_network.matrix}
 \title{Manipulation of network objects}
 \usage{
-matrix_to_network(
+matrix_to_network(x, ...)
+
+\method{matrix_to_network}{matrix}(
   x,
   directed = rep(TRUE, length(x)),
   hyper = rep(FALSE, length(x)),

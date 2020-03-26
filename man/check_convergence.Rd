@@ -5,12 +5,12 @@
 \alias{check_convergence}
 \title{Check the convergence of ergmito estimates}
 \usage{
-check_support(target.stats, stats.statmat, threshold = 0.8, warn = TRUE)
+check_support(target_stats, stats_statmat, threshold = 0.8, warn = TRUE)
 
-check_convergence(optim_output, model, support, crit = 5)
+check_convergence(optim_output, model, support, offset, crit = 5)
 }
 \arguments{
-\item{target.stats, stats.statmat}{See \link{ergmito_formulae}.}
+\item{target_stats, stats_statmat}{See \link{ergmito_formulae}.}
 
 \item{threshold}{Numeric scalar. Confidence range for flagging an observed
 statistic as potentially near the boundary.}

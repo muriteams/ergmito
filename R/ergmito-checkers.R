@@ -1,43 +1,40 @@
 #' @rdname check_convergence
-#' @param target.stats,stats.statmat See [ergmito_formulae].
+#' @param target_stats,stats_statmat See [ergmito_formulae].
 #' @param threshold Numeric scalar. Confidence range for flagging an observed
 #' statistic as potentially near the boundary.
 #' @param warn logical scalar.
 check_support <- function(
-  target.stats,
-  stats.statmat,
+  target_stats,
+  stats_statmat,
   threshold = .8,
   warn      = TRUE
   ) {
   
   res <- structure(
-    logical(ncol(target.stats)),
-    names = colnames(target.stats)
+    logical(ncol(target_stats)),
+    names = colnames(target_stats)
   )
   
   # In the case of failing to converge, this tells what should be
   # the best guess for the sign of Inf.
-  possible_sign <- double(ncol(target.stats))
+  possible_sign <- double(ncol(target_stats))
   
-  for (k in 1L:ncol(target.stats)) {
-    
-    # Retrieving the space range
-    # stats_range <- stats
+  for (k in 1L:ncol(target_stats)) {
     
     # Looking for degeneracy at the k-th parameter
-    stat_range <- lapply(stats.statmat, "[", i=, j = k, drop = TRUE)
+    stat_range <- lapply(stats_statmat, "[", i=, j = k, drop = TRUE)
     stat_range <- lapply(stat_range, range)
     stat_range <- do.call(rbind, stat_range)
     
     res[k] <- mean(
-      (target.stats[, k] == stat_range[, 1L]) | 
-        (target.stats[, k] == stat_range[, 2L])
+      (target_stats[, k] == stat_range[, 1L]) | 
+        (target_stats[, k] == stat_range[, 2L])
       )
     
     # If on average is less than .5, then is negative, otherwise
     # is positive.
     possible_sign[k] <- mean(
-      (target.stats[, k] - stat_range[, 1L])/ 
+      (target_stats[, k] - stat_range[, 1L])/ 
         (stat_range[, 2L] - stat_range[, 1L])
     )
     
@@ -156,6 +153,7 @@ check_convergence <- function(
   optim_output,
   model,
   support,
+  offset,
   crit = 5.0
   ) {
   
@@ -167,8 +165,17 @@ check_convergence <- function(
       call. = TRUE
       )
   
+  # Offset parameters should not be checked
+  if (length(offset))
+    offset_ids <- which(colnames(model$target_stats) %in% names(offset))
+  else
+    offset_ids <- integer(0)
+  
   # Checking values of the convergence
-  to_check <- c(which(abs(optim_output$par) > crit), attr(support, "which"))
+  to_check <- c(
+    which(abs(optim_output$par[-offset_ids]) > crit),
+    setdiff(attr(support, "which"), offset_ids)
+    )
   to_check <- sort(unique(to_check))
   
   k <- length(optim_output$par)

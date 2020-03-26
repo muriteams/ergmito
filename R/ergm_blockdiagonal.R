@@ -150,8 +150,4 @@ ergm_blockdiag <- function(formula, ...) {
   
 }
 
-# library(ergmito)
-# data("fivenets")
-# blockdiagonalize(fivenets)
-# (ans <- ergm_blockdiag(fivenets ~ mutual))
-# ans$stats.weights
+

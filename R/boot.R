@@ -55,11 +55,11 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   
   # Getting the sample, and baseline model
   IDX           <- replicate(n = R, sample.int(n, n, TRUE), simplify = FALSE)
-  model0        <- stats::update.formula(x$formulae$model, nets0[idx] ~ .)
-  target.stats  <- x$formulae$target.stats
+  model0        <- stats::update.formula(x$formulae$model_final, nets0[idx] ~ .)
+  target_stats  <- x$formulae$target_stats
   nets0         <- x$network
-  stats.weights <- x$formulae$stats.weights
-  stats.statmat <- x$formulae$stats.statmat
+  stats_weights <- x$formulae$stats_weights
+  stats_statmat <- x$formulae$stats_statmat
   offset.       <- x$offset
   
   # Creating the cluster and setting the seed
@@ -69,7 +69,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
     cl <- parallel::makePSOCKcluster(ncpus)
     parallel::clusterEvalQ(cl, library(ergmito))
     parallel::clusterExport(
-      cl, c("model0", "target.stats", "nets0", "stats.weights", "stats.statmat", "offset."),
+      cl, c("model0", "target_stats", "nets0", "stats_weights", "stats_statmat", "offset."),
       envir = environment())
     
     parallel::clusterSetRNGStream(cl)
@@ -87,9 +87,9 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
       environment(model0) <- environment()
       ans <- tryCatch(ergmito(
         model0,
-        stats.weights = stats.weights[idx],
-        stats.statmat = stats.statmat[idx],
-        target.stats = target.stats[idx,,drop=FALSE],
+        stats_weights = stats_weights[idx],
+        stats_statmat = stats_statmat[idx],
+        target_stats = target_stats[idx,,drop=FALSE],
         offset       = offset.
         ), error = function(e) e
         )
@@ -108,9 +108,9 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
       environment(model0) <- environment()
       ans <- tryCatch(suppressWarnings(ergmito(
         model0,
-        stats.weights = stats.weights[idx],
-        stats.statmat = stats.statmat[idx],
-        target.stats  = target.stats[idx,,drop=FALSE],
+        stats_weights = stats_weights[idx],
+        stats_statmat = stats_statmat[idx],
+        target_stats  = target_stats[idx,,drop=FALSE],
         offset        = offset.
         )), error = function(e) e)
       

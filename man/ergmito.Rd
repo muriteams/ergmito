@@ -7,13 +7,13 @@
 \usage{
 ergmito(
   model,
-  gattr_model = NULL,
-  stats.weights = NULL,
-  stats.statmat = NULL,
+  model_update = NULL,
+  stats_weights = NULL,
+  stats_statmat = NULL,
   optim.args = list(),
   init = NULL,
   use.grad = TRUE,
-  target.stats = NULL,
+  target_stats = NULL,
   ntries = 1L,
   keep.stats = TRUE,
   offset = NULL,
@@ -26,12 +26,12 @@ ergmito(
 \item{model}{Model to estimate. See \link[ergm:ergm]{ergm::ergm}. The only difference with
 \code{ergm} is that the LHS can be a list of networks.}
 
-\item{gattr_model}{A formula. Model specification for graph attributes. This
+\item{model_update}{A formula. Model specification for graph attributes. This
 is useful when using multiple networks.}
 
-\item{stats.weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
+\item{stats_weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
 
-\item{stats.statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
+\item{stats_statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
 
 \item{optim.args}{List. Passed to \link[stats:optim]{stats::optim}.}
 
@@ -41,7 +41,7 @@ optimization routine. Default is a vector of zeros.}
 \item{use.grad}{Logical. When \code{TRUE} passes the gradient function to \code{optim}.
 This is intended for testing only (internal use).}
 
-\item{target.stats}{A matrix of target statistics (see \link[ergm:ergm]{ergm::ergm}).}
+\item{target_stats}{A matrix of target statistics (see \link[ergm:ergm]{ergm::ergm}).}
 
 \item{ntries}{Integer scalar. Number of tries to estimate the MLE (see details).}
 

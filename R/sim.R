@@ -388,8 +388,8 @@ new_rergmito <- function(
       ans$prob[[i]] <- exp(exact_loglik(
         x             = ans$counts[[i]]$stats,
         params        = theta,
-        stats.weights = ans$counts[[i]]$weights,
-        stats.statmat = ans$counts[[i]]$statmat
+        stats_weights = ans$counts[[i]]$weights,
+        stats_statmat = ans$counts[[i]]$statmat
       ))
       
       # Should be within epsilon

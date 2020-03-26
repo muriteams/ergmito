@@ -10,26 +10,26 @@ expect_error(ergmito_formulae(USArrests ~ edges), "networks or a single")
 data("fivenets")
 ans <- ergmito(fivenets ~ edges)
 expect_error(exact_loglik(
-  x             = ans$formulae$target.stats,
+  x             = ans$formulae$target_stats,
   params        = ans$coef,
-  stats.weights = ans$formulae$stats.weights[-2],
-  stats.statmat = ans$formulae$stats.statmat 
+  stats_weights = ans$formulae$stats_weights[-2],
+  stats_statmat = ans$formulae$stats_statmat 
   ), "weights.+should match"
 )
 
 expect_error(exact_loglik(
-  x             = ans$formulae$target.stats,
+  x             = ans$formulae$target_stats,
   params        = ans$coef,
-  stats.weights = ans$formulae$stats.weights,
-  stats.statmat = ans$formulae$stats.statmat[-2] 
-), "stats[.]statmat.+should match"
+  stats_weights = ans$formulae$stats_weights,
+  stats_statmat = ans$formulae$stats_statmat[-2] 
+), "stats.statmat.+should match"
 )
 
 expect_error(exact_loglik(
-  x             = ans$formulae$target.stats[-(1:5),,drop=FALSE],
+  x             = ans$formulae$target_stats[-(1:5),,drop=FALSE],
   params        = ans$coef,
-  stats.weights = ans$formulae$stats.weights,
-  stats.statmat = ans$formulae$stats.statmat 
+  stats_weights = ans$formulae$stats_weights,
+  stats_statmat = ans$formulae$stats_statmat 
 ), "observed stat"
 )
 
@@ -42,10 +42,10 @@ ans <- ergmito(fivenets ~ edges + mutual + ttriad)
 
 ans0 <- ans$formulae$grad(params = rep(0, length(coef(ans))))
 ans1 <- exact_gradient(
-  x = ans$formulae$target.stats,
+  x = ans$formulae$target_stats,
   params        = rep(0, length(coef(ans))),
-  stats.weights = ans$formulae$stats.weights,
-  stats.statmat = ans$formulae$stats.statmat
+  stats_weights = ans$formulae$stats_weights,
+  stats_statmat = ans$formulae$stats_statmat
 )
 
 expect_equal(ans0, ans1)

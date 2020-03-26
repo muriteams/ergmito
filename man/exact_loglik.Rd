@@ -10,13 +10,13 @@
 \usage{
 exact_loglik(x, params, ...)
 
-\method{exact_loglik}{default}(x, params, stats.weights, stats.statmat, ...)
+\method{exact_loglik}{default}(x, params, stats_weights, stats_statmat, ...)
 
 exact_gradient(x, params, ...)
 
-\method{exact_gradient}{default}(x, params, stats.weights, stats.statmat, ...)
+\method{exact_gradient}{default}(x, params, stats_weights, stats_statmat, ...)
 
-exact_hessian(x, params, stats.weights, stats.statmat)
+exact_hessian(x, params, stats_weights, stats_statmat)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}
@@ -25,9 +25,9 @@ exact_hessian(x, params, stats.weights, stats.statmat)
 
 \item{...}{Arguments passed to the default methods.}
 
-\item{stats.weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
+\item{stats_weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
 
-\item{stats.statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
+\item{stats_statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
 }
 \description{
 This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not
@@ -47,7 +47,7 @@ statistics.
 
 Since \code{ergmito} can vectorize operations, in order to specify weights and
 statistics matrices for each network in the model, the user needs to pass
-two lists \code{stats.weights} and \code{stats.statmat}. While both lists have to
+two lists \code{stats_weights} and \code{stats_statmat}. While both lists have to
 have the same length (since its elements are matched), this needs not to
 be the case with the networks, as the user can specify a single set of
 weights and statistics that will be recycled (smartly).
@@ -60,30 +60,30 @@ ans <- ergmito(fivenets ~ edges + nodematch("female"))
 # This computes the likelihood for all the networks independently
 with(ans$formulae, {
   exact_loglik(
-    x      = target.stats,
+    x      = target_stats,
     params = coef(ans),
-    stats.weights = stats.weights,
-    stats.statmat = stats.statmat
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat
   )
 })
 
 # This should be close to zero
 with(ans$formulae, {
   exact_gradient(
-    x      = target.stats,
+    x      = target_stats,
     params = coef(ans),
-    stats.weights = stats.weights,
-    stats.statmat = stats.statmat
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat
   )
 })
 
 # Finally, the hessian
 with(ans$formulae, {
   exact_hessian(
-    x      = target.stats,
+    x      = target_stats,
     params = coef(ans),
-    stats.weights = stats.weights,
-    stats.statmat = stats.statmat
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat
   )
 })
 

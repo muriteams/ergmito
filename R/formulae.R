@@ -8,9 +8,9 @@
 #' a list of networks. 
 #' @param gattr_model A formula. Model specification for graph attributes. This
 #' is useful when using multiple networks.
-#' @param stats.weights,stats.statmat Lists of sufficient statistics and their
+#' @param stats_weights,stats_statmat Lists of sufficient statistics and their
 #' respective weights.
-#' @param target.stats Observed statistics. If multiple networks, then a list, otherwise
+#' @param target_stats Observed statistics. If multiple networks, then a list, otherwise
 #' a named vector (see [ergm::summary_formula]). 
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
@@ -18,7 +18,7 @@
 #' 
 #' - `loglik` A function. The log-likelihood function.
 #' - `grad` A function. The gradient of the model.
-#' - `stats.weights`,`stats.statmat` two list of objects as returned by
+#' - `stats_weights`,`stats_statmat` two list of objects as returned by
 #' [ergm::ergm.allstats].
 #' - `model` A formula. The model passed.
 #' - `npars` Integer. Number of parameters.
@@ -35,10 +35,10 @@
 #' @export
 ergmito_formulae <- function(
   model,
-  gattr_model   = NULL,
-  target.stats  = NULL,
-  stats.weights = NULL,
-  stats.statmat = NULL,
+  model_update  = NULL,
+  target_stats  = NULL,
+  stats_weights = NULL,
+  stats_statmat = NULL,
   env           = parent.frame(),
   ...
   ) {
@@ -94,18 +94,18 @@ ergmito_formulae <- function(
   environment(model.) <- environment()
   
   # Checking observed stats and stats
-  if (!length(stats.weights) | !length(stats.statmat)) {
-    stats.weights <- vector("list", nnets(LHS))
-    stats.statmat <- stats.weights
+  if (!length(stats_weights) | !length(stats_statmat)) {
+    stats_weights <- vector("list", nnets(LHS))
+    stats_statmat <- stats_weights
   }
   
   # Has the user passed target statistics?
-  if (!length(target.stats))
-    target.stats <- vector("list", nnets(LHS))
+  if (!length(target_stats))
+    target_stats <- vector("list", nnets(LHS))
   else # This is painful, the current way I have this written needs me to pass
-       # the target.stats as a list instead of a matrix, which is not the best.
+       # the target_stats as a list instead of a matrix, which is not the best.
        # For now it should be OK.
-    target.stats <- lapply(1:nrow(target.stats), function(i) target.stats[i,])
+    target_stats <- lapply(1:nrow(target_stats), function(i) target_stats[i,])
   
   # Checking types
   test     <- sapply(LHS, inherits, what = "network")
@@ -142,7 +142,7 @@ ergmito_formulae <- function(
   for (i in 1L:nnets(LHS)) {
     
     # Calculating statistics and weights
-    if (!length(stats.statmat[[i]])) {
+    if (!length(stats_statmat[[i]])) {
       
       # Smart thing to do, have I calculated this earlier? ---------------------
       # 1. For now we do it if the model is attr-less model
@@ -163,16 +163,16 @@ ergmito_formulae <- function(
       }
       
       if (!is.null(matching_net)) {
-        stats.statmat[[i]] <- stats.statmat[[matching_net]]
-        stats.weights[[i]] <- stats.weights[[matching_net]]
+        stats_statmat[[i]] <- stats_statmat[[matching_net]]
+        stats_weights[[i]] <- stats_weights[[matching_net]]
       } else {
         allstats_i <- do.call(
           ergm::ergm.allstats, 
           # We correct for zero obs later
           c(list(formula = model.), dots)
           )
-        stats.statmat[[i]] <- allstats_i$statmat
-        stats.weights[[i]] <- allstats_i$weights
+        stats_statmat[[i]] <- allstats_i$statmat
+        stats_weights[[i]] <- allstats_i$weights
       }
       
       
@@ -180,7 +180,7 @@ ergmito_formulae <- function(
     
   }
   
-  if (all(sapply(target.stats, length) == 0)) {
+  if (all(sapply(target_stats, length) == 0)) {
     
     # Should we use summary.formula?
     model_analysis <- analyze_formula(model)
@@ -195,79 +195,103 @@ ergmito_formulae <- function(
     
     if (directed && all(model_analysis$names %in% AVAILABLE_STATS())) {
       
-      target.stats <- count_stats(model)
+      target_stats <- count_stats(model)
       
       # Still need to get it once b/c of naming
       i <- 1
-      colnames(target.stats) <- names(
+      colnames(target_stats) <- names(
         summary(model.)
       )
       
     } else {
       for (i in seq_len(nnets(LHS))) {
         # Calculating observed statistics
-        if (!length(target.stats[[i]]))
-          target.stats[[i]] <- c(summary(model.))
+        if (!length(target_stats[[i]]))
+          target_stats[[i]] <- c(summary(model.))
 
       }
       
       # Coercing objects
-      target.stats   <- do.call(rbind, target.stats)
+      target_stats   <- do.call(rbind, target_stats)
     }
     
   }
   
-  g <- vector("list", nnets(LHS))
-  for (i in seq_len(nnets(LHS))) {
-    
-    # Calculating gattrs_model
-    if (length(gattr_model))
-      g[[i]] <- gmodel(gattr_model, LHS[[i]])
-    
-    # Adding graph level attributes
-    # Adding graph parameters to the statmat
-    if (length(g[[i]])) {
-      
-      stats.statmat[[i]] <- cbind(
-        stats.statmat[[i]],
-        matrix(
-          data     = g[[i]],
-          nrow     = nrow(stats.statmat[[i]]),
-          ncol     = length(g[[i]]),
-          byrow    = TRUE,
-          dimnames = list(NULL, names(g[[i]]))
-        )
-      )
-    }
-    
-  }
-  
-  if (is.list(target.stats))
-    target.stats <- do.call(rbind, target.stats)
-  
-  if (all(sapply(g, length) != 0))
-    target.stats <- cbind(target.stats, do.call(rbind, g))
+  if (is.list(target_stats))
+    target_stats <- do.call(rbind, target_stats)
   
   # Should it be normalized to 0?
   if (zeroobs)
     for (i in seq_len(nnets(LHS))) {
-      stats.statmat[[i]] <- stats.statmat[[i]] - 
+      stats_statmat[[i]] <- stats_statmat[[i]] - 
         matrix(
-          data  = target.stats[i, ],
-          nrow  = nrow(stats.statmat[[i]]),
-          ncol  = ncol(target.stats),
+          data  = target_stats[i, ],
+          nrow  = nrow(stats_statmat[[i]]),
+          ncol  = ncol(target_stats),
           byrow = TRUE
-          )
+        )
       
-      target.stats[i, ] <- 0
+      target_stats[i, ] <- 0
       
     }
   
+  # Updating the model, if needed
+  if (length(model_update)) {
+    
+    # Updating the model (must remove the network to apply the formula)
+    model_final      <- as.formula(
+      sprintf("~ %s", paste(colnames(target_stats), collapse = " + "))
+      )
+    model_final      <- stats::update.formula(model_final, model_update)
+    
+    # Updating the target_stats first
+    g_attrs <- graph_attributes_as_df(LHS)
+    target_stats <- stats::model.frame(
+      formula = model_final,
+      data    = cbind(
+        as.data.frame(target_stats),
+        g_attrs
+        )
+    )
+    # Taking it back to a matrix
+    target_stats <- as.matrix(target_stats)
+    
+    # Doing the same for the rest of the networks
+    for (i in seq_len(nnets(LHS))) {
+      
+      # Merging the data
+      stats_statmat[[i]] <- cbind(
+        as.data.frame(stats_statmat[[i]]),
+        do.call(rbind, replicate(
+          nrow(stats_statmat[[i]]),
+          g_attrs[i, , drop = FALSE],
+          simplify = FALSE
+          ))
+      )
+      
+      # Updating the model
+      stats_statmat[[i]] <- stats::model.frame(
+        formula = model_final,
+        data    = stats_statmat[[i]]
+        )
+      
+      # And taking it back to a matrix
+      stats_statmat[[i]] <- as.matrix(stats_statmat[[i]])
+      
+    }
+    
+    # Reupdating the model (so users look it as is)
+    model_final <- stats::update.formula(model, model_update)
+    
+  } else {
+    model_final <- model
+  }
+  
   # Initializing the pointer
   ergmito_ptr   <- new_ergmito_ptr(
-    target_stats  = target.stats,
-    stats_weights = stats.weights,
-    stats_statmat = stats.statmat
+    target_stats  = target_stats,
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat
     )
   
   
@@ -300,10 +324,10 @@ ergmito_formulae <- function(
   hess <- function(params, ...) {
     
     exact_hessian(
-      x = target.stats,
+      x = target_stats,
       params = params,
-      stats.weights = stats.weights,
-      stats.statmat = stats.statmat
+      stats_weights = stats_weights,
+      stats_statmat = stats_statmat
       )
     
   }
@@ -314,14 +338,16 @@ ergmito_formulae <- function(
       loglik = loglik,
       grad  = grad,
       hess  = hess,
-      target.stats  = target.stats,
-      stats.weights = stats.weights,
-      stats.statmat = stats.statmat,
+      target_stats  = target_stats,
+      stats_weights = stats_weights,
+      stats_statmat = stats_statmat,
       model         = stats::as.formula(model, env = env),
-      npars         = ncol(target.stats),
+      model_update  = model_update,
+      model_final   = model_final,
+      npars         = ncol(target_stats),
       nnets         = nnets(LHS),
       vertex.attrs  = vattrs,
-      term.names    = colnames(target.stats)
+      term.names    = colnames(target_stats)
     ),
     class="ergmito_loglik"
   )
@@ -358,6 +384,28 @@ model_has_attrs <- function(x) {
   } else
     return(structure(FALSE, anames = NULL))
   
+}
+
+#' This function extracts networks attributes and returns a data
+#' frame
+#' @noRd
+graph_attributes_as_df <- function(net) {
+  
+  if (inherits(net, "list") && nnets(net) > 1L) {
+    net <- matrix_to_network(net)
+    return(do.call(rbind, lapply(net, graph_attributes_as_df)))
+  }
+  
+  if (!network::is.network(net))
+    net <- matrix_to_network(net)
+  
+  # Listing attributes, extracting and naming
+  netattrs   <- network::list.network.attributes(net)
+  ans        <- lapply(netattrs, network::get.network.attribute, x = net)
+  names(ans) <- netattrs
+  
+  # Returning as data.frame
+  as.data.frame(ans)
 }
 
 gmodel <- function(model, net) {
