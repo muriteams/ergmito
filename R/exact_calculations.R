@@ -53,7 +53,6 @@
 #' # Finally, the hessian
 #' with(ans$formulae, {
 #'   exact_hessian(
-#'     x      = target_stats,
 #'     params = coef(ans),
 #'     stats_weights = stats_weights,
 #'     stats_statmat = stats_statmat
@@ -76,45 +75,23 @@ exact_loglik.default <- function(
   params,
   stats_weights,
   stats_statmat,
+  target_offset = double(nrow(x)),
+  stats_offset  = lapply(stats_weights, function(i) double(length(i))),
   ...
 ) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
-  chunks <- make_chunks(nrow(x), 4e5)
+  n      <- nrow(x)
+  chunks <- make_chunks(n, 4e5)
+
+  if (!is.list(stats_weights))
+    stats_weights <- list(stats_weights)
   
-  n <- nrow(x)
+  if (!is.list(stats_statmat))
+    stats_statmat <- list(stats_statmat)
   
-  # Checking the weights and stats mat
-  if (n == 1) {
-    # If only one observation
-    
-    if (!is.list(stats_weights))
-      stats_weights <- list(stats_weights)
-    
-    if (!is.list(stats_statmat))
-      stats_statmat <- list(stats_statmat)
-    
-  } else if (n > 1) {
-    # If more than 1, then perhaps we need to recycle the values
-    
-    if (!is.list(stats_weights)) {
-      stats_weights <- list(stats_weights)
-    } else if (length(stats_weights) != n) {
-      stop("length(stats_weights) != nrow(x). When class(stats_weights) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-    if (!is.list(stats_statmat)) {
-      stats_statmat <- list(stats_statmat)
-    } else if (length(stats_statmat) != n) {
-      stop("length(stats_statmat) != nrow(x). When class(stats_statmat) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-  } else 
-    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
+  if (!is.list(stats_offset))
+    stats_offset <- list(stats_offset)
   
   # Computing in chunks
   ans <- vector("double", n)
@@ -128,7 +105,9 @@ exact_loglik.default <- function(
       ergmito_ptr <- new_ergmito_ptr(
         target_stats  = x[i:j, , drop = FALSE],
         stats_weights = stats_weights[i:j],
-        stats_statmat = stats_statmat[i:j]
+        stats_statmat = stats_statmat[i:j],
+        target_offset = x[i:j],
+        stats_offset  = stats_offset[i:j]
       )
       
       ans[i:j] <- exact_loglik.(ergmito_ptr, params)
@@ -146,7 +125,9 @@ exact_loglik.default <- function(
       ergmito_ptr <- new_ergmito_ptr(
         target_stats  = x[i:j, , drop = FALSE],
         stats_weights = stats_weights,
-        stats_statmat = stats_statmat
+        stats_statmat = stats_statmat,
+        target_offset = target_offset[i:j],
+        stats_offset  = stats_offset
       )
       
       ans[i:j] <- exact_loglik.(ergmito_ptr, params)
@@ -182,6 +163,8 @@ exact_gradient.default <- function(
   params,
   stats_weights,
   stats_statmat,
+  target_offset = double(nrow(x)),
+  stats_offset  = lapply(stats_weights, function(i) double(length(i))),
   ...
 ) {
   
@@ -190,37 +173,14 @@ exact_gradient.default <- function(
   
   n <- nrow(x)
   
-  # Checking the weights and stats mat
-  if (n == 1) {
-    # If only one observation
-    
-    if (!is.list(stats_weights))
-      stats_weights <- list(stats_weights)
-    
-    if (!is.list(stats_statmat))
-      stats_statmat <- list(stats_statmat)
-    
-  } else if (n > 1) {
-    # If more than 1, then perhaps we need to recycle the values
-    
-    if (!is.list(stats_weights)) {
-      stats_weights <- list(stats_weights)
-    } else if (length(stats_weights) != n) {
-      stop("length(stats_weights) != nrow(x). When class(stats_weights) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-    if (!is.list(stats_statmat)) {
-      stats_statmat <- list(stats_statmat)
-    } else if (length(stats_statmat) != n) {
-      stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
-           " of elements should match the number of rows in statistics (x).", 
-           call. = FALSE)
-    }
-    
-  } else 
-    stop("nrow(x) == 0. There are no observed statistics.", call. = FALSE)
+  if (!is.list(stats_weights))
+  stats_weights <- list(stats_weights)
+
+  if (!is.list(stats_statmat))
+    stats_statmat <- list(stats_statmat)
+  
+  if (!is.list(stats_offset))
+    stats_offset <- list(stats_offset)
   
   # Computing in chunks
   ans <- matrix(0, nrow = length(params), ncol=1L)
@@ -233,7 +193,9 @@ exact_gradient.default <- function(
     ergmito_ptr <- new_ergmito_ptr(
       target_stats  = x[i:j, , drop = FALSE],
       stats_weights = stats_weights[i:j],
-      stats_statmat = stats_statmat[i:j]
+      stats_statmat = stats_statmat[i:j],
+      target_offset = target_offset[i:j],
+      stats_offset  = stats_offset[i:j]
     )
     
     ans <- ans + exact_gradient.(ergmito_ptr, params)
@@ -247,16 +209,15 @@ exact_gradient.default <- function(
 #' @rdname exact_loglik
 #' @export
 exact_hessian <- function(
-  x,
   params,
   stats_weights,
-  stats_statmat
+  stats_statmat,
+  stats_offset = lapply(stats_weights, function(i) double(length(i)))
 ) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
-  chunks <- make_chunks(nrow(x), 4e5)
-  
-  n <- nrow(x)
+  n <- length(stats_weights)
+  chunks <- make_chunks(n, 4e5)
   
   # Checking the weights and stats mat
   if (n == 1) {
@@ -267,6 +228,9 @@ exact_hessian <- function(
     
     if (!is.list(stats_statmat))
       stats_statmat <- list(stats_statmat)
+    
+    if (!is.list(stats_offset))
+      stats_offset <- list(stats_offset)
     
   } else if (n > 1) {
     # If more than 1, then perhaps we need to recycle the values
@@ -283,6 +247,14 @@ exact_hessian <- function(
       stats_statmat <- list(stats_statmat)
     } else if (length(stats_statmat) != n) {
       stop("length(statmat) != nrow(x). When class(statmat) == 'list', the number",
+           " of elements should match the number of rows in statistics (x).", 
+           call. = FALSE)
+    }
+    
+    if (!is.list(stats_offset)) {
+      stats_offset <- list(stats_offset)
+    } else if (length(stats_offset) != n) {
+      stop("length(stats_offset) != nrow(x). When class(stats_offset) == 'list', the number",
            " of elements should match the number of rows in statistics (x).", 
            call. = FALSE)
     }
@@ -298,10 +270,10 @@ exact_hessian <- function(
     j <- chunks$to[s]
     
     ans <- ans + exact_hessian.(
-      x[i:j, ,drop=FALSE],
       params,
       stats_weights = stats_weights[i:j],
-      stats_statmat = stats_statmat[i:j]
+      stats_statmat = stats_statmat[i:j],
+      stats_offset  = stats_offset[i:j]
     )
     
   }

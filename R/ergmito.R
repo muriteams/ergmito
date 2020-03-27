@@ -174,7 +174,9 @@ ergmito <- function(
   target_stats  = NULL,
   ntries        = 1L,
   keep.stats    = TRUE,
-  offset        = NULL,
+  offset_coef   = NULL,
+  target_offset = NULL,
+  stats_offset  = NULL,
   ...
   ) {
 
@@ -190,6 +192,8 @@ ergmito <- function(
     target_stats  = target_stats,
     stats_weights = stats_weights,
     stats_statmat = stats_statmat,
+    target_offset = target_offset,
+    stats_offset  = stats_offset,
     env           = ergmitoenv,
     ...
   )
@@ -226,68 +230,14 @@ ergmito <- function(
   
   optim.args$hessian <- FALSE
 
+    
+  # Setting arguments for optim
+  optim.args$fn   <- formulae$loglik
+  if (use.grad) 
+    optim.args$gr <- formulae$grad
   
-  # Offset ---------------------------------------------------------------------
-  if (length(offset)) {
+  optim.args$par  <- init
     
-    # Checking if correctly specified
-    are_not_in_model <- which(!(names(offset) %in% formulae$term.names))
-    if (length(are_not_in_model))
-      stop(
-        "Some values specified in -offset- are not in the model: '",
-        paste(names(offset)[are_not_in_model], collapse = "', '"),"'. ",
-        "The model has the following terms: ",
-        paste(formulae$term.names, collapse = "', '"),"'.",
-        call. = FALSE
-      )
-    
-    # Matching position, so we can make it faster
-    params_offset_pos    <- match(names(offset), formulae$term.names)
-    params_no_offset_pos <- setdiff(1:npars, params_offset_pos)
-    
-    # Baseline parameter
-    params0 <- structure(
-      double(ncol(formulae$target_stats)),
-      names = names(colnames(formulae$target_stats))
-      )
-    
-    params_offset <- offset
-    
-    # Updating gradient and objective function
-    optim.args$fn <- function(params, ...) {
-      
-      params0[params_no_offset_pos] <- params
-      params0[params_offset_pos]    <- params_offset
-      
-      formulae$loglik(params0, ...)
-    }
-    
-    # We only update the gradient if needed
-    if (use.grad) {
-     
-      optim.args$gr <- function(params, ...) {
-        
-        params0[params_no_offset_pos] <- params
-        params0[params_offset_pos]    <- params_offset
-        
-        formulae$grad(params0, ...)[params_no_offset_pos]
-      }
-       
-    }
-    
-    optim.args$par <- init[params_no_offset_pos]
-    
-  } else {
-    
-    # Setting arguments for optim
-    optim.args$fn   <- formulae$loglik
-    if (use.grad) 
-      optim.args$gr <- formulae$grad
-    
-    optim.args$par  <- init
-    
-  }
-  
   # Will try to solve the problem more than once... if needed
   ntry <- 1L
   history <- matrix(
@@ -316,14 +266,7 @@ ergmito <- function(
     
     
     # Storing the current value
-    if (length(offset)) {
-      
-      history[cbind(ntry, c(params_no_offset_pos, npars + 1))] <-
-        c(cur_ans$par, cur_ans$value)
-      history[cbind(ntry, params_offset_pos)] <- offset
-      
-    } else 
-      history[ntry, ] <- c(cur_ans$par, cur_ans$value)
+    history[ntry, ] <- c(cur_ans$par, cur_ans$value)
     
     # We don't need to do this again.
     if (ntries == 1L)
@@ -336,16 +279,7 @@ ergmito <- function(
     ntry <- ntry + 1
     
   }
-  
-  # Need to re-adjust after the offset
-  if (length(offset)) {
-    
-    params0[params_no_offset_pos] <- ans$par
-    params0[params_offset_pos]    <- offset
-    ans$par <- params0
-    
-  }
-  
+
   timer <- c(timer, optim = difftime(Sys.time(), timer0, units = "secs"))
   
   # Checking the convergence

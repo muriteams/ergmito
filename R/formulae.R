@@ -1,3 +1,37 @@
+# Offset processer
+parse_offset <- function(x) {
+  
+  terms_x <- terms(x)
+  
+  # Are there any offset terms?
+  offsets_x <- attr(terms_x, "offset")
+  if (!length(offsets_x))
+    return(x)
+  
+  # Updating offset terms
+  variables <- rownames(attr(terms_x, "factors"))
+  variables_free <- gsub("^offset[(]|[)]$", "", variables[offsets_x])
+  
+  # We need to memorize this later
+  variables_free <- structure(variables_free, names = variables[offsets_x])
+  variables[offsets_x] <- unname(variables_free)
+
+  if (length(attr(terms_x, "response"))) 
+    ans <- sprintf(
+      "%s ~ %s",
+      variables[1L],
+      paste(variables[-1L], collapse = " + ")
+      )
+  else 
+    ans <- sprintf(" ~ %s", paste(variables, collapse = " + "))
+  
+  ans <- formula(ans, env = environment(x))
+  attr(ans, "ergmito_offset") <- variables_free
+  
+  return(ans)
+    
+}
+
 #' Processing formulas in `ergmito`
 #' 
 #' Analyze formula objects returning the matrices of weights and sufficient 
@@ -39,6 +73,8 @@ ergmito_formulae <- function(
   target_stats  = NULL,
   stats_weights = NULL,
   stats_statmat = NULL,
+  target_offset = NULL,
+  stats_offset  = NULL,
   env           = parent.frame(),
   ...
   ) {
@@ -91,6 +127,7 @@ ergmito_formulae <- function(
   model. <- model
   model. <- stats::update.formula(model., LHS[[i]] ~ .)
   
+
   environment(model.) <- environment()
   
   # Checking observed stats and stats
@@ -235,7 +272,13 @@ ergmito_formulae <- function(
       
     }
   
-  # Updating the model, if needed
+  # Updating the model, if needed, since this could affect offset, we need to
+  # preassing information
+  if (is.null(target_offset))
+    target_offset <- double(nrow(target_stats))
+  if (is.null(stats_offset))
+    stats_offset <- lapply(stats_weights, function(i) double(length(i)))
+  
   if (length(model_update)) {
     
     # Updating the model (must remove the network to apply the formula)
@@ -243,6 +286,11 @@ ergmito_formulae <- function(
       sprintf("~ %s", paste(colnames(target_stats), collapse = " + "))
       )
     model_final      <- stats::update.formula(model_final, model_update)
+    
+    # Parsing offset terms. This removes the offset() around the term
+    # names and then it adds an attribute that tags what are the offset
+    # variables so it is easier to extract them from the model.
+    model_final <- parse_offset(model_final)
     
     # Updating the target_stats first
     g_attrs <- graph_attributes_as_df(LHS)
@@ -253,8 +301,20 @@ ergmito_formulae <- function(
         g_attrs
         )
     )
-    # Taking it back to a matrix
-    target_stats <- as.matrix(target_stats)
+    
+    # If we have offset terms, we need to separate them from the stats mat.
+    offset_terms  <- attr(model_final, "ergmito_offset")
+    if (length(offset_terms)) {
+      
+      target_offset <- subset(target_stats, select = offset_terms)
+      target_offset <- rowSums(as.matrix(target_offset)) # Offsets are added up
+      target_stats  <- target_stats[, !(colnames(target_stats) %in% offset_terms)]
+      
+    } else 
+      target_offset <- double(ncol(target_stats))
+    
+    # As a matrix
+    target_stats  <- as.matrix(target_stats)
     
     # Doing the same for the rest of the networks
     for (i in seq_len(nnets(LHS))) {
@@ -275,9 +335,22 @@ ergmito_formulae <- function(
         data    = stats_statmat[[i]]
         )
       
+      # Parsing offset terms, if any
+      if (length(offset_terms)) {
+        
+        stats_offset[[i]] <- subset(stats_statmat[[i]], select = offset_terms)
+        stats_offset[[i]] <- rowSums(as.matrix(stats_offset[[i]])) # Offsets are added up
+        
+        stats_statmat[[i]]  <- stats_statmat[[i]][
+          , !(colnames(stats_statmat[[i]]) %in% offset_terms)
+          ]
+        
+      } else 
+        stats_statmat[[i]] <- double(nrow(stats_statmat[[i]]))
+        
       # And taking it back to a matrix
       stats_statmat[[i]] <- as.matrix(stats_statmat[[i]])
-      
+        
     }
     
     # Reupdating the model (so users look it as is)
@@ -291,9 +364,10 @@ ergmito_formulae <- function(
   ergmito_ptr   <- new_ergmito_ptr(
     target_stats  = target_stats,
     stats_weights = stats_weights,
-    stats_statmat = stats_statmat
+    stats_statmat = stats_statmat,
+    target_offset = target_offset,
+    stats_offset  = stats_offset
     )
-  
   
   # Building joint likelihood function
   loglik <- function(params, ...) {
@@ -327,7 +401,8 @@ ergmito_formulae <- function(
       x = target_stats,
       params = params,
       stats_weights = stats_weights,
-      stats_statmat = stats_statmat
+      stats_statmat = stats_statmat,
+      stats_offset  = stats_offset
       )
     
   }
@@ -341,6 +416,8 @@ ergmito_formulae <- function(
       target_stats  = target_stats,
       stats_weights = stats_weights,
       stats_statmat = stats_statmat,
+      target_offset = target_offset,
+      stats_offset  = stats_offset,
       model         = stats::as.formula(model, env = env),
       model_update  = model_update,
       model_final   = model_final,
