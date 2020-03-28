@@ -13,15 +13,6 @@ geodesic. <- function(X, force = FALSE) {
     .Call(`_ergmito_geodesic`, X, force)
 }
 
-#' Vectorized version of gradient function
-#' 
-#' @param x Matrix of statistic. `nnets * nstats`.
-#' @param params Vector of coefficients.
-#' @param weights A list of weights matrices (for `statmat`).
-#' @param statmat A list of matrices with statistics for each row in `x`.
-#' @noRd
-NULL
-
 #' Creates a new `ergmito_ptr`
 #' 
 #' After calculating the support of the sufficient statistics, the second
@@ -53,8 +44,8 @@ NULL
 #' 
 #' @param target_stats,stats_weights,stats_statmat see [exact_loglik].
 #' @export
-new_ergmito_ptr <- function(target_stats, stats_weights, stats_statmat) {
-    .Call(`_ergmito_new_ergmito_ptr`, target_stats, stats_weights, stats_statmat)
+new_ergmito_ptr <- function(target_stats, stats_weights, stats_statmat, target_offset, stats_offset) {
+    .Call(`_ergmito_new_ergmito_ptr`, target_stats, stats_weights, stats_statmat, target_offset, stats_offset)
 }
 
 #' Vectorized version of log-likelihood function
@@ -81,13 +72,12 @@ exact_gradient. <- function(ptr, params, as_prob = FALSE) {
 
 #' Vectorized version of gradient function
 #' 
-#' @param x Matrix of statistic. `nnets * nstats`.
 #' @param params Vector of coefficients.
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_hessian. <- function(x, params, stats_weights, stats_statmat) {
-    .Call(`_ergmito_exact_hessian`, x, params, stats_weights, stats_statmat)
+exact_hessian. <- function(params, stats_weights, stats_statmat, stats_offset) {
+    .Call(`_ergmito_exact_hessian`, params, stats_weights, stats_statmat, stats_offset)
 }
 
 induced_submat. <- function(nets, vs) {

@@ -66,7 +66,7 @@ confidence intervals for the statistics of the model.
 probabilities associated to each possible structure of network.
 \item \code{probs} The value passed via \code{probs}.
 \item \code{model} The fitted model.
-\item \code{term.names} Character vector. Names of the terms used in the model.
+\item \code{term_names} Character vector. Names of the terms used in the model.
 \item \code{quantile.args} A list of the values passed via \code{...}.
 }
 }

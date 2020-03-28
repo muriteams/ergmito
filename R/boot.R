@@ -132,7 +132,7 @@ ergmito_boot.ergmito <- function(x, ..., R, ncpus = 1L, cl = NULL) {
   coefs <- do.call(rbind, boot_estimates)
   
   # Tagging finite results
-  are_finate <- unique(which(!is.finite(coefs), arr.ind = TRUE)[, 1L])
+  are_finate <- unique(which(!is.finite(coefs), arr.ind = TRUE)[, 1L, drop = FALSE])
   are_finate <- setdiff(seq_along(IDX), are_finate)
 
   if (length(are_finate) < 2) {

@@ -16,7 +16,8 @@ ergmito(
   target_stats = NULL,
   ntries = 1L,
   keep.stats = TRUE,
-  offset = NULL,
+  target_offset = NULL,
+  stats_offset = NULL,
   ...
 )
 
@@ -50,8 +51,7 @@ and vectors associated with the sufficient statistics will be returned.
 Otherwise the function discards them. This may be useful for saving memory
 space when estimating multiple models.}
 
-\item{offset}{Named numeric vector. Terms to be treated as offset and their values
-(see details in \code{\link[=ergmito]{ergmito()}}).}
+\item{target_offset, stats_offset}{See \code{\link[=ergmito_formulae]{ergmito_formulae()}}.}
 
 \item{...}{Further arguments passed to the method. In the case of \code{ergmito},
 \code{...} are passed to \link{ergmito_formulae}.}

@@ -11,6 +11,8 @@ ergmito_formulae(
   target_stats = NULL,
   stats_weights = NULL,
   stats_statmat = NULL,
+  target_offset = NULL,
+  stats_offset = NULL,
   env = parent.frame(),
   ...
 )
@@ -42,8 +44,8 @@ A list of class \code{ergmito_loglik}.
 \item \code{model} A formula. The model passed.
 \item \code{npars} Integer. Number of parameters.
 \item \code{nnets} Integer. Number of networks in the model.
-\item \code{vertex.attr} Character vector. Vertex attributes used in the model.
-\item \code{term.names} Names of the terms used in the model.
+\item \code{vertex_attr} Character vector. Vertex attributes used in the model.
+\item \code{term_names} Names of the terms used in the model.
 }
 }
 \description{

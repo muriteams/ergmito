@@ -43,7 +43,7 @@
 #' probabilities associated to each possible structure of network.
 #' - `probs` The value passed via `probs`.
 #' - `model` The fitted model.
-#' - `term.names` Character vector. Names of the terms used in the model.
+#' - `term_names` Character vector. Names of the terms used in the model.
 #' - `quantile.args` A list of the values passed via `...`.
 #' 
 #' @examples 
@@ -135,13 +135,14 @@ gof_ergmito <- function(
   ran <- res
 
   if (!is.null(GOF)) {
+    
     # Deparsing formula
     if (!inherits(GOF, "formula"))
       stop("`GOF` must be an object of class formula.", call. = FALSE)
     
     # Analyzing terms
     test <- any(attr(stats::terms(GOF), "term.labels") %in% 
-                  attr(stats::terms(object$formulae$model_final), "term.labels"))
+                  attr(stats::terms(object$formulae$model), "term.labels"))
     if (test)
       stop(
         "The `GOF` argument must specify terms others than those included in the model.",
@@ -150,7 +151,8 @@ gof_ergmito <- function(
     
     # This formula includes everything
     GOF <- stats::as.formula(gsub(".*[~]", "~ . + ", deparse(GOF)))
-    GOF <- stats::update.formula(object$formulae$model_final, GOF)
+    GOF <- stats::update.formula(object$formulae$model, GOF)
+    
   }
   
   target_stats <- NULL
@@ -160,6 +162,9 @@ gof_ergmito <- function(
     # Has the user provided a formula? In this case we need to use an alternative
     # matrix of `statmat` and `weights`. We are restricted to whatever allstats
     # allows generating (e.g. distance is not included)
+    
+    stats_offset.  <- object$formulae$stats_offset[[i]]
+    
     if (!is.null(GOF)) {
       
       GOF <- stats::update.formula(GOF, object$network[[i]] ~ .)
@@ -169,16 +174,73 @@ gof_ergmito <- function(
       weights. <- statmat.$weights
       statmat. <- statmat.$statmat
       
-      target_stats <- rbind(target_stats, summary(GOF))
+      stats_offset.  <- double(nrow(statmat.))
+      target_stats. <- rbind(summary(GOF))
+      
+      # If a fancy formula was passed, then we need to compute the updated terms
+      if (length(object$formulae$model_update)) {
+        
+        # Updating the model (must remove the network to apply the formula)
+        model_final      <- as.formula(
+          sprintf("~ %s", paste(colnames(target_stats.), collapse = " + "))
+        )
+        model_final      <- stats::update.formula(model_final, object$formulae$model_update)
+        
+        # Parsing offset terms. This removes the offset() around the term
+        # names and then it adds an attribute that tags what are the offset
+        # variables so it is easier to extract them from the model.
+        model_final <- parse_offset(model_final)
+        
+        # Updating the target_stats first
+        g_attrs      <- graph_attributes_as_df(object$network[[i]])
+        target_stats. <- cbind(as.data.frame(target_stats.), g_attrs)
+        target_stats. <- lapply(model_final, stats::model.frame, data = target_stats.)
+        
+        # If we have offset terms, we need to separate them from the stats mat.
+        offset_terms <- attr(model_final, "ergmito_offset")
+        if (length(offset_terms)) 
+          target_stats.  <- target_stats.[-offset_terms]
+        
+        # As a matrix
+        target_stats.  <- as.matrix(do.call(cbind, target_stats.))
+        
+        # Merging the data
+        statmat. <- cbind(
+          as.data.frame(statmat.),
+          do.call(rbind, replicate(
+            nrow(statmat.),
+            g_attrs,
+            simplify = FALSE
+          ))
+        )
+        
+        # Updating the model
+        statmat. <- lapply(model_final, stats::model.frame, data = statmat.)
+        
+        # Parsing offset terms, if any
+        if (length(offset_terms)) {
+          
+          stats_offset. <- do.call(cbind, statmat.[offset_terms])
+          stats_offset. <- rowSums(as.matrix(stats_offset.))
+          statmat.      <- statmat.[-offset_terms]
+          
+        }
+        
+        # And taking it back to a matrix
+        statmat. <- as.matrix(do.call(cbind, statmat.))
+        
+      }
       
     } else {
       
-      statmat. <- object$formulae$stats_statmat[[i]]
-      weights. <- object$formulae$stats_weights[[i]]
-      
-      target_stats  <- rbind(target_stats, object$formulae$target_stats[i, ])
+      statmat.       <- object$formulae$stats_statmat[[i]]
+      weights.       <- object$formulae$stats_weights[[i]]
+      target_stats.  <- object$formulae$target_stats[i, ]
       
     }
+    
+    # Appending the observed target_stats
+    target_stats <- rbind(target_stats, target_stats.)
     
     # Computing the probability of observing each class of networks
     pr[[i]] <- exp(
@@ -186,6 +248,8 @@ gof_ergmito <- function(
         x             = statmat.[, names(stats::coef(object)), drop = FALSE],
         stats_statmat = statmat.[, names(stats::coef(object)), drop = FALSE],
         stats_weights = weights.,
+        stats_offset  = stats_offset.,
+        target_offset = stats_offset.,
         params        = stats::coef(object),
         ncores        = ncores
       )
@@ -260,7 +324,7 @@ gof_ergmito <- function(
       else {
         as.formula(gsub(".*[~]", " ~ ", deparse(GOF)))
         },
-      term.names    = rownames(res[[i]]),
+      term_names    = rownames(res[[i]]),
       ranges        = ran,
       sim_ci        = sim_ci,
       quantile.args = list(...)
@@ -274,9 +338,9 @@ gof_ergmito <- function(
 # @rdname ergmito_gof
 print.ergmito_gof <- function(x, ...) {
   
-  K <- length(x$term.names)
+  K <- length(x$term_names)
   for (k in seq_len(K)) {
-    cat("\nGoodness-of-fit for", x$term.names[k], "\n\n", sep=" ")
+    cat("\nGoodness-of-fit for", x$term_names[k], "\n\n", sep=" ")
     
     # Creating the table to be printed
     lower  <- sapply(x$ci, "[", i = k, j = "lower-q", drop = TRUE)
@@ -334,21 +398,21 @@ plot.ergmito_gof <- function(
   ) {
   
   # Personalized y-axis labels
-  if (is.null(tnames)) tnames <- x$term.names
+  if (is.null(tnames)) tnames <- x$term_names
   else { # We must check that it works
     
     if (!is.character(tnames))
       stop("`tnames` should be a character vector.", call. = FALSE)
     if (is.null(names(tnames)))
       stop("`tnames` should have names.", call. = FALSE)
-    if (length(setdiff(x$term.names, names(tnames)))) 
+    if (length(setdiff(x$term_names, names(tnames)))) 
       stop("All the term names must be `tnames`.", call. = FALSE)
     
-    tnames <- tnames[match(x$term.names, names(tnames))]
+    tnames <- tnames[match(x$term_names, names(tnames))]
     
   }
   
-  K <- length(x$term.names)
+  K <- length(x$term_names)
   op <- graphics::par(
     mfcol = c(K, 1L), 
     mar   = graphics::par("mar")*c(.05, 1, .05, 1),

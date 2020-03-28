@@ -174,7 +174,6 @@ ergmito <- function(
   target_stats  = NULL,
   ntries        = 1L,
   keep.stats    = TRUE,
-  offset_coef   = NULL,
   target_offset = NULL,
   stats_offset  = NULL,
   ...
@@ -246,7 +245,7 @@ ergmito <- function(
     ncol = npars + 1,
     dimnames = list(
       1L:ntries,
-      c(formulae$term.names, "value")
+      c(formulae$term_names, "value")
       )
   )
   

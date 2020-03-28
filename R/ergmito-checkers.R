@@ -180,10 +180,10 @@ check_convergence <- function(
   
   k <- length(optim_output$par)
   estimates <- list(
-    par    = structure(optim_output$par, names = model$term.names),
+    par    = structure(optim_output$par, names = model$term_names),
     vcov   = matrix(
       0.0, nrow = k, ncol = k,
-      dimnames = with(model, list(term.names, term.names))
+      dimnames = with(model, list(term_names, term_names))
       ),
     valid  = 1L:k,
     status = ifelse(optim_output$convergence == 0L, 0L, 1L),

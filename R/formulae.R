@@ -1,33 +1,42 @@
-# Offset processer
+#' Offset processer
+#' @param x An object of class formula
+#' @details
+#' It will identify if the model has offset terms or not. In the case of
+#' having offsets, the resulting object has an attribute indicating which
+#' of the terms are offset terms.
+#' @return A list of formulas.
+#' @noRd
 parse_offset <- function(x) {
   
   terms_x <- terms(x)
   
+  if (!length(attr(terms_x, "term.labels")))
+    stop(
+      "Invalid model:\n",
+      deparse(x), 
+      "\nA offset-only model cannot be fitted.", call. = FALSE)
+  
   # Are there any offset terms?
   offsets_x <- attr(terms_x, "offset")
   if (!length(offsets_x))
-    return(x)
+    return(list(x))
   
   # Updating offset terms
   variables <- rownames(attr(terms_x, "factors"))
   variables_free <- gsub("^offset[(]|[)]$", "", variables[offsets_x])
   
   # We need to memorize this later
-  variables_free <- structure(variables_free, names = variables[offsets_x])
-  variables[offsets_x] <- unname(variables_free)
+  offsets_x <- structure(offsets_x, names = variables[offsets_x])
+  variables[offsets_x] <- variables_free
 
-  if (length(attr(terms_x, "response"))) 
-    ans <- sprintf(
-      "%s ~ %s",
-      variables[1L],
-      paste(variables[-1L], collapse = " + ")
-      )
+  if (attr(terms_x, "response") > 0) 
+    ans <- sprintf("%s ~ %s", variables[1L], variables[-1L])
   else 
-    ans <- sprintf(" ~ %s", paste(variables, collapse = " + "))
+    ans <- sprintf(" ~ %s", variables)
   
-  ans <- formula(ans, env = environment(x))
-  attr(ans, "ergmito_offset") <- variables_free
-  
+  ans <- lapply(ans, formula, env = environment(x))
+  attr(ans, "ergmito_offset") <- offsets_x
+
   return(ans)
     
 }
@@ -57,8 +66,8 @@ parse_offset <- function(x) {
 #' - `model` A formula. The model passed.
 #' - `npars` Integer. Number of parameters.
 #' - `nnets` Integer. Number of networks in the model.
-#' - `vertex.attr` Character vector. Vertex attributes used in the model.
-#' - `term.names` Names of the terms used in the model.
+#' - `vertex_attr` Character vector. Vertex attributes used in the model.
+#' - `term_names` Names of the terms used in the model.
 #' 
 #' @aliases ergmito_loglik
 #' @examples 
@@ -142,7 +151,7 @@ ergmito_formulae <- function(
   else # This is painful, the current way I have this written needs me to pass
        # the target_stats as a list instead of a matrix, which is not the best.
        # For now it should be OK.
-    target_stats <- lapply(1:nrow(target_stats), function(i) target_stats[i,])
+    target_stats <- lapply(1:nrow(target_stats), function(i) target_stats[i, , drop=FALSE])
   
   # Checking types
   test     <- sapply(LHS, inherits, what = "network")
@@ -175,7 +184,7 @@ ergmito_formulae <- function(
     
   }
   
-  # Need to improve the speed of this!
+  # Calculating the support of the sufficient statistics -----------------------
   for (i in 1L:nnets(LHS)) {
     
     # Calculating statistics and weights
@@ -183,40 +192,47 @@ ergmito_formulae <- function(
       
       # Smart thing to do, have I calculated this earlier? ---------------------
       # 1. For now we do it if the model is attr-less model
+
+      # Can we find a match in the previous set?
       matching_net <- NULL
-      if (i > 1L) {
+      for (j in 1L:(i-1L)) {
         
-        # Can we find a match in the previous set?
-        for (j in 1L:(i-1L)) {
+        if (i == 1)
+          break
+        
+        # Minimum (and only for now): Have the same size
+        if ( same_dist(LHS[[i]], LHS[[j]], vattrs) ) {
           
-          # Minimum (and only for now): Have the same size
-          if ( same_dist(LHS[[i]], LHS[[j]], vattrs) ) {
-            matching_net <- j
-            break
-          }
+          matching_net <- j
+          break
           
         }
         
       }
-      
+        
+      # If we calculated this earlier, then copy, else, need to recalc
       if (!is.null(matching_net)) {
+        
         stats_statmat[[i]] <- stats_statmat[[matching_net]]
         stats_weights[[i]] <- stats_weights[[matching_net]]
-      } else {
-        allstats_i <- do.call(
-          ergm::ergm.allstats, 
-          # We correct for zero obs later
-          c(list(formula = model.), dots)
-          )
-        stats_statmat[[i]] <- allstats_i$statmat
-        stats_weights[[i]] <- allstats_i$weights
-      }
+        next
+        
+      } 
       
+      # Computing if we need
+      allstats_i <- do.call(
+        ergm::ergm.allstats, 
+        # We correct for zero obs later
+        c(list(formula = model.), dots)
+        )
+      stats_statmat[[i]] <- allstats_i$statmat
+      stats_weights[[i]] <- allstats_i$weights
       
     }
     
   }
   
+  # Computing target statistics ------------------------------------------------
   if (all(sapply(target_stats, length) == 0)) {
     
     # Should we use summary.formula?
@@ -230,17 +246,18 @@ ergmito_formulae <- function(
       call. = FALSE
       )
     
+    # Can we compute it directly with ergmito? If not, we default to
+    # ergm's summary function
     if (directed && all(model_analysis$names %in% AVAILABLE_STATS())) {
       
       target_stats <- count_stats(model)
       
       # Still need to get it once b/c of naming
       i <- 1
-      colnames(target_stats) <- names(
-        summary(model.)
-      )
+      colnames(target_stats) <- names(summary(model.))
       
     } else {
+      
       for (i in seq_len(nnets(LHS))) {
         # Calculating observed statistics
         if (!length(target_stats[[i]]))
@@ -257,7 +274,7 @@ ergmito_formulae <- function(
   if (is.list(target_stats))
     target_stats <- do.call(rbind, target_stats)
   
-  # Should it be normalized to 0?
+  # Should it be normalized to 0? ----------------------------------------------
   if (zeroobs)
     for (i in seq_len(nnets(LHS))) {
       stats_statmat[[i]] <- stats_statmat[[i]] - 
@@ -276,9 +293,11 @@ ergmito_formulae <- function(
   # preassing information
   if (is.null(target_offset))
     target_offset <- double(nrow(target_stats))
+  
   if (is.null(stats_offset))
     stats_offset <- lapply(stats_weights, function(i) double(length(i)))
   
+  # Are we updating the model? ------------------------------------------------
   if (length(model_update)) {
     
     # Updating the model (must remove the network to apply the formula)
@@ -294,27 +313,21 @@ ergmito_formulae <- function(
     
     # Updating the target_stats first
     g_attrs <- graph_attributes_as_df(LHS)
-    target_stats <- stats::model.frame(
-      formula = model_final,
-      data    = cbind(
-        as.data.frame(target_stats),
-        g_attrs
-        )
-    )
+    target_stats <- cbind(as.data.frame(target_stats), g_attrs)
+    target_stats <- lapply(model_final, stats::model.frame, data = target_stats)
     
     # If we have offset terms, we need to separate them from the stats mat.
-    offset_terms  <- attr(model_final, "ergmito_offset")
+    offset_terms <- attr(model_final, "ergmito_offset")
     if (length(offset_terms)) {
       
-      target_offset <- subset(target_stats, select = offset_terms)
-      target_offset <- rowSums(as.matrix(target_offset)) # Offsets are added up
-      target_stats  <- target_stats[, !(colnames(target_stats) %in% offset_terms)]
+      target_offset <- do.call(cbind, target_stats[offset_terms])
+      target_offset <- rowSums(as.matrix(target_offset))
+      target_stats  <- target_stats[-offset_terms]
       
-    } else 
-      target_offset <- double(ncol(target_stats))
+    }
     
     # As a matrix
-    target_stats  <- as.matrix(target_stats)
+    target_stats  <- as.matrix(do.call(cbind, target_stats))
     
     # Doing the same for the rest of the networks
     for (i in seq_len(nnets(LHS))) {
@@ -330,26 +343,24 @@ ergmito_formulae <- function(
       )
       
       # Updating the model
-      stats_statmat[[i]] <- stats::model.frame(
-        formula = model_final,
-        data    = stats_statmat[[i]]
+      stats_statmat[[i]] <- lapply(
+        model_final,
+        stats::model.frame,
+        data = stats_statmat[[i]]
         )
+        
       
       # Parsing offset terms, if any
       if (length(offset_terms)) {
         
-        stats_offset[[i]] <- subset(stats_statmat[[i]], select = offset_terms)
-        stats_offset[[i]] <- rowSums(as.matrix(stats_offset[[i]])) # Offsets are added up
+        stats_offset[[i]]  <- do.call(cbind, stats_statmat[[i]][offset_terms])
+        stats_offset[[i]]  <- rowSums(as.matrix(stats_offset[[i]]))
+        stats_statmat[[i]] <- stats_statmat[[i]][-offset_terms]
         
-        stats_statmat[[i]]  <- stats_statmat[[i]][
-          , !(colnames(stats_statmat[[i]]) %in% offset_terms)
-          ]
-        
-      } else 
-        stats_statmat[[i]] <- double(nrow(stats_statmat[[i]]))
+      }
         
       # And taking it back to a matrix
-      stats_statmat[[i]] <- as.matrix(stats_statmat[[i]])
+      stats_statmat[[i]] <- as.matrix(do.call(cbind, stats_statmat[[i]]))
         
     }
     
@@ -395,11 +406,11 @@ ergmito_formulae <- function(
     
   }
   
+  # And the joint hessian
   hess <- function(params, ...) {
     
     exact_hessian(
-      x = target_stats,
-      params = params,
+      params        = params,
       stats_weights = stats_weights,
       stats_statmat = stats_statmat,
       stats_offset  = stats_offset
@@ -410,9 +421,9 @@ ergmito_formulae <- function(
   
   structure(
     list(
-      loglik = loglik,
-      grad  = grad,
-      hess  = hess,
+      loglik        = loglik,
+      grad          = grad,
+      hess          = hess,
       target_stats  = target_stats,
       stats_weights = stats_weights,
       stats_statmat = stats_statmat,
@@ -423,10 +434,10 @@ ergmito_formulae <- function(
       model_final   = model_final,
       npars         = ncol(target_stats),
       nnets         = nnets(LHS),
-      vertex.attrs  = vattrs,
-      term.names    = colnames(target_stats)
+      vertex_attrs  = vattrs,
+      term_names    = colnames(target_stats)
     ),
-    class="ergmito_loglik"
+    class = "ergmito_loglik"
   )
   
   

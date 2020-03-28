@@ -57,16 +57,15 @@ data(fivenets)
 
 ans <- ergmito(
   fivenets ~ edges + nodematch("female") + ttriad,
-  offset = c(ttriple = -.5)
+  model_update = ~ . - offset(I(ttriple/2)) - ttriple
   )
 
 expect_output(print(ans), "offset:")
 expect_output(print(summary(ans)), "offset:")
-expect_equivalent(coef(ans)[3], -.5)
+expect_length(coef(ans), 2)
 
 ans <- suppressWarnings(ergmito_boot(ans, R = 10))
-expect_equivalent(vcov(ans)[,3], rep(0, 3))
-expect_equivalent(vcov(ans)[3,], rep(0, 3))
+expect_length(vcov(ans)[1,], 2)
 
 expect_output(print(ans), "offset:")
 expect_output(print(summary(ans)), "offset:")

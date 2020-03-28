@@ -2,7 +2,7 @@
 #include "ergmito_types.h"
 #include "likelihood.h"
 
-using
+using namespace Rcpp;
 
 //' Creates a new `ergmito_ptr`
 //' 

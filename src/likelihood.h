@@ -87,7 +87,7 @@ inline ergmito_ptr::ergmito_ptr(
   n(target_stats_.nrow()),
   k(target_stats_.ncol()),
   target_stats((double *) &target_stats_[0], target_stats_.nrow(), target_stats_.ncol(), false, true),
-  target_offset((double *) &target_offset_[0], target_offset_.nrow(), target_offset_.ncol(), false, true)
+  target_offset((double *) &target_offset_[0], target_offset_.size(), false, true)
 {
   
   // Do the networks share the same vector of weights?
@@ -101,7 +101,7 @@ inline ergmito_ptr::ergmito_ptr(
     stop("Incorrect sizes. target_stats and stats_statmat should have the same size");
   
   // Checking offset
-  if (target_stats.size() != target_offset.size())
+  if (target_stats.n_rows != target_offset.size())
     stop("The length of target_offset should be equal to the number of rows in target_stats.");
   
   if (stats_offset_.size() != stats_statmat_.size())

@@ -10,13 +10,34 @@
 \usage{
 exact_loglik(x, params, ...)
 
-\method{exact_loglik}{default}(x, params, stats_weights, stats_statmat, ...)
+\method{exact_loglik}{default}(
+  x,
+  params,
+  stats_weights,
+  stats_statmat,
+  target_offset = double(nrow(x)),
+  stats_offset = lapply(stats_weights, function(i) double(length(i))),
+  ...
+)
 
 exact_gradient(x, params, ...)
 
-\method{exact_gradient}{default}(x, params, stats_weights, stats_statmat, ...)
+\method{exact_gradient}{default}(
+  x,
+  params,
+  stats_weights,
+  stats_statmat,
+  target_offset = double(nrow(x)),
+  stats_offset = lapply(stats_weights, function(i) double(length(i))),
+  ...
+)
 
-exact_hessian(x, params, stats_weights, stats_statmat)
+exact_hessian(
+  params,
+  stats_weights,
+  stats_statmat,
+  stats_offset = lapply(stats_weights, function(i) double(length(i)))
+)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}
@@ -80,7 +101,6 @@ with(ans$formulae, {
 # Finally, the hessian
 with(ans$formulae, {
   exact_hessian(
-    x      = target_stats,
     params = coef(ans),
     stats_weights = stats_weights,
     stats_statmat = stats_statmat
