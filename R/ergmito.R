@@ -347,12 +347,6 @@ print.ergmito <- function(x, ...) {
   cat("\nERGMito estimates\n")
   if (length(x$note))
     cat(sprintf("note: %s\n", x$note))
-  if (length(x$offset)) {
-    cat(
-      "\nnote: This is a model with the following offset: ",
-      names(x$offset), "\n"
-      )
-  }
     
   print(structure(unclass(x), class="ergm"))
   
@@ -385,7 +379,6 @@ summary.ergmito <- function(object, ...) {
     bic         = stats::BIC(object),
     model       = deparse(object$formulae$model_final),
     note        = object$note,
-    offset      = object$offset,
     R           = ifelse(is_boot, object$R, 1L)
     ),
     class = c("ergmito_summary", if (is_boot) "ergmito_summary_boot" else  NULL)
@@ -408,14 +401,7 @@ print.ergmito_summary <- function(
   
   if (length(x$note))
     cat(sprintf("note: %s\n", x$note))
-  
-  if (length(x$offset)) {
-    cat(
-      "\nnote: This is a model with the following offset: ",
-      names(x$offset), "\n"
-      )
-  }
-  
+
   cat("\nformula: ", x$model, "\n\n")
   stats::printCoefmat(
     x$coefs,

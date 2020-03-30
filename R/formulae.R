@@ -298,6 +298,7 @@ ergmito_formulae <- function(
     stats_offset <- lapply(stats_weights, function(i) double(length(i)))
   
   # Are we updating the model? ------------------------------------------------
+  offset_terms <- NULL
   if (length(model_update)) {
     
     # Updating the model (must remove the network to apply the formula)
