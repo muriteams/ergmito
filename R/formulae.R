@@ -10,8 +10,35 @@
 #' respective weights.
 #' @param target_stats Observed statistics. If multiple networks, then a list, otherwise
 #' a named vector (see [ergm::summary_formula]). 
+#' @param model_update A formula. If specified, the after computing the
+#' sufficient statistics (observed and support), the model is updated using
+#' [stats::model.frame()]. This includes processing offset terms.
+#' @param target_offset Numeric vector of length `nrow(target_stats)`.
+#' @param stats_offset List of numeric vectors, each of length equal to the
+#' lengths of vectors in `stats_weights`.
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
+#' @details 
+#' One of the main advantages of been able to compute exact likelihoods is that
+#' we can build arbitrarily complex models in the same way that we would do in
+#' the context of Generalized Linear Models, this is, adding offset terms,
+#' interaction effects, or transformations of statistics without much effort.
+#' 
+#' In particular, if the user passes a formula via `model_update`, the 
+#' cannonical additive ERGM can be modified to include other terms, for example,
+#' if we wanted to add an interaction effect of the `nodematch("age")` with
+#' network size, we can simply type
+#' 
+#' ```
+#' model_update = ~ . + I(nodematch.age * n)
+#' ```
+#' 
+#' The [I()] function allows operating over variables in the model, in this case,
+#' we took the `nodematch.age` variable (which is the name that [ergm::ergm()] 
+#' assigns to it after computing the sufficient statistics) and multiplied it by
+#' `n`, which is the network size (this variable is included by default).
+#' 
+#' 
 #' @return A list of class `ergmito_loglik`.
 #' 
 #' - `loglik` A function. The log-likelihood function.

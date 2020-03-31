@@ -16,11 +16,6 @@ A <- rbinom(5, 1, .3)
 for (i in seq_along(fivenets))
   network::set.network.attribute(fivenets[[i]], "y" ,A[i])
 
-options(ergmito_warning = TRUE)
-# expect_warning(ans <- ergmito(fivenets ~ edges + mutual, gattr=~ y), "\"y\"")
-options(ergmito_warning = FALSE)
-expect_output(print(ans$formulae), "elements by using")
-
 set.seed(8871)
 net1 <- rbernoulli(4)
 net2 <- rbernoulli(5)

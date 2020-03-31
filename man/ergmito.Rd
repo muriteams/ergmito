@@ -137,21 +137,6 @@ reported as parameter estimates. This feature is intended for testing only.
 Anecdotally, \code{optim} reaches the max in the first try.
 }
 
-\section{Offset}{
-
-
-The fitting can be done using offset terms. Offset terms can be specified
-by passing a named vector via the \code{offset} argument. For example, if you
-want to fit an ERGM with coefficient associated with edgecount fixed to -1,
-you can do so by defining \code{offset = c(edges = -1)}. Offsetting terms only
-affects the optimization stage.
-
-One important caveat is that the offset is check after the sufficient
-statistics have been calculated, meaning that the variable names may change,
-for example, while the user can specify \code{ttriad} in the formula, after
-calculating the sufficient statistics it will turn to \code{ttriples}.
-}
-
 \examples{
 
 # Generating a small graph

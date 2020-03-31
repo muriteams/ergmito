@@ -21,11 +21,20 @@ ergmito_formulae(
 \item{model}{A formula. The left-hand-side can be either a small network, or
 a list of networks.}
 
+\item{model_update}{A formula. If specified, the after computing the
+sufficient statistics (observed and support), the model is updated using
+\code{\link[stats:model.frame]{stats::model.frame()}}. This includes processing offset terms.}
+
 \item{target_stats}{Observed statistics. If multiple networks, then a list, otherwise
 a named vector (see \link[ergm:summary_formula]{ergm::summary_formula}).}
 
 \item{stats_weights, stats_statmat}{Lists of sufficient statistics and their
 respective weights.}
+
+\item{target_offset}{Numeric vector of length \code{nrow(target_stats)}.}
+
+\item{stats_offset}{List of numeric vectors, each of length equal to the
+lengths of vectors in \code{stats_weights}.}
 
 \item{env}{Environment in which \code{model} should be evaluated.}
 
@@ -49,6 +58,23 @@ A list of class \code{ergmito_loglik}.
 Analyze formula objects returning the matrices of weights and sufficient
 statistics to be used in the model together with the log-likelihood and
 gradient functions for joint models.
+}
+\details{
+One of the main advantages of been able to compute exact likelihoods is that
+we can build arbitrarily complex models in the same way that we would do in
+the context of Generalized Linear Models, this is, adding offset terms,
+interaction effects, or transformations of statistics without much effort.
+
+In particular, if the user passes a formula via \code{model_update}, the
+cannonical additive ERGM can be modified to include other terms, for example,
+if we wanted to add an interaction effect of the \code{nodematch("age")} with
+network size, we can simply type\preformatted{model_update = ~ . + I(nodematch.age * n)
+}
+
+The \code{\link[=I]{I()}} function allows operating over variables in the model, in this case,
+we took the \code{nodematch.age} variable (which is the name that \code{\link[ergm:ergm]{ergm::ergm()}}
+assigns to it after computing the sufficient statistics) and multiplied it by
+\code{n}, which is the network size (this variable is included by default).
 }
 \examples{
 data(fivenets)
