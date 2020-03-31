@@ -4,38 +4,7 @@
 
 using namespace Rcpp;
 
-//' Creates a new `ergmito_ptr`
-//' 
-//' After calculating the support of the sufficient statistics, the second
-//' most computationally expensive task is computing log-likelihoods, 
-//' Gradients, and Hessian matrices of ERGMs. This function creates a pointer to an
-//' underlying class that is optimized to improve memory allocation and 
-//' save computation time when possible.
-//' 
-//' @details This function is for internal used only. Non-advanced users
-//' are not encouraged to use it. See [ergmito_formulae] and [exact_loglik]
-//' for user friendly wrappers of this function.
-//' @section Recycling computations:
-//' 
-//' Some components of the likelihood, its gradient, and hessian can be 
-//' pre-computed and recycled when needed. For example, it is usually the
-//' case that in optimization gradients are computed using a current state
-//' of the model's parameter, which implies that the normalizing constant
-//' and some other matrix products will be the same between the log-likelihood
-//' and the gradient. Because of this, the underlying class `ergmito_ptr`
-//' will only re-calculate these shared components if the parameter used
-//' changes as well. This saves a significant amount of computation time.
-//' 
-//' @section Scope of the class methods:
-//' 
-//' To save space, the class creates pointers to the matrices of sufficient
-//' statistics that the model uses. This means that once these objects are
-//' deleted the log-likelihood and the gradient functions become invalid
-//' from the computational point of view. 
-//' 
-//' @param target_stats,stats_weights,stats_statmat,target_offset,stats_offset see [exact_loglik].
-//' @export
-// [[Rcpp::export(rng = false)]]
+// [[Rcpp::export(rng = false, name = "new_ergmito_ptr.")]]
 SEXP new_ergmito_ptr(
     const NumericMatrix           & target_stats,
     const ListOf< NumericVector > & stats_weights,

@@ -228,6 +228,12 @@ as_adjmat.formula <- function(x) {
 
 make_chunks <- function(N, chunk_size) {
   
+  if (N < 1)
+    stop(
+      "N should be an integer greater than 0.",
+      call. = FALSE
+      )
+  
   if (chunk_size > N)
     return(list(from=1, to=N))
   

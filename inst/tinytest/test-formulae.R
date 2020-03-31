@@ -14,7 +14,7 @@ expect_error(exact_loglik(
   params        = ans$coef,
   stats_weights = ans$formulae$stats_weights[-2],
   stats_statmat = ans$formulae$stats_statmat 
-  ), "weights.+should match"
+  ), "should be numeric"
 )
 
 expect_error(exact_loglik(
@@ -22,7 +22,7 @@ expect_error(exact_loglik(
   params        = ans$coef,
   stats_weights = ans$formulae$stats_weights,
   stats_statmat = ans$formulae$stats_statmat[-2] 
-), "stats.statmat.+should match"
+), "should be matrix"
 )
 
 expect_error(exact_loglik(
@@ -30,7 +30,7 @@ expect_error(exact_loglik(
   params        = ans$coef,
   stats_weights = ans$formulae$stats_weights,
   stats_statmat = ans$formulae$stats_statmat 
-), "observed stat"
+), "greater than 0"
 )
 
 

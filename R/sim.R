@@ -87,7 +87,7 @@ new_rergmito <- function(
     sizes <- sort(unique(sizes))
   }
   
-  if ((any(sizes) > 7) & !force)
+  if (any(sizes > 7) & !force)
     stop(
       "For simulating networks with more than 7 vertices, you need to set ",
       "force = TRUE.", call. = FALSE
