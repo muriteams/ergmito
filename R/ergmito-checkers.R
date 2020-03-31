@@ -153,7 +153,6 @@ check_convergence <- function(
   optim_output,
   model,
   support,
-  offset,
   crit = 5.0
   ) {
   
@@ -164,17 +163,12 @@ check_convergence <- function(
       "internal function, are you sure you want to use this directly?.",
       call. = TRUE
       )
-  
-  # Offset parameters should not be checked
-  if (length(offset))
-    offset_ids <- which(colnames(model$target_stats) %in% names(offset))
-  else
-    offset_ids <- integer(0)
+
   
   # Checking values of the convergence
   to_check <- c(
-    which(abs(optim_output$par[-offset_ids]) > crit),
-    setdiff(attr(support, "which"), offset_ids)
+    which(abs(optim_output$par) > crit),
+    attr(support, "which")
     )
   to_check <- sort(unique(to_check))
   

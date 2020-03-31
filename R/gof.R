@@ -7,6 +7,7 @@
 #' @param R Integer scalar. Number of simulations to generate (passed to [sample]).
 #' This is only used if `sim_ci = TRUE`.
 #' @param GOF Formula. Additional set of parameters to perform the GOF.
+#' @param GOF_update Formula. See the section on model updating in [ergmito_formulae()].
 #' @param ncores Integer scalar. Number of cores to use for parallel computations
 #' (currently ignored).
 #' @param ... Further arguments passed to [stats::quantile].
@@ -111,11 +112,12 @@ get_feasible_ci_bounds <- function(x, probs, lower, upper) {
 #' `gof` function from the `ergm` R package.
 gof_ergmito <- function(
   object,
-  GOF    = NULL,
-  probs  = c(.05, .95),
-  sim_ci = FALSE,
-  R      = 50000L,
-  ncores = 1L,
+  GOF        = NULL,
+  GOF_update = NULL,
+  probs      = c(.05, .95),
+  sim_ci     = FALSE,
+  R          = 50000L,
+  ncores =    1L,
   ...
   ) {
   
@@ -157,6 +159,9 @@ gof_ergmito <- function(
   
   target_stats <- NULL
   
+  g_attrs <- graph_attributes_as_df(object$network)
+  
+  
   for (i in seq_len(length(res))) {
     
     # Has the user provided a formula? In this case we need to use an alternative
@@ -174,62 +179,18 @@ gof_ergmito <- function(
       weights. <- statmat.$weights
       statmat. <- statmat.$statmat
       
-      stats_offset.  <- double(nrow(statmat.))
-      target_stats. <- rbind(summary(GOF))
+      # Model frame, if needed
+      g_attrs     <- graph_attributes_as_df(object$network[[i]])
+      model_frame <- model_frame_ergmito(
+        formula        = GOF,
+        formula_update = GOF_update,
+        data           = rbind(summary(GOF), statmat.),
+        g_attrs.       = g_attrs
+        )
       
-      # If a fancy formula was passed, then we need to compute the updated terms
-      if (length(object$formulae$model_update)) {
-        
-        # Updating the model (must remove the network to apply the formula)
-        model_final      <- as.formula(
-          sprintf("~ %s", paste(colnames(target_stats.), collapse = " + "))
-        )
-        model_final      <- stats::update.formula(model_final, object$formulae$model_update)
-        
-        # Parsing offset terms. This removes the offset() around the term
-        # names and then it adds an attribute that tags what are the offset
-        # variables so it is easier to extract them from the model.
-        model_final <- parse_offset(model_final)
-        
-        # Updating the target_stats first
-        g_attrs      <- graph_attributes_as_df(object$network[[i]])
-        target_stats. <- cbind(as.data.frame(target_stats.), g_attrs)
-        target_stats. <- lapply(model_final, stats::model.frame, data = target_stats.)
-        
-        # If we have offset terms, we need to separate them from the stats mat.
-        offset_terms <- attr(model_final, "ergmito_offset")
-        if (length(offset_terms)) 
-          target_stats.  <- target_stats.[-offset_terms]
-        
-        # As a matrix
-        target_stats.  <- as.matrix(do.call(cbind, target_stats.))
-        
-        # Merging the data
-        statmat. <- cbind(
-          as.data.frame(statmat.),
-          do.call(rbind, replicate(
-            nrow(statmat.),
-            g_attrs,
-            simplify = FALSE
-          ))
-        )
-        
-        # Updating the model
-        statmat. <- lapply(model_final, stats::model.frame, data = statmat.)
-        
-        # Parsing offset terms, if any
-        if (length(offset_terms)) {
-          
-          stats_offset. <- do.call(cbind, statmat.[offset_terms])
-          stats_offset. <- rowSums(as.matrix(stats_offset.))
-          statmat.      <- statmat.[-offset_terms]
-          
-        }
-        
-        # And taking it back to a matrix
-        statmat. <- as.matrix(do.call(cbind, statmat.))
-        
-      }
+      statmat.      <- model_frame$stats[-1, , drop = FALSE]
+      stats_offset. <- model_frame$offsets[-1]
+      target_stats. <- model_frame$stats[1, , drop = FALSE]
       
     } else {
       

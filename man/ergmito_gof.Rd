@@ -9,6 +9,7 @@
 gof_ergmito(
   object,
   GOF = NULL,
+  GOF_update = NULL,
   probs = c(0.05, 0.95),
   sim_ci = FALSE,
   R = 50000L,
@@ -30,6 +31,8 @@ gof_ergmito(
 \item{object}{An object of class \link{ergmito}.}
 
 \item{GOF}{Formula. Additional set of parameters to perform the GOF.}
+
+\item{GOF_update}{Formula. See the section on model updating in \code{\link[=ergmito_formulae]{ergmito_formulae()}}.}
 
 \item{probs}{Numeric vector. Quantiles to plot (see details).}
 

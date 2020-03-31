@@ -6,6 +6,7 @@
 #' @param x Matrix. Observed statistics
 #' @param params Numeric vector. Parameter values of the model.
 #' @template stats
+#' @template offset
 #' @param ... Arguments passed to the default methods.
 #' 
 #' @section Sufficient statistics:

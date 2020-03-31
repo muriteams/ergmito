@@ -49,6 +49,8 @@ exact_hessian(
 \item{stats_weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
 
 \item{stats_statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
+
+\item{target_offset, stats_offset}{See \code{\link[=ergmito_formulae]{ergmito_formulae()}}.}
 }
 \description{
 This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not

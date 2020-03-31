@@ -1,46 +1,3 @@
-#' Offset processer
-#' @param x An object of class formula
-#' @details
-#' It will identify if the model has offset terms or not. In the case of
-#' having offsets, the resulting object has an attribute indicating which
-#' of the terms are offset terms.
-#' @return A list of formulas.
-#' @noRd
-parse_offset <- function(x) {
-  
-  terms_x <- terms(x)
-  
-  if (!length(attr(terms_x, "term.labels")))
-    stop(
-      "Invalid model:\n",
-      deparse(x), 
-      "\nA offset-only model cannot be fitted.", call. = FALSE)
-  
-  # Are there any offset terms?
-  offsets_x <- attr(terms_x, "offset")
-  if (!length(offsets_x))
-    return(list(x))
-  
-  # Updating offset terms
-  variables <- rownames(attr(terms_x, "factors"))
-  variables_free <- gsub("^offset[(]|[)]$", "", variables[offsets_x])
-  
-  # We need to memorize this later
-  offsets_x <- structure(offsets_x, names = variables[offsets_x])
-  variables[offsets_x] <- variables_free
-
-  if (attr(terms_x, "response") > 0) 
-    ans <- sprintf("%s ~ %s", variables[1L], variables[-1L])
-  else 
-    ans <- sprintf(" ~ %s", variables)
-  
-  ans <- lapply(ans, formula, env = environment(x))
-  attr(ans, "ergmito_offset") <- offsets_x
-
-  return(ans)
-    
-}
-
 #' Processing formulas in `ergmito`
 #' 
 #' Analyze formula objects returning the matrices of weights and sufficient 
@@ -49,8 +6,6 @@ parse_offset <- function(x) {
 #' 
 #' @param model A formula. The left-hand-side can be either a small network, or
 #' a list of networks. 
-#' @param gattr_model A formula. Model specification for graph attributes. This
-#' is useful when using multiple networks.
 #' @param stats_weights,stats_statmat Lists of sufficient statistics and their
 #' respective weights.
 #' @param target_stats Observed statistics. If multiple networks, then a list, otherwise
@@ -298,78 +253,32 @@ ergmito_formulae <- function(
     stats_offset <- lapply(stats_weights, function(i) double(length(i)))
   
   # Are we updating the model? ------------------------------------------------
-  offset_terms <- NULL
-  if (length(model_update)) {
+  graph_attrs <- graph_attributes_as_df(LHS)
+  model_frame <- model_frame_ergmito(
+    formula        = model,
+    formula_update = model_update, 
+    data           = target_stats,
+    g_attrs.       = graph_attrs
+  )
+  
+  target_stats <- model_frame$stats
+  offset_terms <- model_frame$offsets
+  model_final  <- model_frame$model
+  
+  # Doing the same for the rest of the networks
+  for (i in seq_len(nnets(LHS))) {
     
-    # Updating the model (must remove the network to apply the formula)
-    model_final      <- as.formula(
-      sprintf("~ %s", paste(colnames(target_stats), collapse = " + "))
-      )
-    model_final      <- stats::update.formula(model_final, model_update)
+    # Merging the data
+    model_frame <- model_frame_ergmito(
+      formula        = model,
+      formula_update = model_update, 
+      data           = stats_statmat[[i]],
+      g_attrs.       = graph_attrs[i, , drop = FALSE]
+    )
     
-    # Parsing offset terms. This removes the offset() around the term
-    # names and then it adds an attribute that tags what are the offset
-    # variables so it is easier to extract them from the model.
-    model_final <- parse_offset(model_final)
+    stats_statmat[[i]] <- model_frame$stats
+    stats_offset[[i]]  <- model_frame$offsets
     
-    # Updating the target_stats first
-    g_attrs <- graph_attributes_as_df(LHS)
-    target_stats <- cbind(as.data.frame(target_stats), g_attrs)
-    target_stats <- lapply(model_final, stats::model.frame, data = target_stats)
-    
-    # If we have offset terms, we need to separate them from the stats mat.
-    offset_terms <- attr(model_final, "ergmito_offset")
-    if (length(offset_terms)) {
-      
-      target_offset <- do.call(cbind, target_stats[offset_terms])
-      target_offset <- rowSums(as.matrix(target_offset))
-      target_stats  <- target_stats[-offset_terms]
-      
-    }
-    
-    # As a matrix
-    target_stats  <- as.matrix(do.call(cbind, target_stats))
-    
-    # Doing the same for the rest of the networks
-    for (i in seq_len(nnets(LHS))) {
-      
-      # Merging the data
-      stats_statmat[[i]] <- cbind(
-        as.data.frame(stats_statmat[[i]]),
-        do.call(rbind, replicate(
-          nrow(stats_statmat[[i]]),
-          g_attrs[i, , drop = FALSE],
-          simplify = FALSE
-          ))
-      )
-      
-      # Updating the model
-      stats_statmat[[i]] <- lapply(
-        model_final,
-        stats::model.frame,
-        data = stats_statmat[[i]]
-        )
-        
-      
-      # Parsing offset terms, if any
-      if (length(offset_terms)) {
-        
-        stats_offset[[i]]  <- do.call(cbind, stats_statmat[[i]][offset_terms])
-        stats_offset[[i]]  <- rowSums(as.matrix(stats_offset[[i]]))
-        stats_statmat[[i]] <- stats_statmat[[i]][-offset_terms]
-        
-      }
-        
-      # And taking it back to a matrix
-      stats_statmat[[i]] <- as.matrix(do.call(cbind, stats_statmat[[i]]))
-        
-    }
-    
-    # Reupdating the model (so users look it as is)
-    model_final <- stats::update.formula(model, model_update)
-    
-  } else {
-    model_final <- model
   }
   
   # Initializing the pointer
@@ -443,75 +352,6 @@ ergmito_formulae <- function(
   
   
   
-}
-
-#' Test whether the model terms list attributes
-#' 
-#' It simply looks for the regex pattern [(].*\".+\".*[])] in the formula
-#' terms.
-#' @param x A [stats::formula].
-#' @noRd
-model_has_attrs <- function(x) {
-  
-  if (!inherits(x, "formula"))
-    stop("`x` must be a formula.", call. = FALSE)
-  
-  trms <- stats::terms(x)
-  
-  if (any(grepl("[(].*\".+\".*[)]", attr(trms, "term.labels")))) {
-    
-    # Listing attribute names
-    pat    <- "(?<=\")(.+)(?=\")|(?<=\')(.+)(?=\')"
-    anames <- NULL
-    for (a in attr(trms, "term.labels")) {
-      m      <- regexpr(pat, a, perl = TRUE)
-      anames <- c(anames, regmatches(a, m))
-    }
-    
-    return(structure(TRUE, anames = unique(anames)))
-    
-  } else
-    return(structure(FALSE, anames = NULL))
-  
-}
-
-#' This function extracts networks attributes and returns a data
-#' frame
-#' @noRd
-graph_attributes_as_df <- function(net) {
-  
-  if (inherits(net, "list") && nnets(net) > 1L) {
-    net <- matrix_to_network(net)
-    return(do.call(rbind, lapply(net, graph_attributes_as_df)))
-  }
-  
-  if (!network::is.network(net))
-    net <- matrix_to_network(net)
-  
-  # Listing attributes, extracting and naming
-  netattrs   <- network::list.network.attributes(net)
-  ans        <- lapply(netattrs, network::get.network.attribute, x = net)
-  names(ans) <- netattrs
-  
-  # Returning as data.frame
-  as.data.frame(ans)
-}
-
-gmodel <- function(model, net) {
-  
-  netattrs   <- network::list.network.attributes(net)
-  ans        <- lapply(netattrs, network::get.network.attribute, x = net)
-  names(ans) <- netattrs
-  
-  ans <- stats::model.matrix(
-    stats::update.formula(model, ~ 0 + .),
-    as.data.frame(ans)
-  )
-  
-  structure(
-    ans[1, , drop=TRUE],
-    names = colnames(ans)
-  )
 }
 
 #' @export

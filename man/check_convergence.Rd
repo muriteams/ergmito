@@ -7,7 +7,7 @@
 \usage{
 check_support(target_stats, stats_statmat, threshold = 0.8, warn = TRUE)
 
-check_convergence(optim_output, model, support, offset, crit = 5)
+check_convergence(optim_output, model, support, crit = 5)
 }
 \arguments{
 \item{target_stats, stats_statmat}{See \link{ergmito_formulae}.}

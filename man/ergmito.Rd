@@ -76,7 +76,6 @@ computed using the exact hessian as implemented in \link{exact_hessian}.
 \item \code{coef.init}     Named vector of length \code{length(coef)}. Initial set of parameters
 used in the optimization.
 \item \code{formulae}      An object of class \link[=ergmito_formulae]{ergmito_loglik}.
-\item \code{offset}        The offset argument passed to \code{ergmito}.
 \item \code{nobs}          Integer scalar. Number of networks in the model.
 \item \code{network}       Networks passed via \code{model}.
 \item \code{optim.out},\code{optim.args} Results from the optim call and arguments passed to it.

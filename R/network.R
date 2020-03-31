@@ -10,6 +10,7 @@
 #' of the adjacency matrix.
 #' @param hyper,multiple,bipartite Currently Ignored. Right now all the network objects
 #' created by this function set these parameters as `FALSE`.
+#' @param ... Further arguments passed to the method.
 #' 
 #' @details This version does not support adding the name parameter yet. The 
 #' function in the network package includes the name of the vertices as an
@@ -53,7 +54,8 @@ matrix_to_network.matrix <- function(
   hyper     = rep(FALSE, length(x)),
   loops     = rep(FALSE, length(x)),
   multiple  = rep(FALSE, length(x)),
-  bipartite = rep(FALSE, length(x))
+  bipartite = rep(FALSE, length(x)),
+  ...
   ) {
   
   matrix_to_network.(
@@ -75,7 +77,8 @@ matrix_to_network.list <- function(
   hyper     = rep(FALSE, length(x)),
   loops     = rep(FALSE, length(x)),
   multiple  = rep(FALSE, length(x)),
-  bipartite = rep(FALSE, length(x))
+  bipartite = rep(FALSE, length(x)),
+  ...
   ) {
   
   # Checking all are any of the types
@@ -86,13 +89,19 @@ matrix_to_network.list <- function(
   if (all(sapply(x, inherits, what = "network")))
     return(x)
   
+  if (!all(sapply(x, inherits, what = "matrix")))
+    stop(
+      "When passing lists, all objects have to be either a list of network ",
+      "objects, or a list of matrices.", call. = FALSE
+      )
+  
   # To save memory, we do this by chunks
   chunks <- make_chunks(length(x), 50000)
   
   res <- vector("list", length(x))
   for (i in seq_along(chunks$from)) {
     
-    res[chunks$from[i]:chunks$to[i]] <- matrix_to_network(
+    res[chunks$from[i]:chunks$to[i]] <- matrix_to_network.(
       x         = x[chunks$from[i]:chunks$to[i]],
       directed  = directed[chunks$from[i]:chunks$to[i]],
       hyper     = hyper[chunks$from[i]:chunks$to[i]],

@@ -30,9 +30,6 @@ respective weights.}
 \item{env}{Environment in which \code{model} should be evaluated.}
 
 \item{...}{Further arguments passed to \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
-
-\item{gattr_model}{A formula. Model specification for graph attributes. This
-is useful when using multiple networks.}
 }
 \value{
 A list of class \code{ergmito_loglik}.

@@ -49,7 +49,6 @@
 #' - `coef.init`     Named vector of length `length(coef)`. Initial set of parameters
 #'   used in the optimization.
 #' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
-#' - `offset`        The offset argument passed to `ergmito`.
 #' - `nobs`          Integer scalar. Number of networks in the model.
 #' - `network`       Networks passed via `model`.
 #' - `optim.out`,`optim.args` Results from the optim call and arguments passed to it.
@@ -273,7 +272,7 @@ ergmito <- function(
     
     # Resetting the parameters for the optimization, now this time we start
     # from the init parameters + some random value
-    optim.args$par <- stats::rnorm(npars - length(offset), -2, 2)
+    optim.args$par <- stats::rnorm(npars, -2, 2)
     
     ntry <- ntry + 1
     
@@ -286,8 +285,7 @@ ergmito <- function(
   estimates <- check_convergence(
     optim_output = ans,
     model        = formulae,
-    support      = support,
-    offset       = offset
+    support      = support
   )
   timer <- c(
     timer,
@@ -311,7 +309,6 @@ ergmito <- function(
       covar      = estimates$vcov,
       coef.init  = init,
       formulae   = formulae,
-      offset     = offset,
       nobs       = NA,
       network    = eval(model[[2]], envir = ergmitoenv),
       optim.out  = ans,

@@ -13,7 +13,7 @@ new_ergmito_ptr(
 )
 }
 \arguments{
-\item{target_stats, stats_weights, stats_statmat}{see \link{exact_loglik}.}
+\item{target_stats, stats_weights, stats_statmat, target_offset, stats_offset}{see \link{exact_loglik}.}
 }
 \description{
 After calculating the support of the sufficient statistics, the second

@@ -33,7 +33,7 @@ using namespace Rcpp;
 //' deleted the log-likelihood and the gradient functions become invalid
 //' from the computational point of view. 
 //' 
-//' @param target_stats,stats_weights,stats_statmat see [exact_loglik].
+//' @param target_stats,stats_weights,stats_statmat,target_offset,stats_offset see [exact_loglik].
 //' @export
 // [[Rcpp::export(rng = false)]]
 SEXP new_ergmito_ptr(
