@@ -1,7 +1,7 @@
 #' Count Network Statistics
 #' 
 #' This function is similar to what [ergm::summary_formula] does, but it provides
-#' a fast wrapper suited for matrix class objects.
+#' a fast wrapper suited for matrix class objects (see benchmark in the examples).
 #' @param X List of square matrices. (networks)
 #' @param terms Character vector with the names of the statistics to calculate.
 #' Currently, the only available statistics are: '\Sexpr{paste(ergmito::AVAILABLE_STATS(), collapse="', '")}'.
@@ -13,20 +13,29 @@
 #' counts of statistics.
 #' @examples 
 #' # DGP 
-#' x <- powerset(5)
-#' ans0 <- count_stats(x[1:20], c("mutual", "edges"))
+#' set.seed(123199)
+#' x <- rbernoulli(rep(5, 10))
+#' ans0 <- count_stats(x, c("mutual", "edges"))
 #' 
 #' # Calculating using summary_formula
-#' fm <- x[[i]] ~ mutual + edges
-#' ans1 <- lapply(1:20, function(i) {
-#'   environment(fm) <- environment()
-#'   ergm::summary_formula(fm)
+#' ans1 <- lapply(x, function(i) {
+#'   ergm::summary_formula(i ~ mutual + edges)
 #' })
 #' 
 #' ans1 <- do.call(rbind, ans1)
 #' 
 #' # Comparing
 #' all.equal(unname(ans0), unname(ans1))
+#' 
+#' # count_stats is vectorized (and so faster)
+#' bm <- benchmarkito(
+#'   count_stats = count_stats(x, c("mutual", "edges")),
+#'   lapply      = lapply(x, function(i) {
+#'   ergm::summary_formula(i ~ mutual + edges)
+#' }), times = 50
+#' )
+#' 
+#' plot(bm)
 #' 
 count_stats <- function(X, ...) UseMethod("count_stats")
 

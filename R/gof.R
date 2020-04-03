@@ -184,7 +184,7 @@ gof_ergmito <- function(
       model_frame <- model_frame_ergmito(
         formula        = GOF,
         formula_update = GOF_update,
-        data           = rbind(summary(GOF), statmat.),
+        data           = rbind(ergm::summary_formula(GOF), statmat.),
         g_attrs.       = g_attrs
         )
       

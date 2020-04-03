@@ -95,10 +95,18 @@ extract.ergmito <- function(
     
   }
   
-  tr <- texreg::createTexreg(coef.names = coefficient.names, coef = coefficients,
-                             se = standard.errors, pvalues = significance, gof.names = gof.names,
-                             gof = gof, gof.decimal = gof.decimal)
-  return(tr)
+  
+  return(
+    texreg::createTexreg(
+      coef.names  = coefficient.names,
+      coef        = coefficients,
+      se          = standard.errors,
+      pvalues     = significance,
+      gof.names   = gof.names,
+      gof         = gof,
+      gof.decimal = gof.decimal
+      )
+  )
   
 }
 

@@ -50,7 +50,7 @@ compute_mfrow <- function(k) {
 #' plot(ans)
 #' 
 #' @seealso The [ergmito] function.
-#' @importFrom graphics image par plot title lines
+#' @importFrom graphics image par plot title lines boxplot
 #' @importFrom utils combn
 #' @importFrom stats setNames
 plot.ergmito <- function(

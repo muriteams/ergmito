@@ -13,9 +13,7 @@
 #' @param model_update A formula. If specified, the after computing the
 #' sufficient statistics (observed and support), the model is updated using
 #' [stats::model.frame()]. This includes processing offset terms.
-#' @param target_offset Numeric vector of length `nrow(target_stats)`.
-#' @param stats_offset List of numeric vectors, each of length equal to the
-#' lengths of vectors in `stats_weights`.
+#' @template offset
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
 #' @details 
@@ -54,9 +52,15 @@
 #' @aliases ergmito_loglik
 #' @examples 
 #' data(fivenets)
-#' model <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
-#' print(model)
-#' model$loglik(c(-2, 2))
+#' model0 <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
+#' print(model0)
+#' model0$loglik(c(-2, 2))
+#' 
+#' # Model with interaction effects and an offset term
+#' model1 <- ergmito_formulae(
+#'   fivenets ~ edges + nodematch("female"),
+#'   model_update = ~ . + offset(edges) + I(edges * nodematch.female)
+#' )
 #' @export
 ergmito_formulae <- function(
   model,
@@ -236,14 +240,14 @@ ergmito_formulae <- function(
       
       # Still need to get it once b/c of naming
       i <- 1
-      colnames(target_stats) <- names(summary(model.))
+      colnames(target_stats) <- names(ergm::summary_formula(model.))
       
     } else {
       
       for (i in seq_len(nnets(LHS))) {
         # Calculating observed statistics
         if (!length(target_stats[[i]]))
-          target_stats[[i]] <- c(summary(model.))
+          target_stats[[i]] <- c(ergm::summary_formula(model.))
 
       }
       
@@ -386,7 +390,7 @@ print.ergmito_loglik <- function(x, ...) {
   
   cat("ergmito log-likelihood function\n")
   cat("Number of networks: ", x$nnets, "\n")
-  cat("Model: ", deparse(x$model), "\n")
+  cat("Model: ", deparse(x$model_final), "\n")
   cat("Available elements by using the $ operator:\n")
   cat(sprintf("loglik: %s", deparse(x$loglik)[1]))
   cat(sprintf("grad  : %s", deparse(x$grad)[1]))

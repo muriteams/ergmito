@@ -1,2 +1,2 @@
-#' @param target_offset,stats_offset See [ergmito_formulae()].
+#' @param target_offset,stats_offset See [exact_loglik()].
 NULL

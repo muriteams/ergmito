@@ -50,7 +50,10 @@ exact_hessian(
 
 \item{stats_statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
 
-\item{target_offset, stats_offset}{See \code{\link[=ergmito_formulae]{ergmito_formulae()}}.}
+\item{target_offset}{Numeric vector of length \code{nrow(target_stats)}.}
+
+\item{stats_offset}{List of numeric vectors, each of length equal to the
+lengths of vectors in \code{stats_weights} (see details).}
 }
 \description{
 This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not
@@ -74,6 +77,13 @@ two lists \code{stats_weights} and \code{stats_statmat}. While both lists have t
 have the same length (since its elements are matched), this needs not to
 be the case with the networks, as the user can specify a single set of
 weights and statistics that will be recycled (smartly).
+
+In the case of offset terms, these can be passed directly via \code{target_offset}
+and \code{stats_offset}. The first is a numeric vector of length equal to the
+number of networks in the model. The later is a list of vectors that is
+matched against \code{stats_weights}, so each of it's elements must be a
+numeric vector of the same length that in the list of weights. By default
+the offset terms are set to equal zero.
 }
 
 \examples{

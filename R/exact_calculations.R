@@ -6,7 +6,9 @@
 #' @param x Matrix. Observed statistics
 #' @param params Numeric vector. Parameter values of the model.
 #' @template stats
-#' @template offset
+#' @param target_offset Numeric vector of length `nrow(target_stats)`.
+#' @param stats_offset List of numeric vectors, each of length equal to the
+#' lengths of vectors in `stats_weights` (see details).
 #' @param ... Arguments passed to the default methods.
 #' 
 #' @section Sufficient statistics:
@@ -25,6 +27,13 @@
 #' have the same length (since its elements are matched), this needs not to
 #' be the case with the networks, as the user can specify a single set of
 #' weights and statistics that will be recycled (smartly).
+#' 
+#' In the case of offset terms, these can be passed directly via `target_offset`
+#' and `stats_offset`. The first is a numeric vector of length equal to the
+#' number of networks in the model. The later is a list of vectors that is
+#' matched against `stats_weights`, so each of it's elements must be a
+#' numeric vector of the same length that in the list of weights. By default
+#' the offset terms are set to equal zero.
 #' 
 #' 
 #' @examples 

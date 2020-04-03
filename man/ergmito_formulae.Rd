@@ -31,10 +31,7 @@ a named vector (see \link[ergm:summary_formula]{ergm::summary_formula}).}
 \item{stats_weights, stats_statmat}{Lists of sufficient statistics and their
 respective weights.}
 
-\item{target_offset}{Numeric vector of length \code{nrow(target_stats)}.}
-
-\item{stats_offset}{List of numeric vectors, each of length equal to the
-lengths of vectors in \code{stats_weights}.}
+\item{target_offset, stats_offset}{See \code{\link[=exact_loglik]{exact_loglik()}}.}
 
 \item{env}{Environment in which \code{model} should be evaluated.}
 
@@ -78,7 +75,13 @@ assigns to it after computing the sufficient statistics) and multiplied it by
 }
 \examples{
 data(fivenets)
-model <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
-print(model)
-model$loglik(c(-2, 2))
+model0 <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
+print(model0)
+model0$loglik(c(-2, 2))
+
+# Model with interaction effects and an offset term
+model1 <- ergmito_formulae(
+  fivenets ~ edges + nodematch("female"),
+  model_update = ~ . + offset(edges) + I(edges * nodematch.female)
+)
 }

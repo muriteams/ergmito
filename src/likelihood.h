@@ -60,7 +60,19 @@ public:
   void update_normalizing_constant(const arma::colvec & params);
   
   // Destructor function
-  ~ergmito_ptr() {};
+  ~ergmito_ptr() {
+    
+    // Cleaning up
+    for (auto i = stats_weights.begin(); i != stats_weights.end(); ++i)
+      delete *i;
+    
+    for (auto i = stats_statmat.begin(); i != stats_statmat.end(); ++i)
+      delete *i;
+    
+    for (auto i = stats_offset.begin(); i != stats_offset.end(); ++i)
+      delete *i;
+    
+  };
   
   // The loglikes
   arma::vec exact_loglik(
@@ -140,14 +152,16 @@ inline ergmito_ptr::ergmito_ptr(
      * R. This is actually a bit dangerous but in our case can be very efficient
      */
     
-    stats_weights.push_back(new arma::rowvec(
+    stats_weights.push_back(
+      new arma::rowvec(
         (double *) &stats_weights_[i][0],
         stats_weights_[i].size(),
         false,
         true
     ));
     
-    stats_statmat.push_back(new arma::mat(
+    stats_statmat.push_back(
+      new arma::mat(
         (double *) &stats_statmat_[i][0],
         stats_statmat_[i].nrow(),
         stats_statmat_[i].ncol(),
@@ -155,7 +169,8 @@ inline ergmito_ptr::ergmito_ptr(
         true
     ));
     
-    stats_offset.push_back(new arma::colvec(
+    stats_offset.push_back(
+      new arma::colvec(
         (double *) &stats_offset_[i][0],
         stats_offset_[i].size(),
         false,

@@ -19,8 +19,16 @@
 #' 
 #' @examples 
 #' 
-#' # Simulating 20 bernoulli networks of size 4
-#' nets <- replicate(20, rbernoulli(4), simplify = FALSE)
+#' data(fivenets)
+#' set.seed(123)
+#' ans0 <- ergmito(fivenets ~ edges + ttriad)
+#' ans1 <- suppressWarnings(ergmito_boot(ans0, R = 100))
+#' ans2 <- suppressWarnings(ergmito_boot(fivenets ~ edges + ttriad, R = 100))
+#' 
+#' # Checking the differences
+#' summary(ans0)
+#' summary(ans1)
+#' summary(ans2)
 ergmito_boot <- function(x, ..., R, ncpus = 1L, cl = NULL) UseMethod("ergmito_boot")
 
 

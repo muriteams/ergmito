@@ -176,7 +176,14 @@ is_directed.formula <- function(x, check_type = FALSE) {
 #' 
 #' @param x An object to be coerced as an adjacency matrix.
 #' @export
+#' @examples 
 #' 
+#' set.seed(1231)
+#' x <- matrix_to_network(rbernoulli(rep(5, 100)))
+#' benchmarkito(
+#'   as_adjmat = as_adjmat(x),
+#'   as.matrix = lapply(x, as.matrix)
+#' )
 as_adjmat <- function(x) UseMethod("as_adjmat")
 
 #' @export
