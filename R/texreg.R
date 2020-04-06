@@ -29,6 +29,7 @@ extract.ergmito <- function(
   include.nnets = TRUE,
   include.offset = TRUE,
   include.convergence = TRUE,
+  include.timing      = TRUE,
   ...
 ) {
   
@@ -95,6 +96,37 @@ extract.ergmito <- function(
     
   }
   
+  # Checking boot
+  if (inherits(model, "ergmito_boot")) {
+    
+    # How many replicates
+    gof         <- c(gof, model$R)
+    gof.names   <- c(gof.names, "N replicates")
+    gof.decimal <- c(gof.decimal, FALSE)
+    
+    # How many of R we used
+    gof         <- c(gof, model$nvalid)
+    gof.names   <- c(gof.names, "N Used replicates")
+    gof.decimal <- c(gof.decimal, FALSE)
+    
+  }
+  
+  # Adding elapsed time
+  if (include.timing) {
+    
+    gof <- c(
+      gof,
+      ifelse(
+        inherits(model, "ergmito_boot"),
+        model$timer_boot["total"],
+        model$timer["total"]
+        )
+      )
+    
+    gof.names   <- c(gof.names, "Time (seconds)")
+    gof.decimal <- c(gof.decimal, TRUE)
+      
+  }
   
   return(
     texreg::createTexreg(
@@ -113,5 +145,10 @@ extract.ergmito <- function(
 
 setMethod(
   "extract", signature = className("ergmito", "ergmito"),
+  definition = extract.ergmito
+)
+
+setMethod(
+  "extract", signature = className("ergmito_boot", "ergmito"),
   definition = extract.ergmito
 )

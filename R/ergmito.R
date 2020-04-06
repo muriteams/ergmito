@@ -166,7 +166,7 @@ ergmito <- function(
   ) {
 
   # Keeping track of time
-  timer_start <- Sys.time()
+  timer <- c(start = unname(proc.time()["elapsed"]))
 
   # Generating the objective function
   ergmitoenv <- environment(model)
@@ -183,15 +183,14 @@ ergmito <- function(
     ...
   )
   
-  timer <- c(ergmito_formulae = difftime(Sys.time(), timer_start, units = "secs"))
+  timer <- c(timer, ergmito_formulae = unname(proc.time()["elapsed"]))
   
   # Verifying existence of MLE
-  timer0 <- Sys.time()
   support <- check_support(
     formulae$target_stats,
     formulae$stats_statmat
   )
-  timer <- c(timer, check_support = difftime(Sys.time(), timer0, units = "secs"))
+  timer <- c(timer, check_support = unname(proc.time()["elapsed"]))
   
   npars  <- formulae$npars
   
@@ -238,7 +237,6 @@ ergmito <- function(
   # Passed (and default) other than the functions
   optim.args0 <- optim.args
   
-  timer0 <- Sys.time()
   while (ntry <= ntries) {
     
     # Maximizign the likelihood and storing the value
@@ -260,24 +258,19 @@ ergmito <- function(
     # Resetting the parameters for the optimization, now this time we start
     # from the init parameters + some random value
     optim.args$par <- stats::rnorm(npars, -2, 2)
-    
     ntry <- ntry + 1
     
   }
 
-  timer <- c(timer, optim = difftime(Sys.time(), timer0, units = "secs"))
+  timer <- c(timer, optim = unname(proc.time()["elapsed"]))
   
   # Checking the convergence
-  timer0 <- Sys.time()
   estimates <- check_convergence(
     optim_output = ans,
     model        = formulae,
     support      = support
   )
-  timer <- c(
-    timer,
-    chec_covergence = difftime(Sys.time(), timer0, units = "secs")
-  )
+  timer <- c(timer, chec_covergence = unname(proc.time()["elapsed"]))
   
   # Capturing model
   if (!inherits(model, "formula"))
@@ -322,8 +315,8 @@ ergmito <- function(
   
   ans$nobs <- sum(ans$nobs)
   
-  timer <- c(timer, total = difftime(Sys.time(), timer_start, units = "secs"))
-  ans$timer <- timer
+  ans$timer <- diff(timer)
+  ans$timer <- c(ans$timer, total = sum(ans$timer))
   ans
   
 }

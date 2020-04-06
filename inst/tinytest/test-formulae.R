@@ -49,3 +49,19 @@ ans1 <- exact_gradient(
 )
 
 expect_equal(ans0, ans1)
+
+# Checking offset terms -----------------------------------
+data(fivenets)
+
+m0 <- ergmito_formulae(fivenets ~ edges + ttriad, model_update = ~ . + offset(edges))
+m1 <- ergmito_formulae(fivenets ~ edges + ttriad, model_update = ~ . + I(edges))
+
+expect_equal(
+  m0$loglik(c(.5, .5)),
+  m1$loglik(c(.5, .5, 1))
+)
+
+expect_equal(
+  m0$grad(c(.5, .5)),
+  m1$grad(c(.5, .5, 1))[-3,,drop=FALSE]
+)

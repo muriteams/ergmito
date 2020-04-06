@@ -13,12 +13,21 @@ ergmito_boot(x, ..., R, ncpus = 1L, cl = NULL)
 
 \item{R}{Integer. Number of replicates}
 
-\item{ncpus}{Integer Number of CPUs to use.}
+\item{ncpus}{Integer Number of CPUs to use. Only recommended if \code{ergmito} was
+not compiled with OpenMP (otherwise it will be slower).}
 
 \item{cl}{An object of class \code{cluster} (see \link[parallel:makePSOCKcluster]{parallel::makePSOCKcluster})}
 }
 \value{
-An object of class \code{ergmito_boot} and \link{ergmito}
+An object of class \code{ergmito_boot} and \link{ergmito}. This adds three
+elements to the \code{ergmito} object:
+\itemize{
+\item \code{R} The number of replicates.
+\item \code{sample} A vector of length \code{R} with the cases used in each replicate.
+\item \code{dist} The distribution of fitted parameters.
+\item \code{nvalid} the number of cases used for computing the covar.
+\item \code{timer_boot} records the time the whole process took.
+}
 }
 \description{
 Bootstrap of ergmito

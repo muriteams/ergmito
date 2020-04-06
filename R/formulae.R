@@ -74,15 +74,6 @@ ergmito_formulae <- function(
   ...
   ) {
   
-  # Collecting extra options
-  dots <- list(...)
-  if (length(dots$zeroobs) && dots$zeroobs) {
-    zeroobs <- TRUE
-  } else {
-    zeroobs <- FALSE
-  }
-  dots$zeroobs <- FALSE
-
   # Capturing model
   if (!inherits(model, "formula"))
     model <- eval(model, envir = env)
@@ -93,133 +84,153 @@ ergmito_formulae <- function(
   # Checking whether this model has attributes on it or not
   vattrs <- attr(model_has_attrs(model), "anames")
   
-  # Checking the appropriate types
-  if (inherits(LHS, "list")) {
+  # Checking if statmat weights and offsets are passed, then we assume the user
+  # knows what is doing, so we should skip all the checks
+  test <- c(
+    target_stats  = is.null(target_stats),
+    stats_weights = is.null(stats_weights),
+    stats_statmat = is.null(stats_statmat),
+    target_offset = is.null(target_offset),
+    stats_offset  = is.null(stats_offset)
+  )
+  
+  if (all(test)) {
     
-    # Are all either matrices or networks?
-    test <- which(!(
-      sapply(LHS, inherits, what = "matrix") | sapply(LHS, inherits, what = "network")
+    # Collecting extra options
+    dots <- list(...)
+    if (length(dots$zeroobs) && dots$zeroobs) {
+      zeroobs <- TRUE
+    } else {
+      zeroobs <- FALSE
+    }
+    dots$zeroobs <- FALSE
+    
+    # Checking the appropriate types
+    if (inherits(LHS, "list")) {
+      
+      # Are all either matrices or networks?
+      test <- which(!(
+        sapply(LHS, inherits, what = "matrix") | sapply(LHS, inherits, what = "network")
       ))
-    if (length(test))
-      stop(
-        "One of the components is not a matrix `", deparse(model[[2]]),
-        "` is of class ",
-        paste(sapply(LHS, class)[test], collapse = ", "),
-        ".",
-        call. = FALSE)
-    
-  } else if (inherits(LHS, "matrix") | inherits(LHS, "network")) {
-    
-    # Nesting into a list. Later we will loop over the elements, so we can
-    # apply the same logic regardless of if it is one or more networks
-    LHS <- list(LHS)
-    
-  } else
-    stop("LHS of the formula should be either a list of networks or a single ",
-         "network.", call. = FALSE)
-  
-  # We will evaluate the formula in the current environment
-  model. <- model
-  model. <- stats::update.formula(model., LHS[[i]] ~ .)
-  
-
-  environment(model.) <- environment()
-  
-  # Checking observed stats and stats
-  if (!length(stats_weights) | !length(stats_statmat)) {
-    stats_weights <- vector("list", nnets(LHS))
-    stats_statmat <- stats_weights
-  }
-  
-  # Has the user passed target statistics?
-  if (!length(target_stats))
-    target_stats <- vector("list", nnets(LHS))
-  else # This is painful, the current way I have this written needs me to pass
-       # the target_stats as a list instead of a matrix, which is not the best.
-       # For now it should be OK.
-    target_stats <- lapply(1:nrow(target_stats), function(i) target_stats[i, , drop=FALSE])
-  
-  # Checking types
-  test     <- sapply(LHS, inherits, what = "network")
-  directed <- TRUE
-  if (length(which(test))) {
-    test[test] <- test[test] & !sapply(LHS[test], network::is.directed)
-    
-    test <- which(test)
-    
-    if ((length(test) != 0) & (length(test) < length(LHS))) {
+      if (length(test))
+        stop(
+          "One of the components is not a matrix `", deparse(model[[2]]),
+          "` is of class ",
+          paste(sapply(LHS, class)[test], collapse = ", "),
+          ".",
+          call. = FALSE)
       
-      stop(
-        "All networks should be of the same type. Right now, networks ",
-        paste(test, collapse = ", "), " are undirected while networks ",
-        paste(setdiff(1:length(LHS), test), collapse = ", "), " are directed.",
-        call. = FALSE
+    } else if (inherits(LHS, "matrix") | inherits(LHS, "network")) {
+      
+      # Nesting into a list. Later we will loop over the elements, so we can
+      # apply the same logic regardless of if it is one or more networks
+      LHS <- list(LHS)
+      
+    } else
+      stop("LHS of the formula should be either a list of networks or a single ",
+           "network.", call. = FALSE)
+    
+    # We will evaluate the formula in the current environment
+    model. <- model
+    model. <- stats::update.formula(model., LHS[[i]] ~ .)
+    
+    
+    environment(model.) <- environment()
+    
+    # Checking observed stats and stats
+    if (!length(stats_weights) | !length(stats_statmat)) {
+      stats_weights <- vector("list", nnets(LHS))
+      stats_statmat <- stats_weights
+    }
+    
+    # Has the user passed target statistics?
+    if (!length(target_stats))
+      target_stats <- vector("list", nnets(LHS))
+    else # This is painful, the current way I have this written needs me to pass
+      # the target_stats as a list instead of a matrix, which is not the best.
+      # For now it should be OK.
+      target_stats <- lapply(1:nrow(target_stats), function(i) target_stats[i, , drop=FALSE])
+    
+    # Checking types
+    test     <- sapply(LHS, inherits, what = "network")
+    directed <- TRUE
+    if (length(which(test))) {
+      test[test] <- test[test] & !sapply(LHS[test], network::is.directed)
+      
+      test <- which(test)
+      
+      if ((length(test) != 0) & (length(test) < length(LHS))) {
+        
+        stop(
+          "All networks should be of the same type. Right now, networks ",
+          paste(test, collapse = ", "), " are undirected while networks ",
+          paste(setdiff(1:length(LHS), test), collapse = ", "), " are directed.",
+          call. = FALSE
         )
-      
-    } else if (length(test)) {
-      
-      warning_ergmito(
-        "ergmito does not fully support undirected graphs (yet). We will ",
-        "continue with the estimation process, but simulation has limited supported ",
-        "for now.", call. = FALSE
+        
+      } else if (length(test)) {
+        
+        warning_ergmito(
+          "ergmito does not fully support undirected graphs (yet). We will ",
+          "continue with the estimation process, but simulation has limited supported ",
+          "for now.", call. = FALSE
         )
-      
-      directed <- FALSE
+        
+        directed <- FALSE
+        
+      }
       
     }
     
-  }
-  
-  # Calculating the support of the sufficient statistics -----------------------
-  for (i in 1L:nnets(LHS)) {
-    
-    # Calculating statistics and weights
-    if (!length(stats_statmat[[i]])) {
+    # Calculating the support of the sufficient statistics -----------------------
+    for (i in 1L:nnets(LHS)) {
       
-      # Smart thing to do, have I calculated this earlier? ---------------------
-      # 1. For now we do it if the model is attr-less model
-
-      # Can we find a match in the previous set?
-      matching_net <- NULL
-      for (j in 1L:(i-1L)) {
+      # Calculating statistics and weights
+      if (!length(stats_statmat[[i]])) {
         
-        if (i == 1)
-          break
+        # Smart thing to do, have I calculated this earlier? ---------------------
+        # 1. For now we do it if the model is attr-less model
         
-        # Minimum (and only for now): Have the same size
-        if ( same_dist(LHS[[i]], LHS[[j]], vattrs) ) {
+        # Can we find a match in the previous set?
+        matching_net <- NULL
+        for (j in 1L:(i-1L)) {
           
-          matching_net <- j
-          break
+          if (i == 1)
+            break
+          
+          # Minimum (and only for now): Have the same size
+          if ( same_dist(LHS[[i]], LHS[[j]], vattrs) ) {
+            
+            matching_net <- j
+            break
+            
+          }
           
         }
         
-      }
+        # If we calculated this earlier, then copy, else, need to recalc
+        if (!is.null(matching_net)) {
+          
+          stats_statmat[[i]] <- stats_statmat[[matching_net]]
+          stats_weights[[i]] <- stats_weights[[matching_net]]
+          next
+          
+        } 
         
-      # If we calculated this earlier, then copy, else, need to recalc
-      if (!is.null(matching_net)) {
-        
-        stats_statmat[[i]] <- stats_statmat[[matching_net]]
-        stats_weights[[i]] <- stats_weights[[matching_net]]
-        next
-        
-      } 
-      
-      # Computing if we need
-      allstats_i <- do.call(
-        ergm::ergm.allstats, 
-        # We correct for zero obs later
-        c(list(formula = model.), dots)
+        # Computing if we need
+        allstats_i <- do.call(
+          ergm::ergm.allstats, 
+          # We correct for zero obs later
+          c(list(formula = model.), dots)
         )
-      stats_statmat[[i]] <- allstats_i$statmat
-      stats_weights[[i]] <- allstats_i$weights
+        stats_statmat[[i]] <- allstats_i$statmat
+        stats_weights[[i]] <- allstats_i$weights
+        
+      }
       
     }
     
-  }
-  
-  # Computing target statistics ------------------------------------------------
-  if (all(sapply(target_stats, length) == 0)) {
+    # Computing target statistics ------------------------------------------------
     
     # Should we use summary.formula?
     model_analysis <- analyze_formula(model)
@@ -227,9 +238,9 @@ ergmito_formulae <- function(
     # Checking gw terms
     if (any(grepl("^d?gw", model_analysis$names)))
       stop(
-      "Currently, geometrically weighted terms are not supported in ergmito.",
-      " For more information, see https://github.com/muriteams/ergmito/issues/17.",
-      call. = FALSE
+        "Currently, geometrically weighted terms are not supported in ergmito.",
+        " For more information, see https://github.com/muriteams/ergmito/issues/17.",
+        call. = FALSE
       )
     
     # Can we compute it directly with ergmito? If not, we default to
@@ -248,70 +259,83 @@ ergmito_formulae <- function(
         # Calculating observed statistics
         if (!length(target_stats[[i]]))
           target_stats[[i]] <- c(ergm::summary_formula(model.))
-
+        
       }
       
       # Coercing objects
       target_stats   <- do.call(rbind, target_stats)
     }
     
-  }
-  
-  if (is.list(target_stats))
-    target_stats <- do.call(rbind, target_stats)
-  
-  # Should it be normalized to 0? ----------------------------------------------
-  if (zeroobs)
-    for (i in seq_len(nnets(LHS))) {
-      stats_statmat[[i]] <- stats_statmat[[i]] - 
-        matrix(
-          data  = target_stats[i, ],
-          nrow  = nrow(stats_statmat[[i]]),
-          ncol  = ncol(target_stats),
-          byrow = TRUE
-        )
-      
-      target_stats[i, ] <- 0
-      
-    }
-  
-  # Updating the model, if needed, since this could affect offset, we need to
-  # preassing information
-  if (is.null(target_offset))
-    target_offset <- double(nrow(target_stats))
-  
-  if (is.null(stats_offset))
-    stats_offset <- lapply(stats_weights, function(i) double(length(i)))
-  
-  # Are we updating the model? ------------------------------------------------
-  graph_attrs <- graph_attributes_as_df(LHS)
-  model_frame <- model_frame_ergmito(
-    formula        = model,
-    formula_update = model_update, 
-    data           = target_stats,
-    g_attrs.       = graph_attrs
-  )
-  
-  target_stats <- model_frame$stats
-  offset_terms <- model_frame$offsets
-  model_final  <- model_frame$model
-  
-  # Doing the same for the rest of the networks
-  for (i in seq_len(nnets(LHS))) {
+    if (is.list(target_stats))
+      target_stats <- do.call(rbind, target_stats)
     
-    # Merging the data
+    # Should it be normalized to 0? ----------------------------------------------
+    if (zeroobs)
+      for (i in seq_len(nnets(LHS))) {
+        stats_statmat[[i]] <- stats_statmat[[i]] - 
+          matrix(
+            data  = target_stats[i, ],
+            nrow  = nrow(stats_statmat[[i]]),
+            ncol  = ncol(target_stats),
+            byrow = TRUE
+          )
+        
+        target_stats[i, ] <- 0
+        
+      }
+    
+    # Updating the model, if needed, since this could affect offset, we need to
+    # preassing information
+    
+    # Are we updating the model? ------------------------------------------------
+    graph_attrs <- graph_attributes_as_df(LHS)
     model_frame <- model_frame_ergmito(
       formula        = model,
       formula_update = model_update, 
-      data           = stats_statmat[[i]],
-      g_attrs.       = graph_attrs[i, , drop = FALSE]
+      data           = target_stats,
+      g_attrs.       = graph_attrs
     )
     
-    stats_statmat[[i]] <- model_frame$stats
-    stats_offset[[i]]  <- model_frame$offsets
+    target_stats  <- model_frame$stats
+    target_offset <- model_frame$offsets
+    model_final   <- model_frame$model
     
+    
+    # Doing the same for the rest of the networks
+    stats_offset <- vector("list", length(stats_weights))
+    
+    for (i in seq_len(nnets(LHS))) {
+      
+      # Merging the data
+      model_frame <- model_frame_ergmito(
+        formula        = model,
+        formula_update = model_update, 
+        data           = stats_statmat[[i]],
+        g_attrs.       = graph_attrs[i, , drop = FALSE]
+      )
+      
+      stats_statmat[[i]] <- model_frame$stats
+      stats_offset[[i]]  <- model_frame$offsets
+      
+    }
+    
+  } else if (sum(!test) != length(test)) { # Here is not all, but some
+    
+    stop(
+      "When passing target_stats, statmat_stats, statmat_weights, target_offset, ",
+      "statmat_offset either all of none is specified. Right now only : -",
+      paste(names(test[!test]), collapse = "-, -"), "- are specified.",
+      call. = FALSE
+      )
+    
+  } else {
+    # We only need to build the model_final object
+    model_final <- if (!is.null(model_update))
+      stats::update.formula(model, model_update)
+    else
+      model
   }
-  
+
   # Initializing the pointer
   ergmito_ptr   <- new_ergmito_ptr(
     target_stats  = target_stats,

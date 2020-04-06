@@ -12,6 +12,7 @@ extract.ergmito(
   include.nnets = TRUE,
   include.offset = TRUE,
   include.convergence = TRUE,
+  include.timing = TRUE,
   ...
 )
 }
