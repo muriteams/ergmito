@@ -2,19 +2,25 @@
 % Please edit documentation in R/network.R
 \name{matrix_to_network}
 \alias{matrix_to_network}
+\alias{matrix_to_network.matrix}
 \title{Manipulation of network objects}
 \usage{
-matrix_to_network(
+matrix_to_network(x, ...)
+
+\method{matrix_to_network}{matrix}(
   x,
   directed = rep(TRUE, length(x)),
   hyper = rep(FALSE, length(x)),
   loops = rep(FALSE, length(x)),
   multiple = rep(FALSE, length(x)),
-  bipartite = rep(FALSE, length(x))
+  bipartite = rep(FALSE, length(x)),
+  ...
 )
 }
 \arguments{
 \item{x}{Either a single square matrix (adjacency matrix), or a list of these.}
+
+\item{...}{Further arguments passed to the method.}
 
 \item{directed}{Logical scalar, if \code{FALSE} then the function only checks the
 upper diagonal of the matrix assuming it is undirected.}

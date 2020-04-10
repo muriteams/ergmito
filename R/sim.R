@@ -87,7 +87,7 @@ new_rergmito <- function(
     sizes <- sort(unique(sizes))
   }
   
-  if ((any(sizes) > 7) & !force)
+  if (any(sizes > 7) & !force)
     stop(
       "For simulating networks with more than 7 vertices, you need to set ",
       "force = TRUE.", call. = FALSE
@@ -145,8 +145,8 @@ new_rergmito <- function(
       ergm_model$attrs[[a]] <-
         if (is.null(ergm_model$attrnames[[a]]))
           numeric(0)
-      else
-        network::get.vertex.attribute(net, attrname = ergm_model$attrnames[[a]])
+        else
+          network::get.vertex.attribute(net, attrname = ergm_model$attrnames[[a]])
     }
   }
   
@@ -160,11 +160,10 @@ new_rergmito <- function(
     for (s in names(ans$networks)) {
       
       # Generating all statistics (both have to match!)
-      if (nnets(net) == 1 && nvertex(net) == as.integer(s)) {
+      if (nnets(net) == 1 && nvertex(net) == as.integer(s)) 
         net_i <- net
-      } else {
+      else 
         net_i <- rbernoulli(as.integer(s))
-      } 
 
       # Computing all stats
       S <- do.call(ergm::ergm.allstats, c(list(formula = model.), dots))
@@ -175,8 +174,11 @@ new_rergmito <- function(
       if (!is.null(cl) | ncores > 1L) {
         
         # Creating cluster object, if needed
-        cl <- parallel::makeCluster(ncores)
-        on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+        if (is.null(cl)) {
+          cl <- parallel::makeCluster(ncores)
+          on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+        }
+        
         parallel::clusterEvalQ(cl, library(ergmito))
         parallel::clusterExport(cl, c("ergm_model", "ans"), envir = environment())
         
@@ -321,12 +323,21 @@ new_rergmito <- function(
       model. <- stats::update.formula(model, ans$networks[[s]][[i]] ~ .)
       
       # Creating cluster object, if needed
-      on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
-      cl <- parallel::makeCluster(ncores)
-      parallel::clusterEvalQ(cl, library(ergmito))
-      parallel::clusterExport(cl, c("ans", "model.", "terms"), envir = environment())
+      if (ncores > 1L & is.null(cl)) {
+        
+        on.exit(tryCatch(parallel::stopCluster(cl), error = function(e) e))
+        cl     <- parallel::makeCluster(ncores)
+        ncores <- length(cl)
+        
+      } 
       
-      ncores <- length(cl)
+      # If using multicore, and cl is not null, then pass the needed arguments
+      if (ncores > 1L & !is.null(cl)) {
+        
+        parallel::clusterEvalQ(cl, library(ergmito))
+        parallel::clusterExport(cl, c("ans", "model.", "terms"), envir = environment())
+        
+      }
       
       if (ncores > 1L) {
         
@@ -339,7 +350,7 @@ new_rergmito <- function(
           environment(model.) <- environment()
           
           # In the first iteration we need to compute the statsmat
-          summary(model.)
+          ergm::summary_formula(model.)
           
         })
         
@@ -353,7 +364,7 @@ new_rergmito <- function(
             environment(model.) <- environment()
             
             # In the first iteration we need to compute the statsmat
-            summary(model.)
+            ergm::summary_formula(model.)
 
           })
         
@@ -388,8 +399,8 @@ new_rergmito <- function(
       ans$prob[[i]] <- exp(exact_loglik(
         x             = ans$counts[[i]]$stats,
         params        = theta,
-        stats.weights = ans$counts[[i]]$weights,
-        stats.statmat = ans$counts[[i]]$statmat
+        stats_weights = ans$counts[[i]]$weights,
+        stats_statmat = ans$counts[[i]]$statmat
       ))
       
       # Should be within epsilon
@@ -516,7 +527,6 @@ new_rergmito <- function(
 }
 
 #' @export
-#' @rdname new_rergmito
 print.ergmito_sampler <- function(x, ...) {
   
   cat("ERGMito simulator\n")

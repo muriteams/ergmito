@@ -1,0 +1,176 @@
+#' Offset processer
+#' @param x An object of class formula
+#' @details
+#' It will identify if the model has offset terms or not. In the case of
+#' having offsets, the resulting object has an attribute indicating which
+#' of the terms are offset terms.
+#' @return A list of formulas.
+#' @noRd
+parse_offset <- function(x) {
+  
+  terms_x <- terms(x)
+  
+  if (!length(attr(terms_x, "term.labels")))
+    stop(
+      "Invalid model:\n",
+      deparse(x), 
+      "\nA offset-only model cannot be fitted.", call. = FALSE)
+  
+  # Are there any offset terms?
+  offsets_x <- attr(terms_x, "offset")
+  if (!length(offsets_x))
+    return(list(x))
+  
+  # Updating offset terms
+  variables <- rownames(attr(terms_x, "factors"))
+  variables_free <- gsub("^offset[(]|[)]$", "", variables[offsets_x])
+  
+  # We need to memorize this later
+  offsets_x <- structure(offsets_x, names = variables[offsets_x])
+  variables[offsets_x] <- variables_free
+  
+  if (attr(terms_x, "response") > 0) 
+    ans <- sprintf("%s ~ %s", variables[1L], variables[-1L])
+  else 
+    ans <- sprintf(" ~ %s", variables)
+  
+  ans <- lapply(ans, formula, env = environment(x))
+  attr(ans, "ergmito_offset") <- offsets_x
+  
+  return(ans)
+  
+}
+
+#' 
+#' @noRd
+model_frame_ergmito <- function(formula, formula_update, data, g_attrs.) {
+  
+  # If nothing to do, then return nothing
+  if (is.null(formula_update)) 
+    return(list(model = formula, stats = data, offsets = double(nrow(data))))
+  
+  model_final <- stats::as.formula(
+    sprintf("~ %s", paste(colnames(data), collapse = " + "))
+  )
+  model_final <- stats::update.formula(model_final, formula_update)
+  
+  # Parsing offset terms. This removes the offset() around the term
+  # names and then it adds an attribute that tags what are the offset
+  # variables so it is easier to extract them from the model.
+  model_final <- parse_offset(model_final)
+  
+  # Appending graph stats
+  data <- as.data.frame(data)
+  if (length(g_attrs.)) {
+    data <- cbind(
+      data, 
+      if ((nrow(g_attrs.) == 1) && (nrow(data) > 1)) {
+        do.call(rbind, replicate(
+          nrow(data),
+          g_attrs.,
+          simplify = FALSE
+        ))
+      } else 
+        g_attrs.
+    )
+  }
+  
+  # Computing stats
+  data <- lapply(model_final, stats::model.frame, data = data)
+  
+  # Checking offset terms
+  offset_terms <- attr(model_final, "ergmito_offset")
+  if (length(offset_terms)) {
+    
+    # Extracting the offsets
+    offsets. <- do.call(cbind, data[offset_terms])
+    offsets. <- rowSums(as.matrix(offsets.))
+    data   <- data[-offset_terms]
+    data     <- as.matrix(do.call(cbind, data))
+    
+  } else {
+    
+    data     <- as.matrix(do.call(cbind, data))
+    offsets. <- double(nrow(data))
+    
+  }
+  
+  list(
+    model   = stats::update.formula(formula, formula_update),
+    stats   = data,
+    offsets = offsets.
+  )
+  
+}
+
+#' Test whether the model terms list attributes
+#' 
+#' It simply looks for the regex pattern [(].*\".+\".*[])] in the formula
+#' terms.
+#' @param x A [stats::formula].
+#' @noRd
+model_has_attrs <- function(x) {
+  
+  if (!inherits(x, "formula"))
+    stop("`x` must be a formula.", call. = FALSE)
+  
+  trms <- stats::terms(x)
+  
+  if (any(grepl("[(].*\".+\".*[)]", attr(trms, "term.labels")))) {
+    
+    # Listing attribute names
+    pat    <- "(?<=\")(.+)(?=\")|(?<=\')(.+)(?=\')"
+    anames <- NULL
+    for (a in attr(trms, "term.labels")) {
+      m      <- regexpr(pat, a, perl = TRUE)
+      anames <- c(anames, regmatches(a, m))
+    }
+    
+    return(structure(TRUE, anames = unique(anames)))
+    
+  } else
+    return(structure(FALSE, anames = NULL))
+  
+}
+
+#' This function extracts networks attributes and returns a data
+#' frame
+#' @noRd
+graph_attributes_as_df <- function(net) {
+  
+  if (inherits(net, "list") && nnets(net) > 1L) {
+    net <- matrix_to_network(net)
+    return(do.call(rbind, lapply(net, graph_attributes_as_df)))
+  }
+  
+  if (!network::is.network(net))
+    net <- matrix_to_network(net)
+  
+  if (is.list(net) && !is.network(net))
+    net <- net[[1]]
+  
+  # Listing attributes, extracting and naming
+  netattrs   <- network::list.network.attributes(net)
+  ans        <- lapply(netattrs, network::get.network.attribute, x = net)
+  names(ans) <- netattrs
+  
+  # Returning as data.frame
+  as.data.frame(ans)
+}
+
+gmodel <- function(model, net) {
+  
+  netattrs   <- network::list.network.attributes(net)
+  ans        <- lapply(netattrs, network::get.network.attribute, x = net)
+  names(ans) <- netattrs
+  
+  ans <- stats::model.matrix(
+    stats::update.formula(model, ~ 0 + .),
+    as.data.frame(ans)
+  )
+  
+  structure(
+    ans[1, , drop=TRUE],
+    names = colnames(ans)
+  )
+}

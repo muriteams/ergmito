@@ -13,3 +13,12 @@ as_adjmat(x)
 This function does not perform significant checks. Furthermore, this function
 won't keep the row/col names.
 }
+\examples{
+
+set.seed(1231)
+x <- matrix_to_network(rbernoulli(rep(5, 100)))
+benchmarkito(
+  as_adjmat = as_adjmat(x),
+  as.matrix = lapply(x, as.matrix)
+)
+}

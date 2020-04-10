@@ -1,3 +1,2 @@
-#' @param offset Named numeric vector. Terms to be treated as offset and their values
-#' (see details in [ergmito()]). 
+#' @param target_offset,stats_offset See [exact_loglik()].
 NULL

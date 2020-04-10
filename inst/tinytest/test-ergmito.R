@@ -16,11 +16,6 @@ A <- rbinom(5, 1, .3)
 for (i in seq_along(fivenets))
   network::set.network.attribute(fivenets[[i]], "y" ,A[i])
 
-options(ergmito_warning = TRUE)
-expect_warning(ans <- ergmito(fivenets ~ edges + mutual, gattr=~ y), "\"y\"")
-options(ergmito_warning = FALSE)
-expect_output(print(ans$formulae), "elements by using")
-
 set.seed(8871)
 net1 <- rbernoulli(4)
 net2 <- rbernoulli(5)
@@ -57,17 +52,16 @@ data(fivenets)
 
 ans <- ergmito(
   fivenets ~ edges + nodematch("female") + ttriad,
-  offset = c(ttriple = -.5)
+  model_update = ~ . - offset(I(ttriple/2)) - ttriple
   )
 
-expect_output(print(ans), "offset:")
-expect_output(print(summary(ans)), "offset:")
-expect_equivalent(coef(ans)[3], -.5)
+# expect_output(print(ans), "offset")
+expect_output(print(summary(ans)), "offset")
+expect_length(coef(ans), 2)
 
 ans <- suppressWarnings(ergmito_boot(ans, R = 10))
-expect_equivalent(vcov(ans)[,3], rep(0, 3))
-expect_equivalent(vcov(ans)[3,], rep(0, 3))
+expect_length(vcov(ans)[1,], 2)
 
-expect_output(print(ans), "offset:")
-expect_output(print(summary(ans)), "offset:")
+# expect_output(print(ans), "offset")
+expect_output(print(summary(ans)), "offset")
 plot(ans)

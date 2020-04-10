@@ -3,7 +3,6 @@
 \name{new_rergmito}
 \alias{new_rergmito}
 \alias{[.ergmito_sampler}
-\alias{print.ergmito_sampler}
 \title{ERGMito sampler}
 \usage{
 new_rergmito(
@@ -17,8 +16,6 @@ new_rergmito(
 )
 
 \method{[}{ergmito_sampler}(x, i, j, ...)
-
-\method{print}{ergmito_sampler}(x, ...)
 }
 \arguments{
 \item{model}{A formula.}

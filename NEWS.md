@@ -2,6 +2,11 @@
 
 * Added a `NEWS.md` file to track changes to the package.
 
+* A new argument `model_update` has been added to `ergmito`, `ergmito_formulae`,
+  and `gof_ergmito` (`GOF_update`). This new feature allows users adding
+  offset terms (which is now supported) and arbitrary updates to the model,
+  for example, including interaction terms.
+
 * Fixed bug in `ergmito_boot`. The covariance matrix was estimated with the
   wrong sample, sometimes taking observations with missing.
 
@@ -9,6 +14,10 @@
   when it was not supposed to. A new implementation avoids copying memory and
   thus makes it faster when trying to fit a larger object.
 
-* Users can define offset terms as function of the vector of sufficient
-  statistics.
+* The dots in the function parameter `target.stats`, `stats.statmat`, and
+  `stats.weights` have been replaces with underscores (better naming practices).
+  
+* A new benchmark function has been added, `benchmarkito`. The idea is to have
+  a dependency-free way to run benchmarks. This is not the most accurate 
+  alternative, but is good enough for the package.
   

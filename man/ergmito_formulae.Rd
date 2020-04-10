@@ -7,10 +7,12 @@
 \usage{
 ergmito_formulae(
   model,
-  gattr_model = NULL,
-  target.stats = NULL,
-  stats.weights = NULL,
-  stats.statmat = NULL,
+  model_update = NULL,
+  target_stats = NULL,
+  stats_weights = NULL,
+  stats_statmat = NULL,
+  target_offset = NULL,
+  stats_offset = NULL,
   env = parent.frame(),
   ...
 )
@@ -19,14 +21,17 @@ ergmito_formulae(
 \item{model}{A formula. The left-hand-side can be either a small network, or
 a list of networks.}
 
-\item{gattr_model}{A formula. Model specification for graph attributes. This
-is useful when using multiple networks.}
+\item{model_update}{A formula. If specified, the after computing the
+sufficient statistics (observed and support), the model is updated using
+\code{\link[stats:model.frame]{stats::model.frame()}}. This includes processing offset terms.}
 
-\item{target.stats}{Observed statistics. If multiple networks, then a list, otherwise
+\item{target_stats}{Observed statistics. If multiple networks, then a list, otherwise
 a named vector (see \link[ergm:summary_formula]{ergm::summary_formula}).}
 
-\item{stats.weights, stats.statmat}{Lists of sufficient statistics and their
+\item{stats_weights, stats_statmat}{Lists of sufficient statistics and their
 respective weights.}
+
+\item{target_offset, stats_offset}{See \code{\link[=exact_loglik]{exact_loglik()}}.}
 
 \item{env}{Environment in which \code{model} should be evaluated.}
 
@@ -37,13 +42,13 @@ A list of class \code{ergmito_loglik}.
 \itemize{
 \item \code{loglik} A function. The log-likelihood function.
 \item \code{grad} A function. The gradient of the model.
-\item \code{stats.weights},\code{stats.statmat} two list of objects as returned by
+\item \code{stats_weights},\code{stats_statmat} two list of objects as returned by
 \link[ergm:ergm.allstats]{ergm::ergm.allstats}.
 \item \code{model} A formula. The model passed.
 \item \code{npars} Integer. Number of parameters.
 \item \code{nnets} Integer. Number of networks in the model.
-\item \code{vertex.attr} Character vector. Vertex attributes used in the model.
-\item \code{term.names} Names of the terms used in the model.
+\item \code{vertex_attr} Character vector. Vertex attributes used in the model.
+\item \code{term_names} Names of the terms used in the model.
 }
 }
 \description{
@@ -51,9 +56,32 @@ Analyze formula objects returning the matrices of weights and sufficient
 statistics to be used in the model together with the log-likelihood and
 gradient functions for joint models.
 }
+\details{
+One of the main advantages of been able to compute exact likelihoods is that
+we can build arbitrarily complex models in the same way that we would do in
+the context of Generalized Linear Models, this is, adding offset terms,
+interaction effects, or transformations of statistics without much effort.
+
+In particular, if the user passes a formula via \code{model_update}, the
+cannonical additive ERGM can be modified to include other terms, for example,
+if we wanted to add an interaction effect of the \code{nodematch("age")} with
+network size, we can simply type\preformatted{model_update = ~ . + I(nodematch.age * n)
+}
+
+The \code{\link[=I]{I()}} function allows operating over variables in the model, in this case,
+we took the \code{nodematch.age} variable (which is the name that \code{\link[ergm:ergm]{ergm::ergm()}}
+assigns to it after computing the sufficient statistics) and multiplied it by
+\code{n}, which is the network size (this variable is included by default).
+}
 \examples{
 data(fivenets)
-model <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
-print(model)
-model$loglik(c(-2, 2))
+model0 <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
+print(model0)
+model0$loglik(c(-2, 2))
+
+# Model with interaction effects and an offset term
+model1 <- ergmito_formulae(
+  fivenets ~ edges + nodematch("female"),
+  model_update = ~ . + offset(edges) + I(edges * nodematch.female)
+)
 }

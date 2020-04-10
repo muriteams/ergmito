@@ -12,10 +12,10 @@
 #' @param object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
 #' `ergm` is that the LHS can be a list of networks.
-#' @param gattr_model A formula. Model specification for graph attributes. This
+#' @param model_update A formula. Model specification for graph attributes. This
 #' is useful when using multiple networks.
 #' @param optim.args List. Passed to [stats::optim].
-#' @param target.stats A matrix of target statistics (see [ergm::ergm]).
+#' @param target_stats A matrix of target statistics (see [ergm::ergm]).
 #' @template stats
 #' @template offset
 #' @param init A numeric vector. Sets the starting parameters for the
@@ -34,7 +34,8 @@
 #' The support of the sufficient statistics is calculated using ERGM's
 #' [ergm::ergm.allstats()] function.
 #' 
-#' @seealso The function [plot.ergmito] for post-estimation diagnostics.
+#' @seealso The function [plot.ergmito()] and [gof_ergmito()] for post-estimation
+#' diagnostics.
 #' 
 #' @return An list of class `ergmito`:
 #' 
@@ -49,7 +50,6 @@
 #' - `coef.init`     Named vector of length `length(coef)`. Initial set of parameters
 #'   used in the optimization.
 #' - `formulae`      An object of class [ergmito_loglik][ergmito_formulae].
-#' - `offset`        The offset argument passed to `ergmito`.
 #' - `nobs`          Integer scalar. Number of networks in the model.
 #' - `network`       Networks passed via `model`.
 #' - `optim.out`,`optim.args` Results from the optim call and arguments passed to it.
@@ -93,20 +93,6 @@
 #' vector. The result which reaches the highest log-likelihood will be the one
 #' reported as parameter estimates. This feature is intended for testing only.
 #' Anecdotally, `optim` reaches the max in the first try.
-#' 
-#' @section Offset:
-#' 
-#' The fitting can be done using offset terms. Offset terms can be specified
-#' by passing a named vector via the `offset` argument. For example, if you
-#' want to fit an ERGM with coefficient associated with edgecount fixed to -1,
-#' you can do so by defining `offset = c(edges = -1)`. Offsetting terms only
-#' affects the optimization stage.
-#' 
-#' One important caveat is that the offset is check after the sufficient 
-#' statistics have been calculated, meaning that the variable names may change,
-#' for example, while the user can specify `ttriad` in the formula, after
-#' calculating the sufficient statistics it will turn to `ttriples`.
-#' 
 #' 
 #' @examples 
 #' 
@@ -165,44 +151,46 @@ ERGMITO_DEFAULT_OPTIM_CONTROL <- list(
 #' @rdname ergmito
 ergmito <- function(
   model,
-  gattr_model   = NULL,
-  stats.weights = NULL,
-  stats.statmat = NULL,
+  model_update   = NULL,
+  stats_weights = NULL,
+  stats_statmat = NULL,
   optim.args    = list(),
   init          = NULL,
   use.grad      = TRUE,
-  target.stats  = NULL,
+  target_stats  = NULL,
   ntries        = 1L,
   keep.stats    = TRUE,
-  offset        = NULL,
+  target_offset = NULL,
+  stats_offset  = NULL,
   ...
   ) {
 
   # Keeping track of time
-  timer_start <- Sys.time()
+  timer <- c(start = unname(proc.time()["elapsed"]))
 
   # Generating the objective function
   ergmitoenv <- environment(model)
   
   formulae   <- ergmito_formulae(
     model,
-    gattr_model   = gattr_model, 
-    target.stats  = target.stats,
-    stats.weights = stats.weights,
-    stats.statmat = stats.statmat,
+    model_update  = model_update, 
+    target_stats  = target_stats,
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat,
+    target_offset = target_offset,
+    stats_offset  = stats_offset,
     env           = ergmitoenv,
     ...
   )
   
-  timer <- c(ergmito_formulae = difftime(Sys.time(), timer_start, units = "secs"))
+  timer <- c(timer, ergmito_formulae = unname(proc.time()["elapsed"]))
   
   # Verifying existence of MLE
-  timer0 <- Sys.time()
   support <- check_support(
-    formulae$target.stats,
-    formulae$stats.statmat
+    formulae$target_stats,
+    formulae$stats_statmat
   )
-  timer <- c(timer, check_support = difftime(Sys.time(), timer0, units = "secs"))
+  timer <- c(timer, check_support = unname(proc.time()["elapsed"]))
   
   npars  <- formulae$npars
   
@@ -226,68 +214,14 @@ ergmito <- function(
   
   optim.args$hessian <- FALSE
 
+    
+  # Setting arguments for optim
+  optim.args$fn   <- formulae$loglik
+  if (use.grad) 
+    optim.args$gr <- formulae$grad
   
-  # Offset ---------------------------------------------------------------------
-  if (length(offset)) {
+  optim.args$par  <- init
     
-    # Checking if correctly specified
-    are_not_in_model <- which(!(names(offset) %in% formulae$term.names))
-    if (length(are_not_in_model))
-      stop(
-        "Some values specified in -offset- are not in the model: '",
-        paste(names(offset)[are_not_in_model], collapse = "', '"),"'. ",
-        "The model has the following terms: ",
-        paste(formulae$term.names, collapse = "', '"),"'.",
-        call. = FALSE
-      )
-    
-    # Matching position, so we can make it faster
-    params_offset_pos    <- match(names(offset), formulae$term.names)
-    params_no_offset_pos <- setdiff(1:npars, params_offset_pos)
-    
-    # Baseline parameter
-    params0 <- structure(
-      double(ncol(formulae$target.stats)),
-      names = names(colnames(formulae$target.stats))
-      )
-    
-    params_offset <- offset
-    
-    # Updating gradient and objective function
-    optim.args$fn <- function(params, ...) {
-      
-      params0[params_no_offset_pos] <- params
-      params0[params_offset_pos]    <- params_offset
-      
-      formulae$loglik(params0, ...)
-    }
-    
-    # We only update the gradient if needed
-    if (use.grad) {
-     
-      optim.args$gr <- function(params, ...) {
-        
-        params0[params_no_offset_pos] <- params
-        params0[params_offset_pos]    <- params_offset
-        
-        formulae$grad(params0, ...)[params_no_offset_pos]
-      }
-       
-    }
-    
-    optim.args$par <- init[params_no_offset_pos]
-    
-  } else {
-    
-    # Setting arguments for optim
-    optim.args$fn   <- formulae$loglik
-    if (use.grad) 
-      optim.args$gr <- formulae$grad
-    
-    optim.args$par  <- init
-    
-  }
-  
   # Will try to solve the problem more than once... if needed
   ntry <- 1L
   history <- matrix(
@@ -296,14 +230,13 @@ ergmito <- function(
     ncol = npars + 1,
     dimnames = list(
       1L:ntries,
-      c(formulae$term.names, "value")
+      c(formulae$term_names, "value")
       )
   )
   
   # Passed (and default) other than the functions
   optim.args0 <- optim.args
   
-  timer0 <- Sys.time()
   while (ntry <= ntries) {
     
     # Maximizign the likelihood and storing the value
@@ -316,14 +249,7 @@ ergmito <- function(
     
     
     # Storing the current value
-    if (length(offset)) {
-      
-      history[cbind(ntry, c(params_no_offset_pos, npars + 1))] <-
-        c(cur_ans$par, cur_ans$value)
-      history[cbind(ntry, params_offset_pos)] <- offset
-      
-    } else 
-      history[ntry, ] <- c(cur_ans$par, cur_ans$value)
+    history[ntry, ] <- c(cur_ans$par, cur_ans$value)
     
     # We don't need to do this again.
     if (ntries == 1L)
@@ -331,34 +257,20 @@ ergmito <- function(
     
     # Resetting the parameters for the optimization, now this time we start
     # from the init parameters + some random value
-    optim.args$par <- stats::rnorm(npars - length(offset), -2, 2)
-    
+    optim.args$par <- stats::rnorm(npars, -2, 2)
     ntry <- ntry + 1
     
   }
-  
-  # Need to re-adjust after the offset
-  if (length(offset)) {
-    
-    params0[params_no_offset_pos] <- ans$par
-    params0[params_offset_pos]    <- offset
-    ans$par <- params0
-    
-  }
-  
-  timer <- c(timer, optim = difftime(Sys.time(), timer0, units = "secs"))
+
+  timer <- c(timer, optim = unname(proc.time()["elapsed"]))
   
   # Checking the convergence
-  timer0 <- Sys.time()
   estimates <- check_convergence(
     optim_output = ans,
     model        = formulae,
     support      = support
   )
-  timer <- c(
-    timer,
-    chec_covergence = difftime(Sys.time(), timer0, units = "secs")
-  )
+  timer <- c(timer, chec_covergence = unname(proc.time()["elapsed"]))
   
   # Capturing model
   if (!inherits(model, "formula"))
@@ -377,7 +289,6 @@ ergmito <- function(
       covar      = estimates$vcov,
       coef.init  = init,
       formulae   = formulae,
-      offset     = offset,
       nobs       = NA,
       network    = eval(model[[2]], envir = ergmitoenv),
       optim.out  = ans,
@@ -392,159 +303,20 @@ ergmito <- function(
   
   if (!keep.stats) {
     
-    ans$formulae$stats.weights <- NULL
-    ans$formulae$stats.statmat <- NULL
+    ans$formulae$stats_weights <- NULL
+    ans$formulae$stats_statmat <- NULL
     
   }
   
-  ans$nobs <- nvertex(ans$network)
-  ans$nobs <- sum(ans$nobs*(ans$nobs - 1))
+  # Counting cells, this will depend on whether nets are directed or not
+  sizes    <- nvertex(ans$network)
+  ans$nobs <- sizes * (sizes - 1)/
+    ifelse(is_directed(ans$network), 1, 2)
   
-  timer <- c(timer, total = difftime(Sys.time(), timer_start, units = "secs"))
-  ans$timer <- timer
+  ans$nobs <- sum(ans$nobs)
+  
+  ans$timer <- diff(timer)
+  ans$timer <- c(ans$timer, total = sum(ans$timer))
   ans
-  
-}
-
-# @rdname ergmito
-#' @export
-print.ergmito <- function(x, ...) {
-  
-  cat("\nERGMito estimates\n")
-  if (length(x$note))
-    cat(sprintf("note: %s\n", x$note))
-  if (length(x$offset)) {
-    cat(
-      "\nnote: This is a model with the following offset: ",
-      names(x$offset), "\n"
-      )
-  }
-    
-  print(structure(unclass(x), class="ergm"))
-  
-  invisible(x)
-  
-}
-
-# @rdname ergmito
-#' @export
-summary.ergmito <- function(object, ...) {
-
-  # Computing values
-  sdval <- sqrt(diag(vcov(object)))
-  z     <- coef(object)/sdval
-  
-  is_boot <- inherits(object, "ergmito_boot")
-  
-  # Generating table
-  ans <- structure(
-    list(
-      coefs = data.frame(
-      Estimate     = coef(object),
-      `Std. Error` = sdval,
-      `z value`    = z,
-      `Pr(>|z|)`   = 2*stats::pnorm(-abs(z)),
-      row.names    = names(coef(object)),
-      check.names  = FALSE
-    ),
-    aic         = stats::AIC(object),
-    bic         = stats::BIC(object),
-    model       = deparse(object$formulae$model),
-    note        = object$note,
-    offset      = object$offset,
-    R           = ifelse(is_boot, object$R, 1L)
-    ),
-    class = c("ergmito_summary", if (is_boot) "ergmito_summary_boot" else  NULL)
-  )
-  
-  ans
-}
-
-# @rdname ergmito
-#' @export
-print.ergmito_summary <- function(
-  x,
-  ...
-  ) {
-
-  cat("\nERGMito estimates\n")
-  
-  if (x$R > 1L)
-    cat("\n(bootstrapped model with ", x$R, " replicates.)\n")
-  
-  if (length(x$note))
-    cat(sprintf("note: %s\n", x$note))
-  
-  if (length(x$offset)) {
-    cat(
-      "\nnote: This is a model with the following offset: ",
-      names(x$offset), "\n"
-      )
-  }
-  
-  cat("\nformula: ", x$model, "\n\n")
-  stats::printCoefmat(
-    x$coefs,
-    signif.stars  = TRUE,
-    signif.legend = TRUE
-    )
-  
-  cat(paste("AIC:", format(x$aic), 
-            "  ", "BIC:", format(x$bic), 
-            "  ", "(Smaller is better.)", "\n", sep = " "))
-  
-  invisible(x)
-    
-}
-
-
-# Methods ----------------------------------------------------------------------
-# @rdname ergmito
-#' @export
-#' @importFrom stats coef logLik vcov nobs formula
-coef.ergmito <- function(object, ...) {
-  
-  object$coef
-  
-}
-
-# @rdname ergmito
-#' @export
-logLik.ergmito <- function(object, ...) {
-  
-  object$mle.lik
-  
-}
-
-# @rdname ergmito
-#' @export
-nobs.ergmito <- function(object, ...) {
-  
-  object$nobs
-  
-}
-
-#' @export
-#' @param solver Function. Used to compute the inverse of the hessian matrix. When
-#' not null, the variance-covariance matrix is recomputed using that function.
-#' By default, `ergmito` uses [MASS::ginv].
-#' @rdname ergmito
-vcov.ergmito <- function(object, solver = NULL, ...) {
-  
-  if (is.null(solver))
-    return(object$covar)
-  
-  structure(
-    - solver(object$optim.out$hessian),
-    dimnames = dimnames(object$covar)
-  )
-  
-}
-
-# @rdname ergmito
-#' @export
-formula.ergmito <- function(x, ...) {
-  
-  x$formulae$model
   
 }

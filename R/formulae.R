@@ -6,52 +6,74 @@
 #' 
 #' @param model A formula. The left-hand-side can be either a small network, or
 #' a list of networks. 
-#' @param gattr_model A formula. Model specification for graph attributes. This
-#' is useful when using multiple networks.
-#' @param stats.weights,stats.statmat Lists of sufficient statistics and their
+#' @param stats_weights,stats_statmat Lists of sufficient statistics and their
 #' respective weights.
-#' @param target.stats Observed statistics. If multiple networks, then a list, otherwise
+#' @param target_stats Observed statistics. If multiple networks, then a list, otherwise
 #' a named vector (see [ergm::summary_formula]). 
+#' @param model_update A formula. If specified, the after computing the
+#' sufficient statistics (observed and support), the model is updated using
+#' [stats::model.frame()]. This includes processing offset terms.
+#' @template offset
 #' @param ... Further arguments passed to [ergm::ergm.allstats].
 #' @param env Environment in which `model` should be evaluated.
+#' @details 
+#' One of the main advantages of been able to compute exact likelihoods is that
+#' we can build arbitrarily complex models in the same way that we would do in
+#' the context of Generalized Linear Models, this is, adding offset terms,
+#' interaction effects, or transformations of statistics without much effort.
+#' 
+#' In particular, if the user passes a formula via `model_update`, the 
+#' cannonical additive ERGM can be modified to include other terms, for example,
+#' if we wanted to add an interaction effect of the `nodematch("age")` with
+#' network size, we can simply type
+#' 
+#' ```
+#' model_update = ~ . + I(nodematch.age * n)
+#' ```
+#' 
+#' The [I()] function allows operating over variables in the model, in this case,
+#' we took the `nodematch.age` variable (which is the name that [ergm::ergm()] 
+#' assigns to it after computing the sufficient statistics) and multiplied it by
+#' `n`, which is the network size (this variable is included by default).
+#' 
+#' 
 #' @return A list of class `ergmito_loglik`.
 #' 
 #' - `loglik` A function. The log-likelihood function.
 #' - `grad` A function. The gradient of the model.
-#' - `stats.weights`,`stats.statmat` two list of objects as returned by
+#' - `stats_weights`,`stats_statmat` two list of objects as returned by
 #' [ergm::ergm.allstats].
 #' - `model` A formula. The model passed.
 #' - `npars` Integer. Number of parameters.
 #' - `nnets` Integer. Number of networks in the model.
-#' - `vertex.attr` Character vector. Vertex attributes used in the model.
-#' - `term.names` Names of the terms used in the model.
+#' - `vertex_attr` Character vector. Vertex attributes used in the model.
+#' - `term_names` Names of the terms used in the model.
 #' 
 #' @aliases ergmito_loglik
 #' @examples 
 #' data(fivenets)
-#' model <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
-#' print(model)
-#' model$loglik(c(-2, 2))
+#' model0 <- ergmito_formulae(fivenets ~ edges + nodematch("female"))
+#' print(model0)
+#' model0$loglik(c(-2, 2))
+#' 
+#' # Model with interaction effects and an offset term
+#' model1 <- ergmito_formulae(
+#'   fivenets ~ edges + nodematch("female"),
+#'   model_update = ~ . + offset(edges) + I(edges * nodematch.female)
+#' )
 #' @export
 ergmito_formulae <- function(
   model,
-  gattr_model   = NULL,
-  target.stats  = NULL,
-  stats.weights = NULL,
-  stats.statmat = NULL,
+  model_update  = NULL,
+  target_stats  = NULL,
+  stats_weights = NULL,
+  stats_statmat = NULL,
+  target_offset = NULL,
+  stats_offset  = NULL,
   env           = parent.frame(),
   ...
   ) {
   
-  # Collecting extra options
-  dots <- list(...)
-  if (length(dots$zeroobs) && dots$zeroobs) {
-    zeroobs <- TRUE
-  } else {
-    zeroobs <- FALSE
-  }
-  dots$zeroobs <- FALSE
-
   # Capturing model
   if (!inherits(model, "formula"))
     model <- eval(model, envir = env)
@@ -62,125 +84,153 @@ ergmito_formulae <- function(
   # Checking whether this model has attributes on it or not
   vattrs <- attr(model_has_attrs(model), "anames")
   
-  # Checking the appropriate types
-  if (inherits(LHS, "list")) {
+  # Checking if statmat weights and offsets are passed, then we assume the user
+  # knows what is doing, so we should skip all the checks
+  test <- c(
+    target_stats  = is.null(target_stats),
+    stats_weights = is.null(stats_weights),
+    stats_statmat = is.null(stats_statmat),
+    target_offset = is.null(target_offset),
+    stats_offset  = is.null(stats_offset)
+  )
+  
+  if (all(test)) {
     
-    # Are all either matrices or networks?
-    test <- which(!(
-      sapply(LHS, inherits, what = "matrix") | sapply(LHS, inherits, what = "network")
+    # Collecting extra options
+    dots <- list(...)
+    if (length(dots$zeroobs) && dots$zeroobs) {
+      zeroobs <- TRUE
+    } else {
+      zeroobs <- FALSE
+    }
+    dots$zeroobs <- FALSE
+    
+    # Checking the appropriate types
+    if (inherits(LHS, "list")) {
+      
+      # Are all either matrices or networks?
+      test <- which(!(
+        sapply(LHS, inherits, what = "matrix") | sapply(LHS, inherits, what = "network")
       ))
-    if (length(test))
-      stop(
-        "One of the components is not a matrix `", deparse(model[[2]]),
-        "` is of class ",
-        paste(sapply(LHS, class)[test], collapse = ", "),
-        ".",
-        call. = FALSE)
-    
-  } else if (inherits(LHS, "matrix") | inherits(LHS, "network")) {
-    
-    # Nesting into a list. Later we will loop over the elements, so we can
-    # apply the same logic regardless of if it is one or more networks
-    LHS <- list(LHS)
-    
-  } else
-    stop("LHS of the formula should be either a list of networks or a single ",
-         "network.", call. = FALSE)
-  
-  # We will evaluate the formula in the current environment
-  model. <- model
-  model. <- stats::update.formula(model., LHS[[i]] ~ .)
-  
-  environment(model.) <- environment()
-  
-  # Checking observed stats and stats
-  if (!length(stats.weights) | !length(stats.statmat)) {
-    stats.weights <- vector("list", nnets(LHS))
-    stats.statmat <- stats.weights
-  }
-  
-  # Has the user passed target statistics?
-  if (!length(target.stats))
-    target.stats <- vector("list", nnets(LHS))
-  else # This is painful, the current way I have this written needs me to pass
-       # the target.stats as a list instead of a matrix, which is not the best.
-       # For now it should be OK.
-    target.stats <- lapply(1:nrow(target.stats), function(i) target.stats[i,])
-  
-  # Checking types
-  test     <- sapply(LHS, inherits, what = "network")
-  directed <- TRUE
-  if (length(which(test))) {
-    test[test] <- test[test] & !sapply(LHS[test], network::is.directed)
-    
-    test <- which(test)
-    
-    if ((length(test) != 0) & (length(test) < length(LHS))) {
+      if (length(test))
+        stop(
+          "One of the components is not a matrix `", deparse(model[[2]]),
+          "` is of class ",
+          paste(sapply(LHS, class)[test], collapse = ", "),
+          ".",
+          call. = FALSE)
       
-      stop(
-        "All networks should be of the same type. Right now, networks ",
-        paste(test, collapse = ", "), " are undirected while networks ",
-        paste(setdiff(1:length(LHS), test), collapse = ", "), " are directed.",
-        call. = FALSE
+    } else if (inherits(LHS, "matrix") | inherits(LHS, "network")) {
+      
+      # Nesting into a list. Later we will loop over the elements, so we can
+      # apply the same logic regardless of if it is one or more networks
+      LHS <- list(LHS)
+      
+    } else
+      stop("LHS of the formula should be either a list of networks or a single ",
+           "network.", call. = FALSE)
+    
+    # We will evaluate the formula in the current environment
+    model. <- model
+    model. <- stats::update.formula(model., LHS[[i]] ~ .)
+    
+    
+    environment(model.) <- environment()
+    
+    # Checking observed stats and stats
+    if (!length(stats_weights) | !length(stats_statmat)) {
+      stats_weights <- vector("list", nnets(LHS))
+      stats_statmat <- stats_weights
+    }
+    
+    # Has the user passed target statistics?
+    if (!length(target_stats))
+      target_stats <- vector("list", nnets(LHS))
+    else # This is painful, the current way I have this written needs me to pass
+      # the target_stats as a list instead of a matrix, which is not the best.
+      # For now it should be OK.
+      target_stats <- lapply(1:nrow(target_stats), function(i) target_stats[i, , drop=FALSE])
+    
+    # Checking types
+    test     <- sapply(LHS, inherits, what = "network")
+    directed <- TRUE
+    if (length(which(test))) {
+      test[test] <- test[test] & !sapply(LHS[test], network::is.directed)
+      
+      test <- which(test)
+      
+      if ((length(test) != 0) & (length(test) < length(LHS))) {
+        
+        stop(
+          "All networks should be of the same type. Right now, networks ",
+          paste(test, collapse = ", "), " are undirected while networks ",
+          paste(setdiff(1:length(LHS), test), collapse = ", "), " are directed.",
+          call. = FALSE
         )
-      
-    } else if (length(test)) {
-      
-      warning_ergmito(
-        "ergmito does not fully support undirected graphs (yet). We will ",
-        "continue with the estimation process, but simulation has limited supported ",
-        "for now.", call. = FALSE
+        
+      } else if (length(test)) {
+        
+        warning_ergmito(
+          "ergmito does not fully support undirected graphs (yet). We will ",
+          "continue with the estimation process, but simulation has limited supported ",
+          "for now.", call. = FALSE
         )
-      
-      directed <- FALSE
+        
+        directed <- FALSE
+        
+      }
       
     }
     
-  }
-  
-  # Need to improve the speed of this!
-  for (i in 1L:nnets(LHS)) {
-    
-    # Calculating statistics and weights
-    if (!length(stats.statmat[[i]])) {
+    # Calculating the support of the sufficient statistics -----------------------
+    for (i in 1L:nnets(LHS)) {
       
-      # Smart thing to do, have I calculated this earlier? ---------------------
-      # 1. For now we do it if the model is attr-less model
-      matching_net <- NULL
-      if (i > 1L) {
+      # Calculating statistics and weights
+      if (!length(stats_statmat[[i]])) {
+        
+        # Smart thing to do, have I calculated this earlier? ---------------------
+        # 1. For now we do it if the model is attr-less model
         
         # Can we find a match in the previous set?
+        matching_net <- NULL
         for (j in 1L:(i-1L)) {
+          
+          if (i == 1)
+            break
           
           # Minimum (and only for now): Have the same size
           if ( same_dist(LHS[[i]], LHS[[j]], vattrs) ) {
+            
             matching_net <- j
             break
+            
           }
           
         }
         
-      }
-      
-      if (!is.null(matching_net)) {
-        stats.statmat[[i]] <- stats.statmat[[matching_net]]
-        stats.weights[[i]] <- stats.weights[[matching_net]]
-      } else {
+        # If we calculated this earlier, then copy, else, need to recalc
+        if (!is.null(matching_net)) {
+          
+          stats_statmat[[i]] <- stats_statmat[[matching_net]]
+          stats_weights[[i]] <- stats_weights[[matching_net]]
+          next
+          
+        } 
+        
+        # Computing if we need
         allstats_i <- do.call(
           ergm::ergm.allstats, 
           # We correct for zero obs later
           c(list(formula = model.), dots)
-          )
-        stats.statmat[[i]] <- allstats_i$statmat
-        stats.weights[[i]] <- allstats_i$weights
+        )
+        stats_statmat[[i]] <- allstats_i$statmat
+        stats_weights[[i]] <- allstats_i$weights
+        
       }
-      
       
     }
     
-  }
-  
-  if (all(sapply(target.stats, length) == 0)) {
+    # Computing target statistics ------------------------------------------------
     
     # Should we use summary.formula?
     model_analysis <- analyze_formula(model)
@@ -188,88 +238,112 @@ ergmito_formulae <- function(
     # Checking gw terms
     if (any(grepl("^d?gw", model_analysis$names)))
       stop(
-      "Currently, geometrically weighted terms are not supported in ergmito.",
-      " For more information, see https://github.com/muriteams/ergmito/issues/17.",
-      call. = FALSE
+        "Currently, geometrically weighted terms are not supported in ergmito.",
+        " For more information, see https://github.com/muriteams/ergmito/issues/17.",
+        call. = FALSE
       )
     
+    # Can we compute it directly with ergmito? If not, we default to
+    # ergm's summary function
     if (directed && all(model_analysis$names %in% AVAILABLE_STATS())) {
       
-      target.stats <- count_stats(model)
+      target_stats <- count_stats(model)
       
       # Still need to get it once b/c of naming
       i <- 1
-      colnames(target.stats) <- names(
-        summary(model.)
-      )
+      colnames(target_stats) <- names(ergm::summary_formula(model.))
       
     } else {
+      
       for (i in seq_len(nnets(LHS))) {
         # Calculating observed statistics
-        if (!length(target.stats[[i]]))
-          target.stats[[i]] <- c(summary(model.))
-
+        if (!length(target_stats[[i]]))
+          target_stats[[i]] <- c(ergm::summary_formula(model.))
+        
       }
       
       # Coercing objects
-      target.stats   <- do.call(rbind, target.stats)
+      target_stats   <- do.call(rbind, target_stats)
     }
     
-  }
-  
-  g <- vector("list", nnets(LHS))
-  for (i in seq_len(nnets(LHS))) {
+    if (is.list(target_stats))
+      target_stats <- do.call(rbind, target_stats)
     
-    # Calculating gattrs_model
-    if (length(gattr_model))
-      g[[i]] <- gmodel(gattr_model, LHS[[i]])
-    
-    # Adding graph level attributes
-    # Adding graph parameters to the statmat
-    if (length(g[[i]])) {
-      
-      stats.statmat[[i]] <- cbind(
-        stats.statmat[[i]],
-        matrix(
-          data     = g[[i]],
-          nrow     = nrow(stats.statmat[[i]]),
-          ncol     = length(g[[i]]),
-          byrow    = TRUE,
-          dimnames = list(NULL, names(g[[i]]))
-        )
-      )
-    }
-    
-  }
-  
-  if (is.list(target.stats))
-    target.stats <- do.call(rbind, target.stats)
-  
-  if (all(sapply(g, length) != 0))
-    target.stats <- cbind(target.stats, do.call(rbind, g))
-  
-  # Should it be normalized to 0?
-  if (zeroobs)
-    for (i in seq_len(nnets(LHS))) {
-      stats.statmat[[i]] <- stats.statmat[[i]] - 
-        matrix(
-          data  = target.stats[i, ],
-          nrow  = nrow(stats.statmat[[i]]),
-          ncol  = ncol(target.stats),
-          byrow = TRUE
+    # Should it be normalized to 0? ----------------------------------------------
+    if (zeroobs)
+      for (i in seq_len(nnets(LHS))) {
+        stats_statmat[[i]] <- stats_statmat[[i]] - 
+          matrix(
+            data  = target_stats[i, ],
+            nrow  = nrow(stats_statmat[[i]]),
+            ncol  = ncol(target_stats),
+            byrow = TRUE
           )
+        
+        target_stats[i, ] <- 0
+        
+      }
+    
+    # Updating the model, if needed, since this could affect offset, we need to
+    # preassing information
+    
+    # Are we updating the model? ------------------------------------------------
+    graph_attrs <- graph_attributes_as_df(LHS)
+    model_frame <- model_frame_ergmito(
+      formula        = model,
+      formula_update = model_update, 
+      data           = target_stats,
+      g_attrs.       = graph_attrs
+    )
+    
+    target_stats  <- model_frame$stats
+    target_offset <- model_frame$offsets
+    model_final   <- model_frame$model
+    
+    
+    # Doing the same for the rest of the networks
+    stats_offset <- vector("list", length(stats_weights))
+    
+    for (i in seq_len(nnets(LHS))) {
       
-      target.stats[i, ] <- 0
+      # Merging the data
+      model_frame <- model_frame_ergmito(
+        formula        = model,
+        formula_update = model_update, 
+        data           = stats_statmat[[i]],
+        g_attrs.       = graph_attrs[i, , drop = FALSE]
+      )
+      
+      stats_statmat[[i]] <- model_frame$stats
+      stats_offset[[i]]  <- model_frame$offsets
       
     }
-  
+    
+  } else if (sum(!test) != length(test)) { # Here is not all, but some
+    
+    stop(
+      "When passing target_stats, statmat_stats, statmat_weights, target_offset, ",
+      "statmat_offset either all of none is specified. Right now only : -",
+      paste(names(test[!test]), collapse = "-, -"), "- are specified.",
+      call. = FALSE
+      )
+    
+  } else {
+    # We only need to build the model_final object
+    model_final <- if (!is.null(model_update))
+      stats::update.formula(model, model_update)
+    else
+      model
+  }
+
   # Initializing the pointer
   ergmito_ptr   <- new_ergmito_ptr(
-    target_stats  = target.stats,
-    stats_weights = stats.weights,
-    stats_statmat = stats.statmat
+    target_stats  = target_stats,
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat,
+    target_offset = target_offset,
+    stats_offset  = stats_offset
     )
-  
   
   # Building joint likelihood function
   loglik <- function(params, ...) {
@@ -297,13 +371,14 @@ ergmito_formulae <- function(
     
   }
   
+  # And the joint hessian
   hess <- function(params, ...) {
     
     exact_hessian(
-      x = target.stats,
-      params = params,
-      stats.weights = stats.weights,
-      stats.statmat = stats.statmat
+      params        = params,
+      stats_weights = stats_weights,
+      stats_statmat = stats_statmat,
+      stats_offset  = stats_offset
       )
     
   }
@@ -311,70 +386,27 @@ ergmito_formulae <- function(
   
   structure(
     list(
-      loglik = loglik,
-      grad  = grad,
-      hess  = hess,
-      target.stats  = target.stats,
-      stats.weights = stats.weights,
-      stats.statmat = stats.statmat,
+      loglik        = loglik,
+      grad          = grad,
+      hess          = hess,
+      target_stats  = target_stats,
+      stats_weights = stats_weights,
+      stats_statmat = stats_statmat,
+      target_offset = target_offset,
+      stats_offset  = stats_offset,
       model         = stats::as.formula(model, env = env),
-      npars         = ncol(target.stats),
+      model_update  = model_update,
+      model_final   = model_final,
+      npars         = ncol(target_stats),
       nnets         = nnets(LHS),
-      vertex.attrs  = vattrs,
-      term.names    = colnames(target.stats)
+      vertex_attrs  = vattrs,
+      term_names    = colnames(target_stats)
     ),
-    class="ergmito_loglik"
+    class = "ergmito_loglik"
   )
   
   
   
-}
-
-#' Test whether the model terms list attributes
-#' 
-#' It simply looks for the regex pattern [(].*\".+\".*[])] in the formula
-#' terms.
-#' @param x A [stats::formula].
-#' @noRd
-model_has_attrs <- function(x) {
-  
-  if (!inherits(x, "formula"))
-    stop("`x` must be a formula.", call. = FALSE)
-  
-  trms <- stats::terms(x)
-  
-  if (any(grepl("[(].*\".+\".*[)]", attr(trms, "term.labels")))) {
-    
-    # Listing attribute names
-    pat    <- "(?<=\")(.+)(?=\")|(?<=\')(.+)(?=\')"
-    anames <- NULL
-    for (a in attr(trms, "term.labels")) {
-      m      <- regexpr(pat, a, perl = TRUE)
-      anames <- c(anames, regmatches(a, m))
-    }
-    
-    return(structure(TRUE, anames = unique(anames)))
-    
-  } else
-    return(structure(FALSE, anames = NULL))
-  
-}
-
-gmodel <- function(model, net) {
-  
-  netattrs   <- network::list.network.attributes(net)
-  ans        <- lapply(netattrs, network::get.network.attribute, x = net)
-  names(ans) <- netattrs
-  
-  ans <- stats::model.matrix(
-    stats::update.formula(model, ~ 0 + .),
-    as.data.frame(ans)
-  )
-  
-  structure(
-    ans[1, , drop=TRUE],
-    names = colnames(ans)
-  )
 }
 
 #' @export
@@ -382,7 +414,7 @@ print.ergmito_loglik <- function(x, ...) {
   
   cat("ergmito log-likelihood function\n")
   cat("Number of networks: ", x$nnets, "\n")
-  cat("Model: ", deparse(x$model), "\n")
+  cat("Model: ", deparse(x$model_final), "\n")
   cat("Available elements by using the $ operator:\n")
   cat(sprintf("loglik: %s", deparse(x$loglik)[1]))
   cat(sprintf("grad  : %s", deparse(x$grad)[1]))

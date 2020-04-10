@@ -9,6 +9,7 @@
 gof_ergmito(
   object,
   GOF = NULL,
+  GOF_update = NULL,
   probs = c(0.05, 0.95),
   sim_ci = FALSE,
   R = 50000L,
@@ -30,6 +31,8 @@ gof_ergmito(
 \item{object}{An object of class \link{ergmito}.}
 
 \item{GOF}{Formula. Additional set of parameters to perform the GOF.}
+
+\item{GOF_update}{Formula. See the section on model updating in \code{\link[=ergmito_formulae]{ergmito_formulae()}}.}
 
 \item{probs}{Numeric vector. Quantiles to plot (see details).}
 
@@ -61,12 +64,12 @@ components:
 \itemize{
 \item \code{ci} A list of matrices of length \code{nnets(object)} with the corresponding
 confidence intervals for the statistics of the model.
-\item \code{target.stats} A matrix of the target statistics.
+\item \code{target_stats} A matrix of the target statistics.
 \item \code{ergmito.probs} A list of numeric vectors of length \code{nnets(object)} with the
 probabilities associated to each possible structure of network.
 \item \code{probs} The value passed via \code{probs}.
 \item \code{model} The fitted model.
-\item \code{term.names} Character vector. Names of the terms used in the model.
+\item \code{term_names} Character vector. Names of the terms used in the model.
 \item \code{quantile.args} A list of the values passed via \code{...}.
 }
 }

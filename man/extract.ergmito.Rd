@@ -10,7 +10,9 @@ extract.ergmito(
   include.bic = TRUE,
   include.loglik = TRUE,
   include.nnets = TRUE,
+  include.offset = TRUE,
   include.convergence = TRUE,
+  include.timing = TRUE,
   ...
 )
 }
@@ -21,6 +23,9 @@ extract.ergmito(
 
 \item{include.nnets}{Logical. When true, it adds the Number of networks used
 to the list of gof statistics. This can be useful when running pooled models.}
+
+\item{include.offset}{Logical. When equal to \code{TRUE}, it adds one line per
+offset term to the table, omiting sd and significance.}
 
 \item{include.convergence}{Logical. When true it, adds the convergence value
 of the \link[stats:optim]{stats::optim} function (0 means convergence).}

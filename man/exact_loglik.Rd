@@ -10,13 +10,34 @@
 \usage{
 exact_loglik(x, params, ...)
 
-\method{exact_loglik}{default}(x, params, stats.weights, stats.statmat, ...)
+\method{exact_loglik}{default}(
+  x,
+  params,
+  stats_weights,
+  stats_statmat,
+  target_offset = double(nrow(x)),
+  stats_offset = lapply(stats_weights, function(i) double(length(i))),
+  ...
+)
 
 exact_gradient(x, params, ...)
 
-\method{exact_gradient}{default}(x, params, stats.weights, stats.statmat, ...)
+\method{exact_gradient}{default}(
+  x,
+  params,
+  stats_weights,
+  stats_statmat,
+  target_offset = double(nrow(x)),
+  stats_offset = lapply(stats_weights, function(i) double(length(i))),
+  ...
+)
 
-exact_hessian(x, params, stats.weights, stats.statmat)
+exact_hessian(
+  params,
+  stats_weights,
+  stats_statmat,
+  stats_offset = lapply(stats_weights, function(i) double(length(i)))
+)
 }
 \arguments{
 \item{x}{Matrix. Observed statistics}
@@ -25,9 +46,14 @@ exact_hessian(x, params, stats.weights, stats.statmat)
 
 \item{...}{Arguments passed to the default methods.}
 
-\item{stats.weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
+\item{stats_weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
 
-\item{stats.statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
+\item{stats_statmat}{Either a matrix or a list of matrices (see \link{exact_loglik}).}
+
+\item{target_offset}{Numeric vector of length \code{nrow(target_stats)}.}
+
+\item{stats_offset}{List of numeric vectors, each of length equal to the
+lengths of vectors in \code{stats_weights} (see details).}
 }
 \description{
 This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not
@@ -47,10 +73,17 @@ statistics.
 
 Since \code{ergmito} can vectorize operations, in order to specify weights and
 statistics matrices for each network in the model, the user needs to pass
-two lists \code{stats.weights} and \code{stats.statmat}. While both lists have to
+two lists \code{stats_weights} and \code{stats_statmat}. While both lists have to
 have the same length (since its elements are matched), this needs not to
 be the case with the networks, as the user can specify a single set of
 weights and statistics that will be recycled (smartly).
+
+In the case of offset terms, these can be passed directly via \code{target_offset}
+and \code{stats_offset}. The first is a numeric vector of length equal to the
+number of networks in the model. The later is a list of vectors that is
+matched against \code{stats_weights}, so each of it's elements must be a
+numeric vector of the same length that in the list of weights. By default
+the offset terms are set to equal zero.
 }
 
 \examples{
@@ -60,30 +93,29 @@ ans <- ergmito(fivenets ~ edges + nodematch("female"))
 # This computes the likelihood for all the networks independently
 with(ans$formulae, {
   exact_loglik(
-    x      = target.stats,
+    x      = target_stats,
     params = coef(ans),
-    stats.weights = stats.weights,
-    stats.statmat = stats.statmat
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat
   )
 })
 
 # This should be close to zero
 with(ans$formulae, {
   exact_gradient(
-    x      = target.stats,
+    x      = target_stats,
     params = coef(ans),
-    stats.weights = stats.weights,
-    stats.statmat = stats.statmat
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat
   )
 })
 
 # Finally, the hessian
 with(ans$formulae, {
   exact_hessian(
-    x      = target.stats,
     params = coef(ans),
-    stats.weights = stats.weights,
-    stats.statmat = stats.statmat
+    stats_weights = stats_weights,
+    stats_statmat = stats_statmat
   )
 })
 

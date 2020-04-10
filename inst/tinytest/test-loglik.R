@@ -3,11 +3,9 @@ params <- c(.5, .8)
 nets   <- powerset(3)
 
 # Computing statistics per network
-model <- n ~ edges + mutual
 stats <- lapply(nets, function(n) {
   
-  environment(model) <- environment()
-  summary(model)
+  ergm::summary_formula(n ~ edges + mutual)
   
 })
 stats <- do.call(rbind, stats)
@@ -38,3 +36,4 @@ expect_equivalent(ans0[], ans1[])
 # # Are these equal
 # all(parloglik(stats) ==
 #       exact_ll(stats, params, allstats$weights, allstats$statmat))
+
