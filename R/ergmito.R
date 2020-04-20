@@ -303,9 +303,33 @@ ergmito <- function(
   
   if (!keep.stats) {
     
-    ans$formulae$stats_weights <- NULL
-    ans$formulae$stats_statmat <- NULL
+    # We do it in this fashion as 
+    to_keep <- setdiff(
+        names(formulae),
+        c(
+          "stats_weights", "stats_statmat",
+          "loglik", "grad",
+          "target_offset", "stats_offset"
+          )
+        )
+
+    fenvir <- environment(formulae$loglik)
+    formulae <- formulae[to_keep]
     
+    # We have to warn the user about this issue if he tries to reuse these functions
+    formulae$loglik <- formulae$grad <- function(...) {
+      stop(
+        "As the option keep.stats = FALSE, this functions are no longer ",
+        "available to the user. Re-run the model using keep.stats = TRUE, if you ",
+        "want to use the loglikelihood or gradient functions of this model.",
+        call. = FALSE
+        )
+    }
+    ans$formulae <- formulae
+    
+    # Emptying environment, just to be safe
+    rm(list = ls(envir = fenvir, all.names = TRUE), envir = fenvir)
+
   }
   
   # Counting cells, this will depend on whether nets are directed or not

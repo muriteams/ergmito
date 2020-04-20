@@ -44,6 +44,9 @@ A list of class \code{ergmito_loglik}.
 \item \code{grad} A function. The gradient of the model.
 \item \code{stats_weights},\code{stats_statmat} two list of objects as returned by
 \link[ergm:ergm.allstats]{ergm::ergm.allstats}.
+\item \code{target_offset},\code{stats_offset} A vector of offset terms and a list of
+vectors of offset terms, one for the target stats and the other for the
+support of the sufficient statistics (defaults to 0).
 \item \code{model} A formula. The model passed.
 \item \code{npars} Integer. Number of parameters.
 \item \code{nnets} Integer. Number of networks in the model.
@@ -72,6 +75,16 @@ The \code{\link[=I]{I()}} function allows operating over variables in the model,
 we took the \code{nodematch.age} variable (which is the name that \code{\link[ergm:ergm]{ergm::ergm()}}
 assigns to it after computing the sufficient statistics) and multiplied it by
 \code{n}, which is the network size (this variable is included by default).
+
+By default, the ergm package calculates up to 2^16 unique values for the
+vector of sufficient statistics. This results in issues if the user tries to
+fit a model with too heterogenous networks or sets of attributes. To deal
+with this it suffices with adding the option \code{maxNumChangeStatVectors} in
+the ergmito call, e.g.:\preformatted{# Networks of size 5 have up to 2^20 unique sets of sufficient statistics
+ergmito(..., maxNumChangeStatVectors = 2^20)
+}
+
+See more in ?\link[ergm:ergm.allstats]{ergm::ergm.allstats}.
 }
 \examples{
 data(fivenets)
