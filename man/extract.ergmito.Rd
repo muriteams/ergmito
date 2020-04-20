@@ -30,6 +30,9 @@ offset term to the table, omiting sd and significance.}
 \item{include.convergence}{Logical. When true it, adds the convergence value
 of the \link[stats:optim]{stats::optim} function (0 means convergence).}
 
+\item{include.timing}{Logical, When true it will report the elapsed time
+in seconds.}
+
 \item{...}{Further arguments passed to the \code{\link[base:summary]{base::summary()}} of \link{ergmito}.}
 }
 \description{

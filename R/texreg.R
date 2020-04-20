@@ -11,6 +11,8 @@
 #' offset term to the table, omiting sd and significance.
 #' @param include.convergence Logical. When true it, adds the convergence value
 #' of the [stats::optim] function (0 means convergence).
+#' @param include.timing Logical, When true it will report the elapsed time
+#' in seconds.
 #' @param ... Further arguments passed to the [base::summary()] of [ergmito].
 #' @export
 #' @examples 
