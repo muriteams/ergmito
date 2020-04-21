@@ -186,20 +186,184 @@ $$
 
 2. In the case of $\s{\graph}_k = \min_{\graph'\in\Graph}\s{\graph'}_k$, the same is true. Furthermore, if the vector of sufficient statistics equals the observed the expresion goes to 1 and 0 otherwise.
 
+Applying this treatment to the variables is fundamental since mathematically, $0 \times \infty$ is not defined, yet in the limit this quantities are well defined. In the following section, the key will be on dividing the summations into two different sets. Let $U$ denote the set of variables for which the MLE does not exists, define the following sets:
 
-Applying this treatment to the variables is fundamental since mathematically, $0 \times \infty$ is not defined, yet in the limit this quantities are well defined.
+\begin{align}
+\SUFF_0 & \equiv \{\suff\in\SUFF: \suff_u = 0, \forall u\in U\} \\
+\SUFF_1 & \equiv \SUFF\setminus\SUFF_0
+\end{align}
 
-## Log-like
+Where $\graph$ is the observed network. In this partition of the support of the sufficient statistics,  $\SUFF_0$ contains all the realizations of sufficient statistics for which the $U$ parameters are equal to the observed ones (target stats). With this definition in hand, we will now show what is the asymptotic behavior of the log-likelihood, gradient, and hessian in such cases.
 
-The log-likelihood in the limit goes to 0.
+## Log-likelihood
+
+The log-likelihood can be written as follows
+
+$$
+-\log{ % 
+    \sum_{\suff'\in\SUFF_0}\weight_{\suff'}\exp{\sum_{j\not\in U}\suff_j'\beta_j} + %
+    \sum_{\suff'\in\SUFF_1}\weight_{\suff'}\exp{\t{\beta}\Delta\s{\graph'}} 
+    }
+$$
+
+Then, as $\beta_u\to-\infty$, we have:
+
+$$
+\begin{align}
+& \lim_{\beta_u\to-\infty} -\log{ % 
+    \sum_{\suff'\in\SUFF_0}\weight_{\suff'}\exp{\sum_{j\not\in U}\suff_j'\beta_j} + %
+    \sum_{\suff'\in\SUFF_1}\weight_{\suff'}\exp{\t{\beta}\Delta\s{\graph'}} 
+    } \\
+& = -\log{ \lim_{\beta_u\to-\infty} % 
+    \sum_{\suff'\in\SUFF_0}\weight_{\suff'}\exp{\sum_{j\not\in U}\suff_j'\beta_j} + %
+    \sum_{\suff'\in\SUFF_1}\weight_{\suff'}\exp{\t{\beta}\Delta\s{\graph'}} 
+    } \\
+& = -\log{ % 
+    \sum_{\suff'\in\SUFF_0}\weight_{\suff'}\exp{\sum_{j\not\in U}\suff_j'\beta_j} 
+    } 
+\end{align}
+$$
+
+Where the second equality follows from the fact that the logarithm function is continuous in $(0,1)$. For example, with the `fivenets` dataset, the term cycle in `fivenets ~ edges + cycle(5)` has no MLE while the edges term is well defined:
+
+```{r fivenets-cycle5}
+library(ergmito)
+data(fivenets)
+(ans <- ergmito(fivenets ~ edges + cycle(5)))
+ans$formulae$loglik(c(-.6931, -1e100)) # P
+```
+
+```{r fivenets-ll}
+l <- with(ans$formulae, {
+  sapply(1:nnets(ans), function(i) {
+    # Preparing suff stats
+    S <- t(t(stats_statmat[[i]]) - target_stats[i, ])
+    W <- stats_weights[[i]]
+    theta <- coef(ans)["edges"]
+    
+    # Index of members of S0
+    s0idx <- which(S[,2] == 0)
+    
+    - log(sum(W[s0idx] * exp(S[s0idx,1] * theta)))
+  })
+})
+sum(l)
+```
 
 ## Gradient 
 
-TBD
+The gradient for $\beta_j$ equals
+
+$$
+- \frac{ %
+    \sum_{\suff\in\SUFF}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
+    }{ %
+    \sum_{\suff\in\SUFF}\weight_\suff\exp{\t{\beta}\suff} %
+    } = %
+- \frac{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\suff_j\exp{\sum_{j\not\in U}\beta_j\suff_j} +
+    \sum_{\suff\in\SUFF_1}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
+    }{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j} + %
+    \sum_{\suff\in\SUFF_1}\weight_\suff\exp{\t{\beta}\suff} %
+    }
+$$
+
+WLOG if $\suff_u = \min_{\suff'\in\SUFF}\suff_u'$ the limit of the above expression as $\theta_u\to-\infty$ is evaluated as follows:
+
+$$
+\begin{align}
+\lim_{\theta_u\to-\infty} & - \frac{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\suff_j\exp{\sum_{j\not\in U}\beta_j\suff_j} +
+    \sum_{\suff\in\SUFF_1}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
+    }{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j} + %
+    \sum_{\suff\in\SUFF_1}\weight_\suff\exp{\t{\beta}\suff} %
+    }  \\ & = %
+- \frac{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\suff_j\exp{\sum_{j\not\in U}\beta_j\suff_j} +
+    \sum_{\suff\in\SUFF_1}\weight_\suff\suff_j\exp{-\infty} %
+    }{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j} + %
+    \sum_{\suff\in\SUFF_1}\weight_\suff\exp{-\infty} %
+    } \\
+    & = 
+- \frac{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\suff_j\exp{\sum_{j\not\in U}\beta_j\suff_j}
+    }{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j}
+    }
+\end{align}
+$$
+
+If $j = u$, the above expression reduces to 0 as $\suff'_u = 0\forall \suff'\in \SUFF_0$, otherwise the number is well defined. We can calculate the gradient of the 5-cycle model alternatively using the above expression
+
+```{r grad-fivenets}
+g <- with(ans$formulae, {
+  sapply(1:nnets(ans), function(i) {
+    # Preparing suff stats
+    S <- t(t(stats_statmat[[i]]) - target_stats[i, ])
+    W <- stats_weights[[i]]
+    theta <- -1 # coef(ans)["edges"]
+    
+    # Index of members of S0
+    s0idx <- which(S[,2] == 0)
+    
+    - sum(W[s0idx] * S[s0idx,1] * exp(S[s0idx,1] * theta))/
+      sum(W[s0idx] * exp(S[s0idx,1] * theta))
+  })
+})
+sum(g)
+```
+
 
 ## Hessian
 
-In the limit, the entries of the hessian which involve the variable that is not in the interior goes to zero, whereas the cell terms of the varaiables that have an MLE go to a finite non-zero value. This result is useful to then apply the Moore-Penrose generalized inverse.
+Following the same arguments used for the gradient, the limiting Hessian as $\beta_u\to-\infty$ goes to
+
+$$
+\begin{align}
+& \frac{%
+  -\left(\sum_{\suff'\in\SUFF_0}\suff_j'\suff_l'\weight_\suff \exp{\sum_{j\not\in U}\beta_j\suff_j}\right)
+  }{%
+  \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j}%
+} + \\
+& \quad \frac{%
+  \left(\sum_{\suff'\in\SUFF_0}\suff_j'\weight_\suff \exp{\sum_{j\not\in U}\beta_j\suff_j}\right)
+    \left(\sum_{\suff'\in\SUFF_0}\suff_l'\weight_\suff \exp{\sum_{j\not\in U}\beta_j\suff_j}\right)
+}{%
+  \left(\sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j}\right)^2%
+}
+\end{align}
+$$
+
+In the case of either $j$ or $l$ equal to $u$, the hessian equals 0. For values other than $u$, the hessian is well defined, again, using the example with the 5-cycle term:
+
+
+```{r hess-fivenets}
+h <- with(ans$formulae, {
+  sapply(1:nnets(ans), function(i) {
+    # Preparing suff stats
+    S <- t(t(stats_statmat[[i]]) - target_stats[i, ])
+    W <- stats_weights[[i]]
+    theta <- -1 # coef(ans)["edges"]
+    
+    # Index of members of S0
+    s0idx <- which(S[,2] == 0)
+    
+    # First part
+    - sum(W[s0idx] * S[s0idx,1]^2 * exp(S[s0idx,1] * theta))/
+      sum(W[s0idx] * exp(S[s0idx,1] * theta)) + 
+      # Second bit
+      sum(W[s0idx] * S[s0idx,1] * exp(S[s0idx,1] * theta)) ^ 2/
+      sum(W[s0idx] * exp(S[s0idx,1] * theta))^2
+  })
+})
+sum(h)
+ans$formulae$hess(c(-1, -1e20))
+```
+
+This result is useful to then apply the Moore-Penrose generalized inverse.
 
 
 # References

@@ -35,7 +35,7 @@ check_support <- function(
     # is positive.
     possible_sign[k] <- mean(
       (target_stats[, k] - stat_range[, 1L])/ 
-        (stat_range[, 2L] - stat_range[, 1L])
+        (stat_range[, 2L] - stat_range[, 1L] + 1e-20)
     )
     
     possible_sign[k] <- ifelse(possible_sign[k] < .5, -1, 1)
@@ -219,10 +219,13 @@ check_convergence <- function(
       newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)]) * .Machine$double.xmax
       
       estimates$vcov[] <- model$hess(newpars)
+      estimates$vcov[!is.finite(estimates$par),] <- 0
+      estimates$vcov[,!is.finite(estimates$par)] <- 0
       
       # The observed likelihood will change as well, it may be the case that it
-      # becomes undefined b/c of the fact that 0 * Inf = NaN
-      estimates$ll <- model$loglik(estimates$par)
+      # becomes undefined b/c of the fact that 0 * Inf = NaN, yet the right
+      # value is well defined
+      estimates$ll <- model$loglik(newpars)
     }
     
     # Are we in hell?
@@ -235,7 +238,7 @@ check_convergence <- function(
       
       estimates$status <- 30L
       
-    } else {
+    } else if (length(modified)) {
       
       estimates$status <- 20L
       
