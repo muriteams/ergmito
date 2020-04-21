@@ -53,15 +53,19 @@ $$
 
 Where $\graph\in\GRAPH$ is a random graph, $X$ is a vector of attributes,
 $\beta$ is a column-vector of length $k$ (model parameters), and $\s{\cdot}$ is a
-function that returns a column-vector of sufficient statistics, also of length $k$.
-
-In the case of `ergmito`, we usually look at a pooled model with $n$ networks, i.e.
+function that returns a column-vector of sufficient statistics, also of length $k$. In general, from the computational point of view, it is easier to manipulate the likelihood function centered at the observed sufficient statistics, this is:
 
 $$
-\prod_{i \in N}\Prcond{\Graph = \graph_i}{X = x_i} = \prod_{i \in N}\frac{%
-  \exp{\t{\beta}\s{\graph_i, x_i}} %
-  }{%
-  \sum_{\graph_i'\in\GRAPH} \exp{\t{\beta}\s{\graph_i', x_i}} %
+\Prcond{\Graph = \graph}{X = x} = \frac{1}{%
+  \sum_{\graph'\in\GRAPH} \exp{\t{\beta}\Delta{}\s{\graph',x}} %
+  },\quad \forall \graph\in\GRAPH
+$$
+
+Where $\Delta{}\s{\graph'} = \s{\graph',x} - \s{\graph, x}$. In the case of `ergmito`, we usually look at a pooled model with $n$ networks, i.e.
+
+$$
+\prod_{i \in N}\Prcond{\Graph = \graph_i}{X = x_i} = \prod_{i \in N}\frac{1}{%
+  \sum_{\graph_i'\in\GRAPH} \exp{\t{\beta}\Delta\s{\graph_i'}} %
   },\quad \forall \graph_i\in\GRAPH
 $$
 
@@ -72,9 +76,9 @@ Where $N\equiv\{1,\dots, n\}$ is a vector of indices.
 In the case of a single network, the model's log-likelihood is given by
 
 $$
-\log{\Pr{\cdot}} = \t{\beta}\s{\graph, x} - %
+\log{\Pr{\cdot}} = - 
   \log{ % 
-    \sum_{\graph'\in\Graph}\exp{\t{\beta}\s{\graph', x}} %
+    \sum_{\graph'\in\Graph}\exp{\t{\beta}\Delta\s{\graph'}} %
     }
 $$
 In general, we can reduce the computational complexity of this calculations by
@@ -82,20 +86,19 @@ looking at the isomorphic sufficient statistics, this is, group up elements
 based on the set of unique vectors of sufficient statistics:
 
 $$
-\t{\beta}\s{\graph, x} - %
-  \log{ % 
+- \log{ % 
     \sum_{\suff\in\SUFF}\weight_\suff \exp{\t{\beta}\suff} %
     }
 $$
 
 Where $\SUFF$ is the support of the sufficient statistics under $\GRAPH$,
 $\suff\in\SUFF$ is one of its realizations, and
-$\weight_\suff\equiv|\left\{\graph\in\GRAPH: \s{\graph,x} = \suff\right\}|$ is
-the number of networks in $\GRAPH$ which sufficient statistics equal $\suff$.
+$\weight_\suff\equiv|\left\{\graph\in\GRAPH: \Delta{}\s{\graph} = \suff\right\}|$ is
+the number of networks in $\GRAPH$ which centered sufficient statistics equal $\suff$.
 Furthermore, we can write this in matrix form:
 
 $$
-\t{\beta}\s{\graph, x} - %
+- %
   \log{ % 
     \Weight \times \exp{\Suff\times \beta}  %
     }
@@ -112,8 +115,7 @@ equals:
 
 $$
 \frac{\delta}{\delta\beta_j}\log{\Pr{\cdot}} = % 
-  \s{\graph}_j - %
-  \frac{ %
+  - \frac{ %
     \sum_{\suff\in\SUFF}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
     }{ %
     \sum_{\suff\in\SUFF}\weight_\suff\exp{\t{\beta}\suff} %
@@ -124,7 +126,7 @@ We can also write this using matrix notation as follows:
 
 $$
 \nabla\log{\Pr{\cdot}} = %
-  \s{\graph, x} - %
+  - %
   \t{\Suff}\times \left[ \Weight \circ \exp{\Suff \times \beta} \right]/ %
   \lambda({\beta})
 $$
@@ -138,11 +140,13 @@ $\frac{\delta^2}{\delta\theta_k\delta\theta_u}\log{\Pr{\cdot}}$, can be computed
 as:
 
 $$
-- \frac{%
-  \left(\sum_{\suff'\in\SUFF}\suff_j'\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
-  \lambda(\beta) - %
+\frac{%
+  -\left(\sum_{\suff'\in\SUFF}\suff_j'\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
+}{%
+  \lambda(\beta)%
+} + \frac{%
   \left(\sum_{\suff'\in\SUFF}\suff_j'\weight_\suff \exp{\t{\beta} \suff}\right)
-  \left(\sum_{\suff'\in\SUFF}\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
+    \left(\sum_{\suff'\in\SUFF}\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
 }{%
   \lambda(\beta)^2%
 }
@@ -151,10 +155,12 @@ Where $\suff_j$ as the $j$-th element of the vector $\suff$. Once again, we can
 simplify this using matrix notation:
 
 $$
--\frac{%
-  \Weight\times\left[\Suff_j\circ\Suff_l \circ \exp{\Suff\times\beta}\right]
-  \lambda(\beta) - %
-  \left(\Weight\times\left[\Suff_j \circ \exp{\Suff\times\beta}\right]\right)
+\frac{%
+  -\Weight\times\left[\Suff_j\circ\Suff_l \circ \exp{\Suff\times\beta}\right]%
+}{%
+  \lambda(\beta)%
+} + \frac{%
+\left(\Weight\times\left[\Suff_j \circ \exp{\Suff\times\beta}\right]\right)
   \left(\Weight\times\left[\Suff_l \circ \exp{\Suff\times\beta}\right]\right)
 }{%
   \lambda(\beta)^2%
@@ -162,6 +168,39 @@ $$
 $$
 
 Where $\Suff_j$ is the $j$-th column of the matrix $\Suff$.
+
+# Limiting values
+
+In the case that the MLE does not exists, i.e. $\beta_k\to\pm\infty$, which occurs when the observed sufficient statistics are not in the interior of the space, for example, a fully connected network, the limit of the log-likelihood, the gradient, and hessian are finite. This is relevant as some special care needs to be taken when dealing with these cases.
+
+The main principle here is what happens in the argument of the exponential function that populates these functions. The cases follow:
+
+1. $\s{\graph}_k = \min_{\graph'\in\Graph}\s{\graph'}_k$, usually means that the statistic equals zero. In this case, the theoretical MLE for $k$ equals $-\infty$, thus, in the limit, the expression
+
+$$
+\lim_{\beta_k\to-\infty}\exp{\t{\beta}\Delta{}\s{\graph'}} = \left\{\begin{array}{ll} %
+1 &\quad\text{if }\s{\graph'} = \s{\graph} \\
+0 & \quad\text{if }\s{\graph'} \neq \s{\graph}
+\end{array}\right.
+$$
+
+2. In the case of $\s{\graph}_k = \min_{\graph'\in\Graph}\s{\graph'}_k$, the same is true. Furthermore, if the vector of sufficient statistics equals the observed the expresion goes to 1 and 0 otherwise.
+
+
+Applying this treatment to the variables is fundamental since mathematically, $0 \times \infty$ is not defined, yet in the limit this quantities are well defined.
+
+## Log-like
+
+The log-likelihood in the limit goes to 0.
+
+## Gradient 
+
+TBD
+
+## Hessian
+
+In the limit, the entries of the hessian which involve the variable that is not in the interior goes to zero, whereas the cell terms of the varaiables that have an MLE go to a finite non-zero value. This result is useful to then apply the Moore-Penrose generalized inverse.
+
 
 # References
 

@@ -203,18 +203,6 @@ check_convergence <- function(
         newpars[i] <- attr(support, "sign")[i] *Inf
         modified   <- c(modified, i)
         
-      } else {
-        
-        tmppar    <- optim_output$par
-        tmppar[i] <- tmppar[i] + sign(tmppar[i])*.001
-        newll <- model$loglik(params = tmppar)
-        
-        # Updating the values to be inf, if needed.
-        if (newll >= optim_output$value) {
-          newpars[i] <- sign(newpars[i])*Inf
-          modified   <- c(modified, i)
-        }
-        
       }
       
     }
@@ -222,6 +210,20 @@ check_convergence <- function(
     # Updating parameters, if needed
     estimates$par[] <- newpars
     estimates$valid <- setdiff(estimates$valid, modified)
+    
+    if (length(modified)) {
+      # Updating the hessian matrix. We cannot use infite values for this step
+      # since optimHess will return with an error. That's why we just use a
+      # very large value instead
+      newpars <- estimates$par
+      newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)]) * .Machine$double.xmax
+      
+      estimates$vcov[] <- model$hess(newpars)
+      
+      # The observed likelihood will change as well, it may be the case that it
+      # becomes undefined b/c of the fact that 0 * Inf = NaN
+      estimates$ll <- model$loglik(estimates$par)
+    }
     
     # Are we in hell?
     if (!length(estimates$valid)) {
@@ -233,21 +235,10 @@ check_convergence <- function(
       
       estimates$status <- 30L
       
-    } else if (length(modified)) {
-      
-      # Updating the hessian matrix. We cannot use infite values for this step
-      # since optimHess will return with an error. That's why we just use a
-      # very large value instead
-      newpars <- estimates$par
-      newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)])*5
-      
-      estimates$vcov <- model$hess(newpars)
-      
-      # The observed likelihood will change as well, it may be the case that it
-      # becomes undefined b/c of the fact that 0 * Inf = NaN
-      estimates$ll <- model$loglik(estimates$par)
+    } else {
       
       estimates$status <- 20L
+      
     }
     
     
