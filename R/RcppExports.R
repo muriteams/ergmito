@@ -39,6 +39,10 @@ exact_gradient. <- function(ptr, params, as_prob = FALSE) {
     .Call(`_ergmito_exact_gradient`, ptr, params, as_prob)
 }
 
+get_boundaries <- function(ptr) {
+    .Call(`_ergmito_get_boundaries`, ptr)
+}
+
 #' Vectorized version of gradient function
 #' 
 #' @param params Vector of coefficients.
