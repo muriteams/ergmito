@@ -21,29 +21,24 @@ check_support <- function(
   
   for (k in 1L:ncol(target_stats)) {
     
-    # Looking for degeneracy at the k-th parameter
+    # Looking for not in the interior at the k-th parameter
     stat_range <- lapply(stats_statmat, "[", i=, j = k, drop = TRUE)
     stat_range <- lapply(stat_range, range)
     stat_range <- do.call(rbind, stat_range)
     
     res[k] <- mean(
-      (target_stats[, k] == stat_range[, 1L]) | 
-        (target_stats[, k] == stat_range[, 2L])
+      (target_stats[, k] - stat_range[,1L])/
+        (stat_range[, 2L] - stat_range[, 1L] + 1e-20)
       )
     
     # If on average is less than .5, then is negative, otherwise
     # is positive.
-    possible_sign[k] <- mean(
-      (target_stats[, k] - stat_range[, 1L])/ 
-        (stat_range[, 2L] - stat_range[, 1L] + 1e-20)
-    )
-    
-    possible_sign[k] <- ifelse(possible_sign[k] < .5, -1, 1)
+    possible_sign[k] <- ifelse(res[k] < .5, -1, 1)
     
   }
   
   attr(res, "threshold") <- threshold
-  test <- which(res >= threshold)
+  test <- which((res >= threshold) | (res <= threshold))
   if (length(test)) {
     
     if (warn)
@@ -53,14 +48,14 @@ check_support <- function(
               " the statistic(s) \"", paste(names(res)[test], collapse="\", \""), 
               "\".", call. = FALSE, immediate. = TRUE)
     
-    attr(res, "degenerate") <- TRUE
-    attr(res, "which")      <- test
-    attr(res, "sign")       <- possible_sign
+    attr(res, "interior") <- FALSE
+    attr(res, "which")    <- test
+    attr(res, "sign")     <- possible_sign
     
   } else {
-    attr(res, "degenerate") <- FALSE
-    attr(res, "which")      <- NULL
-    attr(res, "sign")       <- possible_sign
+    attr(res, "interior") <- TRUE
+    attr(res, "which")    <- NULL
+    attr(res, "sign")     <- possible_sign
   }
   
   res
@@ -141,12 +136,12 @@ map_convergence_message <- function(x) {
 #' Possible codes and corresponding messages:
 #' 
 #' - 00 All OK (no message).
-#' - 01 \Sexpr{ergmito:::map_convergence_message(01)}. % Convergence, but the hessian is not psd
-#' - 10 \Sexpr{ergmito:::map_convergence_message(10)}. % Optim did not reported convergence, but things look OK.
-#' - 11 \Sexpr{ergmito:::map_convergence_message(11)}. % Optim did not converged, but the hessian is not psd. 
-#' - 20 \Sexpr{ergmito:::map_convergence_message(20)}. % One or more estimates went to inf, all finite were able to be inverted.
-#' - 21 \Sexpr{ergmito:::map_convergence_message(21)}. % One or more are inf, hessian is not psd
-#' - 30 \Sexpr{ergmito:::map_convergence_message(30)}. % All estimates went to Inf (degenerate distribution).
+#' - 01 \Sexpr{ergmito:::map_convergence_message(01)}. 
+#' - 10 \Sexpr{ergmito:::map_convergence_message(10)}. 
+#' - 11 \Sexpr{ergmito:::map_convergence_message(11)}. 
+#' - 20 \Sexpr{ergmito:::map_convergence_message(20)}. 
+#' - 21 \Sexpr{ergmito:::map_convergence_message(21)}. 
+#' - 30 \Sexpr{ergmito:::map_convergence_message(30)}. 
 #' 
 #' @keywords Internal
 check_convergence <- function(
@@ -216,7 +211,7 @@ check_convergence <- function(
       # since optimHess will return with an error. That's why we just use a
       # very large value instead
       newpars <- estimates$par
-      newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)]) * .Machine$double.xmax
+      newpars[!is.finite(newpars)] <- sign(newpars[!is.finite(newpars)]) * 100
       
       estimates$vcov[] <- model$hess(newpars)
       estimates$vcov[!is.finite(estimates$par),] <- 0

@@ -60,7 +60,7 @@ plot.ergmito <- function(
   plot.      = TRUE,
   par_args   = list(),
   image_args = list(),
-  breaks     = 50L,
+  breaks     = 20L,
   extension  = 4L,
   params_labs = stats::setNames(names(coef(x)), names(coef(x))),
   ...
