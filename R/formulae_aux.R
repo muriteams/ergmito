@@ -41,6 +41,32 @@ parse_offset <- function(x) {
   
 }
 
+#' Checks the passed formula (puts it into the right form)
+#' @noRd
+model_update_parser <- function(x) {
+  
+  if (is.null(x))
+    return(NULL)
+  
+  # parsing the formula object
+  formula_update_d <- deparse(x, width.cutoff = 500L)
+  
+  if (length(formula_update_d) > 1L)
+    formula_update_d <- paste(formula_update_d, collapse = " ")
+  
+  if (!grepl("^\\s*[~]", formula_update_d))
+    stop(
+      "The LHS of the update to the model (-model_update-) should be empty. ",
+      "Right now, it has the following: ", gsub("[~].+", "", formula_update_d),
+      call. = FALSE
+    )
+  if (!grepl("[~]\\s*[.]\\s*[+]", formula_update_d)) {
+    formula_update_d <- gsub("[~]", "~ . +", formula_update_d)
+  }
+  
+  as.formula(formula_update_d, env = environment(x))
+}
+
 #' 
 #' @noRd
 model_frame_ergmito <- function(formula, formula_update, data, g_attrs.) {
@@ -52,6 +78,8 @@ model_frame_ergmito <- function(formula, formula_update, data, g_attrs.) {
   model_final <- stats::as.formula(
     sprintf("~ %s", paste(colnames(data), collapse = " + "))
   )
+  
+  # Building the new formula
   model_final <- stats::update.formula(model_final, formula_update)
   
   # Parsing offset terms. This removes the offset() around the term
@@ -85,7 +113,7 @@ model_frame_ergmito <- function(formula, formula_update, data, g_attrs.) {
     # Extracting the offsets
     offsets. <- do.call(cbind, data[offset_terms])
     offsets. <- rowSums(as.matrix(offsets.))
-    data   <- data[-offset_terms]
+    data     <- data[-offset_terms]
     data     <- as.matrix(do.call(cbind, data))
     
   } else {

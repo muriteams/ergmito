@@ -330,6 +330,8 @@ ergmito_formulae <- function(
     # preassing information
     
     # Are we updating the model? ------------------------------------------------
+    model_update <- model_update_parser(model_update)
+    
     graph_attrs <- graph_attributes_as_df(LHS)
     model_frame <- model_frame_ergmito(
       formula        = model,
@@ -377,6 +379,76 @@ ergmito_formulae <- function(
     else
       model
   }
+  
+  # Checking offsets, if some offsets go to -Inf then it means that the values
+  # shouldn't be included in the model, i.e., we are truncating the sample space
+  # this should apply for all that's done forward, so we need to subset the values
+  # overall
+  
+  # First, the space of sufficient statistics
+  for (i in seq_along(stats_statmat)) {
+    
+    inf_test    <- is.infinite(stats_offset[[i]])
+    
+    if (any(inf_test & (sign(stats_offset[[i]]) > 0)))
+      stop(
+        "Some offset terms in the support have +Inf, thus the log-likelihood ",
+        "function is not well defined.",
+        call. = FALSE
+        )
+    
+    inf_test <- which(inf_test)
+    
+    # If all well defined, then go next
+    if (!length(inf_test))
+      next
+    else if (length(inf_test) == nrow(stats_statmat[[i]]))
+      stop(
+        "All the offset terms on the support go to -Inf, thus the log-likelihood ",
+        "is not well defined.",
+        call. = FALSE
+        )
+    
+    # Subsetting
+    stats_statmat[[i]] <- stats_statmat[[i]][-inf_test, , drop = FALSE]
+    stats_weights[[i]] <- stats_weights[[i]][-inf_test]
+    stats_offset[[i]]  <- stats_offset[[i]][-inf_test]
+    
+  }
+  
+  # Checking the offset of the target stats
+  excluded <- is.infinite(target_offset)
+  if (any(excluded & (sign(target_offset) > 0)))
+    stop(
+      "Some offset terms have +Inf, thus the log-likelihood function is not ",
+      "well defined.",
+      call. = FALSE
+    )
+  
+  excluded <- which(excluded)
+  if (length(excluded) == length(target_offset)) {
+    warning_ergmito(
+      "All of the observed offset terms have -Inf, thus the log-likelihood function ",
+      "describes a bernoulli graph.",
+      call. = FALSE
+    )
+    target_offset <- 0
+    target_stats  <- matrix(
+      0, nrow = 1, ncol = ncol(target_stats),
+      dimnames = list(NULL, colnames(target_stats))
+      )
+    
+  } else if (length(excluded) > 0) {
+    
+    # We will need to further remove observations from the suffstats support
+    target_offset <- target_offset[-excluded]
+    target_stats  <- target_stats[-excluded, , drop = FALSE]
+
+    stats_statmat <- stats_statmat[-excluded]
+    stats_weights <- stats_weights[-excluded]
+    stats_offset  <- stats_offset[-excluded]
+  }
+  
 
   # Initializing the pointer
   ergmito_ptr   <- new_ergmito_ptr(
@@ -439,9 +511,10 @@ ergmito_formulae <- function(
       model_update  = model_update,
       model_final   = model_final,
       npars         = ncol(target_stats),
-      nnets         = nnets(LHS),
+      nnets         = nnets(LHS) - length(excluded),
       vertex_attrs  = vattrs,
-      term_names    = colnames(target_stats)
+      term_names    = colnames(target_stats),
+      excluded      = excluded
     ),
     class = "ergmito_loglik"
   )

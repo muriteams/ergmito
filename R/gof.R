@@ -131,6 +131,11 @@ gof_ergmito <- function(
   if (any(!is.finite(coef(object))))
     stop("GOF can only be computed in models that are well defined. This model ",
          "has some undefined coefficients (Inf).", call. = FALSE)
+  
+  # Checking which observations were discarded
+  if (length(object$formulae$excluded)) {
+    object$network <- object$network[-object$formulae$excluded]
+  }
     
   res <- vector(mode = "list", length = nnets(object))
   pr  <- res
@@ -160,7 +165,6 @@ gof_ergmito <- function(
   target_stats <- NULL
   
   g_attrs <- graph_attributes_as_df(object$network)
-  
   
   for (i in seq_len(length(res))) {
     

@@ -65,3 +65,38 @@ expect_length(vcov(ans)[1,], 2)
 # expect_output(print(ans), "offset")
 expect_output(print(summary(ans)), "offset")
 plot(ans)
+
+# Infinite offset
+ans0 <- ergmito(fivenets ~ edges, model_update = ~ .+offset(I(ifelse(edges < 3, -Inf, 0))))
+
+f <- ergmito_formulae(fivenets ~ edges)
+
+# Updating everything
+ids <- c(2, 3, 4)
+f$target_stats  <- f$target_stats[ids, , drop = FALSE]
+f$target_offset <- f$target_offset[ids]
+f$stats_statmat <- f$stats_statmat[ids]
+f$stats_weights <- f$stats_weights[ids]
+f$stats_offset  <- f$stats_offset[ids]
+
+for (i in 1:3) {
+  
+  off <- which(f$stats_statmat[[i]] < 3)
+  f$stats_statmat[[i]] <- f$stats_statmat[[i]][-off, , drop = FALSE]
+  f$stats_weights[[i]] <- f$stats_weights[[i]][-off]
+  f$stats_offset[[i]] <- f$stats_offset[[i]][-off]
+  
+}
+
+ans1 <- with(f, ergmito(
+  fivenets[ids] ~ edges, 
+  target_stats  = target_stats,
+  target_offset = target_offset,
+  stats_weights = stats_weights,
+  stats_statmat = stats_statmat,
+  stats_offset  = stats_offset
+  ))
+                                                            
+expect_equal(coef(ans1), coef(ans0))
+expect_equal(logLik(ans1), logLik(ans0))
+expect_equal(vcov(ans1), vcov(ans0))
