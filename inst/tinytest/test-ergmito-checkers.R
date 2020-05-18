@@ -3,6 +3,14 @@
 x <- rbernoulli(c(4,4,4), 1)
 ans0 <- ergmito(x ~ edges + ttriad)
 
+# Very high density
+x <- lapply(x, function(x.) {
+  x.[2] <- 0L
+  x.
+})
+ans0b <- ergmito(x ~ edges + ttriad)
+ans0b$formulae$loglik(c(1e3, coef(ans0b)[2]))
+
 # Empty graph
 x <- rbernoulli(c(4,4,4), 0)
 ans1 <- ergmito(x ~ edges + ttriad)

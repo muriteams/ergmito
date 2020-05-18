@@ -202,36 +202,35 @@ new_rergmito <- function(
             
           })
         
-      } else {
+        } else {
+          
+          ans$counts[[s]] <- lapply(
+            X   = parallel::splitIndices(length(ans$networks[[s]]), ncores),
+            FUN = function(idx) {
+              
+              # Making room
+              smat <- matrix(ncol = length(ergm_model$names), nrow = length(idx))
+              for (j in seq_along(ergm_model$names)) 
+                smat[,j] <- count_stats(
+                  X     = ans$networks[[s]][idx],
+                  terms = ergm_model$names[j],
+                  # All individuals have the same data
+                  attrs = replicate(length(idx), ergm_model$attrs[[j]], simplify = FALSE)
+                )
+              
+              # Returning a single matrix with network statistics
+              smat
+              
+            })
+          
+        }
         
-        ans$counts[[s]] <- lapply(
-          X   = parallel::splitIndices(length(ans$networks[[s]]), ncores),
-          FUN = function(idx) {
-            
-            # Making room
-            smat <- matrix(ncol = length(ergm_model$names), nrow = length(idx))
-            for (j in seq_along(ergm_model$names)) 
-              smat[,j] <- count_stats(
-                X     = ans$networks[[s]][idx],
-                terms = ergm_model$names[j],
-                # All individuals have the same data
-                attrs = replicate(length(idx), ergm_model$attrs[[j]], simplify = FALSE)
-              )
-            
-            # Returning a single matrix with network statistics
-            smat
-            
-          })
-        
-      }
-        
-        
+        # Adding the results
+        ans$counts[[s]] <- do.call(rbind, ans$counts[[s]])
+        ans$counts[[s]] <- c(list(stats = ans$counts[[s]]), S)
         
       }
       
-      # Adding the results
-      ans$counts[[s]] <- do.call(rbind, ans$counts[[s]])
-      ans$counts[[s]] <- c(list(stats = ans$counts[[s]]), S)
       
     
   } else {

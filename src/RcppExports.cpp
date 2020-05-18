@@ -78,6 +78,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_boundaries
+List get_boundaries(SEXP ptr);
+RcppExport SEXP _ergmito_get_boundaries(SEXP ptrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_boundaries(ptr));
+    return rcpp_result_gen;
+END_RCPP
+}
 // exact_hessian
 arma::mat exact_hessian(const arma::colvec& params, const std::vector< arma::rowvec >& stats_weights, const std::vector< arma::mat >& stats_statmat, const std::vector< arma::colvec >& stats_offset);
 RcppExport SEXP _ergmito_exact_hessian(SEXP paramsSEXP, SEXP stats_weightsSEXP, SEXP stats_statmatSEXP, SEXP stats_offsetSEXP) {
@@ -162,6 +172,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ergmito_new_ergmito_ptr", (DL_FUNC) &_ergmito_new_ergmito_ptr, 5},
     {"_ergmito_exact_loglik", (DL_FUNC) &_ergmito_exact_loglik, 3},
     {"_ergmito_exact_gradient", (DL_FUNC) &_ergmito_exact_gradient, 3},
+    {"_ergmito_get_boundaries", (DL_FUNC) &_ergmito_get_boundaries, 1},
     {"_ergmito_exact_hessian", (DL_FUNC) &_ergmito_exact_hessian, 4},
     {"_ergmito_induced_submat", (DL_FUNC) &_ergmito_induced_submat, 2},
     {"_ergmito_matrix_to_network", (DL_FUNC) &_ergmito_matrix_to_network, 6},

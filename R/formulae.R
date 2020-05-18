@@ -36,6 +36,18 @@
 #' assigns to it after computing the sufficient statistics) and multiplied it by
 #' `n`, which is the network size (this variable is included by default).
 #' 
+#' By default, the ergm package calculates up to 2^16 unique values for the
+#' vector of sufficient statistics. This results in issues if the user tries to
+#' fit a model with too heterogenous networks or sets of attributes. To deal 
+#' with this it suffices with adding the option `maxNumChangeStatVectors` in
+#' the ergmito call, e.g.:
+#' 
+#' ```
+#' # Networks of size 5 have up to 2^20 unique sets of sufficient statistics
+#' ergmito(..., maxNumChangeStatVectors = 2^20)
+#' ```
+#' 
+#' See more in ?[ergm::ergm.allstats].
 #' 
 #' @return A list of class `ergmito_loglik`.
 #' 
@@ -43,6 +55,9 @@
 #' - `grad` A function. The gradient of the model.
 #' - `stats_weights`,`stats_statmat` two list of objects as returned by
 #' [ergm::ergm.allstats].
+#' - `target_offset`,`stats_offset` A vector of offset terms and a list of
+#' vectors of offset terms, one for the target stats and the other for the
+#' support of the sufficient statistics (defaults to 0).
 #' - `model` A formula. The model passed.
 #' - `npars` Integer. Number of parameters.
 #' - `nnets` Integer. Number of networks in the model.
@@ -218,11 +233,38 @@ ergmito_formulae <- function(
         } 
         
         # Computing if we need
-        allstats_i <- do.call(
+        allstats_i <- tryCatch(do.call(
           ergm::ergm.allstats, 
           # We correct for zero obs later
           c(list(formula = model.), dots)
+        ), error = function(e) e
         )
+        
+        # We need to cach for the error that shows in the function.
+        if (inherits(allstats_i, "error")) {
+          
+          if (grepl("initialization.+not found", allstats_i$message)) {
+            stop(
+              "The term you are trying to use was not found. The following is ",
+              "the full error message returned by the ergm package:",
+              allstats_i$message, call. = FALSE
+              )
+          }
+          
+          stop(
+            "The function ergm::ergm.allstats returned with an error. Most of ",
+            "time this error means that the model you are trying to comput is ",
+            "too large. If you are sure you want to continue, add the option ",
+            "maxNumChangeStatVectors = 2^20 if you are using directed graphs of",
+            "size 5, or try setting force = TRUE. For more info see ",
+            "help(\"ergm.allstats\", \"ergm\"). Here is ",
+            "the error reported by the function:\n",
+            paste0(allstats_i$message, collapse = "\n"),
+            call. = FALSE
+            )
+        }
+        
+        
         stats_statmat[[i]] <- allstats_i$statmat
         stats_weights[[i]] <- allstats_i$weights
         
@@ -288,6 +330,8 @@ ergmito_formulae <- function(
     # preassing information
     
     # Are we updating the model? ------------------------------------------------
+    model_update <- model_update_parser(model_update)
+    
     graph_attrs <- graph_attributes_as_df(LHS)
     model_frame <- model_frame_ergmito(
       formula        = model,
@@ -335,6 +379,76 @@ ergmito_formulae <- function(
     else
       model
   }
+  
+  # Checking offsets, if some offsets go to -Inf then it means that the values
+  # shouldn't be included in the model, i.e., we are truncating the sample space
+  # this should apply for all that's done forward, so we need to subset the values
+  # overall
+  
+  # First, the space of sufficient statistics
+  for (i in seq_along(stats_statmat)) {
+    
+    inf_test    <- is.infinite(stats_offset[[i]])
+    
+    if (any(inf_test & (sign(stats_offset[[i]]) > 0)))
+      stop(
+        "Some offset terms in the support have +Inf, thus the log-likelihood ",
+        "function is not well defined.",
+        call. = FALSE
+        )
+    
+    inf_test <- which(inf_test)
+    
+    # If all well defined, then go next
+    if (!length(inf_test))
+      next
+    else if (length(inf_test) == nrow(stats_statmat[[i]]))
+      stop(
+        "All the offset terms on the support go to -Inf, thus the log-likelihood ",
+        "is not well defined.",
+        call. = FALSE
+        )
+    
+    # Subsetting
+    stats_statmat[[i]] <- stats_statmat[[i]][-inf_test, , drop = FALSE]
+    stats_weights[[i]] <- stats_weights[[i]][-inf_test]
+    stats_offset[[i]]  <- stats_offset[[i]][-inf_test]
+    
+  }
+  
+  # Checking the offset of the target stats
+  excluded <- is.infinite(target_offset)
+  if (any(excluded & (sign(target_offset) > 0)))
+    stop(
+      "Some offset terms have +Inf, thus the log-likelihood function is not ",
+      "well defined.",
+      call. = FALSE
+    )
+  
+  excluded <- which(excluded)
+  if (length(excluded) == length(target_offset)) {
+    warning_ergmito(
+      "All of the observed offset terms have -Inf, thus the log-likelihood function ",
+      "describes a bernoulli graph.",
+      call. = FALSE
+    )
+    target_offset <- 0
+    target_stats  <- matrix(
+      0, nrow = 1, ncol = ncol(target_stats),
+      dimnames = list(NULL, colnames(target_stats))
+      )
+    
+  } else if (length(excluded) > 0) {
+    
+    # We will need to further remove observations from the suffstats support
+    target_offset <- target_offset[-excluded]
+    target_stats  <- target_stats[-excluded, , drop = FALSE]
+
+    stats_statmat <- stats_statmat[-excluded]
+    stats_weights <- stats_weights[-excluded]
+    stats_offset  <- stats_offset[-excluded]
+  }
+  
 
   # Initializing the pointer
   ergmito_ptr   <- new_ergmito_ptr(
@@ -383,7 +497,6 @@ ergmito_formulae <- function(
     
   }
   
-  
   structure(
     list(
       loglik        = loglik,
@@ -398,9 +511,10 @@ ergmito_formulae <- function(
       model_update  = model_update,
       model_final   = model_final,
       npars         = ncol(target_stats),
-      nnets         = nnets(LHS),
+      nnets         = nnets(LHS) - length(excluded),
       vertex_attrs  = vattrs,
-      term_names    = colnames(target_stats)
+      term_names    = colnames(target_stats),
+      excluded      = excluded
     ),
     class = "ergmito_loglik"
   )

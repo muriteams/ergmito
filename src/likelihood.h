@@ -37,16 +37,26 @@ private:
    * a case, we don't need to check for matching lenghts. 
    */
   bool same_stats = false;
-
+  
 public:
   unsigned int n, k;
   arma::mat                     target_stats;
   std::vector< arma::rowvec * > stats_weights;
   std::vector< arma::mat * >    stats_statmat;
-  
+
   // Offset terms
   arma::colvec target_offset;
   std::vector< arma::colvec * > stats_offset;
+  
+  /* This vector marks whether the target stats are on the boundary. For each
+   * term, it will be either -1 (lower bound), 0 (interior), or 1 (upper bound).
+   * This should be useful to deal with issues when the function goes to Inf
+   * or -Inf.
+   */
+  arma::mat target_relative_to_bounds;
+  arma::mat upper_bound;
+  arma::mat lower_bound;
+  std::vector < std::vector< arma::uvec > > idx_matches_target;
   
   // Initializing
   ergmito_ptr(
@@ -85,6 +95,13 @@ public:
       bool                 as_prob = false
   );
   
+  // Checking upper or lower bound
+  void check_boundaries();
+  
+  // Some getter functions
+  std::vector< arma::mat > get_boundaries () const;
+  arma::colvec get_current_parameters() const {return this->current_parameters;};
+  std::vector< std::vector< arma::uvec > > get_dx_matches_target() const;
   
 };
 
@@ -99,7 +116,11 @@ inline ergmito_ptr::ergmito_ptr(
   n(target_stats_.nrow()),
   k(target_stats_.ncol()),
   target_stats((double *) &target_stats_[0], target_stats_.nrow(), target_stats_.ncol(), false, true),
-  target_offset((double *) &target_offset_[0], target_offset_.size(), false, true)
+  target_offset((double *) &target_offset_[0], target_offset_.size(), false, true),
+  target_relative_to_bounds(target_stats_.nrow(), target_stats_.ncol(), arma::fill::zeros),
+  upper_bound(target_stats_.nrow(), target_stats_.ncol(), arma::fill::zeros),
+  lower_bound(target_stats_.nrow(), target_stats_.ncol(), arma::fill::zeros),
+  idx_matches_target(target_stats_.nrow())
 {
   
   // Do the networks share the same vector of weights?
@@ -186,9 +207,15 @@ inline ergmito_ptr::ergmito_ptr(
     
   }
   
+  // Checking boundaries
+  check_boundaries();
+  
+  
   return;
   
 }
+
+
 
 inline void ergmito_ptr::update_normalizing_constant(
     const arma::colvec & params
@@ -207,7 +234,6 @@ inline void ergmito_ptr::update_normalizing_constant(
     this->first_iter = false;
     std::copy(params.begin(), params.end(), this->current_parameters.begin());
     
-    // Recalculating the normalizing constant and  exp(s(.) * theta)
     for (unsigned int i = 0; i < this->n; ++i) {
       
       this->exp_statmat_params[i] = exp(
@@ -222,8 +248,9 @@ inline void ergmito_ptr::update_normalizing_constant(
       // No need to recompute this if all share the same sufficient stats space.
       if (same_stats)
         break;
-    }
     
+    }
+
   }
   
   return;
@@ -296,6 +323,92 @@ inline arma::colvec ergmito_ptr::exact_gradient(
   return sum(res_gradient, 1);
   
   
+}
+
+inline void ergmito_ptr::check_boundaries () {
+  
+  for (unsigned int i = 0u; i < this->n; ++i) {
+    
+    // Capturing the min/max of each set
+    if (this->same_stats && (i != 0u)) {
+      
+      this->upper_bound.row(i) = this->upper_bound.row(0);
+      this->lower_bound.row(i) = this->lower_bound.row(0);
+      
+    } else {
+      
+      this->upper_bound.row(i) = arma::max((*this->stats_statmat.at(i)), 0);
+      this->lower_bound.row(i) = arma::min((*this->stats_statmat.at(i)), 0);
+      
+    }
+    
+  }
+  
+  // Checking the range
+  for (unsigned int j = 0u; j < this->k; ++j) {
+    
+    this->target_relative_to_bounds.col(j) =
+      (this->target_stats.col(j) - this->lower_bound.col(j))/
+        (this->upper_bound.col(j) - this->lower_bound.col(j) + 1e-20);
+  }
+  
+  // Checkif if it is relevant or not to keep track of the rows in the statmat
+  // that match a particular observed target stat (make it zero).
+  arma::mat * trb = &this->target_relative_to_bounds;
+  arma::mat * ub  = &this->upper_bound;
+  arma::mat * lb  = &this->lower_bound;
+  unsigned int i, i0 = 0u;
+  unsigned int * iptr = (this->same_stats)? &i0 : &i;
+  for (i = 0u; i < this->n; ++i) {
+    
+    // We will have a vector uvec per parameter k.
+    std::vector< arma::uvec > tmp(k);
+    for (unsigned int j = 0u; j < this->k; ++j) {
+      
+      // Initializing in 0
+      arma::uvec tmp_idx;
+      
+      // Is it on or near the boundary?
+      if (trb->at(i, j) < (1 - 1e-20)) {
+        
+        // Need to find which of the elements in the statmat is equal, or
+        // aprox. equal to the target stat.
+        tmp_idx = arma::find(
+          abs(lb->at(i, j) - this->stats_statmat.at(*iptr)->col(j)) < 1e-100
+        );
+        
+      } else if (trb->at(i, j) > 1e-20) {
+        
+        tmp_idx = arma::find(
+          abs(ub->at(i, j) - this->stats_statmat.at(*iptr)->col(j)) < (1 - 1e-100)
+        );
+        
+      }
+      
+      // Moving the data
+      tmp.at(j) = std::move(tmp_idx);
+      
+    }
+    
+    // Moving the data
+    this->idx_matches_target.at(i) = std::move(tmp);
+  }
+  
+  return;
+}
+
+inline std::vector< arma::mat > ergmito_ptr::get_boundaries () const {
+  
+  std::vector< arma::mat > res(3u);
+  res[0u] = this->lower_bound;
+  res[1u] = this->upper_bound;
+  res[2u] = this->target_relative_to_bounds;
+
+  return res;
+}
+
+inline std::vector< std::vector< arma::uvec > > ergmito_ptr::get_dx_matches_target() const {
+  return this->idx_matches_target;
 }
 
 #endif

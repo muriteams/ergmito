@@ -65,6 +65,20 @@ arma::vec exact_gradient(
   
 }
 
+// [[Rcpp::export(rng = false)]]
+List get_boundaries(SEXP ptr) {
+  Rcpp::XPtr< ergmito_ptr > p(ptr);
+  std::vector< arma:: mat > ans = p->get_boundaries();
+  std::vector< std::vector< arma::uvec > > idx = p->get_dx_matches_target();
+  return List::create(
+    _["lower"] = wrap(ans[0u]),
+    _["upper"] = wrap(ans[1u]),
+    _["obs"]   = wrap(ans[2u]),
+    _["match"] = wrap(idx)
+  );
+}
+
+
 // Calculates the gradient for a given network individually.
 inline arma::mat exact_hessiani(
     const arma::colvec & params,

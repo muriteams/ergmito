@@ -29,6 +29,14 @@ set.seed(1);ans1 <- new_rergmito(nets ~ edges + mutual, sizes = 3, mc.cores = 1L
 expect_equal(ans0$prob, ans1$prob)
 expect_equal(sum(ans0$prob$`3`), 1)
 
+# Multiple sizes
+Sys.unsetenv("ERGMITO_TEST")
+set.seed(1);ans0 <- new_rergmito(nets ~ edges + mutual, sizes = 3:4, mc.cores = 1L)
+Sys.setenv(ERGMITO_TEST = 1)
+
+expect_equal(sum(ans0$prob$`3`), 1)
+expect_equal(sum(ans0$prob$`4`), 1)
+
 # Sampler with the data
 data("fivenets")
 mod <- ergmito(fivenets ~ edges + nodematch("female"))

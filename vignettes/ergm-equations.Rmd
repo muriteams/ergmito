@@ -53,15 +53,19 @@ $$
 
 Where $\graph\in\GRAPH$ is a random graph, $X$ is a vector of attributes,
 $\beta$ is a column-vector of length $k$ (model parameters), and $\s{\cdot}$ is a
-function that returns a column-vector of sufficient statistics, also of length $k$.
-
-In the case of `ergmito`, we usually look at a pooled model with $n$ networks, i.e.
+function that returns a column-vector of sufficient statistics, also of length $k$. In general, from the computational point of view, it is easier to manipulate the likelihood function centered at the observed sufficient statistics, this is:
 
 $$
-\prod_{i \in N}\Prcond{\Graph = \graph_i}{X = x_i} = \prod_{i \in N}\frac{%
-  \exp{\t{\beta}\s{\graph_i, x_i}} %
-  }{%
-  \sum_{\graph_i'\in\GRAPH} \exp{\t{\beta}\s{\graph_i', x_i}} %
+\Prcond{\Graph = \graph}{X = x} = \frac{1}{%
+  \sum_{\graph'\in\GRAPH} \exp{\t{\beta}\Delta{}\s{\graph',x}} %
+  },\quad \forall \graph\in\GRAPH
+$$
+
+Where $\Delta{}\s{\graph'} = \s{\graph',x} - \s{\graph, x}$. In the case of `ergmito`, we usually look at a pooled model with $n$ networks, i.e.
+
+$$
+\prod_{i \in N}\Prcond{\Graph = \graph_i}{X = x_i} = \prod_{i \in N}\frac{1}{%
+  \sum_{\graph_i'\in\GRAPH} \exp{\t{\beta}\Delta\s{\graph_i'}} %
   },\quad \forall \graph_i\in\GRAPH
 $$
 
@@ -72,9 +76,9 @@ Where $N\equiv\{1,\dots, n\}$ is a vector of indices.
 In the case of a single network, the model's log-likelihood is given by
 
 $$
-\log{\Pr{\cdot}} = \t{\beta}\s{\graph, x} - %
+\log{\Pr{\cdot}} = - 
   \log{ % 
-    \sum_{\graph'\in\Graph}\exp{\t{\beta}\s{\graph', x}} %
+    \sum_{\graph'\in\Graph}\exp{\t{\beta}\Delta\s{\graph'}} %
     }
 $$
 In general, we can reduce the computational complexity of this calculations by
@@ -82,20 +86,19 @@ looking at the isomorphic sufficient statistics, this is, group up elements
 based on the set of unique vectors of sufficient statistics:
 
 $$
-\t{\beta}\s{\graph, x} - %
-  \log{ % 
+- \log{ % 
     \sum_{\suff\in\SUFF}\weight_\suff \exp{\t{\beta}\suff} %
     }
 $$
 
 Where $\SUFF$ is the support of the sufficient statistics under $\GRAPH$,
 $\suff\in\SUFF$ is one of its realizations, and
-$\weight_\suff\equiv|\left\{\graph\in\GRAPH: \s{\graph,x} = \suff\right\}|$ is
-the number of networks in $\GRAPH$ which sufficient statistics equal $\suff$.
+$\weight_\suff\equiv|\left\{\graph\in\GRAPH: \Delta{}\s{\graph} = \suff\right\}|$ is
+the number of networks in $\GRAPH$ which centered sufficient statistics equal $\suff$.
 Furthermore, we can write this in matrix form:
 
 $$
-\t{\beta}\s{\graph, x} - %
+- %
   \log{ % 
     \Weight \times \exp{\Suff\times \beta}  %
     }
@@ -112,8 +115,7 @@ equals:
 
 $$
 \frac{\delta}{\delta\beta_j}\log{\Pr{\cdot}} = % 
-  \s{\graph}_j - %
-  \frac{ %
+  - \frac{ %
     \sum_{\suff\in\SUFF}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
     }{ %
     \sum_{\suff\in\SUFF}\weight_\suff\exp{\t{\beta}\suff} %
@@ -124,7 +126,7 @@ We can also write this using matrix notation as follows:
 
 $$
 \nabla\log{\Pr{\cdot}} = %
-  \s{\graph, x} - %
+  - %
   \t{\Suff}\times \left[ \Weight \circ \exp{\Suff \times \beta} \right]/ %
   \lambda({\beta})
 $$
@@ -138,11 +140,13 @@ $\frac{\delta^2}{\delta\theta_k\delta\theta_u}\log{\Pr{\cdot}}$, can be computed
 as:
 
 $$
-- \frac{%
-  \left(\sum_{\suff'\in\SUFF}\suff_j'\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
-  \lambda(\beta) - %
+\frac{%
+  -\left(\sum_{\suff'\in\SUFF}\suff_j'\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
+}{%
+  \lambda(\beta)%
+} + \frac{%
   \left(\sum_{\suff'\in\SUFF}\suff_j'\weight_\suff \exp{\t{\beta} \suff}\right)
-  \left(\sum_{\suff'\in\SUFF}\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
+    \left(\sum_{\suff'\in\SUFF}\suff_l'\weight_\suff \exp{\t{\beta} \suff}\right)
 }{%
   \lambda(\beta)^2%
 }
@@ -151,10 +155,12 @@ Where $\suff_j$ as the $j$-th element of the vector $\suff$. Once again, we can
 simplify this using matrix notation:
 
 $$
--\frac{%
-  \Weight\times\left[\Suff_j\circ\Suff_l \circ \exp{\Suff\times\beta}\right]
-  \lambda(\beta) - %
-  \left(\Weight\times\left[\Suff_j \circ \exp{\Suff\times\beta}\right]\right)
+\frac{%
+  -\Weight\times\left[\Suff_j\circ\Suff_l \circ \exp{\Suff\times\beta}\right]%
+}{%
+  \lambda(\beta)%
+} + \frac{%
+\left(\Weight\times\left[\Suff_j \circ \exp{\Suff\times\beta}\right]\right)
   \left(\Weight\times\left[\Suff_l \circ \exp{\Suff\times\beta}\right]\right)
 }{%
   \lambda(\beta)^2%
@@ -162,6 +168,226 @@ $$
 $$
 
 Where $\Suff_j$ is the $j$-th column of the matrix $\Suff$.
+
+# Limiting values
+
+In the case that the MLE does not exists, i.e. $\beta_k\to\pm\infty$, which occurs when the observed sufficient statistics are not in the interior of the space, for example, a fully connected network, the limit of the log-likelihood, the gradient, and hessian are finite. This is relevant as some special care needs to be taken when dealing with these cases.
+
+While in general models in which the MLEs diverge may seem uninteresting, the fact that ERGMs describe a discrete and not continuous random variable makes this type of event easier to observed when compared to other families of distributions. Furthermore, in the case of methods such as bootstrapping, forward/backward selection, or other classes of algorithms that involve some level of automatization during the model fitting process, it is important to know how to correctly deal with the non-existence of MLEs. Fortunately, as we will show, the log-likelihood and its derivatives are well defined in such cases.
+
+The main principle here is what happens in the argument of the exponential function that populates these functions. Depending on what is $\suff_k$, two cases follow:
+
+1. **The observe value of the $k$-th sufficient statistic is in the *lower* bound**
+  $\suff_k = \min_{\suff'\in\SUFF}\suff_{k}'$ This happens, for
+  example, when trying to fit a model with triangles where there are no observed
+  triangles. In this case, with $\suff_k' \geq 0$ for all cases, the theoretical
+  MLE for $\beta_k$ goes to $-\infty$, thus, in the limit, the expression
+  $$
+  \lim_{\beta_k\to-\infty}\exp{\t{\beta}\suff'} = \left\{\begin{array}{ll} %
+  \exp{\sum_{j\neq k}\suff_j'\beta_j} &\quad\text{if }\suff_k' = 0 \\
+  0 & \quad\text{if }\suff_k' > 0
+  \end{array}\right.
+  $$
+
+2. **The observe value of the $k$-th sufficient statistic is in the *upper* bound**
+  $\suff_k = \min_{\suff'\in\SUFF}\suff_k'$ The most common case is when the
+  sufficient statistic is satturated, for example, in a fully connected graph,
+  where the MLE goes to infinity, $\beta_k\to+\infty$. Similar to before, since
+  $\suff_k' \leq 0$ for all cases, in the limit the previous expression is well
+  defined:
+  $$
+  \lim_{\beta_k\to+\infty}\exp{\t{\beta}\suff'} = \left\{\begin{array}{ll} %
+  \exp{\sum_{j\neq k}\suff_j'\beta_j} &\quad\text{if }\suff_k' = 0 \\
+  0 & \quad\text{if }\suff_k' < 0
+  \end{array}\right.
+  $$
+
+The two previous points can be interpreted as only graphs whose $k$-th sufficient statistic matches that of the observed data influence the model. Therefore, a key to compute the limiting values of the log-likelihood, gradient, and hessian will be on partitioning the summations over $\suff'\in\SUFF$ into two different sets as follows:
+
+\begin{align}
+\SUFF_0 & \equiv \{\suff\in\SUFF: \suff_u = 0, \forall u\in U\} \\
+\SUFF_1 & \equiv \SUFF\setminus\SUFF_0
+\end{align}
+
+Where $U$ is the set of observed sufficient statistics that are on the boundary and thus have an MLE that diverges to $\pm\infty$. In this partition $\SUFF_0$ contains all the realizations of sufficient statistics for which the statistics in $U$ are equal to the observed ones. With this definition in hand, we will now show what is the asymptotic behavior of the log-likelihood, gradient, and hessian when one or more observed sufficient statistics are on not in the interior of the support.
+
+## Log-likelihood
+
+Using the partition of $\SUFF$, the log-likelihood can be written as follows
+
+$$
+-\log{ % 
+    \sum_{\suff'\in\SUFF_0}\weight_{\suff'}\exp{\sum_{j\not\in U}\suff_j'\beta_j} + %
+    \sum_{\suff'\in\SUFF_1}\weight_{\suff'}\exp{\t{\beta}\Delta\s{\graph'}} 
+    }
+$$
+
+Then, WLOG as $\beta_u\to-\infty$, positive if $\suff_u$ is in the upper bound, we have:
+
+$$
+\begin{align}
+& \lim_{\beta_u\to-\infty} -\log{ % 
+    \sum_{\suff'\in\SUFF_0}\weight_{\suff'}\exp{\sum_{j\not\in U}\suff_j'\beta_j} + %
+    \sum_{\suff'\in\SUFF_1}\weight_{\suff'}\exp{\t{\beta}\Delta\s{\graph'}} 
+    } \\
+& = -\log{ \lim_{\beta_u\to-\infty} % 
+    \sum_{\suff'\in\SUFF_0}\weight_{\suff'}\exp{\sum_{j\not\in U}\suff_j'\beta_j} + %
+    \sum_{\suff'\in\SUFF_1}\weight_{\suff'}\exp{\t{\beta}\Delta\s{\graph'}} 
+    } \\
+& = -\log{ % 
+    \sum_{\suff'\in\SUFF_0}\weight_{\suff'}\exp{\sum_{j\not\in U}\suff_j'\beta_j} 
+    } 
+\end{align}
+$$
+
+Where the second equality follows from the fact that the logarithm function is continuous in $(0,1)$. We can see this in the following example:
+
+Suppose that we have five networks of size 4 as the one included in the ergmito package, `fivenets`, and we wanted to fit the following model `fivenets ~ edges + triadcensus(15)`, with `triadcensus(15)` equal to a fully connected triad, also known as triad class 300 using Davis and Leinhardt triadic classification system. Since the `fivenets` dataset has no fully connected triad, the MLE of that term diverges:
+
+```{r fivenets-cycle5}
+library(ergmito)
+data(fivenets)
+(ans <- ergmito(fivenets ~ edges + triadcensus(15)))
+```
+
+The log-likelihood of this model can be computed directly with ergmito using a large negative instead of `-Inf`, or by using the equation that shows the limiting value of the log-likelihood:
+
+```{r fivenets-ll}
+# Approach using the limiting value
+l <- with(ans$formulae, {
+  sapply(1:nnets(ans), function(i) {
+    # Preparing suff stats
+    S <- t(t(stats_statmat[[i]]) - target_stats[i, ])
+    W <- stats_weights[[i]]
+    theta <- coef(ans)["edges"]
+    
+    # Index of members of S0
+    s0idx <- which(S[,2] == 0)
+    
+    - log(sum(W[s0idx] * exp(S[s0idx,1] * theta)))
+  })
+})
+sum(l)
+
+# Which should be equivalent to the approach with large negative number
+ans$formulae$loglik(c(coef(ans)["edges"], -1e100))
+```
+
+## Gradient 
+
+The gradient for $\beta_j$ equals
+
+$$
+- \frac{ %
+    \sum_{\suff\in\SUFF}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
+    }{ %
+    \sum_{\suff\in\SUFF}\weight_\suff\exp{\t{\beta}\suff} %
+    } = %
+- \frac{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\suff_j\exp{\sum_{j\not\in U}\beta_j\suff_j} +
+    \sum_{\suff\in\SUFF_1}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
+    }{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j} + %
+    \sum_{\suff\in\SUFF_1}\weight_\suff\exp{\t{\beta}\suff} %
+    }
+$$
+
+WLOG if $\suff_u = \min_{\suff'\in\SUFF}\suff_u'$ the limit of the above expression as $\theta_u\to-\infty$ is evaluated as follows:
+
+$$
+\begin{align}
+\lim_{\theta_u\to-\infty} & - \frac{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\suff_j\exp{\sum_{j\not\in U}\beta_j\suff_j} +
+    \sum_{\suff\in\SUFF_1}\weight_\suff\suff_j\exp{\t{\beta}\suff} %
+    }{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j} + %
+    \sum_{\suff\in\SUFF_1}\weight_\suff\exp{\t{\beta}\suff} %
+    }  \\ & = %
+- \frac{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\suff_j\exp{\sum_{j\not\in U}\beta_j\suff_j}
+    }{ %
+    \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j}
+    }
+\end{align}
+$$
+
+If $j = u$, the above expression reduces to 0 as $\suff'_u = 0\forall \suff'\in \SUFF_0$, otherwise the number is well defined. We can calculate the gradient of the triad 300 model alternatively using the above expression:
+
+```{r grad-fivenets}
+g <- with(ans$formulae, {
+  sapply(1:nnets(ans), function(i) {
+    # Preparing suff stats
+    S <- t(t(stats_statmat[[i]]) - target_stats[i, ])
+    W <- stats_weights[[i]]
+    theta <- coef(ans)["edges"]
+    
+    # Index of members of S0
+    s0idx <- which(S[,2] == 0)
+    
+    - sum(W[s0idx] * S[s0idx,1] * exp(S[s0idx,1] * theta))/
+      sum(W[s0idx] * exp(S[s0idx,1] * theta))
+  })
+})
+sum(g)
+
+# Which is equivalent to
+ans$formulae$grad(c(coef(ans)["edges"], -1e100))
+```
+
+
+## Hessian
+
+Just like the other cases, we can rewrite the hessian distingushing between $\SUFF_0$ and $\SUFF_1$. Without rewriting the whole expression (which would be simply taking too much space), and WLOG, the limiting Hessian, and in particular, its $(j,l)$-th component, as $\beta_u\to-\infty$ equals:
+
+$$
+\begin{align}
+& \frac{%
+  -\left(\sum_{\suff'\in\SUFF_0}\suff_j'\suff_l'\weight_\suff \exp{\sum_{j\not\in U}\beta_j\suff_j}\right)
+  }{%
+  \sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j}%
+} + \\
+& \quad \frac{%
+  \left(\sum_{\suff'\in\SUFF_0}\suff_j'\weight_\suff \exp{\sum_{j\not\in U}\beta_j\suff_j}\right)
+    \left(\sum_{\suff'\in\SUFF_0}\suff_l'\weight_\suff \exp{\sum_{j\not\in U}\beta_j\suff_j}\right)
+}{%
+  \left(\sum_{\suff\in\SUFF_0}\weight_\suff\exp{\sum_{j\not\in U}\beta_j\suff_j}\right)^2%
+}
+\end{align}
+$$
+
+In the case of either $j$ or $l$ equal to $u$, the hessian equals 0. For values other than $u$, the hessian is non-zero, again, using the example with the triad 300 term we can compute the hessian as follows:
+
+
+```{r hess-fivenets}
+h <- with(ans$formulae, {
+  sapply(1:nnets(ans), function(i) {
+    # Preparing suff stats
+    S <- t(t(stats_statmat[[i]]) - target_stats[i, ])
+    W <- stats_weights[[i]]
+    theta <- coef(ans)["edges"]
+    
+    # Index of members of S0
+    s0idx <- which(S[,2] == 0)
+    
+    # First part
+    - sum(W[s0idx] * S[s0idx,1]^2 * exp(S[s0idx,1] * theta))/
+      sum(W[s0idx] * exp(S[s0idx,1] * theta)) + 
+      # Second bit
+      sum(W[s0idx] * S[s0idx,1] * exp(S[s0idx,1] * theta)) ^ 2/
+      sum(W[s0idx] * exp(S[s0idx,1] * theta))^2
+  })
+})
+sum(h)
+```
+
+Which should be equal to using the full hessian function but with a very large negative velue for the parameter associated with the statistic triad 300:
+
+```{r hessian2}
+ans$formulae$hess(c(coef(ans)["edges"], -1e100))
+```
+
+This last result is useful to then apply the Moore-Penrose generalized inverse and thus a pseudo-covariance matrix, which in some cases can be better than nothing. Furthermore, the limiting expressions of the log-likelihood, gradient, and hessian have less terms to be consider, which in principle results in faster calculations.
+
 
 # References
 
