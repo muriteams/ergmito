@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Bootstrap of ergmito — ergmito_boot • ergmito</title>
+<title>Utility to benchmark expression in R — benchmarkito • ergmito</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,10 @@
 
 
 
-<meta property="og:title" content="Bootstrap of ergmito — ergmito_boot" />
-<meta property="og:description" content="Bootstrap of ergmito" />
+<meta property="og:title" content="Utility to benchmark expression in R — benchmarkito" />
+<meta property="og:description" content="This is just an internal utility included in the package which is not designed
+to be accurate. If you need accurate benchmarks, you should take a look at the
+microbenchmark and bench R packages." />
 <meta property="og:image" content="/logo.svg" />
 
 
@@ -144,113 +146,71 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Bootstrap of ergmito</h1>
-    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/boot.R'><code>R/boot.R</code></a></small>
-    <div class="hidden name"><code>ergmito_boot.Rd</code></div>
+    <h1>Utility to benchmark expression in R</h1>
+    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/benchmark.R'><code>R/benchmark.R</code></a></small>
+    <div class="hidden name"><code>benchmarkito.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Bootstrap of ergmito</p>
+    <p>This is just an internal utility included in the package which is not designed
+to be accurate. If you need accurate benchmarks, you should take a look at the
+<a href='https://CRAN.R-project.org/package=microbenchmark'><span class="pkg">microbenchmark</span></a> and <a href='https://CRAN.R-project.org/package=bench'><span class="pkg">bench</span></a> R packages.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>ergmito_boot</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='no'>R</span>, <span class='kw'>ncpus</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='kw'>cl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>benchmarkito</span>(<span class='no'>...</span>, <span class='kw'>times</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>rand_ord</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>Either a formula or an object of class <a href='ergmito.html'>ergmito</a>.</p></td>
-    </tr>
-    <tr>
       <th>...</th>
-      <td><p>Additional arguments passed to the method.</p></td>
+      <td><p>List of expressions to benchmark.</p></td>
     </tr>
     <tr>
-      <th>R</th>
-      <td><p>Integer. Number of replicates</p></td>
+      <th>times</th>
+      <td><p>Integer scalar. Number of replicates.</p></td>
     </tr>
     <tr>
-      <th>ncpus</th>
-      <td><p>Integer Number of CPUs to use. Only recommended if <code>ergmito</code> was
-not compiled with OpenMP (otherwise it will be slower).</p></td>
-    </tr>
-    <tr>
-      <th>cl</th>
-      <td><p>An object of class <code>cluster</code> (see <a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makePSOCKcluster</a>)</p></td>
+      <th>rand_ord</th>
+      <td><p>Logical. When <code>TRUE</code>, the expressions are executed in a random
+order.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object of class <code>ergmito_boot</code> and <a href='ergmito.html'>ergmito</a>. This adds three
-elements to the <code>ergmito</code> object:</p><ul>
-<li><p><code>R</code> The number of replicates.</p></li>
-<li><p><code>sample</code> A vector of length <code>R</code> with the cases used in each replicate.</p></li>
-<li><p><code>dist</code> The distribution of fitted parameters.</p></li>
-<li><p><code>nvalid</code> the number of cases used for computing the covar.</p></li>
-<li><p><code>timer_boot</code> records the time the whole process took.</p></li>
+    <p>A data frame of class <code>ergmito_benchmark</code> with <code>times</code> rows and the
+following columns:</p><ul>
+<li><p><code>id</code> Integer. Id of the expression.</p></li>
+<li><p><code>expr</code> Factor. Expression executed.</p></li>
+<li><p><code>user.self</code>, <code>sys.self</code>, <code>elapsed</code>, <code>sys.child</code> time in seconds (see <code><a href='https://rdrr.io/r/base/proc.time.html'>proc.time()</a></code>).</p></li>
 </ul>
 
+<p>Includes the following attributes: <code>ncalls</code>, <code>call</code>, <code>label</code>, and <code>expr</code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The resulting sample of parameters estimates is then used to compute
-the variance-covariance matrix of the model. Cases in which <code>Inf</code>/<code>NaN</code>/<code>NA</code>
-values were returned are excluded from the calculation.</p>
+    <p>The print method prints a summary including quantiles, relative elapsed times,
+and the order (fastest to slowest).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>123</span>)
-<span class='no'>ans0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='no'>ttriad</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges", "ttriple".</span></div><div class='input'><span class='no'>ans1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span>(<span class='fu'>ergmito_boot</span>(<span class='no'>ans0</span>, <span class='kw'>R</span> <span class='kw'>=</span> <span class='fl'>100</span>))</div><div class='output co'>#&gt; 
-#&gt; |0%                 |25%                |50%                |75%           100%|
-#&gt; --------------------------------------------------------------------------------
-#&gt; ////////////////////////////////////////////////////////////////////////////////</div><div class='input'><span class='no'>ans2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span>(<span class='fu'>ergmito_boot</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='no'>ttriad</span>, <span class='kw'>R</span> <span class='kw'>=</span> <span class='fl'>100</span>))</div><div class='output co'>#&gt; 
-#&gt; |0%                 |25%                |50%                |75%           100%|
-#&gt; --------------------------------------------------------------------------------
-#&gt; ////////////////////////////////////////////////////////////////////////////////</div><div class='input'>
-<span class='co'># Checking the differences</span>
-<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>ans0</span>)</div><div class='output co'>#&gt; 
-#&gt; ERGMito estimates
+    <pre class="examples"><div class='input'><span class='no'>bm</span> <span class='kw'>&lt;-</span> <span class='fu'>benchmarkito</span>(
+  <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(<span class='fl'>1</span>:<span class='fl'>100000</span>),
+  <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='fl'>1</span>:<span class='fl'>100000</span>),
+  <span class='kw'>times</span> <span class='kw'>=</span> <span class='fl'>20</span>
+)
+
+<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>bm</span>)</div><div class='img'><img src='benchmarkito-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>bm</span>)</div><div class='output co'>#&gt; call:
+#&gt;   benchmarkito(exp(1:1e+05), sqrt(1:1e+05), times = 20)
 #&gt; 
-#&gt; formula:
-#&gt;   fivenets ~ edges + ttriad
-#&gt; &lt;environment: 0x12b382e8&gt;
+#&gt; Times (in seconds, see proc.time()):
 #&gt; 
-#&gt;         Estimate Std. Error z value Pr(&gt;|z|)  
-#&gt; edges   -0.89666    0.39389 -2.2765  0.02282 *
-#&gt; ttriple  0.26828    0.36290  0.7393  0.45973  
-#&gt; ---
-#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-#&gt; AIC: 79.92984    BIC: 84.11852    (Smaller is better.) </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>ans1</span>)</div><div class='output co'>#&gt; 
-#&gt; ERGMito estimates
-#&gt; 
-#&gt; (bootstrapped model with  100  replicates.)
-#&gt; 
-#&gt; formula:
-#&gt;   fivenets ~ edges + ttriad
-#&gt; &lt;environment: 0x12b382e8&gt;
-#&gt; 
-#&gt;         Estimate Std. Error z value Pr(&gt;|z|)   
-#&gt; edges   -0.89666    0.32632 -2.7478 0.005999 **
-#&gt; ttriple  0.26828    0.23361  1.1484 0.250792   
-#&gt; ---
-#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-#&gt; AIC: 79.92984    BIC: 84.11852    (Smaller is better.) </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>ans2</span>)</div><div class='output co'>#&gt; 
-#&gt; ERGMito estimates
-#&gt; 
-#&gt; (bootstrapped model with  100  replicates.)
-#&gt; 
-#&gt; formula:
-#&gt;   fivenets ~ edges + ttriad
-#&gt; &lt;environment: 0x12b382e8&gt;
-#&gt; 
-#&gt;         Estimate Std. Error z value Pr(&gt;|z|)  
-#&gt; edges   -0.89666    0.39037 -2.2970  0.02162 *
-#&gt; ttriple  0.26828    0.23119  1.1605  0.24586  
-#&gt; ---
-#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-#&gt; AIC: 79.92984    BIC: 84.11852    (Smaller is better.) </div></pre>
+#&gt;           label user.self sys.self elapsed user.child sys.child    5%   50%
+#&gt; 1  exp(1:1e+05)     9e-04  0.00100 0.00195          0         0 0.001 0.002
+#&gt; 2 sqrt(1:1e+05)     6e-04  0.00025 0.00085          0         0 0.000 0.001
+#&gt;      95% relative ord
+#&gt; 1 0.0022 2.294118   2
+#&gt; 2 0.0010 1.000000   1</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -1,7 +1,8 @@
 pandoc: '2.2'
-pkgdown: 1.4.1
+pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
   ergm-equations: ergm-equations.html
   extending-ergmito: extending-ergmito.html
+last_built: 2020-05-18T18:59Z
 

@@ -17,23 +17,27 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -44,8 +48,7 @@
 
 <meta property="og:title" content="Goodness of Fit diagnostics for ERGMito models — ergmito_gof" />
 <meta property="og:description" content="Goodness of Fit diagnostics for ERGMito models" />
-<meta property="og:image" content="/logo.png" />
-<meta name="twitter:card" content="summary" />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -73,7 +76,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -87,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
       </span>
     </div>
 
@@ -122,7 +125,12 @@
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/muriteams/ergmito/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -137,7 +145,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Goodness of Fit diagnostics for ERGMito models</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/gof.R'><code>R/gof.R</code></a></small>
     <div class="hidden name"><code>ergmito_gof.Rd</code></div>
     </div>
 
@@ -148,6 +156,7 @@
     <pre class="usage"><span class='fu'>gof_ergmito</span>(
   <span class='no'>object</span>,
   <span class='kw'>GOF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>GOF_update</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>probs</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.05</span>, <span class='fl'>0.95</span>),
   <span class='kw'>sim_ci</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>R</span> <span class='kw'>=</span> <span class='fl'>50000L</span>,
@@ -156,7 +165,7 @@
 )
 
 <span class='co'># S3 method for ergmito_gof</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
+<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(
   <span class='no'>x</span>,
   <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>main</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -176,6 +185,10 @@
     <tr>
       <th>GOF</th>
       <td><p>Formula. Additional set of parameters to perform the GOF.</p></td>
+    </tr>
+    <tr>
+      <th>GOF_update</th>
+      <td><p>Formula. See the section on model updating in <code><a href='ergmito_formulae.html'>ergmito_formulae()</a></code>.</p></td>
     </tr>
     <tr>
       <th>probs</th>
@@ -229,12 +242,12 @@ with of the CI in for the first parameter of the model.</p></td>
 components:</p><ul>
 <li><p><code>ci</code> A list of matrices of length <code><a href='nvertex.html'>nnets(object)</a></code> with the corresponding
 confidence intervals for the statistics of the model.</p></li>
-<li><p><code>target.stats</code> A matrix of the target statistics.</p></li>
+<li><p><code>target_stats</code> A matrix of the target statistics.</p></li>
 <li><p><code>ergmito.probs</code> A list of numeric vectors of length <code><a href='nvertex.html'>nnets(object)</a></code> with the
 probabilities associated to each possible structure of network.</p></li>
 <li><p><code>probs</code> The value passed via <code>probs</code>.</p></li>
 <li><p><code>model</code> The fitted model.</p></li>
-<li><p><code>term.names</code> Character vector. Names of the terms used in the model.</p></li>
+<li><p><code>term_names</code> Character vector. Names of the terms used in the model.</p></li>
 <li><p><code>quantile.args</code> A list of the values passed via <code>...</code>.</p></li>
 </ul>
 
@@ -263,8 +276,7 @@ simulated range.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Fitting the fivenets model</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"ergmito"</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))
-
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges", "nodematch.female".</span></div><div class='input'>
 <span class='co'># Calculating the gof</span>
 <span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'>gof_ergmito</span>(<span class='no'>fit</span>)
 
@@ -290,17 +302,12 @@ simulated range.</p>
 #&gt; net 5   1   0 2.823530   6     0     5  0.02201716   0.9891396
 #&gt; 
 #&gt; Note: Exact confidence intervals where used. This implies that the requestes CI may differ from the one used (see ?gof_ergmito).
-#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>ans</span>)</div><div class='img'><img src='ergmito_gof-1.png' alt='' width='700' height='433' /></div></pre>
+#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>ans</span>)</div><div class='img'><img src='ergmito_gof-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -311,7 +318,7 @@ simulated range.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

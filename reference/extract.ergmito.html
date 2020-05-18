@@ -17,23 +17,27 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -45,8 +49,7 @@
 <meta property="og:title" content="Extract function to be used with the <code>texreg</code> package. — extract.ergmito" />
 <meta property="og:description" content="To be used with the texreg package. This function can be used to
 generate nice looking tables of ERGMitos estimates." />
-<meta property="og:image" content="/logo.png" />
-<meta name="twitter:card" content="summary" />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -74,7 +77,7 @@ generate nice looking tables of ERGMitos estimates." />
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -88,7 +91,7 @@ generate nice looking tables of ERGMitos estimates." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
       </span>
     </div>
 
@@ -123,7 +126,12 @@ generate nice looking tables of ERGMitos estimates." />
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/muriteams/ergmito/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -138,7 +146,7 @@ generate nice looking tables of ERGMitos estimates." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Extract function to be used with the <code>texreg</code> package.</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/texreg.R'><code>R/texreg.R</code></a></small>
     <div class="hidden name"><code>extract.ergmito.Rd</code></div>
     </div>
 
@@ -153,7 +161,9 @@ generate nice looking tables of ERGMitos estimates.</p>
   <span class='kw'>include.bic</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>include.loglik</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>include.nnets</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>include.offset</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>include.convergence</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>include.timing</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -174,9 +184,19 @@ generate nice looking tables of ERGMitos estimates.</p>
 to the list of gof statistics. This can be useful when running pooled models.</p></td>
     </tr>
     <tr>
+      <th>include.offset</th>
+      <td><p>Logical. When equal to <code>TRUE</code>, it adds one line per
+offset term to the table, omiting sd and significance.</p></td>
+    </tr>
+    <tr>
       <th>include.convergence</th>
       <td><p>Logical. When true it, adds the convergence value
 of the <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a> function (0 means convergence).</p></td>
+    </tr>
+    <tr>
+      <th>include.timing</th>
+      <td><p>Logical, When true it will report the elapsed time
+in seconds.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -192,8 +212,7 @@ of the <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a> function (0
 #&gt; <span class='message'>Author:   Philip Leifeld (University of Glasgow)</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>Please cite the JSS article in your publications -- see citation("texreg").</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
-<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))
-<span class='fu'><a href='https://rdrr.io/pkg/texreg/man/texreg.html'>screenreg</a></span>(<span class='no'>ans</span>)</div><div class='output co'>#&gt; 
+<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges", "nodematch.female".</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/texreg/man/texreg.html'>screenreg</a></span>(<span class='no'>ans</span>)</div><div class='output co'>#&gt; 
 #&gt; ===========================
 #&gt;                   Model 1  
 #&gt; ---------------------------
@@ -207,17 +226,15 @@ of the <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a> function (0
 #&gt; Log Likelihood    -34.67   
 #&gt; Num. networks       5      
 #&gt; Convergence         0      
+#&gt; Time (seconds)      0.06   
 #&gt; ===========================
 #&gt; *** p &lt; 0.001, ** p &lt; 0.01, * p &lt; 0.05</div><div class='input'>
 </div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -228,7 +245,7 @@ of the <a href='https://rdrr.io/r/stats/optim.html'>stats::optim</a> function (0
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>
