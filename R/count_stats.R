@@ -43,37 +43,6 @@ count_stats <- function(X, ...) UseMethod("count_stats")
 #' @rdname count_stats
 AVAILABLE_STATS <- function() count_available()
 
-#' Parses a formula to the model parameters (and attributes if applicable)
-#' @param x A formula.
-#' @noRd
-analyze_formula <- function(x, check_w_ergm = FALSE) {
-  
-  # Getting the parameters
-  terms_passed <- attr(stats::terms(x), "term.labels")
-  
-  # Do these have attributes
-  has_attr <- grepl("^[a-zA-Z0-9]+[(].+[)]", terms_passed)
-  
-  # Capturing attributes
-  terms_attrs <- vector("list", length(terms_passed))
-  # ostar <- function(i, attr = NULL) {
-  #   list(name = paste0("ostar", i), attr = attr)
-  # }
-  for (term in which(has_attr)) {
-    terms_attrs[[term]] <- gsub("\"?[)].*", "", gsub(".+[(]\"?", "", terms_passed[term]))
-  }
-  
-  terms_names <- gsub("[(].+", "", terms_passed)
-  
-  list(
-    passed    = terms_passed,
-    names     = terms_names,
-    attrnames = terms_attrs,
-    attrs     = replicate(length(terms_names), double(0))
-  )
-  
-  
-}
 
 #' @export
 #' @rdname count_stats
@@ -96,8 +65,8 @@ count_stats.formula <- function(X, ...) {
       paste(are_undirected, collapse = ", "), ".", call. = FALSE
       )
     
-  # Analyzing the formula
-  ergm_model <- analyze_formula(X)
+  # Analyzing the formula (with network as a reference)
+  ergm_model <- analyze_formula(X, LHS)
   
   # Can we do it?
   available <- which(!(ergm_model$names %in% count_available()))
@@ -110,7 +79,7 @@ count_stats.formula <- function(X, ...) {
   
   # Capturing attributes
   for (a in seq_along(ergm_model$attrnames)) {
-    ergm_model$attrs[[a]] <- if (is.null(ergm_model$attrnames[[a]]))
+    ergm_model$attrs[[a]] <- if (!length(ergm_model$attrnames[[a]]))
       double(0)
     else
       lapply(LHS, function(net) {

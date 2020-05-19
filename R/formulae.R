@@ -96,9 +96,9 @@ ergmito_formulae <- function(
   # What is the first component
   LHS <- eval(model[[2]], envir = env)
   
-  # Checking whether this model has attributes on it or not
-  vattrs <- attr(model_has_attrs(model), "anames")
-  
+  # Analyzing the formula
+  model_analysis <- analyze_formula(model, LHS)
+
   # Checking if statmat weights and offsets are passed, then we assume the user
   # knows what is doing, so we should skip all the checks
   test <- c(
@@ -214,7 +214,7 @@ ergmito_formulae <- function(
             break
           
           # Minimum (and only for now): Have the same size
-          if ( same_dist(LHS[[i]], LHS[[j]], vattrs) ) {
+          if ( same_dist(LHS[[i]], LHS[[j]], model_analysis$all_attrs) ) {
             
             matching_net <- j
             break
@@ -273,9 +273,6 @@ ergmito_formulae <- function(
     }
     
     # Computing target statistics ------------------------------------------------
-    
-    # Should we use summary.formula?
-    model_analysis <- analyze_formula(model)
     
     # Checking gw terms
     if (any(grepl("^d?gw", model_analysis$names)))
@@ -512,7 +509,8 @@ ergmito_formulae <- function(
       model_final   = model_final,
       npars         = ncol(target_stats),
       nnets         = nnets(LHS) - length(excluded),
-      vertex_attrs  = vattrs,
+      vertex_attrs  = model_analysis$all_attrs,
+      term_fun      = model_analysis$names,
       term_names    = colnames(target_stats),
       excluded      = excluded
     ),

@@ -99,7 +99,10 @@ predict.ergmito <- function(object, newdata = NULL, ...) {
       
       # If compared previously, then assign that value
       equal_networks <-
-        same_dist(networks[[i]], networks[[j]], object$formulae$vertex_attrs)
+        same_dist(
+          networks[[i]], networks[[j]],
+          subset(object$formulae$vertex_attrs, type == "vertex")
+          )
       if (equal_networks) {
         
         # Put the prediction in the right order of things
