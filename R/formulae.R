@@ -275,7 +275,7 @@ ergmito_formulae <- function(
     # Computing target statistics ------------------------------------------------
     
     # Checking gw terms
-    if (any(grepl("^d?gw", model_analysis$names)))
+    if (any(grepl("^d?gw", model_analysis$term_names)))
       stop(
         "Currently, geometrically weighted terms are not supported in ergmito.",
         " For more information, see https://github.com/muriteams/ergmito/issues/17.",
@@ -284,7 +284,7 @@ ergmito_formulae <- function(
     
     # Can we compute it directly with ergmito? If not, we default to
     # ergm's summary function
-    if (directed && all(model_analysis$names %in% AVAILABLE_STATS())) {
+    if (directed && all(model_analysis$term_names %in% AVAILABLE_STATS())) {
       
       target_stats <- count_stats(model)
       
@@ -509,9 +509,10 @@ ergmito_formulae <- function(
       model_final   = model_final,
       npars         = ncol(target_stats),
       nnets         = nnets(LHS) - length(excluded),
-      vertex_attrs  = model_analysis$all_attrs,
-      term_fun      = model_analysis$names,
+      used_attrs    = model_analysis$all_attrs,
+      term_fun      = model_analysis$term_names,
       term_names    = colnames(target_stats),
+      term_attrs    = model_analysis$term_attrs,
       excluded      = excluded
     ),
     class = "ergmito_loglik"

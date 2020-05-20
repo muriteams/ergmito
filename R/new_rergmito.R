@@ -66,18 +66,21 @@ new_rergmito2.formula <- function(
   # a shared model) but each object will have its own sampler.
   if (nnets(LHS) > 1L) {
     
-    model.              <- stats::update.formula(mode, LHS[[i]] ~ .)
+    model.              <- stats::update.formula(model, LHS[[i]] ~ .)
     environment(model.) <- environment()
     ans <- vector("list", nnets(LHS))
     for (i in seq_along(ans))
-      ans[[i]] <- do.call(new_rergmito2, c(list(model = model.), list(...)))
+      ans[[i]] <- do.call(
+        new_rergmito2,
+        c(list(model = model., env = environment()), list(...))
+        )
     
     return(ans)
     
   }
   
   # Part 2: Generate the model -------------------------------------------------
-  formulae <- ergmito_formulae(model = model, ...)
+  formulae <- ergmito_formulae(model = model, env = env, ...)
   
   # Part 3: Generating the powerset and adjusting for attributes ---------------
   pset <- powerset(nvertex(LHS), directed = is_directed(LHS))
@@ -132,28 +135,64 @@ new_rergmito2.formula <- function(
     
     # Preparing counters
     attrs2pass <- NULL
-    if (nrow(formulae$vertex_attrs)) {
-      attrs2pass <- formulae$attrnames
-      attrs2pass <- lapply(attrs2pass, function(a.) {
-        a. <- a.[names(a.) == "vertex"]
-        if (!length(a.))
-          return(double(0L))
-        network::get.vertex.attribute(LHS, a.[names(a.) == "vertex"])
+    if (nrow(formulae$used_attrs)) {
+      
+      # Listing what are the attributes to be passed
+      attrs2pass <- lapply( 
+        X = formulae$term_attrs,
+        function(a.) {
+          
+          if (!length(a.))
+            return(double(0L))
+          
+          a. <- a.[names(a.) == "vertex"]
+          
+          if (!length(a.))
+            return(double(0L))
+          else if (length(a.) > 1L)
+            stop(
+              "For now, terms with more than one attribute are not supported on. ",
+              "The current model you are trying to fit uses the following attributes ",
+              "for a single term: ", a., call. = FALSE
+            )
+          
+          network::get.vertex.attribute(LHS, a.[names(a.) == "vertex"])
       })
     }
-      
-    counts <- count_stats(
-      X     = pset,
-      terms = formulae$term_fun,
-      attrs = attrs2pass
-    )
+    
+    counts <- matrix(0, ncol = length(formulae$term_fun), nrow = length(pset)) 
+    for (k in seq_along(formulae$term_fun))
+      counts[, k] <- count_stats(
+        X     = pset,
+        terms = formulae$term_fun[k],
+        attrs = list(attrs2pass[[k]])
+      )
     
     
   }
   
-  # Part 3: Functions to sample, re-compute, and subset
+  # Part 3: Functions to sample, re-compute, and subset ------------------------
+  call_env <- environment()
+  prob     <- NULL
+  
+  ans_calc <- function(theta. = NULL) {
+    
+    call_env$prob <- exp(exact_loglik(
+      x             = call_env$counts,
+      params        = if (is.null(theta.)) theta else theta.,
+      stats_weights = call_env$formulae$stats_weights,
+      stats_statmat = call_env$formulae$stats_statmat,
+      target_offset = call_env$formulae$target_offset,
+      stats_offset  = call_env$formulae$stats_offset 
+      ))
+    
+    invisible()
+    
+  }
+  
+  call_env$ans_calc()
   return(
-    list(counts = counts, pset = pset)
+    list(counts = counts, pset = pset, calc = ans_calc, prob=prob)
   )
   
 }

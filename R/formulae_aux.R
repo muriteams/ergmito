@@ -152,7 +152,7 @@ analyze_formula <- function(x, graph = NULL) {
   # then a bit complex
   obs_v_attrs <- NULL
   obs_e_attrs <- NULL
-  obs_g_attrs <- NULL
+  obs_n_attrs <- NULL
   if (length(graph)) {
     
     if (!inherits(graph, "network")) {
@@ -216,12 +216,12 @@ analyze_formula <- function(x, graph = NULL) {
   all_attrs <- unique(all_attrs)
   
   list(
-    passed    = attr(trms, "term.labels"),
-    names     = gsub("[(].+", "", attr(trms, "term.labels")),
-    attrnames = anames,
-    attrs     = replicate(length(anames), double(0L), simplify = FALSE),
-    nattrs    = sum(all_attrs$type != "unknown"),
-    all_attrs = all_attrs
+    term_passed = attr(trms, "term.labels"),
+    term_names  = gsub("[(].+", "", attr(trms, "term.labels")),
+    term_attrs  = anames,
+    attrs       = replicate(length(anames), double(0L), simplify = FALSE),
+    nattrs      = sum(all_attrs$type != "unknown"),
+    all_attrs   = all_attrs
   )
   
   

@@ -262,6 +262,10 @@ inline arma::vec ergmito_ptr::exact_loglik(
     bool as_prob
 ) {
 
+  // Checking the length of the parameters
+  if (params.size() == 0u)
+    stop("Invalid set of parameters for the model. The length of the parameters is zero.");
+  
   // Checking if we need to update the normalizing constant
   update_normalizing_constant(params);
   
@@ -305,6 +309,10 @@ inline arma::colvec ergmito_ptr::exact_gradient(
     const arma::colvec & params,
     bool as_prob
 ) {
+  
+  // Checking the length of the parameters
+  if (params.size() == 0u)
+    stop("Invalid set of parameters for the model. The length of the parameters is zero.");
   
   // Checking if we need to update the normalizing constant
   update_normalizing_constant(params);

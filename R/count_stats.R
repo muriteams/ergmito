@@ -69,7 +69,7 @@ count_stats.formula <- function(X, ...) {
   ergm_model <- analyze_formula(X, LHS)
   
   # Can we do it?
-  available <- which(!(ergm_model$names %in% count_available()))
+  available <- which(!(ergm_model$term_names %in% count_available()))
   if (length(available))
     stop(
       "The following term(s)s are not available in count_stats: ",
@@ -78,13 +78,28 @@ count_stats.formula <- function(X, ...) {
       )
   
   # Capturing attributes
-  for (a in seq_along(ergm_model$attrnames)) {
-    ergm_model$attrs[[a]] <- if (!length(ergm_model$attrnames[[a]]))
+  for (a in seq_along(ergm_model$term_attrs)) {
+    ergm_model$attrs[[a]] <- if (!length(ergm_model$term_attrs[[a]]))
       double(0)
-    else
+    else {
+      
+      # This check is important, for now. Future versions may include more
+      # complex terms that hold more than one attribute.
+      if (length(ergm_model$term_attrs[[a]]) > 1L)
+        stop(
+          "For now, terms with more than one attribute are not supported on. ",
+          "The current model you are trying to fit uses the term: ",
+          ergm_model$term_passed[a],
+          " which includes the following attributes: ",
+          paste(ergm_model$term_attrs[[a]], collapse=", "),
+          call. = FALSE
+          )
+        
       lapply(LHS, function(net) {
-        network::get.vertex.attribute(net, attrname = ergm_model$attrnames[[a]])
+        network::get.vertex.attribute(net, attrname = ergm_model$term_attrs[[a]])
       })
+      
+    }
   }
   
   # Coercion is later since we need to check for arguments
@@ -103,14 +118,14 @@ count_stats.formula <- function(X, ...) {
     
   }
   
-  out <- matrix(nrow = nnets(LHS), ncol = length(ergm_model$names),
-                dimnames = list(NULL, ergm_model$passed))
+  out <- matrix(nrow = nnets(LHS), ncol = length(ergm_model$term_names),
+                dimnames = list(NULL, ergm_model$term_passed))
   
   for (j in 1:ncol(out)) {
     
     out[, j] <- count_stats(
       X     = LHS,
-      terms = ergm_model$names[j],
+      terms = ergm_model$term_names[j],
       attrs = ergm_model$attrs[[j]]
       )
     
@@ -138,7 +153,7 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
          call. = FALSE)
   
   ans <- matrix(NA, nrow = length(X), ncol=length(terms))
-  
+  all_same_attr <- length(attrs) == 1L
   for (s in seq_along(chunks$from)) {
     
     i <- chunks$from[s]
@@ -146,7 +161,9 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
     
     for (k in seq_along(terms)) {
       if (!length(attrs))
-        ans[i:j, k] <- count_stats.(X[i:j], terms[k], list(numeric(0)))
+        ans[i:j, k] <- count_stats.(X[i:j], terms[k], list(double(0L)))
+      else if (all_same_attr)
+        ans[i:j, k] <- count_stats.(X[i:j], terms[k], attrs)
       else
         ans[i:j, k] <- count_stats.(X[i:j], terms[k], attrs[i:j])
     }
