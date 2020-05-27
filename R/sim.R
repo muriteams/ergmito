@@ -150,7 +150,7 @@ new_rergmito <- function(
     }
   }
   
-  if ((Sys.getenv("ERGMITO_TEST") == "") && (!undirected | all(ergm_model$names %in% AVAILABLE_STATS()))) {
+  if ((Sys.getenv("ERGMITO_TEST") == "") && (!undirected | all(ergm_model$term_names %in% AVAILABLE_STATS()))) {
     # THE ERGMITO WAY ----------------------------------------------------------
     
     
@@ -209,11 +209,11 @@ new_rergmito <- function(
             FUN = function(idx) {
               
               # Making room
-              smat <- matrix(ncol = length(ergm_model$names), nrow = length(idx))
-              for (j in seq_along(ergm_model$names)) 
+              smat <- matrix(ncol = length(ergm_model$term_names), nrow = length(idx))
+              for (j in seq_along(ergm_model$term_names)) 
                 smat[,j] <- count_stats(
                   X     = ans$networks[[s]][idx],
-                  terms = ergm_model$names[j],
+                  terms = ergm_model$term_names[j],
                   # All individuals have the same data
                   attrs = replicate(length(idx), ergm_model$attrs[[j]], simplify = FALSE)
                 )
