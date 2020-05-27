@@ -457,16 +457,23 @@ ergmito_formulae <- function(
     )
   
   # Building joint likelihood function
-  loglik <- function(params, ...) {
+  loglik <- function(params, ..., as_prob = FALSE, total = TRUE) {
     
-    ans <- sum(exact_loglik(ergmito_ptr, params = params, ...))
+    if (total) {
     
-    # If awfully undefined
-    if (!is.finite(ans))
-      return(-.Machine$double.xmax * 1e-100)
-    else
-      return(ans)
-    
+      ans <- sum(exact_loglik(ergmito_ptr, params = params, ..., as_prob = as_prob))
+      
+      # If awfully undefined
+      if (!as_prob && !is.finite(ans))
+        return(-.Machine$double.xmax * 1e-100)
+      else 
+        return(ans)
+      
+    } else {
+      
+      exact_loglik(ergmito_ptr, params = params, ..., as_prob = as_prob)
+      
+    }
   }
   
   # Building joint gradient

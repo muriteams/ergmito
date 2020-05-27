@@ -4,7 +4,7 @@
 \alias{new_rergmito2}
 \title{Generate an ergmito model}
 \usage{
-new_rergmito2(model, theta = NULL, ...)
+new_rergmito2(model, theta, ...)
 }
 \arguments{
 \item{theta}{passed}

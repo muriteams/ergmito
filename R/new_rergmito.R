@@ -49,12 +49,12 @@ replicate_attr <- function(x, x_ref, attr_type, attr_name) {
 #' @param theta passed
 #' @param ... Passed to [ergmito_formulae()].
 #' @export
-new_rergmito2 <- function(model, theta=NULL, ...) UseMethod("new_rergmito2")
+new_rergmito2 <- function(model, theta, ...) UseMethod("new_rergmito2")
 
 #' @export
 new_rergmito2.formula <- function(
   model, 
-  theta = NULL,
+  theta,
   ...,
   env = parent.frame()
 ) {
@@ -81,6 +81,20 @@ new_rergmito2.formula <- function(
   
   # Part 2: Generate the model -------------------------------------------------
   formulae <- ergmito_formulae(model = model, env = env, ...)
+  
+  # This is a basic check
+  if (length(theta) != formulae$npars)
+    stop(
+      sprintf(
+        paste(
+          "The length of -theta- (%i) does not match the",
+          "number of parameters in the model (%i)."
+        ),
+        length(theta),
+        formulae$npars
+      ),
+      call. = FALSE
+      )
   
   # Part 3: Generating the powerset and adjusting for attributes ---------------
   pset <- powerset(nvertex(LHS), directed = is_directed(LHS))
@@ -158,6 +172,12 @@ new_rergmito2.formula <- function(
           
           network::get.vertex.attribute(LHS, a.[names(a.) == "vertex"])
       })
+    } else {
+      attrs2pass <- replicate(
+        n        = length(formulae$term_attrs),
+        expr     = double(0L),
+        simplify = FALSE
+        )
     }
     
     counts <- matrix(0, ncol = length(formulae$term_fun), nrow = length(pset)) 
@@ -171,20 +191,37 @@ new_rergmito2.formula <- function(
     
   }
   
-  # Part 3: Functions to sample, re-compute, and subset ------------------------
+  # Making sure we have the names
+  colnames(counts) <- names(ergm::summary_formula(model))
+  
+  # Figuring out
+  # Are we updating the model? ------------------------------------------------
+  graph_attrs <- graph_attributes_as_df(LHS)
+  model_frame <- model_frame_ergmito(
+    formula        = model,
+    formula_update = formulae$model_update, 
+    data           = structure(counts, colnames = colnames(formulae$target_stats)),
+    g_attrs.       = graph_attrs
+  )
+  
+  counts        <- model_frame$stats
+  target_offset <- model_frame$offsets
+  
+  # Part 5: Functions to sample, re-compute, and subset ------------------------
   call_env <- environment()
   prob     <- NULL
   
   ans_calc <- function(theta. = NULL) {
     
-    call_env$prob <- exp(exact_loglik(
+    call_env$prob <- exact_loglik(
       x             = call_env$counts,
       params        = if (is.null(theta.)) theta else theta.,
       stats_weights = call_env$formulae$stats_weights,
       stats_statmat = call_env$formulae$stats_statmat,
-      target_offset = call_env$formulae$target_offset,
-      stats_offset  = call_env$formulae$stats_offset 
-      ))
+      target_offset = call_env$target_offset,
+      stats_offset  = call_env$formulae$stats_offset,
+      as_prob       = TRUE
+      )
     
     invisible()
     
@@ -196,3 +233,4 @@ new_rergmito2.formula <- function(
   )
   
 }
+
