@@ -3,9 +3,10 @@
 \name{[.ergmito_sampler}
 \alias{[.ergmito_sampler}
 \alias{new_rergmito}
+\alias{print.ergmito_sampler}
 \title{ERGMito sampler}
 \usage{
-\method{[}{ergmito_sampler}(x, i, j, ...)
+\method{[}{ergmito_sampler}(x, i, ...)
 
 new_rergmito(
   model,
@@ -17,13 +18,13 @@ new_rergmito(
   ...
 )
 
-\method{[}{ergmito_sampler}(x, i, j, ...)
+\method{print}{ergmito_sampler}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{ergmito_sampler}.}
 
-\item{i, j}{\code{i} is an integer vector indicating the indexes of the networks to
-draw, while \code{j} the corresponding sizes. These need not to be of the same size.}
+\item{i}{\code{i} is an integer vector indicating the indexes of the networks to
+draw.}
 
 \item{...}{Further arguments passed to \link[ergm:ergm.allstats]{ergm::ergm.allstats}.}
 
@@ -41,10 +42,12 @@ draw, while \code{j} the corresponding sizes. These need not to be of the same s
 count functions (see \link{count_stats}). This means that if one of the requested
 statistics in not available in \code{ergmito}, then we will use \code{ergm} to compute
 them, which is significantly slower (see details).}
+
+\item{i, j}{\code{i} is an integer vector indicating the indexes of the networks to
+draw, while \code{j} the corresponding sizes. These need not to be of the same size.}
 }
 \value{
-The indexing method \verb{[.ergmito_sampler} returns a named list of length
-\code{length(j)}.
+The indexing method \verb{[.ergmito_sampler} returns a list of networks
 
 An environment with the following objects:
 \itemize{
@@ -74,8 +77,8 @@ fast.
 \details{
 The indexing method, \verb{[.ergmito_sampler}, allows extracting networks
 directly by passing indexes. \code{i} indicates the index of the networks to draw,
-which go from 1 through \code{2^(n*(n-1))}, and \code{j} indicates the requested
-size.
+which go from 1 through \code{2^(n*(n-1))} if directed and \code{2^(n*(n-1)/2)} if
+undirected .
 
 While the \CRANpkg{ergm} package is very efficient, it was not built to do some
 of the computations required in the ergmito package. This translates in having

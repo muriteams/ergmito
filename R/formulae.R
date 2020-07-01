@@ -214,7 +214,7 @@ ergmito_formulae <- function(
             break
           
           # Minimum (and only for now): Have the same size
-          if ( same_dist(LHS[[i]], LHS[[j]], model_analysis$all_attrs) ) {
+          if ( same_dist(LHS[[i]], LHS[[j]], model_analysis$all_attrs$attr) ) {
             
             matching_net <- j
             break
@@ -241,15 +241,18 @@ ergmito_formulae <- function(
         )
         
         # We need to cach for the error that shows in the function.
-        if (inherits(allstats_i, "error")) {
+        if (inherits(allstats_i, "error") | is.null(allstats_i)) {
           
-          if (grepl("initialization.+not found", allstats_i$message)) {
+          if (!is.null(allstats_i) && grepl("initialization.+not found", allstats_i$message)) {
             stop(
               "The term you are trying to use was not found. The following is ",
               "the full error message returned by the ergm package:",
               allstats_i$message, call. = FALSE
               )
           }
+          
+          msg <- if (is.null(allstats_i)) "use force = TRUE."
+          else allstats_i$message
           
           stop(
             "The function ergm::ergm.allstats returned with an error. Most of ",
@@ -259,7 +262,7 @@ ergmito_formulae <- function(
             "size 5, or try setting force = TRUE. For more info see ",
             "help(\"ergm.allstats\", \"ergm\"). Here is ",
             "the error reported by the function:\n",
-            paste0(allstats_i$message, collapse = "\n"),
+            paste0(msg, collapse = "\n"),
             call. = FALSE
             )
         }

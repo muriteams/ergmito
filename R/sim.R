@@ -505,25 +505,25 @@ new_rergmito <- function(
 #' size. 
 #' @return The indexing method `[.ergmito_sampler` returns a named list of length
 #' `length(j)`.
-`[.ergmito_sampler` <- function(x, i, j, ...) {
-  
-  # Checking sizes
-  j <- as.character(j)
-  test <- which(!(j %in% as.character(x$sizes)))
-  if (length(test))
-    stop(
-      "Some values of `j` (requested sizes) are not included in the sampling function: ",
-      paste(j[test], collapse = ", "), ".", call. = FALSE
-      )
-  
-  # Sampling networks
-  ans <- structure(vector("list", length(j)), names = j)
-  for (k in j)
-    ans[[j]] <- x$get_networks(i, k)
-  
-  return(ans)
-  
-}
+# `[.ergmito_sampler` <- function(x, i, j, ...) {
+#   
+#   # Checking sizes
+#   j <- as.character(j)
+#   test <- which(!(j %in% as.character(x$sizes)))
+#   if (length(test))
+#     stop(
+#       "Some values of `j` (requested sizes) are not included in the sampling function: ",
+#       paste(j[test], collapse = ", "), ".", call. = FALSE
+#       )
+#   
+#   # Sampling networks
+#   ans <- structure(vector("list", length(j)), names = j)
+#   for (k in j)
+#     ans[[j]] <- x$get_networks(i, k)
+#   
+#   return(ans)
+#   
+# }
 
 #' @export
 print.ergmito_sampler <- function(x, ...) {

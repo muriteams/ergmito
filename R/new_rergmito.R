@@ -72,12 +72,13 @@ new_rergmito2.formula <- function(
     for (i in seq_along(ans))
       ans[[i]] <- do.call(
         new_rergmito2,
-        c(list(model = model., env = environment()), list(...))
+        c(list(model = model., theta=theta, env = environment()), list(...))
         )
     
     return(ans)
     
-  }
+  } else if (!inherits(LHS, "network") && is.list(LHS))
+    LHS <- LHS[[1L]]
   
   # Initializing the object
   sampler <- new.env()
@@ -104,30 +105,31 @@ new_rergmito2.formula <- function(
   
   # Part 4: Counting the attributes on the powerset ----------------------------
   
+  sampler_w_attributes <- FALSE
   if (!is_directed(LHS) | !all(sampler$formulae$term_fun %in% AVAILABLE_STATS()) | (Sys.getenv("ERGMITO_TEST") != "")) {
+    
+    # Turning into network class objects
+    sampler$networks <- matrix_to_network(sampler$networks, directed = is_directed(LHS))
     
     # We will need to check whether the model has attributes or not. For now, if
     # the user specified a model update, we assume that the model includes
     # attributes since these could be graph level attributes that are harder to
     # capture.
-    if (nrow(sampler$formulae$vertex_attrs) | ( ("model_update" %in% names(list(...))) )) {
-      
-      # Turning into network class objects
-      sampler$networks <- matrix_to_network(sampler$networks, directed = is_directed(LHS))
+    if (nrow(sampler$formulae$used_attrs) | ( ("model_update" %in% names(list(...))) )) {
       
       # Passing the vertex and edge attributes
       sampler$networks <- replicate_attr(
         sampler$networks,
         x_ref     = LHS,
         attr_type = "vertex",
-        attr_name = subset(sampler$formulae$vertex_attrs, type == "vertex")$attr
+        attr_name = subset(sampler$formulae$used_attrs, type == "vertex")$attr
       )
       
       sampler$networks <- replicate_attr(
         sampler$networks,
         x_ref     = LHS,
         attr_type = "edge",
-        attr_name = subset(sampler$formulae$vertex_attrs, type == "edge")$attr
+        attr_name = subset(sampler$formulae$used_attrs, type == "edge")$attr
       )
       
       # Network attributes (just in case)
@@ -140,13 +142,13 @@ new_rergmito2.formula <- function(
         attr_name = nattrs
       )
       
-    }
+    } 
     
     # We now calculate all the statisics
     model_str <- deparse(stats::update.formula(model, p. ~ .))
-    sampler$counts <- sapply(pset, function(p.) {
+    sampler$counts <- t(sapply(sampler$networks, function(p.) {
       ergm::summary_formula(as.formula(model_str))
-    })
+    }))
     
   } else {
     
@@ -175,6 +177,9 @@ new_rergmito2.formula <- function(
           
           network::get.vertex.attribute(LHS, a.[names(a.) == "vertex"])
       })
+      
+      sampler_w_attributes <- TRUE
+      
     } else {
       attrs2pass <- replicate(
         n        = length(sampler$formulae$term_attrs),
@@ -186,18 +191,19 @@ new_rergmito2.formula <- function(
     sampler$counts <- matrix(
       0, ncol = length(sampler$formulae$term_fun), nrow = length(sampler$networks)
       ) 
-    for (k in seq_along(formulae$term_fun))
+    for (k in seq_along(sampler$formulae$term_fun))
       sampler$counts[, k] <- count_stats(
         X     = sampler$networks,
         terms = sampler$formulae$term_fun[k],
         attrs = list(attrs2pass[[k]])
       )
     
-    
   }
   
   # Making sure we have the names
-  colnames(sampler$counts) <- names(ergm::summary_formula(model))
+  model. <- stats::update.formula(model, LHS ~ .)
+  environment(model.) <- environment()
+  colnames(sampler$counts) <- names(ergm::summary_formula(model.))
   
   # Figuring out
   # Are we updating the model? ------------------------------------------------
@@ -227,6 +233,19 @@ new_rergmito2.formula <- function(
       as_prob       = TRUE
       )
     
+    # Safeguard
+    test_sum <- sum(sampler$probabilities)
+    if (abs(test_sum - 1.0) > 1e-8)
+      stop(
+        "Something went wrong. The sum of the probabilities is different than 1. ",
+        "This is an unexpected error. Check the passed parameters to new_rergmito(). ",
+        "You can report bugs at https://github.com/muriteams/ergmito/issues",
+        call. = FALSE
+      )
+    
+    # Removing machine precision error.
+    sampler$probabilities <- sampler$probabilities/test_sum
+    
     invisible()
     
   }
@@ -234,17 +253,44 @@ new_rergmito2.formula <- function(
   sampler$calc_probabilities()
   
   # A getter function ----------------------------------------------------------
-  sampler$get_networks <- function(idx) {
+  sampler$get_networks <- function(idx = NULL) {
+    
+    if (is.null(idx))
+      idx <- seq_along(sampler$networks)
     
     nets <- sampler$networks[idx]
     
+    # This is only needed if we are not using statnet's summary function.
     if (sampler_w_attributes) {
-      nets <- matrix_to_network(nets)
-      replicate_vertex_attr(
+      
+      # Turning into network class objects
+      nets <- matrix_to_network(nets, directed = is_directed(LHS))
+      
+      # Passing the vertex and edge attributes
+      nets <- replicate_attr(
         nets,
-        attrname = ergm_model$attrnames,
-        value    = ergm_model$attrs
-      ) 
+        x_ref     = LHS,
+        attr_type = "vertex",
+        attr_name = subset(sampler$formulae$used_attrs, type == "vertex")$attr
+      )
+      
+      nets <- replicate_attr(
+        nets,
+        x_ref     = LHS,
+        attr_type = "edge",
+        attr_name = subset(sampler$formulae$used_attrs, type == "edge")$attr
+      )
+      
+      # Network attributes (just in case)
+      nattrs <- network::list.network.attributes(LHS)
+      
+      replicate_attr(
+        nets,
+        x_ref     = LHS,
+        attr_type = "network",
+        attr_name = nattrs
+      )
+      
     } else
       nets
     
@@ -278,6 +324,7 @@ new_rergmito2.formula <- function(
   # Call
   sampler$call     <- match.call()
   sampler$network  <- LHS
+  sampler$theta    <- theta
 
   structure(
     sampler,
@@ -288,32 +335,22 @@ new_rergmito2.formula <- function(
 
 #' @export
 #' @rdname new_rergmito
-#' @param i,j `i` is an integer vector indicating the indexes of the networks to
-#' draw, while `j` the corresponding sizes. These need not to be of the same size.
+#' @param i `i` is an integer vector indicating the indexes of the networks to
+#' draw.
 #' @details The indexing method, `[.ergmito_sampler`, allows extracting networks
 #' directly by passing indexes. `i` indicates the index of the networks to draw,
-#' which go from 1 through `2^(n*(n-1))`, and `j` indicates the requested
-#' size. 
-#' @return The indexing method `[.ergmito_sampler` returns a named list of length
-#' `length(j)`.
-`[.ergmito_sampler` <- function(x, i, j, ...) {
-  
-  # Checking sizes
-  j <- as.character(j)
-  test <- which(!(j %in% as.character(x$sizes)))
-  if (length(test))
-    stop(
-      "Some values of `j` (requested sizes) are not included in the sampling function: ",
-      paste(j[test], collapse = ", "), ".", call. = FALSE
-    )
+#' which go from 1 through `2^(n*(n-1))` if directed and `2^(n*(n-1)/2)` if
+#' undirected . 
+#' @return The indexing method `[.ergmito_sampler` returns a list of networks
+`[.ergmito_sampler` <- function(x, i, ...) {
   
   # Sampling networks
-  ans <- structure(vector("list", length(j)), names = j)
-  for (k in j)
-    ans[[j]] <- x$get_networks(i, k)
+  if (missing(i))
+    i <- seq_along(x$networks)
   
-  return(ans)
+  x$get_networks(i)
   
+
 }
 
 #' @export

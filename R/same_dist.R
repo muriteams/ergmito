@@ -75,7 +75,7 @@ same_dist.network <- function(net0, net1, attrnames = NULL, ...) {
     return(same_dist_wrap(FALSE, "size"))
   
   # 2. Attributes
-  if (!is.null(attrnames)) {
+  if (length(attrnames) && !is.null(attrnames)) {
     
     # First question: Are the requested attributes present?
     anames0 <- network::list.vertex.attributes(net0)

@@ -101,7 +101,8 @@ predict.ergmito <- function(object, newdata = NULL, ...) {
       equal_networks <-
         same_dist(
           networks[[i]], networks[[j]],
-          subset(object$formulae$vertex_attrs, type == "vertex")
+          object$formulae$used_attrs$attr
+          # subset(object$formulae$vertex_attrs, type == "vertex")
           )
       if (equal_networks) {
         
@@ -122,15 +123,15 @@ predict.ergmito <- function(object, newdata = NULL, ...) {
       next
     
     # Generating sample, and later on, adding up matrices
-    sampler <- new_rergmito(
+    sampler <- new_rergmito2(
       model = model.,
       theta = coef(object),
-      sizes = nvertex(networks[[i]]),
+      # sizes = nvertex(networks[[i]]),
       ...
       )
     
-    mats  <- sampler$networks[[as.character(nvertex(networks[[i]]))]]
-    probs <- sampler$prob[[as.character(nvertex(networks[[i]]))]]
+    mats  <- sampler$networks
+    probs <- sampler$probabilities
     
     predictions[[i]] <- mats[[1L]]*probs[1L]
     for (j in 2L:length(probs))
