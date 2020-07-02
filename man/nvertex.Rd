@@ -28,7 +28,7 @@ false.}
 }
 \value{
 \code{is_directed} checks whether the passed networks are directed using
-the function \link[network:is.directed]{network::is.directed}. In the case of multiple networks,
+the function \code{\link[network:network.indicators]{is.directed}}. In the case of multiple networks,
 the function returns a logical vector. Only objects of class \code{network} can be
 checked, otherwise, if \code{check_type = FALSE}, the function returns \code{TRUE} by default.
 }

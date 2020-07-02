@@ -64,7 +64,7 @@
 #'   point of the step.
 #'
 #' Methods [base::print()], [base::summary()], [stats::coef()], [stats::logLik()],
-#' [stats::nobs()], [stats::vcov()], [stats::AIC()], [stats::BIC()],
+#' [stats::nobs()], [stats::vcov()], [stats::AIC()], \code{\link[stats:AIC]{stats::BIC()}},
 #' [stats::confint()], and  [stats::formula()] are available. 
 #'
 #' @section MLE:

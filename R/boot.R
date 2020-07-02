@@ -6,7 +6,7 @@
 #' @param R Integer. Number of replicates
 #' @param ncpus Integer Number of CPUs to use. Only recommended if `ergmito` was
 #' not compiled with OpenMP (otherwise it will be slower).
-#' @param cl An object of class `cluster` (see [parallel::makePSOCKcluster])
+#' @param cl An object of class `cluster` (see \code{\link[parallel:makeCluster]{makePSOCKcluster}})
 #'  
 #' @export
 #' @importFrom parallel makePSOCKcluster stopCluster clusterEvalQ clusterExport

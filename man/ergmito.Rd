@@ -89,7 +89,7 @@ point of the step.
 }
 
 Methods \code{\link[base:print]{base::print()}}, \code{\link[base:summary]{base::summary()}}, \code{\link[stats:coef]{stats::coef()}}, \code{\link[stats:logLik]{stats::logLik()}},
-\code{\link[stats:nobs]{stats::nobs()}}, \code{\link[stats:vcov]{stats::vcov()}}, \code{\link[stats:AIC]{stats::AIC()}}, \code{\link[stats:BIC]{stats::BIC()}},
+\code{\link[stats:nobs]{stats::nobs()}}, \code{\link[stats:vcov]{stats::vcov()}}, \code{\link[stats:AIC]{stats::AIC()}}, \code{\link[stats:AIC]{stats::BIC()}},
 \code{\link[stats:confint]{stats::confint()}}, and  \code{\link[stats:formula]{stats::formula()}} are available.
 }
 \description{
