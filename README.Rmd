@@ -28,11 +28,14 @@ knitr::opts_chunk$set(
 This R package, which has been developed on top of the amazing work that the
 [Statnet](https://github.com/statnet) team has done, implements estimation and
 simulation methods for Exponential Random Graph Models of small networks, in
-particular, less than 7 nodes. In the case of small networks, the calculation
-of the likelihood of ERGMs becomes computationally feasible, which allows us
+particular, up to 5 vertices for directed graphs and 7 for undirected networks.
+In the case of small networks, the calculation of the likelihood of ERGMs becomes
+computationally feasible, which allows us
 avoiding approximations and do exact calculation, ultimately obtaining MLEs
 directly.
 
+Checkout the example (Using interaction effects)[#using-interaction-effects] example
+section.
 
 ## Support
 
@@ -214,6 +217,48 @@ We can fit this model in a memory efficient way.
 system.time(ans0 <- ergmito(bignet ~ edges + mutual))
 summary(ans0)
 ```
+
+## Using interaction effects
+
+One advantage of using exact statistics is the fact that we have significantly more flexibility when it comes to specifying sufficient statistics. Just like one would do when working with Generalized Linear Models in R (the "glm" function), users can alter the specified formula adding arbitrary offsets (using the offset function), or creating new terms by using the "I" function. In this brief example, where we will estimate a model that includes networks of size four and five, we will add an interaction effect between the edge-count statistic and the indicator function that equals one if the network is of size 5.  This way, while poling the data, we will still be able to obtain different edge-count estimates depending on the number of vertices in the graph.
+
+```{r}
+# Simulating networks of different sizes
+set.seed(12344)
+nets <- rbernoulli(c(rep(4, 10), rep(5, 10)), c(rep(.2, 10), rep(.1, 10)))
+```
+
+Fitting an ergmito under the Bernoulli model
+
+```{r}
+ans0 <- ergmito(nets ~ edges)
+summary(ans0)
+```
+
+Fitting the model including a reference term for networks of size 5.
+Notice that the variable -n- and other graph attributes can be used
+with -model_update-.
+
+```{r}
+ans1 <- ergmito(nets ~ edges, model_update = ~ I(edges * (n == 5)))
+summary(ans1)
+```
+
+The resulting parameter for the edge-count is smaller for networks
+of size five
+
+```{r}
+plogis(coef(ans1)[1])   
+plogis(sum(coef(ans1))) 
+```
+
+We can see that in this case the difference in edge-count matters.
+
+```{r}
+library(lmtest)
+lrtest(ans0, ans1)
+```
+
 
 # Contributing
 

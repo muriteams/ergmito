@@ -15,7 +15,7 @@ expect_equal(coef(ans0), coef(ans1), tol = .25)
 
   
 # Simulations with attribute based network -------------------------------------
-ans0  <- new_rergmito2(
+ans0  <- new_rergmito(
   fivenets[[3]] ~ edges + nodematch("female"),
   theta = coef(ergmito(fivenets ~ edges + nodematch("female")))
   )

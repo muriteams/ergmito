@@ -123,7 +123,7 @@ predict.ergmito <- function(object, newdata = NULL, ...) {
       next
     
     # Generating sample, and later on, adding up matrices
-    sampler <- new_rergmito2(
+    sampler <- new_rergmito(
       model = model.,
       theta = coef(object),
       # sizes = nvertex(networks[[i]]),

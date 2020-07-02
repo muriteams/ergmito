@@ -192,6 +192,16 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
 #' @examples 
 #' data(fivenets)
 #' geodesic(fivenets)
+#' 
+#' # Comparing with sna
+#' if (require("sna")) {
+#'   net0 <- fivenets[[1]]
+#'   net  <- network::network(fivenets[[1]])
+#'   benchmarkito(
+#'     ergmito = ergmito::geodesic(net0),
+#'     sna     = sna::geodist(net), times = 1000
+#'   )
+#' }
 geodesic <- function(x, force = FALSE, ...) UseMethod("geodesic")
 
 #' @export

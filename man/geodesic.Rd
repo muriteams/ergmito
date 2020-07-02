@@ -35,4 +35,14 @@ small networks.
 \examples{
 data(fivenets)
 geodesic(fivenets)
+
+# Comparing with sna
+if (require("sna")) {
+  net0 <- fivenets[[1]]
+  net  <- network::network(fivenets[[1]])
+  benchmarkito(
+    ergmito = ergmito::geodesic(net0),
+    sna     = sna::geodist(net), times = 1000
+  )
+}
 }

@@ -15,12 +15,12 @@ replicate_attr <- function(x, x_ref, attr_type, attr_name) {
       )
     
   # Getting the functions
-  getter <- getFromNamespace(
+  getter <- utils::getFromNamespace(
     sprintf("get.%s.attribute", attr_type),
     ns = getNamespace("network")
     )
   
-  setter <- getFromNamespace(
+  setter <- utils::getFromNamespace(
     sprintf("set.%s.attribute", attr_type),
     ns = getNamespace("network")
   )
@@ -43,16 +43,66 @@ replicate_attr <- function(x, x_ref, attr_type, attr_name) {
   x
 }
 
+# This avoids a warning
+if (getRversion() >= "2.15.1")
+  utils::globalVariables("type")
 
-#' Generate an ergmito model
-#' @param object Either a model or an object of class [ergmito].
-#' @param theta passed
-#' @param ... Passed to [ergmito_formulae()].
+#' ERGMito sampler
+#' 
+#' Create a sampler object that allows you simulating streams of small networks
+#' fast.
+#' 
+#' @param model A formula.
+#' @param theta Named vector. Model parameters.
+#' @param ... Further arguments passed to [ergmito_formulae()].
+#' 
+#' @details 
+#' While the \CRANpkg{ergm} package is very efficient, it was not built to do some
+#' of the computations required in the ergmito package. This translates in having
+#' some of the functions of the package (ergm) with poor speed performance. This
+#' led us to "reinvent the wheel" in some cases to speed things up, this includes
+#' calculating observed statistics in a list of networks.
+#' 
+#' @return An environment with the following objects:
+#' 
+#' - `calc_prob` A function to calculate each graph's probability under the
+#'   specified model.
+#' - `call` A language object with the call.
+#' - `counts` A list with 3 elements: `stats` the sufficient statistics of each network,
+#'   `weights` and `statmat` the overall matrices of sufficient statistics used to
+#'   compute the likelihood.
+#' - `network` The baseline network used to either fit the model or obtain
+#'   attributes.
+#' - `networks` A list with the actual sample space of networks.
+#' - `probabilities` A numeric vector with each graph's probability.
+#' - `sample` A function to draw samples. `n` specifies the number of samples to
+#'   draw and `theta` the parameter to use to calculate the likelihoods.
+#' - `theta` Named numeric vector with the current values of the model parameters.
+#' 
 #' @export
-new_rergmito2 <- function(model, theta, ...) UseMethod("new_rergmito2")
+#' @examples 
+#' 
+#' # We can generate a sampler from a random graph
+#' set.seed(7131)
+#' ans <- new_rergmito(rbernoulli(4) ~ edges, theta = -.5)
+#' 
+#' # Five samples
+#' ans$sample(5)
+#' 
+#' # or we can use some nodal data:
+#' data(fivenets)
+#' ans <- new_rergmito(
+#'   fivenets[[3]] ~ edges + nodematch("female"),
+#'   theta = c(-1, 1)
+#' )
+#' 
+#' # Five samples
+#' ans$sample(5) # All these networks have a "female" vertex attr
+#' 
+new_rergmito <- function(model, theta, ...) UseMethod("new_rergmito")
 
 #' @export
-new_rergmito2.formula <- function(
+new_rergmito.formula <- function(
   model, 
   theta,
   ...,
@@ -71,7 +121,7 @@ new_rergmito2.formula <- function(
     ans <- vector("list", nnets(LHS))
     for (i in seq_along(ans))
       ans[[i]] <- do.call(
-        new_rergmito2,
+        new_rergmito,
         c(list(model = model., theta=theta, env = environment()), list(...))
         )
     
@@ -334,6 +384,7 @@ new_rergmito2.formula <- function(
 }
 
 #' @export
+#' @param x An object of class `ergmito_sampler`.
 #' @rdname new_rergmito
 #' @param i `i` is an integer vector indicating the indexes of the networks to
 #' draw.
