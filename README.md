@@ -25,8 +25,9 @@ calculation of the likelihood of ERGMs becomes computationally feasible,
 which allows us avoiding approximations and do exact calculation,
 ultimately obtaining MLEs directly.
 
-Checkout the example (Using interaction
-effects)\[\#using-interaction-effects\] example section.
+Checkout the <a href="#examples">examples section</a>, and specially the
+<a href="#using-interaction-effects">Using interaction effects</a>
+example.
 
 ## Support
 
@@ -73,7 +74,9 @@ In the case of Mac users, and in particular, those with Mojave version,
 they may need to install the following
 <https://github.com/fxcoudert/gfortran-for-macOS/releases>
 
-## Example
+# Examples
+
+## Quick run
 
 In the following example we simulate a small network with 4 vertices and
 estimate the model parameters using `ergm` and `ergmito`. We start by
