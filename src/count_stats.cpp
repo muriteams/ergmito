@@ -546,15 +546,44 @@ NumericMatrix count_stats(
   // List b;
   // b.containsElementNamed("parameter1");
   
-  unsigned int n = X.size();
-  unsigned int k = terms.size();
+  typedef unsigned int uint;
+  uint n = X.size();
+  uint k = terms.size();
   
   bool uses_attributes = false;
+  bool all_same_attr   = false;
   NumericVector A_empty(0u);
-  if (((unsigned int) A[0].size()) != 0u) {
-    if (((unsigned int) A.size()) != n)
-      stop("The number of attributes in `A` differs from the number of adjacency matrices.");
+  
+  // In this case we are passing the set of attributes to all the data
+  // so we need to check that this will be have has expected
+  
+  uint A0_size = (uint) A[0].size();
+  if (A0_size != 0u) {
     
+    uint A_size = (uint) A.size();
+    
+    if (n > 1u) {
+      
+      // Assuming all have the same attribute
+      if (A_size == 1u) {
+        
+        all_same_attr   = true;
+        
+        // Need to check that the size fits
+        for (auto i = 0u; i < n; ++i)
+          if (X[i].nrow() != A[0].size())
+            stop(
+              "The length of the attributes (%i) does not match the size of one of the matrices (%i).",
+              (int) A[0].size(), (int) X[i].nrow()
+            );
+        
+      } else if (A_size != n) 
+        stop("The number of attributes in `A` differs from the number of adjacency matrices.");
+
+    } else 
+      if (A0_size != (uint) X[0].nrow())
+        stop("The length of the attributes does not match the number of vertices.");
+      
     uses_attributes = true;
   }
   
@@ -573,7 +602,10 @@ NumericMatrix count_stats(
         if (X[i].nrow() != X[i].ncol())
           stop("Matrix %i is not a square matrix.", i + 1);
         
-        ans.at(i, j) = fun(X[i], A[i]);
+        if (all_same_attr)
+          ans.at(i, j) = fun(X[i], A[0u]);
+        else
+          ans.at(i, j) = fun(X[i], A[i]);
       }
         
     } else {

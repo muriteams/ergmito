@@ -10,6 +10,8 @@
 #' @param stats_offset List of numeric vectors, each of length equal to the
 #' lengths of vectors in `stats_weights` (see details).
 #' @param ... Arguments passed to the default methods.
+#' @param as_prob Logical scalar. When `TRUE`, the function returns probabilities
+#' instead of log-likelihoods.
 #' 
 #' @section Sufficient statistics:
 #' 
@@ -70,12 +72,18 @@
 #' })
 #' 
 #' @export
-exact_loglik <- function(x, params, ...) UseMethod("exact_loglik")
+exact_loglik <- function(
+  x,
+  params,
+  ...,
+  as_prob = FALSE
+  )
+  UseMethod("exact_loglik")
 
 #' @export
 # @rdname exact_loglik
-exact_loglik.ergmito_ptr <- function(x, params, ...) {
-  exact_loglik.(x, params = params)
+exact_loglik.ergmito_ptr <- function(x, params, ..., as_prob) {
+  exact_loglik.(x, params = params, as_prob = as_prob)
 }
 
 #' @export
@@ -87,7 +95,8 @@ exact_loglik.default <- function(
   stats_statmat,
   target_offset = double(nrow(x)),
   stats_offset  = lapply(stats_weights, function(i) double(length(i))),
-  ...
+  ...,
+  as_prob = FALSE
 ) {
   
   # Need to calculate it using chunks of size 200, otherwise it doesn't work(?)
@@ -120,7 +129,7 @@ exact_loglik.default <- function(
         stats_offset  = stats_offset[i:j]
       )
       
-      ans[i:j] <- exact_loglik.(ergmito_ptr, params)
+      ans[i:j] <- exact_loglik.(ergmito_ptr, params, as_prob = as_prob)
       
     }
   } else {
@@ -140,7 +149,7 @@ exact_loglik.default <- function(
         stats_offset  = stats_offset
       )
       
-      ans[i:j] <- exact_loglik.(ergmito_ptr, params)
+      ans[i:j] <- exact_loglik.(ergmito_ptr, params, as_prob = as_prob)
       
     }
   }

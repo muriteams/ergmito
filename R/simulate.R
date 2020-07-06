@@ -25,7 +25,7 @@ simulate.ergmito <- function(
   
   # Catching the model and preparing for local evaluation
   model  <- stats::formula(object)
-  model. <- stats::update.formula(model, networks[[i]] ~ .)
+  model. <- stats::update.formula(model, networks ~ .)
   environment(model.) <- environment()
   
   if (!is.null(seed))
@@ -39,28 +39,24 @@ simulate.ergmito <- function(
   networks <- eval(model[[2]], environment(model))[which_networks]
 
   # Step 2: Loop through the networks to generate the predictions:
-  samples <- NULL # vector("list", length(which_networks) * nsim)
-  dots <- list(...)
+
+  # Generating sample, and later on, adding up matrices
+  sampler <- new_rergmito(
+    model = model.,
+    theta = if (is.null(theta)) stats::coef(object) else theta,
+    ...
+  )
   
-  if ("sizes" %in% names(dots))
-    stop(
-      "The parameter `sizes` cannot be passed to simulate. To specify different ",
-      "sizes use the function `new_rergmito` directly. Otherwise, use the ",
-      "argument `which_networks` to use one or more networks as reference.",
-      call. = FALSE
-      )
-  
-  for (i in seq_along(networks)) {
+  samples <- replicate(nsim, vector("list", length(which_networks)), simplify = FALSE)
+  for (i in 1:length(which_networks)) {
     
-    # Generating sample, and later on, adding up matrices
-    sampler <- new_rergmito(
-      model = model.,
-      theta = if (is.null(theta)) stats::coef(object) else theta,
-      sizes = nvertex(networks[[i]]),
-      ...
-    )
+    if (length(which_networks) == 1L)
+      samples_tmp <- sampler$sample(n = nsim)
+    else
+      samples_tmp <- sampler[[i]]$sample(n = nsim)
     
-    samples <- c(samples, sampler$sample(n = nsim, s = nvertex(networks[[i]])))
+    for (j in 1:nsim)
+      samples[[j]][i] <- samples_tmp[j]
     
   }
   

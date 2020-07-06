@@ -39,7 +39,8 @@ summary.ergmito <- function(object, ...) {
       bic         = stats::BIC(object),
       model       = object$formulae$model_final,
       note        = object$note,
-      R           = ifelse(is_boot, object$R, 1L)
+      R           = ifelse(is_boot, object$R, 1L),
+      n           = nnets(object)
     ),
     class = c("ergmito_summary", if (is_boot) "ergmito_summary_boot" else  NULL)
   )
@@ -54,8 +55,8 @@ print.ergmito_summary <- function(
   ...
 ) {
   
-  cat("\nERGMito estimates\n")
-  
+  cat("\nERGMito estimates (MLE)\n")
+  cat("This model includes", x$n, "networks.\n")
   if (x$R > 1L)
     cat("\n(bootstrapped model with ", x$R, " replicates.)\n")
   

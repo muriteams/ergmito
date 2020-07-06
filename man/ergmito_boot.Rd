@@ -16,7 +16,7 @@ ergmito_boot(x, ..., R, ncpus = 1L, cl = NULL)
 \item{ncpus}{Integer Number of CPUs to use. Only recommended if \code{ergmito} was
 not compiled with OpenMP (otherwise it will be slower).}
 
-\item{cl}{An object of class \code{cluster} (see \link[parallel:makePSOCKcluster]{parallel::makePSOCKcluster})}
+\item{cl}{An object of class \code{cluster} (see \code{\link[parallel:makeCluster]{makePSOCKcluster}})}
 }
 \value{
 An object of class \code{ergmito_boot} and \link{ergmito}. This adds three

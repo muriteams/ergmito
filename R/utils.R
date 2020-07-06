@@ -117,7 +117,7 @@ nnets.formula <- function(x) {
 #' are checking is not an object of class network, otherwise it simply returns
 #' false.
 #' @return `is_directed` checks whether the passed networks are directed using
-#' the function [network::is.directed]. In the case of multiple networks,
+#' the function \code{\link[network:network.indicators]{is.directed}}. In the case of multiple networks,
 #' the function returns a logical vector. Only objects of class `network` can be
 #' checked, otherwise, if `check_type = FALSE`, the function returns `TRUE` by default.
 #' @examples 

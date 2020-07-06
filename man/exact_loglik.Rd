@@ -8,7 +8,7 @@
 \alias{exact_hessian}
 \title{Vectorized calculation of ERGM exact log-likelihood}
 \usage{
-exact_loglik(x, params, ...)
+exact_loglik(x, params, ..., as_prob = FALSE)
 
 \method{exact_loglik}{default}(
   x,
@@ -17,7 +17,8 @@ exact_loglik(x, params, ...)
   stats_statmat,
   target_offset = double(nrow(x)),
   stats_offset = lapply(stats_weights, function(i) double(length(i))),
-  ...
+  ...,
+  as_prob = FALSE
 )
 
 exact_gradient(x, params, ...)
@@ -45,6 +46,9 @@ exact_hessian(
 \item{params}{Numeric vector. Parameter values of the model.}
 
 \item{...}{Arguments passed to the default methods.}
+
+\item{as_prob}{Logical scalar. When \code{TRUE}, the function returns probabilities
+instead of log-likelihoods.}
 
 \item{stats_weights}{Either an integer vector or a list of integer vectors (see \link{exact_loglik}).}
 

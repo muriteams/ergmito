@@ -1,4 +1,4 @@
-# ergmito 0.2-1-9999
+# ergmito 0.3-0
 
 * Added a `NEWS.md` file to track changes to the package.
 
@@ -21,3 +21,4 @@
   a dependency-free way to run benchmarks. This is not the most accurate 
   alternative, but is good enough for the package.
   
+* The function `new_rergmito` has been refactored.

@@ -131,33 +131,100 @@ model_frame_ergmito <- function(formula, formula_update, data, g_attrs.) {
   
 }
 
-#' Test whether the model terms list attributes
+#' Parser of formulas, with an emphasis on checking terms against a list of
+#' available terms.
 #' 
-#' It simply looks for the regex pattern [(].*\".+\".*[])] in the formula
-#' terms.
 #' @param x A [stats::formula].
+#' @param graph A graph of reference, this is to compare names against
 #' @noRd
-model_has_attrs <- function(x) {
+analyze_formula <- function(x, graph = NULL) {
   
   if (!inherits(x, "formula"))
     stop("`x` must be a formula.", call. = FALSE)
   
   trms <- stats::terms(x)
   
-  if (any(grepl("[(].*\".+\".*[)]", attr(trms, "term.labels")))) {
+  # Capture pattern
+  pat    <- "(\"[^\"]+\")|(\'[^\']+\')"
+  
+  # Need to take care of the type of network that is beeing passed, if it is
+  # empty, easy, if it is network, easy as well, but if it is something else,
+  # then a bit complex
+  obs_v_attrs <- NULL
+  obs_e_attrs <- NULL
+  obs_n_attrs <- NULL
+  if (length(graph)) {
     
-    # Listing attribute names
-    pat    <- "(?<=\")(.+)(?=\")|(?<=\')(.+)(?=\')"
-    anames <- NULL
-    for (a in attr(trms, "term.labels")) {
-      m      <- regexpr(pat, a, perl = TRUE)
-      anames <- c(anames, regmatches(a, m))
+    if (!inherits(graph, "network")) {
+      if (inherits(graph, "list"))
+        if (inherits(graph[[1L]], "network")) {
+          obs_v_attrs <- network::list.vertex.attributes(graph[[1L]])
+          obs_e_attrs <- network::list.edge.attributes(graph[[1L]])
+          obs_n_attrs <- network::list.network.attributes(graph[[1L]])
+        }
+        
+    } else {
+      obs_v_attrs <- network::list.vertex.attributes(graph)
+      obs_e_attrs <- network::list.edge.attributes(graph)
+      obs_n_attrs <- network::list.network.attributes(graph)
     }
+  }
+  
+  # Parsing all labels
+  attr_types <- NULL
+  anames <- lapply(attr(trms, "term.labels"), function(t.) {
     
-    return(structure(TRUE, anames = unique(anames)))
+    # Capturing varnames
+    m <- gregexpr(pat, t., perl = TRUE)
+    v <- regmatches(t., m)[[1L]]
     
-  } else
-    return(structure(FALSE, anames = NULL))
+    # Removing quotes
+    v <- gsub("^[\"\']|[\"\']$", "", v)
+    
+    if (length(obs_e_attrs)) {
+      v_e <- intersect(v, obs_e_attrs)
+      v_e <- structure(v_e, names = rep("edge", length(v_e)))
+    } else
+      v_e <- NULL
+    
+    if (length(obs_v_attrs)) {
+      v_v <- intersect(v, obs_v_attrs)
+      v_v <- structure(v_v, names = rep("vertex", length(v_v)))
+    } else
+      v_v <- NULL
+    
+    if (length(obs_n_attrs)) {
+      v_n <- intersect(v, obs_n_attrs)
+      v_n <- structure(v_n, names = rep("network", length(v_n)))
+    } else
+      v_n <- NULL
+    
+    v <- setdiff(v, union(union(v_v, v_e), v_n))
+    v <- structure(v, names = rep("unknown", length(v)))
+    
+    c(v_v, v_e, v_n, v)
+  })
+  
+
+  # Nice result
+  all_attrs <- unlist(anames, use.names = TRUE)
+  all_attrs <- data.frame(
+    type = names(all_attrs),
+    attr = unname(all_attrs),
+    stringsAsFactors = FALSE
+  )
+  all_attrs <- unique(all_attrs)
+  
+  list(
+    term_passed = attr(trms, "term.labels"),
+    term_names  = gsub("[(].+", "", attr(trms, "term.labels")),
+    term_attrs  = anames,
+    attrs       = replicate(length(anames), double(0L), simplify = FALSE),
+    nattrs      = sum(all_attrs$type != "unknown"),
+    all_attrs   = all_attrs
+  )
+  
+  
   
 }
 

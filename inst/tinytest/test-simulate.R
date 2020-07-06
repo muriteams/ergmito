@@ -5,16 +5,12 @@ expect_error(simulate(fit, 200, which_networks = 100))
 expect_error(simulate(fit, 200, which_networks = -1))
 
 expect_silent(ans <- simulate(fit, 200))
-expect_silent(ans <- simulate(fit, 200, cl = NULL, ncores = 2L))
-
-expect_error(ans <- simulate(fit, 200, cl = NULL, ncores = 2L, sizes = c(3,4)))
-
 
 # Refit with simulated data should yield the same
 ans0 <- ergmito(fivenets ~ edges + nodematch("female"))
 set.seed(8819)
 ans1 <- simulate(ans0, 20, which_networks = 1:5)
-ans1 <- ergmito(ans1 ~ edges + nodematch("female"))
+ans1 <- ergmito(unlist(ans1, recursive = FALSE) ~ edges + nodematch("female"))
 expect_equal(coef(ans0), coef(ans1), tol = .25)
 
   
@@ -24,7 +20,7 @@ ans0  <- new_rergmito(
   theta = coef(ergmito(fivenets ~ edges + nodematch("female")))
   )
 set.seed(12)
-s     <- ans0$sample(500, s = 4)
+s     <- ans0$sample(500)
 attrs <- lapply(s, network::get.vertex.attribute, attrname = "female")
 attrs <- do.call(rbind, attrs)
 attrs <- t(attrs) - network::get.vertex.attribute(fivenets[[3]], attrname = "female")

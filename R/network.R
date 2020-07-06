@@ -81,6 +81,30 @@ matrix_to_network.list <- function(
   ...
   ) {
   
+  # Checking the length of the attributes
+  if (is.logical(directed) && (length(directed) == 1L))
+    directed <- rep(directed, nnets(x))
+  if (is.logical(hyper) && (length(hyper) == 1L))
+    hyper <- rep(hyper, nnets(x))
+  if (is.logical(loops) && (length(loops) == 1L))
+    loops <- rep(loops, nnets(x))
+  if (is.logical(multiple) && (length(multiple) == 1L))
+    multiple <- rep(multiple, nnets(x))
+  if (is.logical(bipartite) && (length(bipartite) == 1L))
+    bipartite <- rep(bipartite, nnets(x))
+  
+  # Checking matching lengths
+  if (length(directed) != nnets(x))
+    stop("The length of -directed- doesn't matches the number of networks in -x-.")
+  if (length(hyper) != nnets(x))
+    stop("The length of -hyper- doesn't matches the number of networks in -x-.")
+  if (length(loops) != nnets(x))
+    stop("The length of -loops- doesn't matches the number of networks in -x-.")
+  if (length(multiple) != nnets(x))
+    stop("The length of -multiple- doesn't matches the number of networks in -x-.")
+  if (length(bipartite) != nnets(x))
+    stop("The length of -bipartite- doesn't matches the number of networks in -x-.")
+  
   # Checking all are any of the types
   if (inherits(x, "network"))
     return(x)
@@ -96,9 +120,9 @@ matrix_to_network.list <- function(
       )
   
   # To save memory, we do this by chunks
-  chunks <- make_chunks(length(x), 50000)
+  chunks <- make_chunks(nnets(x), 50000)
   
-  res <- vector("list", length(x))
+  res <- vector("list", nnets(x))
   for (i in seq_along(chunks$from)) {
     
     res[chunks$from[i]:chunks$to[i]] <- matrix_to_network.(

@@ -19,10 +19,15 @@ status](https://ci.appveyor.com/api/projects/status/nl1irakr2g6y6w03?svg=true)](
 This R package, which has been developed on top of the amazing work that
 the [Statnet](https://github.com/statnet) team has done, implements
 estimation and simulation methods for Exponential Random Graph Models of
-small networks, in particular, less than 7 nodes. In the case of small
-networks, the calculation of the likelihood of ERGMs becomes
-computationally feasible, which allows us avoiding approximations and do
-exact calculation, ultimately obtaining MLEs directly.
+small networks, in particular, up to 5 vertices for directed graphs and
+7 for undirected networks. In the case of small networks, the
+calculation of the likelihood of ERGMs becomes computationally feasible,
+which allows us avoiding approximations and do exact calculation,
+ultimately obtaining MLEs directly.
+
+Checkout the <a href="#examples">examples section</a>, and specially the
+<a href="#using-interaction-effects">Using interaction effects</a>
+example.
 
 ## Support
 
@@ -37,7 +42,7 @@ Computing (hpcc.usc.edu).
 ## Citation
 
 Vega Yon G (2020). *ergmito: Exponential Random Graph Models for Small
-Networks*. R package version 0.2-1-9999, \<URL:
+Networks*. R package version 0.3-0, \<URL:
 <https://github.com/muriteams/ergmito>\>.
 
 Vega Yon G, Slaughter A, de la Haye K (2019). “Exponential Random Graph
@@ -69,7 +74,9 @@ In the case of Mac users, and in particular, those with Mojave version,
 they may need to install the following
 <https://github.com/fxcoudert/gfortran-for-macOS/releases>
 
-## Example
+# Examples
+
+## Quick run
 
 In the following example we simulate a small network with 4 vertices and
 estimate the model parameters using `ergm` and `ergmito`. We start by
@@ -112,9 +119,11 @@ ergm.exact(ans_ergmito$coef, model) > ergm.exact(ans_ergm$coef, model)
 
 summary(ans_ergmito)
 #> 
-#> ERGMito estimates
+#> ERGMito estimates (MLE)
+#> This model includes 1 networks.
 #> 
-#> formula:  net ~ edges + istar(2) 
+#> formula:
+#>   net ~ edges + istar(2)
 #> 
 #>        Estimate Std. Error z value Pr(>|z|)
 #> edges  -1.37749    1.00260 -1.3739   0.1695
@@ -156,9 +165,11 @@ model1 <- ergmito(fivenets ~ edges + nodematch("female"))
 
 summary(model1) # This data has know parameters equal to -2.0 and 2.0
 #> 
-#> ERGMito estimates
+#> ERGMito estimates (MLE)
+#> This model includes 5 networks.
 #> 
-#> formula:  fivenets ~ edges + nodematch("female") 
+#> formula:
+#>   fivenets ~ edges + nodematch("female")
 #> 
 #>                  Estimate Std. Error z value Pr(>|z|)   
 #> edges            -1.70475    0.54356 -3.1363 0.001711 **
@@ -305,6 +316,94 @@ summary(ans0)
 #> edges  -0.0020193  0.0068675 -0.2940   0.7687
 #> mutual -0.0018160  0.0112247 -0.1618   0.8715
 #> AIC: 352097.2    BIC: 352118.1    (Smaller is better.)
+```
+
+## Using interaction effects
+
+One advantage of using exact statistics is the fact that we have
+significantly more flexibility when it comes to specifying sufficient
+statistics. Just like one would do when working with Generalized Linear
+Models in R (the “glm” function), users can alter the specified formula
+adding arbitrary offsets (using the offset function), or creating new
+terms by using the “I” function. In this brief example, where we will
+estimate a model that includes networks of size four and five, we will
+add an interaction effect between the edge-count statistic and the
+indicator function that equals one if the network is of size 5. This
+way, while poling the data, we will still be able to obtain different
+edge-count estimates depending on the number of vertices in the graph.
+
+``` r
+# Simulating networks of different sizes
+set.seed(12344)
+nets <- rbernoulli(c(rep(4, 10), rep(5, 10)), c(rep(.2, 10), rep(.1, 10)))
+```
+
+Fitting an ergmito under the Bernoulli model
+
+``` r
+ans0 <- ergmito(nets ~ edges)
+summary(ans0)
+#> 
+#> ERGMito estimates (MLE)
+#> This model includes 20 networks.
+#> 
+#> formula:
+#>   nets ~ edges
+#> 
+#>       Estimate Std. Error z value  Pr(>|z|)    
+#> edges -1.68640    0.15396 -10.954 < 2.2e-16 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> AIC: 279.3753    BIC: 283.1436    (Smaller is better.)
+```
+
+Fitting the model including a reference term for networks of size 5.
+Notice that the variable -n- and other graph attributes can be used with
+-model\_update-.
+
+``` r
+ans1 <- ergmito(nets ~ edges, model_update = ~ I(edges * (n == 5)))
+summary(ans1)
+#> 
+#> ERGMito estimates (MLE)
+#> This model includes 20 networks.
+#> 
+#> formula:
+#>   nets ~ edges + I(edges * (n == 5))
+#> 
+#>                     Estimate Std. Error z value  Pr(>|z|)    
+#> edges               -1.18958    0.21583 -5.5116 3.556e-08 ***
+#> I(edges * (n == 5)) -0.90116    0.31250 -2.8837   0.00393 ** 
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> AIC: 272.9916    BIC: 280.5282    (Smaller is better.)
+```
+
+The resulting parameter for the edge-count is smaller for networks of
+size five
+
+``` r
+plogis(coef(ans1)[1])   
+#>     edges 
+#> 0.2333333
+plogis(sum(coef(ans1))) 
+#> [1] 0.11
+```
+
+We can see that in this case the difference in edge-count matters.
+
+``` r
+library(lmtest)
+lrtest(ans0, ans1)
+#> Likelihood ratio test
+#> 
+#> Model 1: nets ~ edges
+#> Model 2: nets ~ edges + I(edges * (n == 5))
+#>   #Df  LogLik Df  Chisq Pr(>Chisq)   
+#> 1   1 -138.69                        
+#> 2   2 -134.50  1 8.3837   0.003786 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
 # Contributing

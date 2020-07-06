@@ -168,12 +168,11 @@ gof_ergmito <- function(
   
   for (i in seq_len(length(res))) {
     
+    stats_offset.  <- object$formulae$stats_offset[[i]]
+
     # Has the user provided a formula? In this case we need to use an alternative
     # matrix of `statmat` and `weights`. We are restricted to whatever allstats
-    # allows generating (e.g. distance is not included)
-    
-    stats_offset.  <- object$formulae$stats_offset[[i]]
-    
+    # allows generating (e.g. distance is not included)    
     if (!is.null(GOF)) {
       
       GOF <- stats::update.formula(GOF, object$network[[i]] ~ .)

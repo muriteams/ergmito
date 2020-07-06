@@ -96,9 +96,9 @@ ergmito_formulae <- function(
   # What is the first component
   LHS <- eval(model[[2]], envir = env)
   
-  # Checking whether this model has attributes on it or not
-  vattrs <- attr(model_has_attrs(model), "anames")
-  
+  # Analyzing the formula
+  model_analysis <- analyze_formula(model, LHS)
+
   # Checking if statmat weights and offsets are passed, then we assume the user
   # knows what is doing, so we should skip all the checks
   test <- c(
@@ -214,7 +214,7 @@ ergmito_formulae <- function(
             break
           
           # Minimum (and only for now): Have the same size
-          if ( same_dist(LHS[[i]], LHS[[j]], vattrs) ) {
+          if ( same_dist(LHS[[i]], LHS[[j]], model_analysis$all_attrs$attr) ) {
             
             matching_net <- j
             break
@@ -241,15 +241,18 @@ ergmito_formulae <- function(
         )
         
         # We need to cach for the error that shows in the function.
-        if (inherits(allstats_i, "error")) {
+        if (inherits(allstats_i, "error") | is.null(allstats_i)) {
           
-          if (grepl("initialization.+not found", allstats_i$message)) {
+          if (!is.null(allstats_i) && grepl("initialization.+not found", allstats_i$message)) {
             stop(
               "The term you are trying to use was not found. The following is ",
               "the full error message returned by the ergm package:",
               allstats_i$message, call. = FALSE
               )
           }
+          
+          msg <- if (is.null(allstats_i)) "use force = TRUE."
+          else allstats_i$message
           
           stop(
             "The function ergm::ergm.allstats returned with an error. Most of ",
@@ -259,7 +262,7 @@ ergmito_formulae <- function(
             "size 5, or try setting force = TRUE. For more info see ",
             "help(\"ergm.allstats\", \"ergm\"). Here is ",
             "the error reported by the function:\n",
-            paste0(allstats_i$message, collapse = "\n"),
+            paste0(msg, collapse = "\n"),
             call. = FALSE
             )
         }
@@ -274,11 +277,8 @@ ergmito_formulae <- function(
     
     # Computing target statistics ------------------------------------------------
     
-    # Should we use summary.formula?
-    model_analysis <- analyze_formula(model)
-    
     # Checking gw terms
-    if (any(grepl("^d?gw", model_analysis$names)))
+    if (any(grepl("^d?gw", model_analysis$term_names)))
       stop(
         "Currently, geometrically weighted terms are not supported in ergmito.",
         " For more information, see https://github.com/muriteams/ergmito/issues/17.",
@@ -287,7 +287,7 @@ ergmito_formulae <- function(
     
     # Can we compute it directly with ergmito? If not, we default to
     # ergm's summary function
-    if (directed && all(model_analysis$names %in% AVAILABLE_STATS())) {
+    if (directed && all(model_analysis$term_names %in% AVAILABLE_STATS())) {
       
       target_stats <- count_stats(model)
       
@@ -460,16 +460,23 @@ ergmito_formulae <- function(
     )
   
   # Building joint likelihood function
-  loglik <- function(params, ...) {
+  loglik <- function(params, ..., as_prob = FALSE, total = TRUE) {
     
-    ans <- sum(exact_loglik(ergmito_ptr, params = params, ...))
+    if (total) {
     
-    # If awfully undefined
-    if (!is.finite(ans))
-      return(-.Machine$double.xmax * 1e-100)
-    else
-      return(ans)
-    
+      ans <- sum(exact_loglik(ergmito_ptr, params = params, ..., as_prob = as_prob))
+      
+      # If awfully undefined
+      if (!as_prob && !is.finite(ans))
+        return(-.Machine$double.xmax * 1e-100)
+      else 
+        return(ans)
+      
+    } else {
+      
+      exact_loglik(ergmito_ptr, params = params, ..., as_prob = as_prob)
+      
+    }
   }
   
   # Building joint gradient
@@ -512,8 +519,10 @@ ergmito_formulae <- function(
       model_final   = model_final,
       npars         = ncol(target_stats),
       nnets         = nnets(LHS) - length(excluded),
-      vertex_attrs  = vattrs,
+      used_attrs    = model_analysis$all_attrs,
+      term_fun      = model_analysis$term_names,
       term_names    = colnames(target_stats),
+      term_attrs    = model_analysis$term_attrs,
       excluded      = excluded
     ),
     class = "ergmito_loglik"

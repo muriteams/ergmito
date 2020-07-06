@@ -1,19 +1,22 @@
 #' Estimation of ERGMs using Maximum Likelihood Estimation (MLE)
 #' 
-#' As a difference from [ergm][ergm::ergm], `ergmito` uses the exact log-likelihood
-#' function for fitting the model. This implies that all the `2^(n*(n-1))` 
-#' graphs are enumerated for computing the normalizing constant of the ERGM
-#' model. As a rule of thumb, directed graphs with more than 5 vertices
-#' should not be fitted using MLE, but instead MC-MLE as implemented in the
-#' ergm package. The same applies for un-directed graphs with more than 8
-#' vertices. The workhorse function of `ergmito` is ERGM's
-#' [ergm::ergm.allstats()].
+#' `ergmito` uses Maximum Likelihood Estimation (MLE) to fit Exponential Random
+#' Graph Models for single or multiple small networks, the later using
+#' pooled-data MLE. To do so we use exact likelihoods, which implies fully
+#' enumerating the support of the model. Overall, the exact likelihood
+#' calculation is only possible when dealing with directed (undirected) networks
+#' size 5 (7). In general, directed (undirected) graphs with more than 5 (7)
+#' vertices should not be fitted using MLE, but instead other methods such as
+#' the MC-MLE algorithm or the Robbins-Monro Stochastic Approximation algorithm,
+#' both of which are available in the ergm R package.The workhorse function of
+#' `ergmito` is the `ergm` package function [ergm::ergm.allstats()].
 #' 
 #' @param object An object of class `ergmito`
 #' @param model Model to estimate. See [ergm::ergm]. The only difference with
 #' `ergm` is that the LHS can be a list of networks.
-#' @param model_update A formula. Model specification for graph attributes. This
-#' is useful when using multiple networks.
+#' @param model_update A \code{\link[stats:formula]{formula}}. this can be used to
+#' apply transformations, create interaction effects, add offset terms, etc. 
+#' (see examples below and more details in [ergmito_formulae]).
 #' @param optim.args List. Passed to [stats::optim].
 #' @param target_stats A matrix of target statistics (see [ergm::ergm]).
 #' @template stats
@@ -61,7 +64,7 @@
 #'   point of the step.
 #'
 #' Methods [base::print()], [base::summary()], [stats::coef()], [stats::logLik()],
-#' [stats::nobs()], [stats::vcov()], [stats::AIC()], [stats::BIC()],
+#' [stats::nobs()], [stats::vcov()], [stats::AIC()], \code{\link[stats:AIC]{stats::BIC()}},
 #' [stats::confint()], and  [stats::formula()] are available. 
 #'
 #' @section MLE:
@@ -93,6 +96,7 @@
 #' vector. The result which reaches the highest log-likelihood will be the one
 #' reported as parameter estimates. This feature is intended for testing only.
 #' Anecdotally, `optim` reaches the max in the first try.
+#' 
 #' 
 #' @examples 
 #' 
@@ -137,6 +141,65 @@
 #'   # 2   3 -34.205 1 0.9312     0.3346
 #' }
 #' 
+#' # Example 4: Adding an reference term for edge-count ----------------------
+#' 
+#' # Simulating networks of different sizes
+#' set.seed(12344)
+#' nets <- rbernoulli(c(rep(4, 10), rep(5, 10)), c(rep(.2, 10), rep(.1, 10)))
+#' 
+#' # Fitting an ergmito under the Bernoulli model
+#' ans0 <- ergmito(nets ~ edges)
+#' summary(ans0)
+#' # 
+#' # ERGMito estimates
+#' # 
+#' # formula:
+#' #   nets ~ edges
+#' # 
+#' #       Estimate Std. Error z value  Pr(>|z|)    
+#' # edges -1.68640    0.15396 -10.954 < 2.2e-16 ***
+#' # ---
+#' # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#' # AIC: 279.3753    BIC: 283.1436    (Smaller is better.) 
+#' 
+#' 
+#' # Fitting the model including a reference term for networks of size 5.
+#' # Notice that the variable -n- and other graph attributes can be used
+#' # with -model_update-.
+#' ans1 <- ergmito(nets ~ edges, model_update = ~ I(edges * (n == 5)))
+#' summary(ans1)
+#' # 
+#' # ERGMito estimates
+#' # 
+#' # formula:
+#' #   nets ~ edges + I(edges * (n == 5))
+#' # 
+#' #                     Estimate Std. Error z value  Pr(>|z|)    
+#' # edges               -1.18958    0.21583 -5.5116 3.556e-08 ***
+#' # I(edges * (n == 5)) -0.90116    0.31250 -2.8837   0.00393 ** 
+#' # ---
+#' # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#' # AIC: 272.9916    BIC: 280.5282    (Smaller is better.) 
+#' 
+#' # The resulting parameter for the edge-count is smaller for networks
+#' # of size five
+#' plogis(coef(ans1)[1])   # 0.23
+#' plogis(sum(coef(ans1))) # 0.11
+#' 
+#' # We can see that in this case the difference in edge-count matters.
+#' if (require(lmtest)) {
+#' 
+#'   lrtest(ans0, ans1)
+#'   # Likelihood ratio test
+#'   # 
+#'   # Model 1: nets ~ edges
+#'   # Model 2: nets ~ edges + I(edges * (n == 5))
+#'   # #Df  LogLik Df  Chisq Pr(>Chisq)   
+#'   # 1   1 -138.69                        
+#'   # 2   2 -134.50  1 8.3837   0.003786 **
+#'   #   ---
+#'   #   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#' }
 #' 
 #' @importFrom stats optim terms rnorm
 #' @importFrom MASS ginv
