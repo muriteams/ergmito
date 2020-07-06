@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -101,7 +101,7 @@
       <h1 data-toc-skip>Extending ergmito</h1>
                         <h4 class="author">George G. Vega Yon</h4>
             
-            <h4 class="date">2020-05-18</h4>
+            <h4 class="date">2020-07-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/muriteams/ergmito/blob/master/vignettes/extending-ergmito.Rmd"><code>vignettes/extending-ergmito.Rmd</code></a></small>
       <div class="hidden name"><code>extending-ergmito.Rmd</code></div>
@@ -121,19 +121,25 @@
 <span class="co">#&gt; Number of networks:  5 </span>
 <span class="co">#&gt; Model:  fivenets ~ edges + ttriad </span>
 <span class="co">#&gt; Available elements by using the $ operator:</span>
-<span class="co">#&gt; loglik: function (params, ...) grad  : function (params, ...)</span>
+<span class="co">#&gt; loglik: function (params, ..., as_prob = FALSE, total = TRUE) grad  : function (params, ...)</span>
 
 <span class="co"># Printing the log-likelihood function</span>
 <span class="no">model_object</span>$<span class="no">loglik</span>
-<span class="co">#&gt; function (params, ...) </span>
+<span class="co">#&gt; function (params, ..., as_prob = FALSE, total = TRUE) </span>
 <span class="co">#&gt; {</span>
-<span class="co">#&gt;     ans &lt;- sum(exact_loglik(ergmito_ptr, params = params, ...))</span>
-<span class="co">#&gt;     if (!is.finite(ans)) </span>
-<span class="co">#&gt;         return(-.Machine$double.xmax * 1e-100)</span>
-<span class="co">#&gt;     else return(ans)</span>
+<span class="co">#&gt;     if (total) {</span>
+<span class="co">#&gt;         ans &lt;- sum(exact_loglik(ergmito_ptr, params = params, </span>
+<span class="co">#&gt;             ..., as_prob = as_prob))</span>
+<span class="co">#&gt;         if (!as_prob &amp;&amp; !is.finite(ans)) </span>
+<span class="co">#&gt;             return(-.Machine$double.xmax * 1e-100)</span>
+<span class="co">#&gt;         else return(ans)</span>
+<span class="co">#&gt;     }</span>
+<span class="co">#&gt;     else {</span>
+<span class="co">#&gt;         exact_loglik(ergmito_ptr, params = params, ..., as_prob = as_prob)</span>
+<span class="co">#&gt;     }</span>
 <span class="co">#&gt; }</span>
-<span class="co">#&gt; &lt;bytecode: 0xa5fef98&gt;</span>
-<span class="co">#&gt; &lt;environment: 0xa600dd8&gt;</span></pre></body></html></div>
+<span class="co">#&gt; &lt;bytecode: 0x91802b0&gt;</span>
+<span class="co">#&gt; &lt;environment: 0x9183b78&gt;</span></pre></body></html></div>
 <p>Besides of the log-likelihood function and the gradient function, <code>ergmito_formulae</code> also returns We can take a look at each component from our previous object:</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># The vectors of weights</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">model_object</span>$<span class="no">stats_weights</span>)
@@ -225,21 +231,22 @@
 <span class="co">#&gt;    plus standard error of the mean:</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        Mean     SD Naive SE Time-series SE</span>
-<span class="co">#&gt; par1 -1.668 0.5207  0.02329        0.06233</span>
-<span class="co">#&gt; par2  1.529 0.6124  0.02739        0.08072</span>
+<span class="co">#&gt; par1 -1.622 0.4984  0.02229        0.05644</span>
+<span class="co">#&gt; par2  1.492 0.5643  0.02524        0.06025</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; 2. Quantiles for each variable:</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;         2.5%    25%    50%    75%   97.5%</span>
-<span class="co">#&gt; par1 -2.8289 -1.964 -1.634 -1.285 -0.7587</span>
-<span class="co">#&gt; par2  0.4197  1.135  1.475  1.880  2.7514</span></pre></body></html></div>
+<span class="co">#&gt; par1 -2.7347 -1.906 -1.592 -1.282 -0.7514</span>
+<span class="co">#&gt; par2  0.4306  1.102  1.469  1.829  2.6496</span></pre></body></html></div>
 <p>Finally, we can compare this result with what we obtain from the <code>ergmito</code> function</p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="fu"><a href="../reference/ergmito.html">ergmito</a></span>(<span class="no">fivenets</span> ~ <span class="no">edges</span> + <span class="fu">nodematch</span>(<span class="st">"female"</span>)))
 <span class="co">#&gt; Warning: The observed statistics (target.statistics) are near or at the boundary</span>
 <span class="co">#&gt; of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to</span>
 <span class="co">#&gt; be estimated. In particular, the statistic(s) "edges", "nodematch.female".</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; ERGMito estimates</span>
+<span class="co">#&gt; ERGMito estimates (MLE)</span>
+<span class="co">#&gt; This model includes 5 networks.</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; formula:</span>
 <span class="co">#&gt;   fivenets ~ edges + nodematch("female")</span>

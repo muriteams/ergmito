@@ -53,7 +53,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -114,7 +114,8 @@
 <!-- [![CRAN status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito) -->
 <!-- [![status](https://tinyverse.netlify.com/badge/ergmito)](https://CRAN.R-project.org/package=ergmito) -->
 
-<p>This R package, which has been developed on top of the amazing work that the <a href="https://github.com/statnet">Statnet</a> team has done, implements estimation and simulation methods for Exponential Random Graph Models of small networks, in particular, less than 7 nodes. In the case of small networks, the calculation of the likelihood of ERGMs becomes computationally feasible, which allows us avoiding approximations and do exact calculation, ultimately obtaining MLEs directly.</p>
+<p>This R package, which has been developed on top of the amazing work that the <a href="https://github.com/statnet">Statnet</a> team has done, implements estimation and simulation methods for Exponential Random Graph Models of small networks, in particular, up to 5 vertices for directed graphs and 7 for undirected networks. In the case of small networks, the calculation of the likelihood of ERGMs becomes computationally feasible, which allows us avoiding approximations and do exact calculation, ultimately obtaining MLEs directly.</p>
+<p>Checkout the <a href="#examples">examples section</a>, and specially the <a href="#using-interaction-effects">Using interaction effects</a> example.</p>
 <div id="support" class="section level2">
 <h2 class="hasAnchor">
 <a href="#support" class="anchor"></a>Support</h2>
@@ -124,7 +125,7 @@
 <div id="citation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#citation" class="anchor"></a>Citation</h2>
-<p>Vega Yon G (2020). <em>ergmito: Exponential Random Graph Models for Small Networks</em>. R package version 0.2-1-9999, &lt;URL: <a href="https://github.com/muriteams/ergmito" class="uri">https://github.com/muriteams/ergmito</a>&gt;.</p>
+<p>Vega Yon G (2020). <em>ergmito: Exponential Random Graph Models for Small Networks</em>. R package version 0.3-0, &lt;URL: <a href="https://github.com/muriteams/ergmito" class="uri">https://github.com/muriteams/ergmito</a>&gt;.</p>
 <p>Vega Yon G, Slaughter A, de la Haye K (2019). “Exponential Random Graph models for Little Networks.” arXiv:1904.10406.</p>
 <p>To see these entries in BibTeX format, use ‘print(<citation>, bibtex=TRUE)’, ‘toBibtex(.)’, or set ‘options(citation.bibtex.max=999)’.</citation></p>
 </div>
@@ -138,9 +139,13 @@
 <div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"[path to the zipfile]/ergmito_[version number].zip"</span>, <span class="kw">repos</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></div>
 <p>In the case of Mac users, and in particular, those with Mojave version, they may need to install the following <a href="https://github.com/fxcoudert/gfortran-for-macOS/releases" class="uri">https://github.com/fxcoudert/gfortran-for-macOS/releases</a></p>
 </div>
-<div id="example" class="section level2">
+</div>
+<div id="examples" class="section level1">
+<h1 class="hasAnchor">
+<a href="#examples" class="anchor"></a>Examples</h1>
+<div id="quick-run" class="section level2">
 <h2 class="hasAnchor">
-<a href="#example" class="anchor"></a>Example</h2>
+<a href="#quick-run" class="anchor"></a>Quick run</h2>
 <p>In the following example we simulate a small network with 4 vertices and estimate the model parameters using <code>ergm</code> and <code>ergmito</code>. We start by generating the graph</p>
 <div class="sourceCode" id="cb3"><pre class="r"><span class="co"># Generating a small graph</span>
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ergmito</span>)
@@ -170,9 +175,11 @@
 
 <span class="fu"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(<span class="no">ans_ergmito</span>)
 <span class="co">#&gt; </span>
-<span class="co">#&gt; ERGMito estimates</span>
+<span class="co">#&gt; ERGMito estimates (MLE)</span>
+<span class="co">#&gt; This model includes 1 networks.</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; formula:  net ~ edges + istar(2) </span>
+<span class="co">#&gt; formula:</span>
+<span class="co">#&gt;   net ~ edges + istar(2)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        Estimate Std. Error z value Pr(&gt;|z|)</span>
 <span class="co">#&gt; edges  -1.37749    1.00260 -1.3739   0.1695</span>
@@ -208,9 +215,11 @@
 
 <span class="fu"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(<span class="no">model1</span>) <span class="co"># This data has know parameters equal to -2.0 and 2.0</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; ERGMito estimates</span>
+<span class="co">#&gt; ERGMito estimates (MLE)</span>
+<span class="co">#&gt; This model includes 5 networks.</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; formula:  fivenets ~ edges + nodematch("female") </span>
+<span class="co">#&gt; formula:</span>
+<span class="co">#&gt;   fivenets ~ edges + nodematch("female")</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;                  Estimate Std. Error z value Pr(&gt;|z|)   </span>
 <span class="co">#&gt; edges            -1.70475    0.54356 -3.1363 0.001711 **</span>
@@ -325,6 +334,63 @@
 <span class="co">#&gt; edges  -0.0020193  0.0068675 -0.2940   0.7687</span>
 <span class="co">#&gt; mutual -0.0018160  0.0112247 -0.1618   0.8715</span>
 <span class="co">#&gt; AIC: 352097.2    BIC: 352118.1    (Smaller is better.)</span></pre></div>
+</div>
+<div id="using-interaction-effects" class="section level2">
+<h2 class="hasAnchor">
+<a href="#using-interaction-effects" class="anchor"></a>Using interaction effects</h2>
+<p>One advantage of using exact statistics is the fact that we have significantly more flexibility when it comes to specifying sufficient statistics. Just like one would do when working with Generalized Linear Models in R (the “glm” function), users can alter the specified formula adding arbitrary offsets (using the offset function), or creating new terms by using the “I” function. In this brief example, where we will estimate a model that includes networks of size four and five, we will add an interaction effect between the edge-count statistic and the indicator function that equals one if the network is of size 5. This way, while poling the data, we will still be able to obtain different edge-count estimates depending on the number of vertices in the graph.</p>
+<div class="sourceCode" id="cb16"><pre class="r"><span class="co"># Simulating networks of different sizes</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">12344</span>)
+<span class="no">nets</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rbernoulli.html">rbernoulli</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">4</span>, <span class="fl">10</span>), <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">5</span>, <span class="fl">10</span>)), <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">.2</span>, <span class="fl">10</span>), <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">.1</span>, <span class="fl">10</span>)))</pre></div>
+<p>Fitting an ergmito under the Bernoulli model</p>
+<div class="sourceCode" id="cb17"><pre class="r"><span class="no">ans0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/ergmito.html">ergmito</a></span>(<span class="no">nets</span> ~ <span class="no">edges</span>)
+<span class="fu"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(<span class="no">ans0</span>)
+<span class="co">#&gt; </span>
+<span class="co">#&gt; ERGMito estimates (MLE)</span>
+<span class="co">#&gt; This model includes 20 networks.</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; formula:</span>
+<span class="co">#&gt;   nets ~ edges</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;       Estimate Std. Error z value  Pr(&gt;|z|)    </span>
+<span class="co">#&gt; edges -1.68640    0.15396 -10.954 &lt; 2.2e-16 ***</span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span>
+<span class="co">#&gt; AIC: 279.3753    BIC: 283.1436    (Smaller is better.)</span></pre></div>
+<p>Fitting the model including a reference term for networks of size 5. Notice that the variable -n- and other graph attributes can be used with -model_update-.</p>
+<div class="sourceCode" id="cb18"><pre class="r"><span class="no">ans1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/ergmito.html">ergmito</a></span>(<span class="no">nets</span> ~ <span class="no">edges</span>, <span class="kw">model_update</span> <span class="kw">=</span> ~ <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span>(<span class="no">edges</span> * (<span class="no">n</span> <span class="kw">==</span> <span class="fl">5</span>)))
+<span class="fu"><a href="https://rdrr.io/pkg/ergm/man/summary.formula.html">summary</a></span>(<span class="no">ans1</span>)
+<span class="co">#&gt; </span>
+<span class="co">#&gt; ERGMito estimates (MLE)</span>
+<span class="co">#&gt; This model includes 20 networks.</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; formula:</span>
+<span class="co">#&gt;   nets ~ edges + I(edges * (n == 5))</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;                     Estimate Std. Error z value  Pr(&gt;|z|)    </span>
+<span class="co">#&gt; edges               -1.18958    0.21583 -5.5116 3.556e-08 ***</span>
+<span class="co">#&gt; I(edges * (n == 5)) -0.90116    0.31250 -2.8837   0.00393 ** </span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span>
+<span class="co">#&gt; AIC: 272.9916    BIC: 280.5282    (Smaller is better.)</span></pre></div>
+<p>The resulting parameter for the edge-count is smaller for networks of size five</p>
+<div class="sourceCode" id="cb19"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">ans1</span>)[<span class="fl">1</span>])
+<span class="co">#&gt;     edges </span>
+<span class="co">#&gt; 0.2333333</span>
+<span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/ergm/man/ergm-terms.html">sum</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">ans1</span>)))
+<span class="co">#&gt; [1] 0.11</span></pre></div>
+<p>We can see that in this case the difference in edge-count matters.</p>
+<div class="sourceCode" id="cb20"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">lmtest</span>)
+<span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/lrtest.html">lrtest</a></span>(<span class="no">ans0</span>, <span class="no">ans1</span>)
+<span class="co">#&gt; Likelihood ratio test</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Model 1: nets ~ edges</span>
+<span class="co">#&gt; Model 2: nets ~ edges + I(edges * (n == 5))</span>
+<span class="co">#&gt;   #Df  LogLik Df  Chisq Pr(&gt;Chisq)   </span>
+<span class="co">#&gt; 1   1 -138.69                        </span>
+<span class="co">#&gt; 2   2 -134.50  1 8.3837   0.003786 **</span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></pre></div>
 </div>
 </div>
 <div id="contributing" class="section level1">

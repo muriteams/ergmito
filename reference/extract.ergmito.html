@@ -91,7 +91,7 @@ generate nice looking tables of ERGMitos estimates." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -207,12 +207,13 @@ in seconds.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>texreg</span>)</div><div class='output co'>#&gt; <span class='message'>Version:  1.36.23</span>
-#&gt; <span class='message'>Date:     2017-03-03</span>
-#&gt; <span class='message'>Author:   Philip Leifeld (University of Glasgow)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>texreg</span>)</div><div class='output co'>#&gt; <span class='message'>Version:  1.37.5</span>
+#&gt; <span class='message'>Date:     2020-06-17</span>
+#&gt; <span class='message'>Author:   Philip Leifeld (University of Essex)</span>
 #&gt; <span class='message'></span>
+#&gt; <span class='message'>Consider submitting praise using the praise or praise_interactive functions.</span>
 #&gt; <span class='message'>Please cite the JSS article in your publications -- see citation("texreg").</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
-<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges", "nodematch.female".</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/texreg/man/texreg.html'>screenreg</a></span>(<span class='no'>ans</span>)</div><div class='output co'>#&gt; 
+<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='ergmito.html'>ergmito</a></span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'>nodematch</span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges", "nodematch.female".</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/texreg/man/screenreg.html'>screenreg</a></span>(<span class='no'>ans</span>)</div><div class='output co'>#&gt; 
 #&gt; ===========================
 #&gt;                   Model 1  
 #&gt; ---------------------------
@@ -228,7 +229,7 @@ in seconds.</p></td>
 #&gt; Convergence         0      
 #&gt; Time (seconds)      0.06   
 #&gt; ===========================
-#&gt; *** p &lt; 0.001, ** p &lt; 0.01, * p &lt; 0.05</div><div class='input'>
+#&gt; *** p &lt; 0.001; ** p &lt; 0.01; * p &lt; 0.05</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

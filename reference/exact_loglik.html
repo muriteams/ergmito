@@ -91,7 +91,7 @@ centered at x, the vector of observed statistics." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -155,7 +155,7 @@ centered at x, the vector of observed statistics." />
 centered at <code>x</code>, the vector of observed statistics.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>exact_loglik</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>exact_loglik</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>...</span>, <span class='kw'>as_prob</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='co'># S3 method for default</span>
 <span class='fu'>exact_loglik</span>(
@@ -165,7 +165,8 @@ centered at <code>x</code>, the vector of observed statistics.</p>
   <span class='no'>stats_statmat</span>,
   <span class='kw'>target_offset</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/double.html'>double</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>x</span>)),
   <span class='kw'>stats_offset</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>stats_weights</span>, <span class='kw'>function</span>(<span class='no'>i</span>) <span class='fu'><a href='https://rdrr.io/r/base/double.html'>double</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>i</span>))),
-  <span class='no'>...</span>
+  <span class='no'>...</span>,
+  <span class='kw'>as_prob</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
 <span class='fu'>exact_gradient</span>(<span class='no'>x</span>, <span class='no'>params</span>, <span class='no'>...</span>)
@@ -202,6 +203,11 @@ centered at <code>x</code>, the vector of observed statistics.</p>
     <tr>
       <th>...</th>
       <td><p>Arguments passed to the default methods.</p></td>
+    </tr>
+    <tr>
+      <th>as_prob</th>
+      <td><p>Logical scalar. When <code>TRUE</code>, the function returns probabilities
+instead of log-likelihoods.</p></td>
     </tr>
     <tr>
       <th>stats_weights</th>

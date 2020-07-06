@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -177,7 +177,7 @@ not compiled with OpenMP (otherwise it will be slower).</p></td>
     </tr>
     <tr>
       <th>cl</th>
-      <td><p>An object of class <code>cluster</code> (see <a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makePSOCKcluster</a>)</p></td>
+      <td><p>An object of class <code>cluster</code> (see <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makePSOCKcluster</a></code>)</p></td>
     </tr>
     </table>
 
@@ -211,11 +211,12 @@ values were returned are excluded from the calculation.</p>
 #&gt; ////////////////////////////////////////////////////////////////////////////////</div><div class='input'>
 <span class='co'># Checking the differences</span>
 <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>ans0</span>)</div><div class='output co'>#&gt; 
-#&gt; ERGMito estimates
+#&gt; ERGMito estimates (MLE)
+#&gt; This model includes 5 networks.
 #&gt; 
 #&gt; formula:
 #&gt;   fivenets ~ edges + ttriad
-#&gt; &lt;environment: 0x12b382e8&gt;
+#&gt; &lt;environment: 0xc9fe4a0&gt;
 #&gt; 
 #&gt;         Estimate Std. Error z value Pr(&gt;|z|)  
 #&gt; edges   -0.89666    0.39389 -2.2765  0.02282 *
@@ -223,13 +224,14 @@ values were returned are excluded from the calculation.</p>
 #&gt; ---
 #&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #&gt; AIC: 79.92984    BIC: 84.11852    (Smaller is better.) </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>ans1</span>)</div><div class='output co'>#&gt; 
-#&gt; ERGMito estimates
+#&gt; ERGMito estimates (MLE)
+#&gt; This model includes 5 networks.
 #&gt; 
 #&gt; (bootstrapped model with  100  replicates.)
 #&gt; 
 #&gt; formula:
 #&gt;   fivenets ~ edges + ttriad
-#&gt; &lt;environment: 0x12b382e8&gt;
+#&gt; &lt;environment: 0xc9fe4a0&gt;
 #&gt; 
 #&gt;         Estimate Std. Error z value Pr(&gt;|z|)   
 #&gt; edges   -0.89666    0.32632 -2.7478 0.005999 **
@@ -237,13 +239,14 @@ values were returned are excluded from the calculation.</p>
 #&gt; ---
 #&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #&gt; AIC: 79.92984    BIC: 84.11852    (Smaller is better.) </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>ans2</span>)</div><div class='output co'>#&gt; 
-#&gt; ERGMito estimates
+#&gt; ERGMito estimates (MLE)
+#&gt; This model includes 5 networks.
 #&gt; 
 #&gt; (bootstrapped model with  100  replicates.)
 #&gt; 
 #&gt; formula:
 #&gt;   fivenets ~ edges + ttriad
-#&gt; &lt;environment: 0x12b382e8&gt;
+#&gt; &lt;environment: 0xc9fe4a0&gt;
 #&gt; 
 #&gt;         Estimate Std. Error z value Pr(&gt;|z|)  
 #&gt; edges   -0.89666    0.39037 -2.2970  0.02162 *

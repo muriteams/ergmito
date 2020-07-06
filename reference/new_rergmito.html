@@ -91,7 +91,7 @@ fast." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -146,7 +146,7 @@ fast." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>ERGMito sampler</h1>
-    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/sim.R'><code>R/sim.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/muriteams/ergmito/blob/master/R/new_rergmito.R'><code>R/new_rergmito.R</code></a></small>
     <div class="hidden name"><code>new_rergmito.Rd</code></div>
     </div>
 
@@ -155,18 +155,10 @@ fast." />
 fast.</p>
     </div>
 
-    <pre class="usage">new_rergmito(
-  model,
-  theta = NULL,
-  sizes = NULL,
-  cl = NULL,
-  ncores = 1L,
-  force = FALSE,
-  ...
-)
+    <pre class="usage">new_rergmito(model, theta, ...)
 
 # S3 method for ergmito_sampler
-[(x, i, j, ...)</pre>
+[(x, i, ...)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -180,36 +172,17 @@ fast.</p>
       <td><p>Named vector. Model parameters.</p></td>
     </tr>
     <tr>
-      <th>sizes</th>
-      <td><p>Integer vector. Values between 2 to 5 (6 becomes too intensive).</p></td>
-    </tr>
-    <tr>
-      <th>cl</th>
-      <td><p>An object of class <a href='https://rdrr.io/r/parallel/makeCluster.html'>cluster</a>.</p></td>
-    </tr>
-    <tr>
-      <th>ncores</th>
-      <td><p>Integer. Number of processors to use.</p></td>
-    </tr>
-    <tr>
-      <th>force</th>
-      <td><p>Logical. When <code>FALSE</code> (default) will try to use <code>ergmito</code>'s stat
-count functions (see <a href='count_stats.html'>count_stats</a>). This means that if one of the requested
-statistics in not available in <code>ergmito</code>, then we will use <code>ergm</code> to compute
-them, which is significantly slower (see details).</p></td>
-    </tr>
-    <tr>
       <th>...</th>
-      <td><p>Further arguments passed to <a href='https://rdrr.io/pkg/ergm/man/ergm.allstats.html'>ergm::ergm.allstats</a>.</p></td>
+      <td><p>Further arguments passed to <code><a href='ergmito_formulae.html'>ergmito_formulae()</a></code>.</p></td>
     </tr>
     <tr>
       <th>x</th>
       <td><p>An object of class <code>ergmito_sampler</code>.</p></td>
     </tr>
     <tr>
-      <th>i, j</th>
+      <th>i</th>
       <td><p><code>i</code> is an integer vector indicating the indexes of the networks to
-draw, while <code>j</code> the corresponding sizes. These need not to be of the same size.</p></td>
+draw.</p></td>
     </tr>
     </table>
 
@@ -222,18 +195,16 @@ specified model.</p></li>
 <li><p><code>counts</code> A list with 3 elements: <code>stats</code> the sufficient statistics of each network,
 <code>weights</code> and <code>statmat</code> the overall matrices of sufficient statistics used to
 compute the likelihood.</p></li>
-<li><p><code>network0</code> The baseline network used to either fit the model or obtain
+<li><p><code>network</code> The baseline network used to either fit the model or obtain
 attributes.</p></li>
 <li><p><code>networks</code> A list with the actual sample space of networks.</p></li>
-<li><p><code>prob</code> A numeric</p></li>
+<li><p><code>probabilities</code> A numeric vector with each graph's probability.</p></li>
 <li><p><code>sample</code> A function to draw samples. <code>n</code> specifies the number of samples to
-draw, <code>s</code> the size of the networks, and <code>theta</code> the parameter to use to
-calculate the likelihoods.</p></li>
+draw and <code>theta</code> the parameter to use to calculate the likelihoods.</p></li>
 <li><p><code>theta</code> Named numeric vector with the current values of the model parameters.</p></li>
 </ul>
 
-<p>The indexing method <code>[.ergmito_sampler</code> returns a named list of length
-<code><a href='https://rdrr.io/r/base/length.html'>length(j)</a></code>.</p>
+<p>The indexing method <code>[.ergmito_sampler</code> returns a list of networks</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>While the <a href='https://CRAN.R-project.org/package=ergm'><span class="pkg">ergm</span></a> package is very efficient, it was not built to do some
@@ -243,49 +214,50 @@ led us to "reinvent the wheel" in some cases to speed things up, this includes
 calculating observed statistics in a list of networks.</p>
 <p>The indexing method, <code>[.ergmito_sampler</code>, allows extracting networks
 directly by passing indexes. <code>i</code> indicates the index of the networks to draw,
-which go from 1 through <code>2^(n*(n-1))</code>, and <code>j</code> indicates the requested
-size.</p>
+which go from 1 through <code>2^(n*(n-1))</code> if directed and <code>2^(n*(n-1)/2)</code> if
+undirected .</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'># We can generate a sampler from a random graph</span>
 <span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>7131</span>)
-<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'>new_rergmito</span>(<span class='fu'><a href='rbernoulli.html'>rbernoulli</a></span>(<span class='fl'>4</span>) ~ <span class='no'>edges</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges".</span></div><div class='input'>
+<span class='no'>ans</span> <span class='kw'>&lt;-</span> <span class='fu'>new_rergmito</span>(<span class='fu'><a href='rbernoulli.html'>rbernoulli</a></span>(<span class='fl'>4</span>) ~ <span class='no'>edges</span>, <span class='kw'>theta</span> <span class='kw'>=</span> -<span class='fl'>.5</span>)
+
 <span class='co'># Five samples</span>
-<span class='no'>ans</span>$<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='fl'>5</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='fl'>4</span>)</div><div class='output co'>#&gt; [[1]]
+<span class='no'>ans</span>$<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='fl'>5</span>)</div><div class='output co'>#&gt; [[1]]
 #&gt;      [,1] [,2] [,3] [,4]
-#&gt; [1,]    0    1    1    0
+#&gt; [1,]    0    1    0    0
 #&gt; [2,]    1    0    0    0
 #&gt; [3,]    0    0    0    1
-#&gt; [4,]    1    1    1    0
+#&gt; [4,]    0    1    0    0
 #&gt; 
 #&gt; [[2]]
 #&gt;      [,1] [,2] [,3] [,4]
-#&gt; [1,]    0    1    1    1
-#&gt; [2,]    1    0    1    1
-#&gt; [3,]    1    1    0    1
+#&gt; [1,]    0    1    0    0
+#&gt; [2,]    0    0    0    0
+#&gt; [3,]    0    1    0    1
 #&gt; [4,]    0    1    1    0
 #&gt; 
 #&gt; [[3]]
 #&gt;      [,1] [,2] [,3] [,4]
-#&gt; [1,]    0    1    1    0
-#&gt; [2,]    1    0    1    1
-#&gt; [3,]    1    1    0    1
-#&gt; [4,]    1    0    0    0
+#&gt; [1,]    0    0    0    1
+#&gt; [2,]    0    0    1    0
+#&gt; [3,]    0    1    0    0
+#&gt; [4,]    1    0    1    0
 #&gt; 
 #&gt; [[4]]
 #&gt;      [,1] [,2] [,3] [,4]
-#&gt; [1,]    0    1    1    0
-#&gt; [2,]    0    0    0    0
-#&gt; [3,]    0    0    0    0
-#&gt; [4,]    1    1    0    0
+#&gt; [1,]    0    0    0    0
+#&gt; [2,]    0    0    1    0
+#&gt; [3,]    0    0    0    1
+#&gt; [4,]    0    1    0    0
 #&gt; 
 #&gt; [[5]]
 #&gt;      [,1] [,2] [,3] [,4]
-#&gt; [1,]    0    0    0    1
-#&gt; [2,]    0    0    1    1
-#&gt; [3,]    0    0    0    1
-#&gt; [4,]    1    1    1    0
+#&gt; [1,]    0    0    1    0
+#&gt; [2,]    0    0    1    0
+#&gt; [3,]    0    0    0    0
+#&gt; [4,]    0    0    1    0
 #&gt; </div><div class='input'>
 <span class='co'># or we can use some nodal data:</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
@@ -295,7 +267,41 @@ size.</p>
 )
 
 <span class='co'># Five samples</span>
-<span class='no'>ans</span>$<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='fl'>5</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='fl'>4</span>) <span class='co'># All these networks have a "female" vertex attr</span></div><div class='output co'>#&gt; [[1]]
+<span class='no'>ans</span>$<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='fl'>5</span>) <span class='co'># All these networks have a "female" vertex attr</span></div><div class='output co'>#&gt; [[1]]
+#&gt;  Network attributes:
+#&gt;   vertices = 4 
+#&gt;   directed = TRUE 
+#&gt;   hyper = FALSE 
+#&gt;   loops = FALSE 
+#&gt;   multiple = FALSE 
+#&gt;   bipartite = FALSE 
+#&gt;   total edges= 5 
+#&gt;     missing edges= 0 
+#&gt;     non-missing edges= 5 
+#&gt; 
+#&gt;  Vertex attribute names: 
+#&gt;     female vertex.names 
+#&gt; 
+#&gt; No edge attributes
+#&gt; 
+#&gt; [[2]]
+#&gt;  Network attributes:
+#&gt;   vertices = 4 
+#&gt;   directed = TRUE 
+#&gt;   hyper = FALSE 
+#&gt;   loops = FALSE 
+#&gt;   multiple = FALSE 
+#&gt;   bipartite = FALSE 
+#&gt;   total edges= 3 
+#&gt;     missing edges= 0 
+#&gt;     non-missing edges= 3 
+#&gt; 
+#&gt;  Vertex attribute names: 
+#&gt;     female vertex.names 
+#&gt; 
+#&gt; No edge attributes
+#&gt; 
+#&gt; [[3]]
 #&gt;  Network attributes:
 #&gt;   vertices = 4 
 #&gt;   directed = TRUE 
@@ -312,40 +318,6 @@ size.</p>
 #&gt; 
 #&gt; No edge attributes
 #&gt; 
-#&gt; [[2]]
-#&gt;  Network attributes:
-#&gt;   vertices = 4 
-#&gt;   directed = TRUE 
-#&gt;   hyper = FALSE 
-#&gt;   loops = FALSE 
-#&gt;   multiple = FALSE 
-#&gt;   bipartite = FALSE 
-#&gt;   total edges= 1 
-#&gt;     missing edges= 0 
-#&gt;     non-missing edges= 1 
-#&gt; 
-#&gt;  Vertex attribute names: 
-#&gt;     female vertex.names 
-#&gt; 
-#&gt; No edge attributes
-#&gt; 
-#&gt; [[3]]
-#&gt;  Network attributes:
-#&gt;   vertices = 4 
-#&gt;   directed = TRUE 
-#&gt;   hyper = FALSE 
-#&gt;   loops = FALSE 
-#&gt;   multiple = FALSE 
-#&gt;   bipartite = FALSE 
-#&gt;   total edges= 7 
-#&gt;     missing edges= 0 
-#&gt;     non-missing edges= 7 
-#&gt; 
-#&gt;  Vertex attribute names: 
-#&gt;     female vertex.names 
-#&gt; 
-#&gt; No edge attributes
-#&gt; 
 #&gt; [[4]]
 #&gt;  Network attributes:
 #&gt;   vertices = 4 
@@ -354,9 +326,9 @@ size.</p>
 #&gt;   loops = FALSE 
 #&gt;   multiple = FALSE 
 #&gt;   bipartite = FALSE 
-#&gt;   total edges= 2 
+#&gt;   total edges= 4 
 #&gt;     missing edges= 0 
-#&gt;     non-missing edges= 2 
+#&gt;     non-missing edges= 4 
 #&gt; 
 #&gt;  Vertex attribute names: 
 #&gt;     female vertex.names 
@@ -371,9 +343,9 @@ size.</p>
 #&gt;   loops = FALSE 
 #&gt;   multiple = FALSE 
 #&gt;   bipartite = FALSE 
-#&gt;   total edges= 5 
+#&gt;   total edges= 6 
 #&gt;     missing edges= 0 
-#&gt;     non-missing edges= 5 
+#&gt;     non-missing edges= 6 
 #&gt; 
 #&gt;  Vertex attribute names: 
 #&gt;     female vertex.names 

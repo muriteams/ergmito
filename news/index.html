@@ -89,7 +89,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -147,9 +147,9 @@
       <small>Source: <a href='https://github.com/muriteams/ergmito/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="ergmito-0-2-1-9999" class="section level1">
-<h1 class="page-header" data-toc-text="0.2-1-9999">
-<a href="#ergmito-0-2-1-9999" class="anchor"></a>ergmito 0.2-1-9999<small> Unreleased </small>
+    <div id="ergmito-0-3-0" class="section level1">
+<h1 class="page-header" data-toc-text="0.3-0">
+<a href="#ergmito-0-3-0" class="anchor"></a>ergmito 0.3-0<small> Unreleased </small>
 </h1>
 <ul>
 <li><p>Added a <code>NEWS.md</code> file to track changes to the package.</p></li>
@@ -158,6 +158,7 @@
 <li><p>Better memory management: <code>ergmito_ptr</code> (a C++ class) was duplicating memory when it was not supposed to. A new implementation avoids copying memory and thus makes it faster when trying to fit a larger object.</p></li>
 <li><p>The dots in the function parameter <code>target.stats</code>, <code>stats.statmat</code>, and <code>stats.weights</code> have been replaces with underscores (better naming practices).</p></li>
 <li><p>A new benchmark function has been added, <code>benchmarkito</code>. The idea is to have a dependency-free way to run benchmarks. This is not the most accurate alternative, but is good enough for the package.</p></li>
+<li><p>The function <code>new_rergmito</code> has been refactored.</p></li>
 </ul>
 </div>
   </div>

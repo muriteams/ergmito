@@ -92,7 +92,7 @@ small networks." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -228,7 +228,23 @@ a list of length <code><a href='nvertex.html'>nnets(x)</a></code>.</p></td>
 #&gt; [2,]   NA    0   NA   NA
 #&gt; [3,]    1   NA    0    1
 #&gt; [4,]   NA   NA   NA    0
-#&gt; </div></pre>
+#&gt; </div><div class='input'>
+<span class='co'># Comparing with sna</span>
+<span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='st'>"sna"</span>)) {
+  <span class='no'>net0</span> <span class='kw'>&lt;-</span> <span class='no'>fivenets</span><span class='kw'>[[</span><span class='fl'>1</span>]]
+  <span class='no'>net</span>  <span class='kw'>&lt;-</span> <span class='kw pkg'>network</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/network/man/network.html'>network</a></span>(<span class='no'>fivenets</span><span class='kw'>[[</span><span class='fl'>1</span>]])
+  <span class='fu'><a href='benchmarkito.html'>benchmarkito</a></span>(
+    <span class='kw'>ergmito</span> <span class='kw'>=</span> <span class='kw pkg'>ergmito</span><span class='kw ns'>::</span><span class='fu'>geodesic</span>(<span class='no'>net0</span>),
+    <span class='kw'>sna</span>     <span class='kw'>=</span> <span class='kw pkg'>sna</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/sna/man/geodist.html'>geodist</a></span>(<span class='no'>net</span>), <span class='kw'>times</span> <span class='kw'>=</span> <span class='fl'>1000</span>
+  )
+}</div><div class='output co'>#&gt; <span class='message'>Loading required package: sna</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: statnet.common</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘statnet.common’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:base’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    order</span></div><div class='output co'>#&gt; <span class='message'>sna: Tools for Social Network Analysis</span>
+#&gt; <span class='message'>Version 2.5 created on 2019-12-09.</span>
+#&gt; <span class='message'>copyright (c) 2005, Carter T. Butts, University of California-Irvine</span>
+#&gt; <span class='message'> For citation information, type citation("sna").</span>
+#&gt; <span class='message'> Type help(package="sna") to get started.</span></div><div class='output co'>#&gt; <span class='error'>Error in as.edgelist.sna(dat): object 'net' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

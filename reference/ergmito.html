@@ -47,14 +47,16 @@
 
 
 <meta property="og:title" content="Estimation of ERGMs using Maximum Likelihood Estimation (MLE) — vcov.ergmito" />
-<meta property="og:description" content="As a difference from ergm, ergmito uses the exact log-likelihood
-function for fitting the model. This implies that all the 2^(n*(n-1))
-graphs are enumerated for computing the normalizing constant of the ERGM
-model. As a rule of thumb, directed graphs with more than 5 vertices
-should not be fitted using MLE, but instead MC-MLE as implemented in the
-ergm package. The same applies for un-directed graphs with more than 8
-vertices. The workhorse function of ergmito is ERGM's
-ergm::ergm.allstats()." />
+<meta property="og:description" content="ergmito uses Maximum Likelihood Estimation (MLE) to fit Exponential Random
+Graph Models for single or multiple small networks, the later using
+pooled-data MLE. To do so we use exact likelihoods, which implies fully
+enumerating the support of the model. Overall, the exact likelihood
+calculation is only possible when dealing with directed (undirected) networks
+size 5 (7). In general, directed (undirected) graphs with more than 5 (7)
+vertices should not be fitted using MLE, but instead other methods such as
+the MC-MLE algorithm or the Robbins-Monro Stochastic Approximation algorithm,
+both of which are available in the ergm R package.The workhorse function of
+ergmito is the ergm package function ergm::ergm.allstats()." />
 <meta property="og:image" content="/logo.svg" />
 
 
@@ -97,7 +99,7 @@ ergm::ergm.allstats()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ergmito</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2-1-9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-0</span>
       </span>
     </div>
 
@@ -157,14 +159,16 @@ ergm::ergm.allstats()." />
     </div>
 
     <div class="ref-description">
-    <p>As a difference from <a href='https://rdrr.io/pkg/ergm/man/ergm.html'>ergm</a>, <code>ergmito</code> uses the exact log-likelihood
-function for fitting the model. This implies that all the <code>2^(n*(n-1))</code>
-graphs are enumerated for computing the normalizing constant of the ERGM
-model. As a rule of thumb, directed graphs with more than 5 vertices
-should not be fitted using MLE, but instead MC-MLE as implemented in the
-ergm package. The same applies for un-directed graphs with more than 8
-vertices. The workhorse function of <code>ergmito</code> is ERGM's
-<code><a href='https://rdrr.io/pkg/ergm/man/ergm.allstats.html'>ergm::ergm.allstats()</a></code>.</p>
+    <p><code>ergmito</code> uses Maximum Likelihood Estimation (MLE) to fit Exponential Random
+Graph Models for single or multiple small networks, the later using
+pooled-data MLE. To do so we use exact likelihoods, which implies fully
+enumerating the support of the model. Overall, the exact likelihood
+calculation is only possible when dealing with directed (undirected) networks
+size 5 (7). In general, directed (undirected) graphs with more than 5 (7)
+vertices should not be fitted using MLE, but instead other methods such as
+the MC-MLE algorithm or the Robbins-Monro Stochastic Approximation algorithm,
+both of which are available in the ergm R package.The workhorse function of
+<code>ergmito</code> is the <code>ergm</code> package function <code><a href='https://rdrr.io/pkg/ergm/man/ergm.allstats.html'>ergm::ergm.allstats()</a></code>.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for ergmito</span>
@@ -211,8 +215,9 @@ By default, <code>ergmito</code> uses <a href='https://rdrr.io/pkg/MASS/man/ginv
     </tr>
     <tr>
       <th>model_update</th>
-      <td><p>A formula. Model specification for graph attributes. This
-is useful when using multiple networks.</p></td>
+      <td><p>A <code><a href='https://rdrr.io/r/stats/formula.html'>formula</a></code>. this can be used to
+apply transformations, create interaction effects, add offset terms, etc.
+(see examples below and more details in <a href='ergmito_formulae.html'>ergmito_formulae</a>).</p></td>
     </tr>
     <tr>
       <th>stats_weights</th>
@@ -340,11 +345,12 @@ diagnostics.</p></div>
 #&gt; [1,] -7.977968</div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm.exact.html'>ergm.exact</a></span>(<span class='no'>ans_ergm</span>$<span class='no'>coef</span>, <span class='no'>model</span>)</div><div class='output co'>#&gt;           [,1]
 #&gt; [1,] -7.977994</div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>ans_ergmito</span>)</div><div class='output co'>#&gt; 
-#&gt; ERGMito estimates
+#&gt; ERGMito estimates (MLE)
+#&gt; This model includes 1 networks.
 #&gt; 
 #&gt; formula:
 #&gt;   net ~ edges + mutual
-#&gt; &lt;environment: 0xfb68028&gt;
+#&gt; &lt;environment: 0x10dd6420&gt;
 #&gt; 
 #&gt;        Estimate Std. Error z value Pr(&gt;|z|)
 #&gt; edges   0.69312    1.11802  0.6199   0.5353
@@ -355,7 +361,7 @@ diagnostics.</p></div>
 #&gt; ==========================
 #&gt; 
 #&gt; Formula:   net ~ edges + mutual
-#&gt; &lt;environment: 0xfb68028&gt;
+#&gt; &lt;environment: 0x10dd6420&gt;
 #&gt; 
 #&gt; Iterations:  2 out of 20 
 #&gt; 
@@ -372,11 +378,12 @@ diagnostics.</p></div>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>fivenets</span>)
 
 <span class='no'>model1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>fivenets</span> ~ <span class='no'>edges</span> + <span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>nodematch</a></span>(<span class='st'>"female"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges", "nodematch.female".</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>model1</span>) <span class='co'># This data has know parameters equal to -2.0 and 2.0</span></div><div class='output co'>#&gt; 
-#&gt; ERGMito estimates
+#&gt; ERGMito estimates (MLE)
+#&gt; This model includes 5 networks.
 #&gt; 
 #&gt; formula:
 #&gt;   fivenets ~ edges + nodematch("female")
-#&gt; &lt;environment: 0xfb68028&gt;
+#&gt; &lt;environment: 0x10dd6420&gt;
 #&gt; 
 #&gt;                  Estimate Std. Error z value Pr(&gt;|z|)   
 #&gt; edges            -1.70475    0.54356 -3.1363 0.001711 **
@@ -409,7 +416,93 @@ diagnostics.</p></div>
 #&gt;   #Df  LogLik Df  Chisq Pr(&gt;Chisq)
 #&gt; 1   2 -34.671                     
 #&gt; 2   3 -34.205  1 0.9312     0.3346</div><div class='input'>
+<span class='co'># Example 4: Adding an reference term for edge-count ----------------------</span>
 
+<span class='co'># Simulating networks of different sizes</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>12344</span>)
+<span class='no'>nets</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rbernoulli.html'>rbernoulli</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>4</span>, <span class='fl'>10</span>), <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>)), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>.2</span>, <span class='fl'>10</span>), <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>.1</span>, <span class='fl'>10</span>)))
+
+<span class='co'># Fitting an ergmito under the Bernoulli model</span>
+<span class='no'>ans0</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>nets</span> ~ <span class='no'>edges</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges".</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>ans0</span>)</div><div class='output co'>#&gt; 
+#&gt; ERGMito estimates (MLE)
+#&gt; This model includes 20 networks.
+#&gt; 
+#&gt; formula:
+#&gt;   nets ~ edges
+#&gt; &lt;environment: 0x10dd6420&gt;
+#&gt; 
+#&gt;       Estimate Std. Error z value  Pr(&gt;|z|)    
+#&gt; edges -1.68640    0.15396 -10.954 &lt; 2.2e-16 ***
+#&gt; ---
+#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#&gt; AIC: 279.3753    BIC: 283.1436    (Smaller is better.) </div><div class='input'><span class='co'># </span>
+<span class='co'># ERGMito estimates</span>
+<span class='co'># </span>
+<span class='co'># formula:</span>
+<span class='co'>#   nets ~ edges</span>
+<span class='co'># </span>
+<span class='co'>#       Estimate Std. Error z value  Pr(&gt;|z|)    </span>
+<span class='co'># edges -1.68640    0.15396 -10.954 &lt; 2.2e-16 ***</span>
+<span class='co'># ---</span>
+<span class='co'># Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class='co'># AIC: 279.3753    BIC: 283.1436    (Smaller is better.) </span>
+
+
+<span class='co'># Fitting the model including a reference term for networks of size 5.</span>
+<span class='co'># Notice that the variable -n- and other graph attributes can be used</span>
+<span class='co'># with -model_update-.</span>
+<span class='no'>ans1</span> <span class='kw'>&lt;-</span> <span class='fu'>ergmito</span>(<span class='no'>nets</span> ~ <span class='no'>edges</span>, <span class='kw'>model_update</span> <span class='kw'>=</span> ~ <span class='fu'><a href='https://rdrr.io/r/base/AsIs.html'>I</a></span>(<span class='no'>edges</span> * (<span class='no'>n</span> <span class='kw'>==</span> <span class='fl'>5</span>)))</div><div class='output co'>#&gt; <span class='warning'>Warning: The observed statistics (target.statistics) are near or at the boundary of its support, i.e. the Maximum Likelihood Estimates maynot exist or be hard to be estimated. In particular, the statistic(s) "edges", "I(edges * (n == 5))".</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/ergm/man/summary.formula.html'>summary</a></span>(<span class='no'>ans1</span>)</div><div class='output co'>#&gt; 
+#&gt; ERGMito estimates (MLE)
+#&gt; This model includes 20 networks.
+#&gt; 
+#&gt; formula:
+#&gt;   nets ~ edges + I(edges * (n == 5))
+#&gt; &lt;environment: 0x10dd6420&gt;
+#&gt; 
+#&gt;                     Estimate Std. Error z value  Pr(&gt;|z|)    
+#&gt; edges               -1.18958    0.21583 -5.5116 3.556e-08 ***
+#&gt; I(edges * (n == 5)) -0.90116    0.31250 -2.8837   0.00393 ** 
+#&gt; ---
+#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#&gt; AIC: 272.9916    BIC: 280.5282    (Smaller is better.) </div><div class='input'><span class='co'># </span>
+<span class='co'># ERGMito estimates</span>
+<span class='co'># </span>
+<span class='co'># formula:</span>
+<span class='co'>#   nets ~ edges + I(edges * (n == 5))</span>
+<span class='co'># </span>
+<span class='co'>#                     Estimate Std. Error z value  Pr(&gt;|z|)    </span>
+<span class='co'># edges               -1.18958    0.21583 -5.5116 3.556e-08 ***</span>
+<span class='co'># I(edges * (n == 5)) -0.90116    0.31250 -2.8837   0.00393 ** </span>
+<span class='co'># ---</span>
+<span class='co'># Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class='co'># AIC: 272.9916    BIC: 280.5282    (Smaller is better.) </span>
+
+<span class='co'># The resulting parameter for the edge-count is smaller for networks</span>
+<span class='co'># of size five</span>
+<span class='fu'><a href='https://rdrr.io/r/stats/Logistic.html'>plogis</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coef</a></span>(<span class='no'>ans1</span>)[<span class='fl'>1</span>])   <span class='co'># 0.23</span></div><div class='output co'>#&gt;     edges 
+#&gt; 0.2333333 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/stats/Logistic.html'>plogis</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/ergm/man/ergm-terms.html'>sum</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/coef.html'>coef</a></span>(<span class='no'>ans1</span>))) <span class='co'># 0.11</span></div><div class='output co'>#&gt; [1] 0.11</div><div class='input'>
+<span class='co'># We can see that in this case the difference in edge-count matters.</span>
+<span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='no'>lmtest</span>)) {
+
+  <span class='fu'><a href='https://rdrr.io/pkg/lmtest/man/lrtest.html'>lrtest</a></span>(<span class='no'>ans0</span>, <span class='no'>ans1</span>)
+  <span class='co'># Likelihood ratio test</span>
+  <span class='co'># </span>
+  <span class='co'># Model 1: nets ~ edges</span>
+  <span class='co'># Model 2: nets ~ edges + I(edges * (n == 5))</span>
+  <span class='co'># #Df  LogLik Df  Chisq Pr(&gt;Chisq)   </span>
+  <span class='co'># 1   1 -138.69                        </span>
+  <span class='co'># 2   2 -134.50  1 8.3837   0.003786 **</span>
+  <span class='co'>#   ---</span>
+  <span class='co'>#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+}</div><div class='output co'>#&gt; Likelihood ratio test
+#&gt; 
+#&gt; Model 1: nets ~ edges
+#&gt; Model 2: nets ~ edges + I(edges * (n == 5))
+#&gt;   #Df  LogLik Df  Chisq Pr(&gt;Chisq)   
+#&gt; 1   1 -138.69                        
+#&gt; 2   2 -134.50  1 8.3837   0.003786 **
+#&gt; ---
+#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
