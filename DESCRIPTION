@@ -1,6 +1,6 @@
 Package: ergmito
 Version: 0.3-0
-Date: 2020-07-02
+Date: 2020-07-15
 Title: Exponential Random Graph Models for Small Networks
 Description: Simulation and estimation of Exponential Random Graph Models (ERGMs)
   for small networks using exact statistics. As a difference from the 'ergm'
@@ -22,7 +22,7 @@ Authors@R: c(
       role = "fnd", comment = "Grant Number W911NF-15-1-0577")
       )
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Encoding: UTF-8
 Imports: 
     ergm,

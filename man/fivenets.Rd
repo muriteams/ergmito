@@ -4,7 +4,9 @@
 \name{fivenets}
 \alias{fivenets}
 \title{Example of a group of small networks}
-\format{An object of class \code{list} of length 5.}
+\format{
+An object of class \code{list} of length 5.
+}
 \usage{
 fivenets
 }

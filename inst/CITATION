@@ -8,11 +8,23 @@ bibentry(bibtype = "Manual",
            email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")
            ),
          year = year,
-         note = note,
+         note = paste(note,"(wip)"),
          url = "https://github.com/muriteams/ergmito"
          )
+         
+bibentry(bibtype = "Manual",
+         title = "{{ergmito: Exponential Random Graph Models for Small Networks}}",
+         author = person(
+           given = "George", family = "Vega Yon", role = c("cre","aut"),
+           email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")
+           ),
+         year = year,
+         note = note,
+         publisher="{CRAN}",
+         url = "https://cran.r-project.org/package=ergmito"
+         )
 
-bibentry(bibtype = "Misc",
+bibentry(bibtype = "article",
          title = "{Exponential Random Graph models for Little Networks}",
          author = c(
            person(
@@ -28,6 +40,7 @@ bibentry(bibtype = "Misc",
              email = "delahaye@usc.edu", comment = c(ORCID = "0000-0002-2536-7701")
            )
            ),
-         Year = "{2019}",
-         Eprint = "{arXiv:1904.10406}"
+         Year = "{2020}",
+         note = "in press",
+         journal = "{Social Networks}"
 )
