@@ -41,16 +41,22 @@ Computing (hpcc.usc.edu).
 
 ## Citation
 
+When using ergmito, always cite this paper
+
+Vega Yon G, Slaughter A, de la Haye K (2020). “Exponential Random Graph
+models for Little Networks.” *Social Networks*. in press.
+
+Use this if you are using the GitHub version of ergmito:
+
 Vega Yon G (2020). *ergmito: Exponential Random Graph Models for Small
 Networks*. R package version 0.3-0 (wip), \<URL:
 <https://github.com/muriteams/ergmito>\>.
 
+Use this if you are using the CRAN version of ergmito:
+
 Vega Yon G (2020). *ergmito: Exponential Random Graph Models for Small
 Networks*. R package version 0.3-0, \<URL:
 <https://cran.r-project.org/package=ergmito>\>.
-
-Vega Yon G, Slaughter A, de la Haye K (2020). “Exponential Random Graph
-models for Little Networks.” *Social Networks*. in press.
 
 To see these entries in BibTeX format, use ‘print(<citation>,
 bibtex=TRUE)’, ‘toBibtex(.)’, or set ‘options(citation.bibtex.max=999)’.

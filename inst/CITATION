@@ -1,46 +1,53 @@
 year <- sub("-.*", "", meta$Date)
 note <- sprintf("R package version %s", meta$Version)
 
-bibentry(bibtype = "Manual",
-         title = "{{ergmito: Exponential Random Graph Models for Small Networks}}",
-         author = person(
-           given = "George", family = "Vega Yon", role = c("cre","aut"),
-           email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")
-           ),
-         year = year,
-         note = paste(note,"(wip)"),
-         url = "https://github.com/muriteams/ergmito"
-         )
-         
-bibentry(bibtype = "Manual",
-         title = "{{ergmito: Exponential Random Graph Models for Small Networks}}",
-         author = person(
-           given = "George", family = "Vega Yon", role = c("cre","aut"),
-           email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")
-           ),
-         year = year,
-         note = note,
-         publisher="{CRAN}",
-         url = "https://cran.r-project.org/package=ergmito"
-         )
-
-bibentry(bibtype = "article",
-         title = "{Exponential Random Graph models for Little Networks}",
-         author = c(
-           person(
-             given = "George", family = "Vega Yon",
-             email = "vegayon@usc.edu", comment = c(ORCID = "0000-0002-3171-0844")
-             ),
-           person(
-             given = "Andrew", family = "Slaughter",
-             email = "vegayon@usc.edu", comment = c(ORCID = "0000-0002-3171-0844")
-             ),
-           person(
-             given = "Kayla", family = "de la Haye",
-             email = "delahaye@usc.edu", comment = c(ORCID = "0000-0002-2536-7701")
-           )
-           ),
-         Year = "{2020}",
-         note = "in press",
-         journal = "{Social Networks}"
+bibentry(
+  bibtype = "article",
+  title = "{Exponential Random Graph models for Little Networks}",
+  author = c(
+   person(
+     given = "George", family = "Vega Yon",
+     email = "vegayon@usc.edu", comment = c(ORCID = "0000-0002-3171-0844")
+     ),
+   person(
+     given = "Andrew", family = "Slaughter"
+     ),
+   person(
+     given = "Kayla", family = "de la Haye",
+     email = "delahaye@usc.edu", comment = c(ORCID = "0000-0002-2536-7701")
+   )
+   ),
+  Year = "{2020}",
+  note = "in press",
+  journal = "{Social Networks}",
+  header = "When using ergmito, always cite this paper"
 )
+
+
+bibentry(
+  bibtype = "Manual",
+  title = "{{ergmito: Exponential Random Graph Models for Small Networks}}",
+  author = person(
+    given = "George", family = "Vega Yon", role = c("cre","aut"),
+    email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")
+  ),
+  year = year,
+  note = paste(note,"(wip)"),
+  url = "https://github.com/muriteams/ergmito",
+  header = "Use this if you are using the GitHub version of ergmito:"
+)
+         
+bibentry(
+  bibtype = "Manual",
+  title = "{{ergmito: Exponential Random Graph Models for Small Networks}}",
+  author = person(
+    given = "George", family = "Vega Yon", role = c("cre","aut"),
+    email = "g.vegayon@gmail.com", comment = c(ORCID = "0000-0002-3171-0844")
+  ),
+  year = year,
+  note = note,
+  publisher="{CRAN}",
+  url = "https://cran.r-project.org/package=ergmito",
+  header = "Use this if you are using the CRAN version of ergmito:"
+)
+
