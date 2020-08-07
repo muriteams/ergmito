@@ -44,7 +44,9 @@ Computing (hpcc.usc.edu).
 When using ergmito, always cite this paper
 
 Vega Yon G, Slaughter A, de la Haye K (2020). “Exponential Random Graph
-models for Little Networks.” *Social Networks*. in press.
+models for Little Networks.” *Social Networks*. doi:
+10.1016/j.socnet.2020.07.005 (URL:
+<https://doi.org/10.1016/j.socnet.2020.07.005>), in press.
 
 Use this if you are using the GitHub version of ergmito:
 
