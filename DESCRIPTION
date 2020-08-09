@@ -24,29 +24,20 @@ Authors@R: c(
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Encoding: UTF-8
-Imports: 
-    ergm,
-    network,
-    MASS,
-    Rcpp,
-    texreg,
-    stats,
-    parallel,
-    utils,
-    methods,
-    graphics
+Imports: ergm, network, MASS, Rcpp, texreg, stats, parallel, utils,
+        methods, graphics
 LinkingTo: Rcpp, RcppArmadillo
 License: MIT + file LICENSE
-Suggests: 
-    covr,
-    sna,
-    lmtest,
-    fmcmc,
-    coda,
-    knitr,
-    rmarkdown, tinytest
+Suggests: covr, sna, lmtest, fmcmc, coda, knitr, rmarkdown, tinytest
 VignetteBuilder: knitr
 LazyData: true
 URL: https://muriteams.github.io/ergmito
 BugReports: https://github.com/muriteams/ergmito/issues
 Language: en-US
+NeedsCompilation: yes
+Packaged: 2020-08-07 22:48:57 UTC; george
+Author: George Vega Yon [cre, aut] (<https://orcid.org/0000-0002-3171-0844>),
+  Kayla de la Haye [ths] (<https://orcid.org/0000-0002-2536-7701>),
+  Army Research Laboratory and the U.S. Army Research Office [fnd] (Grant
+    Number W911NF-15-1-0577)
+Maintainer: George Vega Yon <g.vegayon@gmail.com>
