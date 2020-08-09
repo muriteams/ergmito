@@ -101,7 +101,7 @@
       <h1 data-toc-skip>Extending ergmito</h1>
                         <h4 class="author">George G. Vega Yon</h4>
             
-            <h4 class="date">2020-08-07</h4>
+            <h4 class="date">2020-08-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/muriteams/ergmito/blob/master/vignettes/extending-ergmito.Rmd"><code>vignettes/extending-ergmito.Rmd</code></a></small>
       <div class="hidden name"><code>extending-ergmito.Rmd</code></div>
@@ -138,8 +138,8 @@
 <span class="co">#&gt;         exact_loglik(ergmito_ptr, params = params, ..., as_prob = as_prob)</span>
 <span class="co">#&gt;     }</span>
 <span class="co">#&gt; }</span>
-<span class="co">#&gt; &lt;bytecode: 0x77fe490&gt;</span>
-<span class="co">#&gt; &lt;environment: 0x77fcd88&gt;</span></pre></body></html></div>
+<span class="co">#&gt; &lt;bytecode: 0x72fe538&gt;</span>
+<span class="co">#&gt; &lt;environment: 0x72f8d60&gt;</span></pre></body></html></div>
 <p>Besides of the log-likelihood function and the gradient function, <code>ergmito_formulae</code> also returns We can take a look at each component from our previous object:</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># The vectors of weights</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">model_object</span>$<span class="no">stats_weights</span>)
@@ -231,14 +231,14 @@
 <span class="co">#&gt;    plus standard error of the mean:</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        Mean     SD Naive SE Time-series SE</span>
-<span class="co">#&gt; par1 -1.597 0.4247  0.01899        0.03661</span>
-<span class="co">#&gt; par2  1.420 0.5419  0.02423        0.05163</span>
+<span class="co">#&gt; par1 -1.636 0.4872  0.02179        0.05699</span>
+<span class="co">#&gt; par2  1.517 0.5813  0.02600        0.06940</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; 2. Quantiles for each variable:</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;         2.5%    25%    50%    75%   97.5%</span>
-<span class="co">#&gt; par1 -2.3834 -1.878 -1.593 -1.308 -0.7612</span>
-<span class="co">#&gt; par2  0.3826  1.054  1.454  1.792  2.4154</span></pre></body></html></div>
+<span class="co">#&gt; par1 -2.7822 -1.881 -1.624 -1.329 -0.7182</span>
+<span class="co">#&gt; par2  0.3567  1.158  1.540  1.855  2.7509</span></pre></body></html></div>
 <p>Finally, we can compare this result with what we obtain from the <code>ergmito</code> function</p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="fu"><a href="../reference/ergmito.html">ergmito</a></span>(<span class="no">fivenets</span> ~ <span class="no">edges</span> + <span class="fu">nodematch</span>(<span class="st">"female"</span>)))
 <span class="co">#&gt; Warning: The observed statistics (target.statistics) are near or at the boundary</span>
