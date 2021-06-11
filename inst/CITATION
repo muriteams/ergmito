@@ -21,7 +21,7 @@ bibentry(
   note = "in press",
   journal = "{Social Networks}",
   header = "When using ergmito, always cite this paper",
-  doi = "https://doi.org/10.1016/j.socnet.2020.07.005",
+  doi = "10.1016/j.socnet.2020.07.005",
   published = "Elsevier"
 )
 

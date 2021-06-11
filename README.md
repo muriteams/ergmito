@@ -3,10 +3,10 @@
 
 # ergmito: Exponential Random Graph Models for Small Networks <img src="man/figures/logo.png" align="right" width="180px"/>
 
-<!-- [![CRAN status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito) -->
-
 <!-- [![status](https://tinyverse.netlify.com/badge/ergmito)](https://CRAN.R-project.org/package=ergmito) -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
 [![Lifecycle:
 maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Travis build

@@ -3,7 +3,8 @@ Version: 0.3-0
 Date: 2020-07-15
 Title: Exponential Random Graph Models for Small Networks
 Description: Simulation and estimation of Exponential Random Graph Models (ERGMs)
-  for small networks using exact statistics. As a difference from the 'ergm'
+  for small networks using exact statistics as shown in Vega Yon et al. (2020)
+  <DOI:10.1016/j.socnet.2020.07.005>. As a difference from the 'ergm'
   package, 'ergmito' circumvents using Markov-Chain Maximum Likelihood Estimator
   (MC-MLE) and instead uses Maximum Likelihood Estimator (MLE) to fit ERGMs
   for small networks. As exhaustive enumeration is computationally feasible for
@@ -31,7 +32,7 @@ License: MIT + file LICENSE
 Suggests: covr, sna, lmtest, fmcmc, coda, knitr, rmarkdown, tinytest
 VignetteBuilder: knitr
 LazyData: true
-URL: https://muriteams.github.io/ergmito
+URL: https://muriteams.github.io/ergmito/
 BugReports: https://github.com/muriteams/ergmito/issues
 Language: en-US
 NeedsCompilation: yes

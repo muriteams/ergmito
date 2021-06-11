@@ -12,6 +12,8 @@ README\.md
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^makefile$
+^Makefile$
+^docker$
 _cache
 ^man-roxygen$
 ^cran-comments\.md$
