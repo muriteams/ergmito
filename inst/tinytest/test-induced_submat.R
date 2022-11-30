@@ -60,6 +60,6 @@ expect_error(induced_submat(list(), list()), "length 0")
 expect_error(induced_submat(list(x,x,x), list(ids1, ids2)), "same as")
 expect_error(induced_submat(list(matrix(nrow=1, ncol=3)), ids1), "square")
 expect_error(induced_submat(x, c(1,1)), "repeated")
-expect_error(induced_submat(x, c(-1,1)), "boundary")
-expect_error(induced_submat(x, c(1,-1)), "boundary")
+expect_error(induced_submat(x, c(-1,1)), "out of range")
+expect_error(induced_submat(x, c(1,-1)), "out of range")
 
