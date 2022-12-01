@@ -68,8 +68,10 @@ interaction effects, or transformations of statistics without much effort.
 In particular, if the user passes a formula via \code{model_update}, the
 cannonical additive ERGM can be modified to include other terms, for example,
 if we wanted to add an interaction effect of the \code{nodematch("age")} with
-network size, we can simply type\preformatted{model_update = ~ . + I(nodematch.age * n)
-}
+network size, we can simply type
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{model_update = ~ . + I(nodematch.age * n)
+}\if{html}{\out{</div>}}
 
 The \code{\link[=I]{I()}} function allows operating over variables in the model, in this case,
 we took the \code{nodematch.age} variable (which is the name that \code{\link[ergm:ergm]{ergm::ergm()}}
@@ -80,9 +82,11 @@ By default, the ergm package calculates up to 2^16 unique values for the
 vector of sufficient statistics. This results in issues if the user tries to
 fit a model with too heterogenous networks or sets of attributes. To deal
 with this it suffices with adding the option \code{maxNumChangeStatVectors} in
-the ergmito call, e.g.:\preformatted{# Networks of size 5 have up to 2^20 unique sets of sufficient statistics
+the ergmito call, e.g.:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{# Networks of size 5 have up to 2^20 unique sets of sufficient statistics
 ergmito(..., maxNumChangeStatVectors = 2^20)
-}
+}\if{html}{\out{</div>}}
 
 See more in ?\link[ergm:ergm.allstats]{ergm::ergm.allstats}.
 }

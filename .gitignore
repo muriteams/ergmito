@@ -7,3 +7,5 @@ inst/doc
 drawings/
 *.Rcheck
 
+/doc/
+/Meta/

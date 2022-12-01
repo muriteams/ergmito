@@ -22,3 +22,5 @@ _cache
 .*\.tar\.gz$
 ^\.github$
 
+^doc$
+^Meta$
