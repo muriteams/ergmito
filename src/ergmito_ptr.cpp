@@ -4,7 +4,7 @@
 
 using namespace Rcpp;
 
-// [[Rcpp::export(rng = false, name = "new_ergmito_ptr.")]]
+// [[Rcpp::export(rng = false, name = "new_ergmito_ptr_cpp")]]
 SEXP new_ergmito_ptr(
     const NumericMatrix           & target_stats,
     const ListOf< NumericVector > & stats_weights,
@@ -34,7 +34,7 @@ SEXP new_ergmito_ptr(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-// [[Rcpp::export(name = "exact_loglik.", rng = false)]]
+// [[Rcpp::export(name = "exact_loglik_cpp", rng = false)]]
 arma::vec exact_loglik(
     SEXP ptr,
     const arma::colvec & params,
@@ -53,7 +53,7 @@ arma::vec exact_loglik(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-// [[Rcpp::export(name = "exact_gradient.", rng = false)]]
+// [[Rcpp::export(name = "exact_gradient_cpp", rng = false)]]
 arma::vec exact_gradient(
     SEXP ptr,
     const arma::colvec & params,
@@ -121,7 +121,7 @@ inline arma::mat exact_hessiani(
 //' @param weights A list of weights matrices (for `statmat`).
 //' @param statmat A list of matrices with statistics for each row in `x`.
 //' @noRd
-// [[Rcpp::export(name = "exact_hessian.", rng = false)]]
+// [[Rcpp::export(name = "exact_hessian_cpp", rng = false)]]
 arma::mat exact_hessian(
     const arma::colvec                & params,
     const std::vector< arma::rowvec > & stats_weights,

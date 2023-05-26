@@ -35,7 +35,7 @@ inline IntegerMatrix induced_submati(
   
 }
 
-// [[Rcpp::export(name = "induced_submat.")]]
+// [[Rcpp::export(name = "induced_submat_cpp")]]
 std::vector< IntegerMatrix > induced_submat(
   const std::vector< IntegerMatrix > & nets,
   const std::vector< IntegerVector > & vs

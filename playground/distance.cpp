@@ -3,7 +3,7 @@ using namespace Rcpp;
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
-// [[Rcpp::export(name = "geodesic.")]]
+// [[Rcpp::export(name = "geodesic_cpp")]]
 IntegerMatrix geodesic(const arma::imat & x) {
   
   arma::imat res(x.n_rows, x.n_cols);

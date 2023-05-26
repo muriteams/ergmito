@@ -83,7 +83,7 @@ exact_loglik <- function(
 #' @export
 # @rdname exact_loglik
 exact_loglik.ergmito_ptr <- function(x, params, ..., as_prob) {
-  exact_loglik.(x, params = params, as_prob = as_prob)
+  exact_loglik_cpp(x, params = params, as_prob = as_prob)
 }
 
 #' @export
@@ -129,7 +129,7 @@ exact_loglik.default <- function(
         stats_offset  = stats_offset[i:j]
       )
       
-      ans[i:j] <- exact_loglik.(ergmito_ptr, params, as_prob = as_prob)
+      ans[i:j] <- exact_loglik_cpp(ergmito_ptr, params, as_prob = as_prob)
       
     }
   } else {
@@ -149,7 +149,7 @@ exact_loglik.default <- function(
         stats_offset  = stats_offset
       )
       
-      ans[i:j] <- exact_loglik.(ergmito_ptr, params, as_prob = as_prob)
+      ans[i:j] <- exact_loglik_cpp(ergmito_ptr, params, as_prob = as_prob)
       
     }
   }
@@ -172,7 +172,7 @@ exact_gradient <- function(x, params, ...) UseMethod("exact_gradient")
 #' @export
 # @rdname exact_loglik
 exact_gradient.ergmito_ptr <- function(x, params, ...) {
-  exact_gradient.(x, params = params)
+  exact_gradient_cpp(x, params = params)
 }
 
 #' @export
@@ -217,7 +217,7 @@ exact_gradient.default <- function(
       stats_offset  = stats_offset[i:j]
     )
     
-    ans <- ans + exact_gradient.(ergmito_ptr, params)
+    ans <- ans + exact_gradient_cpp(ergmito_ptr, params)
     
   }
   
@@ -288,7 +288,7 @@ exact_hessian <- function(
     i <- chunks$from[s]
     j <- chunks$to[s]
     
-    ans <- ans + exact_hessian.(
+    ans <- ans + exact_hessian_cpp(
       params,
       stats_weights = stats_weights[i:j],
       stats_statmat = stats_statmat[i:j],

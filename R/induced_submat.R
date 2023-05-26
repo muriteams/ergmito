@@ -43,7 +43,7 @@ induced_submat.list <- function(x, v, ...) {
   
   x <- as_adjmat(x)
   
-  induced_submat.(x, v)
+  induced_submat_cpp(x, v)
   
 }
 
@@ -54,7 +54,7 @@ induced_submat.network <- function(x, v, ...) {
   x <- list(as_adjmat(x))
   if (!is.list(v))
     v <- list(v)
-  induced_submat.(x, v, ...)
+  induced_submat_cpp(x, v, ...)
   
 }
 
@@ -65,6 +65,6 @@ induced_submat.matrix <- function(x, v, ...) {
   if (!is.list(v))
     v <- list(v)
   
-  induced_submat.(list(x), v, ...)
+  induced_submat_cpp(list(x), v, ...)
   
 }

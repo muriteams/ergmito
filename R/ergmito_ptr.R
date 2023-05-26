@@ -67,7 +67,7 @@ new_ergmito_ptr <- function(
   if (any(!sapply(stats_offset, is.vector))) 
     stopncall("All the elements in -stats_offset- should be vectors.")
   
-  new_ergmito_ptr.(
+  new_ergmito_ptr_cpp(
     target_stats  = target_stats,
     stats_weights = stats_weights,
     stats_statmat = stats_statmat,

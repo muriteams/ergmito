@@ -536,7 +536,7 @@ std::vector< std::string > count_available(int i = 0) {
 }
 
 // Count Network Statistics
-// [[Rcpp::export(name="count_stats.", rng = false)]]
+// [[Rcpp::export(name="count_stats_cpp", rng = false)]]
 NumericMatrix count_stats(
     const ListOf< IntegerMatrix > & X,
     const std::vector< std::string > & terms,
@@ -674,7 +674,7 @@ inline void geodesici(const arma::imat & x, IntegerMatrix & res, bool force = fa
   
 }
 
-// [[Rcpp::export(name = "geodesic.", rng = false)]]
+// [[Rcpp::export(name = "geodesic_cpp", rng = false)]]
 std::vector< IntegerMatrix > geodesic(
     const std::vector< arma::imat > & X,
     bool force = false

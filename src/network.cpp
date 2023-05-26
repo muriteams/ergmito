@@ -266,7 +266,7 @@ inline ListOf< List > matrix_to_networki(
   
 }
 
-// [[Rcpp::export(name="matrix_to_network.", rng = false)]]
+// [[Rcpp::export(name = "matrix_to_network_cpp", rng = false)]]
 ListOf< List > matrix_to_network(
     const ListOf< IntegerMatrix > & x,
     const LogicalVector & directed ,
@@ -336,7 +336,7 @@ ListOf< List > matrix_to_network(
 //   
 // }
 // 
-// // [[Rcpp::export(name="add_vertex_attr.")]]
+// // [[Rcpp::export(name = "add_vertex_attr_cpp")]]
 // ListOf< List > add_vertex_attr(
 //     const ListOf< List > & x, 
 //     const ListOf< GenericVector > & vattrs,

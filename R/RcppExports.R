@@ -5,15 +5,15 @@ count_available <- function(i = 0L) {
     .Call(`_ergmito_count_available`, i)
 }
 
-count_stats. <- function(X, terms, A) {
+count_stats_cpp <- function(X, terms, A) {
     .Call(`_ergmito_count_stats`, X, terms, A)
 }
 
-geodesic. <- function(X, force = FALSE) {
+geodesic_cpp <- function(X, force = FALSE) {
     .Call(`_ergmito_geodesic`, X, force)
 }
 
-new_ergmito_ptr. <- function(target_stats, stats_weights, stats_statmat, target_offset, stats_offset) {
+new_ergmito_ptr_cpp <- function(target_stats, stats_weights, stats_statmat, target_offset, stats_offset) {
     .Call(`_ergmito_new_ergmito_ptr`, target_stats, stats_weights, stats_statmat, target_offset, stats_offset)
 }
 
@@ -24,7 +24,7 @@ new_ergmito_ptr. <- function(target_stats, stats_weights, stats_statmat, target_
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_loglik. <- function(ptr, params, as_prob = FALSE) {
+exact_loglik_cpp <- function(ptr, params, as_prob = FALSE) {
     .Call(`_ergmito_exact_loglik`, ptr, params, as_prob)
 }
 
@@ -35,7 +35,7 @@ exact_loglik. <- function(ptr, params, as_prob = FALSE) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_gradient. <- function(ptr, params, as_prob = FALSE) {
+exact_gradient_cpp <- function(ptr, params, as_prob = FALSE) {
     .Call(`_ergmito_exact_gradient`, ptr, params, as_prob)
 }
 
@@ -49,15 +49,15 @@ get_boundaries <- function(ptr) {
 #' @param weights A list of weights matrices (for `statmat`).
 #' @param statmat A list of matrices with statistics for each row in `x`.
 #' @noRd
-exact_hessian. <- function(params, stats_weights, stats_statmat, stats_offset) {
+exact_hessian_cpp <- function(params, stats_weights, stats_statmat, stats_offset) {
     .Call(`_ergmito_exact_hessian`, params, stats_weights, stats_statmat, stats_offset)
 }
 
-induced_submat. <- function(nets, vs) {
+induced_submat_cpp <- function(nets, vs) {
     .Call(`_ergmito_induced_submat`, nets, vs)
 }
 
-matrix_to_network. <- function(x, directed, hyper, loops, multiple, bipartite) {
+matrix_to_network_cpp <- function(x, directed, hyper, loops, multiple, bipartite) {
     .Call(`_ergmito_matrix_to_network`, x, directed, hyper, loops, multiple, bipartite)
 }
 

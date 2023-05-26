@@ -161,11 +161,11 @@ count_stats.list <- function(X, terms, attrs = NULL, ...) {
     
     for (k in seq_along(terms)) {
       if (!length(attrs))
-        ans[i:j, k] <- count_stats.(X[i:j], terms[k], list(double(0L)))
+        ans[i:j, k] <- count_stats_cpp(X[i:j], terms[k], list(double(0L)))
       else if (all_same_attr)
-        ans[i:j, k] <- count_stats.(X[i:j], terms[k], attrs)
+        ans[i:j, k] <- count_stats_cpp(X[i:j], terms[k], attrs)
       else
-        ans[i:j, k] <- count_stats.(X[i:j], terms[k], attrs[i:j])
+        ans[i:j, k] <- count_stats_cpp(X[i:j], terms[k], attrs[i:j])
     }
     
   }
@@ -212,7 +212,7 @@ geodesita <- geodesic
 # @rdname geodesic
 geodesic.list <- function(x, force = FALSE, ...) {
   
-  geodesic.(as_adjmat(x), force = force)
+  geodesic_cpp(as_adjmat(x), force = force)
   
 }
 
@@ -220,7 +220,7 @@ geodesic.list <- function(x, force = FALSE, ...) {
 #' @rdname geodesic
 geodesic.matrix <- function(x, force = FALSE, simplify = FALSE, ...) {
   
-  ans <- geodesic.(list(x), force = force)
+  ans <- geodesic_cpp(list(x), force = force)
   if (simplify)
     return(ans[[1]])
   ans
@@ -230,7 +230,7 @@ geodesic.matrix <- function(x, force = FALSE, simplify = FALSE, ...) {
 #' @rdname geodesic
 geodesic.network <- function(x, force = FALSE, simplify = FALSE, ...) {
   
-  ans <- geodesic.(list(as_adjmat(x)), force = force)
+  ans <- geodesic_cpp(list(as_adjmat(x)), force = force)
   if (simplify)
     return(ans[[1]])
   
