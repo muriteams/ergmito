@@ -7,6 +7,7 @@
 ^\.travis\.yml$
 README\.md
 ^README\.Rmd$
+^README\.qmd$
 ^LICENSE\.md$
 ^CODE_OF_CONDUCT\.md$
 ^.*\.Rproj$
