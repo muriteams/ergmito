@@ -30,7 +30,8 @@ checkv: $(PKGNAME)_$(VERSION).tar.gz
 	R CMD check --as-cran --use-valgrind $(PKGNAME)_$(VERSION).tar.gz
 
 clean:
-	rm -rf $(PKGNAME).Rcheck $(PKGNAME)_$(VERSION).tar.gz
+	rm -rf $(PKGNAME).Rcheck $(PKGNAME)_$(VERSION).tar.gz ; \
+		Rscript --vanilla -e 'devtools::clean_dll()'
 
 .PHONY: man docker
 man: R/* 
