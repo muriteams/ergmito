@@ -35,9 +35,4 @@ URL: https://muriteams.github.io/ergmito/
 BugReports: https://github.com/muriteams/ergmito/issues
 Language: en-US
 NeedsCompilation: yes
-Packaged: 2020-08-07 22:48:57 UTC; george
-Author: George Vega Yon [cre, aut] (<https://orcid.org/0000-0002-3171-0844>),
-  Kayla de la Haye [ths] (<https://orcid.org/0000-0002-2536-7701>),
-  Army Research Laboratory and the U.S. Army Research Office [fnd] (Grant
-    Number W911NF-15-1-0577)
-Maintainer: George Vega Yon <g.vegayon@gmail.com>
+
