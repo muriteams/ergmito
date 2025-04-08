@@ -7,15 +7,13 @@
 <!-- [![status](https://tinyverse.netlify.com/badge/ergmito)](https://CRAN.R-project.org/package=ergmito) -->
 
 [![CRAN
-status](https://www.r-pkg.org/badges/version/ergmito.png)](https://cran.r-project.org/package=ergmito)
+status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
 [![Lifecycle:
 maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Travis build
 status](https://travis-ci.org/muriteams/ergmito.svg?branch=master)](https://travis-ci.org/muriteams/ergmito)
-[![AppVeyor Build
-status](https://ci.appveyor.com/api/projects/status/nl1irakr2g6y6w03?svg=true.png)](https://ci.appveyor.com/project/gvegayon/ergmito)
 [![codecov](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/gh/muriteams/ergmito)
-![](http://cranlogs.r-pkg.org/badges/grand-total/ergmito.png)
+![](http://cranlogs.r-pkg.org/badges/grand-total/ergmito)
 [![R-CMD-check](https://github.com/muriteams/ergmito/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/muriteams/ergmito/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
