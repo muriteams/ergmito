@@ -1,19 +1,17 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+<!-- README.md is generated from README.qmd. Please edit that file -->
 
 # ergmito: Exponential Random Graph Models for Small Networks <img src="man/figures/logo.png" align="right" width="180px"/>
 
 <!-- badges: start -->
+
 <!-- [![status](https://tinyverse.netlify.com/badge/ergmito)](https://CRAN.R-project.org/package=ergmito) -->
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
-[![Lifecycle:
-maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![Travis build
-status](https://travis-ci.org/muriteams/ergmito.svg?branch=master)](https://travis-ci.org/muriteams/ergmito)
 [![codecov](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/gh/muriteams/ergmito)
-![](http://cranlogs.r-pkg.org/badges/grand-total/ergmito)
+[![](https://cranlogs.r-pkg.org/badges/grand-total/ergmito)](https://cran.r-project.org/package=ergmito)
 [![R-CMD-check](https://github.com/muriteams/ergmito/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/muriteams/ergmito/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -52,13 +50,13 @@ doi:10.1016/j.socnet.2020.07.005
 Use this if you are using the GitHub version of ergmito:
 
 Vega Yon G (????). *ergmito: Exponential Random Graph Models for Small
-Networks*. R package version 0.3-1 (wip),
+Networks*. R package version 0.3-2 (wip),
 <https://github.com/muriteams/ergmito>.
 
 Use this if you are using the CRAN version of ergmito:
 
 Vega Yon G (????). *ergmito: Exponential Random Graph Models for Small
-Networks*. R package version 0.3-1,
+Networks*. R package version 0.3-2,
 <https://cran.r-project.org/package=ergmito>.
 
 To see these entries in BibTeX format, use ‘print(<citation>,
@@ -152,13 +150,13 @@ summary(ans_ergm)
 #> Monte Carlo Maximum Likelihood Results:
 #> 
 #>        Estimate Std. Error MCMC % z value Pr(>|z|)
-#> edges   -1.3984     1.0326      0  -1.354    0.176
-#> istar2   0.5927     1.4024      0   0.423    0.673
+#> edges   -1.4456     0.9291      0  -1.556    0.120
+#> istar2   0.5882     1.2823      0   0.459    0.646
 #> 
 #>      Null Deviance: 16.64  on 12  degrees of freedom
-#>  Residual Deviance: 13.37  on 10  degrees of freedom
+#>  Residual Deviance: 13.35  on 10  degrees of freedom
 #>  
-#> AIC: 17.37  BIC: 18.34  (Smaller is better. MC Std. Err. = 0.01315)
+#> AIC: 17.35  BIC: 18.32  (Smaller is better. MC Std. Err. = 0.01304)
 ```
 
 ## Estimating data with known parameters
@@ -199,11 +197,11 @@ fivenets_gof
 #> Goodness-of-fit for edges 
 #> 
 #>       obs min     mean max lower upper lower prob. upper prob.
-#> net 1   2   0 3.746607  12     0     6 0.008080856   0.9635261
-#> net 2   7   0 3.746607  12     0     6 0.008080856   0.9635261
-#> net 3   4   0 3.113122  12     0     6 0.020642814   0.9881036
-#> net 4   5   0 5.647059  12     2     8 0.030934588   0.9514908
-#> net 5   2   0 3.746607  12     0     6 0.008080856   0.9635261
+#> net 1   2   0 3.746607  12     0     6 0.008080855   0.9635261
+#> net 2   7   0 3.746607  12     0     6 0.008080855   0.9635261
+#> net 3   4   0 3.113122  12     0     6 0.020642813   0.9881036
+#> net 4   5   0 5.647059  12     2     8 0.030934587   0.9514908
+#> net 5   2   0 3.746607  12     0     6 0.008080855   0.9635261
 #> 
 #> 
 #> Goodness-of-fit for nodematch.female 
@@ -316,7 +314,7 @@ We can fit this model in a memory-efficient way.
 ``` r
 system.time(ans0 <- ergmito(bignet ~ edges + mutual))
 #>    user  system elapsed 
-#>   9.314   0.084   9.400
+#>  11.748   0.274  12.227
 summary(ans0)
 #> 
 #> ERGMito estimates (MLE)
