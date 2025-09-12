@@ -1,3 +1,7 @@
+# ergmito 0.3-2
+
+* Returning to CRAN. Minor fixes correcting issues with documentation.
+
 # ergmito 0.3-1
 
 * Returning to CRAN. Minor fixes correcting issues with CLANG.

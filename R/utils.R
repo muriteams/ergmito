@@ -1,6 +1,6 @@
 
 #' Utility functions to query network dimensions
-#' @param x Either an object of class [ergmito], [network::network], [stats::formula], or [base::matrix].
+#' @param x Either an object of class [ergmito], [network::network()], [stats::formula()], or [base::matrix()].
 #' @param ... Further arguments passed to the method. Currently only `nedges.network`
 #' receives arguments (see [network::network.edgecount]).
 #' @export

@@ -16,7 +16,7 @@ nnets(x)
 is_directed(x, check_type = FALSE)
 }
 \arguments{
-\item{x}{Either an object of class \link{ergmito}, \link[network:network]{network}, \link[stats:formula]{formula}, or \link[base:matrix]{matrix}.}
+\item{x}{Either an object of class \link{ergmito}, \code{\link[network:network]{network::network()}}, \code{\link[stats:formula]{stats::formula()}}, or \code{\link[base:matrix]{base::matrix()}}.}
 
 \item{...}{Further arguments passed to the method. Currently only \code{nedges.network}
 receives arguments (see \link[network:network.edgecount]{network::network.edgecount}).}

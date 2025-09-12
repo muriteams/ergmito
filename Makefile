@@ -1,8 +1,8 @@
 VERSION:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\s*", "", x[grepl("^Vers", x)]))')
 PKGNAME:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\s*", "", x[grepl("^Package", x)]))')
 
-ergmito_$(VERSION).tar.gz: inst/NEWS README.md
-	R CMD build --no-build-vignettes --no-manual . 
+build: 
+	R CMD build . 
 
 install: 
 	$(MAKE) clean && \
@@ -33,9 +33,12 @@ clean:
 	rm -rf $(PKGNAME).Rcheck $(PKGNAME)_$(VERSION).tar.gz ; \
 		Rscript --vanilla -e 'devtools::clean_dll()'
 
-.PHONY: man docker
 man: R/* 
-	Rscript --vanilla -e 'roxygen2::roxygenize()'
+	Rscript --vanilla -e 'devtools::document()'
+
+docs: man
 
 docker:
 	docker run -v$(pwd):/pkg/ -w/pkg --rm -i uscbiostats/fmcmc:latest make check
+
+.PHONY: man docker docs

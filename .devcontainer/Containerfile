@@ -1,0 +1,13 @@
+FROM rocker/tidyverse:4.5.1
+
+RUN install2.r --error languageserver && \
+  installGithub.r nx10/httpgd
+
+RUN apt-get update && apt-get install --no-install-recommends -y valgrind gdb \
+  libglpk-dev
+
+# Adding R packages
+RUN install2.r --error ergm network Rcpp texreg RcppArmadillo covr sna lmtest fmcmc coda knitr tinytest rmarkdown
+
+
+CMD ["bash"]
