@@ -9,13 +9,8 @@ install:
 		R CMD build . && \
 		R CMD INSTALL $(PKGNAME)_$(VERSION).tar.gz
 
-
-inst/NEWS: NEWS.md
-	Rscript -e "rmarkdown::pandoc_convert('NEWS.md', 'plain', output='inst/NEWS')"&& \
-	head -n 80 inst/NEWS
-
-README.md: README.Rmd
-	Rscript -e 'rmarkdown::render("README.Rmd")'
+README.md: README.qmd
+	quarto render README.qmd
 
 .PHONY: checfull checkv clean
 

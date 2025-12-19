@@ -5,11 +5,8 @@
 # ergmito: Exponential Random Graph Models for Small Networks <img src="man/figures/logo.png" align="right" width="180px"/>
 
 <!-- badges: start -->
-
-<!-- [![status](https://tinyverse.netlify.com/badge/ergmito)](https://CRAN.R-project.org/package=ergmito) -->
-
-[![CRAN
-status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito)
+<!-- [![status](https://tinyverse.netlify.com/badge/ergmito)](https://CRAN.R-project.org/package=ergmito) --> 
+[![CRAN status](https://www.r-pkg.org/badges/version/ergmito)](https://cran.r-project.org/package=ergmito) 
 [![codecov](https://codecov.io/gh/muriteams/ergmito/branch/master/graph/badge.svg)](https://codecov.io/gh/muriteams/ergmito)
 [![](https://cranlogs.r-pkg.org/badges/grand-total/ergmito)](https://cran.r-project.org/package=ergmito)
 [![R-CMD-check](https://github.com/muriteams/ergmito/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/muriteams/ergmito/actions/workflows/R-CMD-check.yaml)
@@ -197,11 +194,11 @@ fivenets_gof
 #> Goodness-of-fit for edges 
 #> 
 #>       obs min     mean max lower upper lower prob. upper prob.
-#> net 1   2   0 3.746607  12     0     6 0.008080855   0.9635261
-#> net 2   7   0 3.746607  12     0     6 0.008080855   0.9635261
-#> net 3   4   0 3.113122  12     0     6 0.020642813   0.9881036
-#> net 4   5   0 5.647059  12     2     8 0.030934587   0.9514908
-#> net 5   2   0 3.746607  12     0     6 0.008080855   0.9635261
+#> net 1   2   0 3.746607  12     0     6 0.008080856   0.9635261
+#> net 2   7   0 3.746607  12     0     6 0.008080856   0.9635261
+#> net 3   4   0 3.113122  12     0     6 0.020642814   0.9881036
+#> net 4   5   0 5.647059  12     2     8 0.030934588   0.9514908
+#> net 5   2   0 3.746607  12     0     6 0.008080856   0.9635261
 #> 
 #> 
 #> Goodness-of-fit for nodematch.female 
@@ -396,7 +393,7 @@ size five
 ``` r
 plogis(coef(ans1)[1])   
 #>     edges 
-#> 0.2333333
+#> 0.2333334
 plogis(sum(coef(ans1))) 
 #> [1] 0.11
 ```
