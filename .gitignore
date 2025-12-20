@@ -9,3 +9,6 @@ drawings/
 
 /doc/
 /Meta/
+config.log
+config.status
+src/Makevars

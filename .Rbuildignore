@@ -25,3 +25,9 @@ _cache
 
 ^doc$
 ^Meta$
+
+# Misc files
+^\.devcontainer$
+.*\.log
+^config\.status$
+^src/Makevars$

@@ -1,21 +1,16 @@
 VERSION:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\s*", "", x[grepl("^Vers", x)]))')
 PKGNAME:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\s*", "", x[grepl("^Package", x)]))')
 
-ergmito_$(VERSION).tar.gz: inst/NEWS README.md
-	R CMD build --no-build-vignettes --no-manual . 
+build: 
+	R CMD build . 
 
 install: 
 	$(MAKE) clean && \
 		R CMD build . && \
 		R CMD INSTALL $(PKGNAME)_$(VERSION).tar.gz
 
-
-inst/NEWS: NEWS.md
-	Rscript -e "rmarkdown::pandoc_convert('NEWS.md', 'plain', output='inst/NEWS')"&& \
-	head -n 80 inst/NEWS
-
-README.md: README.Rmd
-	Rscript -e 'rmarkdown::render("README.Rmd")'
+README.md: README.qmd
+	quarto render README.qmd
 
 .PHONY: checfull checkv clean
 
@@ -33,9 +28,12 @@ clean:
 	rm -rf $(PKGNAME).Rcheck $(PKGNAME)_$(VERSION).tar.gz ; \
 		Rscript --vanilla -e 'devtools::clean_dll()'
 
-.PHONY: man docker
 man: R/* 
-	Rscript --vanilla -e 'roxygen2::roxygenize()'
+	Rscript --vanilla -e 'devtools::document()'
+
+docs: man
 
 docker:
 	docker run -v$(pwd):/pkg/ -w/pkg --rm -i uscbiostats/fmcmc:latest make check
+
+.PHONY: man docker docs

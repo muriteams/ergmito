@@ -1,5 +1,5 @@
 Package: ergmito
-Version: 0.3-1
+Version: 0.3-2
 Title: Exponential Random Graph Models for Small Networks
 Description: Simulation and estimation of Exponential Random Graph Models (ERGMs)
   for small networks using exact statistics as shown in Vega Yon et al. (2020)
@@ -22,7 +22,7 @@ Authors@R: c(
       role = "fnd", comment = "Grant Number W911NF-15-1-0577")
       )
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 Encoding: UTF-8
 Imports: ergm, network, MASS, Rcpp, texreg, stats, parallel, utils,
         methods, graphics
@@ -35,4 +35,3 @@ URL: https://muriteams.github.io/ergmito/
 BugReports: https://github.com/muriteams/ergmito/issues
 Language: en-US
 NeedsCompilation: yes
-

@@ -60,7 +60,7 @@ instead of log-likelihoods.}
 lengths of vectors in \code{stats_weights} (see details).}
 }
 \description{
-This function can be compared to \link[ergm:ergm.exact]{ergm::ergm.exact} with the statistics not
+This function can be compared to \link[ergm:ergm.allstats]{ergm::ergm.exact} with the statistics not
 centered at \code{x}, the vector of observed statistics.
 }
 \section{Sufficient statistics}{
