@@ -25,6 +25,11 @@ references:
 nocite: |
   @ergmitoarxiv
 ---
+
+<!-- how-to-cite -->
+> **How to cite.** If you use **ergmito** in published work, please cite it — run
+> `citation("ergmito")` in R for the full entry.
+<!-- how-to-cite -->
 \newcommand{\Graph}{\mathbf{Y}}
 \newcommand{\GRAPH}{\mathcal{Y}}
 \newcommand{\graph}{\mathbf{y}}

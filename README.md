@@ -12,6 +12,16 @@
 [![R-CMD-check](https://github.com/muriteams/ergmito/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/muriteams/ergmito/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
+
+<!-- how-to-cite -->
+> [!NOTE]
+> **How to cite ergmito.** If you use **ergmito** in published work, please cite it:
+>
+> Vega Yon GG, Slaughter A, de la Haye K (2021). Exponential random graph models for little networks. *Social Networks* 64, 225-238. doi:[10.1016/j.socnet.2020.07.005](https://doi.org/10.1016/j.socnet.2020.07.005)
+>
+> Run `citation("ergmito")` in R for the BibTeX entry.
+<!-- how-to-cite -->
+
 This R package (which has been developed on top of the fantastic work
 that the [Statnet](https://github.com/statnet) team has done) implements
 estimation and simulation methods for Exponential Random Graph Models of
