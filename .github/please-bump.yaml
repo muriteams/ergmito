@@ -1,0 +1,17 @@
+version: 1
+groups:
+  ergmito:
+    paths:
+      - R/
+      - src/
+      - inst/
+      - man/
+      - man-roxygen/
+      - data-raw/
+      - configure.ac
+      - DESCRIPTION
+      - NAMESPACE
+      - NEWS.md
+    rules:
+      - preset: r-package
+      - preset: r-news-titled
