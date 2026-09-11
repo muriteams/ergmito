@@ -1,0 +1,61 @@
+cff-version: 1.2.0
+message: 'To cite package "ergmito" in publications use:'
+type: software
+license: MIT
+title: 'ergmito: Exponential Random Graph Models for Small Networks'
+version: 0.3-2
+doi: 10.32614/CRAN.package.ergmito
+abstract: Simulation and estimation of Exponential Random Graph Models (ERGMs) for
+  small networks using exact statistics as shown in Vega Yon et al. (2020) <DOI:10.1016/j.socnet.2020.07.005>.
+  As a difference from the 'ergm' package, 'ergmito' circumvents using Markov-Chain
+  Maximum Likelihood Estimator (MC-MLE) and instead uses Maximum Likelihood Estimator
+  (MLE) to fit ERGMs for small networks. As exhaustive enumeration is computationally
+  feasible for small networks, this R package takes advantage of this and provides
+  tools for calculating likelihood functions, and other relevant functions, directly,
+  meaning that in many cases both estimation and simulation of ERGMs for small networks
+  can be faster and more accurate than simulation-based algorithms.
+authors:
+- family-names: Vega Yon
+  given-names: George
+  email: g.vegayon@gmail.com
+  orcid: https://orcid.org/0000-0002-3171-0844
+preferred-citation:
+  type: article
+  title: Exponential random graph models for little networks
+  authors:
+  - family-names: Vega Yon
+    given-names: George
+    orcid: https://orcid.org/0000-0002-3171-0844
+    email: g.vegayon@gmail.com
+  - family-names: Slaughter
+    given-names: Andrew
+  - family-names: Haye
+    given-names: Kayla
+    name-particle: de la
+    orcid: https://orcid.org/0000-0002-2536-7701
+  journal: Social Networks
+  year: '2021'
+  volume: '64'
+  issn: 0378-8733
+  doi: 10.1016/j.socnet.2020.07.005
+  url: https://doi.org/10.1016/j.socnet.2020.07.005
+  start: 225-238
+repository: https://CRAN.R-project.org/package=ergmito
+repository-code: https://github.com/muriteams/ergmito
+url: https://muriteams.github.io/ergmito/
+contact:
+- family-names: Vega Yon
+  given-names: George
+  email: g.vegayon@gmail.com
+  orcid: https://orcid.org/0000-0002-3171-0844
+references:
+- type: manual
+  title: 'ergmito: Exponential Random Graph Models for Small Networks'
+  authors:
+  - family-names: Vega Yon
+    given-names: George
+    orcid: https://orcid.org/0000-0002-3171-0844
+  year: '2026'
+  notes: R package version 0.3-2
+  url: https://github.com/muriteams/ergmito
+  doi: 10.32614/CRAN.package.ergmito

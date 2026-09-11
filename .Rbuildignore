@@ -31,3 +31,4 @@ _cache
 .*\.log
 ^config\.status$
 ^src/Makevars$
+^CITATION\.cff$
